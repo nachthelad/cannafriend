@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { useTranslation } from "@/hooks/use-translation"
 import { auth, db } from "@/lib/firebase"
 import { collection, query, getDocs } from "firebase/firestore"
@@ -21,23 +21,14 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [plants, setPlants] = useState<Plant[]>([])
   const [userId, setUserId] = useState<string | null>(null)
-  const [isClient, setIsClient] = useState(false)
-
-  // Ensure we're on the client side
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
 
   useEffect(() => {
-    if (!isClient) return
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid)
       } else {
         // Check if we're in demo mode (no auth required)
-        const isDemoMode =
-          typeof window !== "undefined" && (window.location.search.includes("demo=true") || !auth.currentUser)
+        const isDemoMode = window.location.search.includes("demo=true") || !auth.currentUser
         if (isDemoMode) {
           // Use a demo user ID for testing
           setUserId("demo-user-123")
@@ -48,44 +39,13 @@ export default function DashboardPage() {
     })
 
     return () => unsubscribe()
-  }, [router, isClient])
+  }, [router])
 
   useEffect(() => {
     const fetchPlants = async () => {
-      if (!userId || !isClient) return
+      if (!userId) return
 
       try {
-        // In demo mode, return mock data
-        if (userId === "demo-user-123") {
-          const mockPlants: Plant[] = [
-            {
-              id: "demo-plant-1",
-              name: "Blue Dream",
-              strain: "Blue Dream",
-              seedType: "feminized",
-              growType: "indoor",
-              plantingDate: new Date("2025-01-15").toISOString(),
-              stage: "vegetative",
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            {
-              id: "demo-plant-2",
-              name: "Northern Lights",
-              strain: "Northern Lights",
-              seedType: "autoflower",
-              growType: "outdoor",
-              plantingDate: new Date("2025-01-20").toISOString(),
-              stage: "flowering",
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          ]
-          setPlants(mockPlants)
-          setIsLoading(false)
-          return
-        }
-
         const plantsRef = collection(db, "users", userId, "plants")
         const q = query(plantsRef)
         const querySnapshot = await getDocs(q)
@@ -107,15 +67,10 @@ export default function DashboardPage() {
       }
     }
 
-    if (userId && isClient) {
+    if (userId) {
       fetchPlants()
     }
-  }, [userId, toast, t, isClient])
-
-  // Don't render anything until we're on the client
-  if (!isClient) {
-    return null
-  }
+  }, [userId, toast, t])
 
   return (
     <Layout>
