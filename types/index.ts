@@ -5,86 +5,39 @@ export interface Plant {
   seedType: "autoflower" | "feminized" | "regular"
   growType: "indoor" | "outdoor"
   plantingDate: string
-  stage: "seedling" | "vegetative" | "flowering" | "harvest"
-  createdAt: string
-  updatedAt: string
-  notes?: string
   lightSchedule?: string
-  expectedHarvest?: string
+  createdAt: string
 }
 
 export interface LogEntry {
   id: string
-  plantId: string
-  type: "watering" | "fertilization" | "training" | "environment" | "observation"
+  type: "watering" | "feeding" | "training" | "environment" | "note"
   date: string
   notes?: string
+  createdAt: string
 
   // Watering specific
-  waterAmount?: number
-  waterMethod?: "top" | "bottom" | "spray"
-
-  // Fertilization specific
-  fertilizerType?: string
-  npkRatio?: string
   amount?: number
-  isOrganic?: boolean
+  method?: string
+
+  // Feeding specific
+  npk?: string
 
   // Training specific
-  trainingType?: "topping" | "lst" | "defoliation" | "scrog" | "sog"
+  trainingMethod?: string
 
   // Environment specific
   temperature?: number
   humidity?: number
   ph?: number
-  lightIntensity?: number
-
-  createdAt: string
-  updatedAt: string
+  light?: number
 }
 
 export interface EnvironmentData {
   id: string
-  plantId: string
   date: string
   temperature: number
   humidity: number
   ph: number
-  lightIntensity?: number
   createdAt: string
-}
-
-export interface Photo {
-  id: string
-  plantId: string
-  url: string
-  filename: string
-  uploadDate: string
-  description?: string
-  pestAnalysis?: {
-    detected: boolean
-    confidence: number
-    issues: string[]
-    recommendations: string[]
-  }
-}
-
-export interface UserProfile {
-  id: string
-  email: string
-  displayName?: string
-  timezone: string
-  language: "es" | "en"
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Strain {
-  id: string
-  name: string
-  type: "indica" | "sativa" | "hybrid"
-  thc: number
-  cbd: number
-  floweringTime: number
-  description: string
 }
