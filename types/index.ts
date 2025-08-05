@@ -5,39 +5,86 @@ export interface Plant {
   seedType: "autoflower" | "feminized" | "regular"
   growType: "indoor" | "outdoor"
   plantingDate: string
-  lightSchedule?: string
+  stage: "seedling" | "vegetative" | "flowering" | "harvest"
   createdAt: string
+  updatedAt: string
+  notes?: string
+  lightSchedule?: string
+  expectedHarvest?: string
 }
 
 export interface LogEntry {
   id: string
-  type: "watering" | "feeding" | "training" | "environment" | "note"
+  plantId: string
+  type: "watering" | "fertilization" | "training" | "environment" | "observation"
   date: string
   notes?: string
-  createdAt: string
 
   // Watering specific
-  amount?: number
-  method?: string
+  waterAmount?: number
+  waterMethod?: "top" | "bottom" | "spray"
 
-  // Feeding specific
-  npk?: string
+  // Fertilization specific
+  fertilizerType?: string
+  npkRatio?: string
+  amount?: number
+  isOrganic?: boolean
 
   // Training specific
-  trainingMethod?: string
+  trainingType?: "topping" | "lst" | "defoliation" | "scrog" | "sog"
 
   // Environment specific
   temperature?: number
   humidity?: number
   ph?: number
-  light?: number
+  lightIntensity?: number
+
+  createdAt: string
+  updatedAt: string
 }
 
 export interface EnvironmentData {
   id: string
+  plantId: string
   date: string
   temperature: number
   humidity: number
   ph: number
+  lightIntensity?: number
   createdAt: string
+}
+
+export interface Photo {
+  id: string
+  plantId: string
+  url: string
+  filename: string
+  uploadDate: string
+  description?: string
+  pestAnalysis?: {
+    detected: boolean
+    confidence: number
+    issues: string[]
+    recommendations: string[]
+  }
+}
+
+export interface UserProfile {
+  id: string
+  email: string
+  displayName?: string
+  timezone: string
+  language: "es" | "en"
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Strain {
+  id: string
+  name: string
+  type: "indica" | "sativa" | "hybrid"
+  thc: number
+  cbd: number
+  floweringTime: number
+  description: string
 }
