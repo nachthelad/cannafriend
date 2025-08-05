@@ -5,39 +5,58 @@ export interface Plant {
   seedType: "autoflower" | "feminized" | "regular"
   growType: "indoor" | "outdoor"
   plantingDate: string
+  stage: "seedling" | "vegetative" | "flowering" | "harvest"
   lightSchedule?: string
   createdAt: string
+  updatedAt: string
 }
 
 export interface LogEntry {
   id: string
-  type: "watering" | "feeding" | "training" | "environment" | "note"
+  plantId: string
+  type: "watering" | "fertilization" | "training" | "environment"
   date: string
   notes?: string
-  createdAt: string
 
   // Watering specific
-  amount?: number
-  method?: string
+  waterAmount?: number
+  waterMethod?: string
 
-  // Feeding specific
-  npk?: string
+  // Fertilization specific
+  npkRatio?: string
+  fertilizerAmount?: number
+  fertilizerType?: "organic" | "synthetic"
 
   // Training specific
-  trainingMethod?: string
+  trainingType?: string
 
   // Environment specific
   temperature?: number
   humidity?: number
   ph?: number
-  light?: number
+  lightIntensity?: number
+
+  createdAt: string
 }
 
-export interface EnvironmentData {
+export interface User {
   id: string
-  date: string
-  temperature: number
-  humidity: number
-  ph: number
+  email: string
+  timezone: string
+  language: "es" | "en"
+  createdAt: string
+}
+
+export interface Photo {
+  id: string
+  plantId: string
+  url: string
+  caption?: string
+  pestAnalysis?: {
+    detected: boolean
+    confidence: number
+    pests: string[]
+    recommendations: string[]
+  }
   createdAt: string
 }

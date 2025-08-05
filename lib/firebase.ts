@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, isSupported } from "firebase/analytics"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -12,12 +12,11 @@ const firebaseConfig = {
   storageBucket: "cannafriend-7899f.firebasestorage.app",
   messagingSenderId: "670182976",
   appId: "1:670182976:web:fda8c96ad5a8e9a4d9f9a5",
-  measurementId: "G-6KKBWF76CX"
-};
+  measurementId: "G-6KKBWF76CX",
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
-const analytics = getAnalytics(app);
 
 // Initialize Firebase services
 export const auth = getAuth(app)
@@ -29,3 +28,15 @@ export const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({
   prompt: "select_account",
 })
+
+// Initialize Analytics only on client side and when supported
+let analytics: any = null
+if (typeof window !== "undefined") {
+  isSupported().then((supported) => {
+    if (supported) {
+      analytics = getAnalytics(app)
+    }
+  })
+}
+
+export { analytics }
