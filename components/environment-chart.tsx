@@ -1,0 +1,97 @@
+"use client"
+
+import { useState } from "react"
+import { useTranslation } from "@/hooks/use-translation"
+import type { EnvironmentData } from "@/types"
+import { format, parseISO } from "date-fns"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+interface EnvironmentChartProps {
+  data: EnvironmentData[]
+}
+
+export function EnvironmentChart({ data }: EnvironmentChartProps) {
+  const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState("temperature")
+
+  if (data.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <p>{t("environment.noData")}</p>
+        <p className="text-sm">{t("environment.noDataDesc")}</p>
+      </div>
+    )
+  }
+
+  // Format data for charts
+  const chartData = data.map((item) => ({
+    date: format(parseISO(item.date), "MM/dd"),
+    temperature: item.temperature,
+    humidity: item.humidity,
+    ph: item.ph,
+  }))
+
+  return (
+    <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-3">
+          <TabsTrigger value="temperature">{t("environment.temperature")}</TabsTrigger>
+          <TabsTrigger value="humidity">{t("environment.humidity")}</TabsTrigger>
+          <TabsTrigger value="ph">{t("environment.ph")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="temperature" className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="temperature"
+                stroke="#ef4444"
+                name={t("environment.temperature")}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </TabsContent>
+
+        <TabsContent value="humidity" className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="humidity"
+                stroke="#3b82f6"
+                name={t("environment.humidity")}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </TabsContent>
+
+        <TabsContent value="ph" className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="ph" stroke="#8b5cf6" name={t("environment.ph")} activeDot={{ r: 8 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
