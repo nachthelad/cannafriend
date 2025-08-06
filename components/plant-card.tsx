@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -40,10 +41,28 @@ export function PlantCard({
       className="overflow-hidden cursor-pointer transition-all hover:shadow-md"
       onClick={handleClick}
     >
-      <div className="h-32 bg-gradient-to-r from-green-400 to-emerald-500 relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Leaf className="h-16 w-16 text-white opacity-50" />
-        </div>
+      <div className="h-32 relative">
+        {plant.coverPhoto ? (
+          <Image
+            src={plant.coverPhoto}
+            alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
+            fill
+            className="object-cover"
+          />
+        ) : plant.photos && plant.photos.length > 0 ? (
+          <Image
+            src={plant.photos[0]}
+            alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Leaf className="h-16 w-16 text-white opacity-50" />
+            </div>
+          </div>
+        )}
       </div>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">

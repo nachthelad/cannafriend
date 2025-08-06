@@ -15,7 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { auth, db, storage } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import {
   doc,
   getDoc,
@@ -26,7 +26,6 @@ import {
   where,
   limit,
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant-details";
@@ -52,12 +51,12 @@ export default function PlantPage({
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [environmentData, setEnvironmentData] = useState<EnvironmentData[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [lastWatering, setLastWatering] = useState<LogEntry | null>(null);
   const [lastFeeding, setLastFeeding] = useState<LogEntry | null>(null);
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
   const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -143,25 +142,10 @@ export default function PlantPage({
         });
         setEnvironmentData(envData);
 
-        // Fetch photos
-        const photosRef = collection(
-          db,
-          "users",
-          userId,
-          "plants",
-          id,
-          "photos"
-        );
-        const photosSnap = await getDocs(photosRef);
-
-        const photoUrls: string[] = [];
-        photosSnap.forEach((doc) => {
-          const data = doc.data();
-          if (data.url) {
-            photoUrls.push(data.url);
-          }
-        });
-        setPhotos(photoUrls);
+        // Fetch photos from plant document
+        const plantData = plantSnap.data();
+        setPhotos(plantData.photos || []);
+        setCoverPhoto(plantData.coverPhoto || "");
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -177,47 +161,6 @@ export default function PlantPage({
       fetchPlantData();
     }
   }, [userId, id, toast, t, router]);
-
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0] || !userId || !plant) return;
-
-    setUploadingPhoto(true);
-
-    try {
-      const file = e.target.files[0];
-      const storageRef = ref(
-        storage,
-        `users/${userId}/plants/${id}/photos/${Date.now()}_${file.name}`
-      );
-
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-
-      // Save photo reference to Firestore
-      const photoRef = collection(db, "users", userId, "plants", id, "photos");
-      await addDoc(photoRef, {
-        url: downloadURL,
-        createdAt: new Date().toISOString(),
-        analyzed: false,
-      });
-
-      // Update local state
-      setPhotos([...photos, downloadURL]);
-
-      toast({
-        title: t("plantPage.photoSuccess"),
-        description: t("plantPage.photoSuccessDesc"),
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("plantPage.photoError"),
-        description: error.message,
-      });
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -340,33 +283,13 @@ export default function PlantPage({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="mb-4">
-                <div className="flex items-center gap-4">
-                  <Button asChild disabled={uploadingPhoto}>
-                    <label className="cursor-pointer">
-                      {uploadingPhoto ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {t("plantPage.uploading")}
-                        </>
-                      ) : (
-                        <>
-                          <ImageIcon className="mr-2 h-4 w-4" />
-                          {t("plantPage.uploadPhoto")}
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handlePhotoUpload}
-                        disabled={uploadingPhoto}
-                      />
-                    </label>
-                  </Button>
-                </div>
-              </div>
-              <PhotoGallery photos={photos} plantId={id} />
+              <PhotoGallery
+                photos={photos}
+                plantId={id}
+                onPhotosUpdate={setPhotos}
+                coverPhoto={coverPhoto}
+                onCoverPhotoUpdate={setCoverPhoto}
+              />
             </CardContent>
           </Card>
         </TabsContent>

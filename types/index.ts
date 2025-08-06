@@ -5,6 +5,8 @@ export interface Plant {
   growType: "indoor" | "outdoor";
   plantingDate: string;
   lightSchedule?: string;
+  photos?: string[]; // URLs de las fotos de la planta
+  coverPhoto?: string; // URL de la foto de portada para la plant card
   createdAt: string;
 }
 
