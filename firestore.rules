@@ -27,25 +27,6 @@ service cloud.firestore {
       }
     }
     
-    // Demo mode - allow access for demo user
-    match /users/demo-user-123 {
-      allow read, write: if true;
-      
-      match /plants/{plantId} {
-        allow read, write: if true;
-        
-        match /logs/{logId} {
-          allow read, write: if true;
-        }
-        
-        match /environment/{envId} {
-          allow read, write: if true;
-        }
-      }
-      
-      match /reminders/{reminderId} {
-        allow read, write: if true;
-      }
-    }
+
   }
 } 

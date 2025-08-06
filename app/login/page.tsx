@@ -77,11 +77,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoMode = () => {
-    // Skip authentication for demo purposes
-    router.push("/dashboard");
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-4">
       <Card className="w-full max-w-md">
@@ -205,16 +200,6 @@ export default function LoginPage() {
               />
             </svg>
             {t("login.google")}
-          </Button>
-
-          {/* Demo Mode Button - Remove in production */}
-          <Button
-            variant="secondary"
-            className="w-full mt-2"
-            onClick={() => router.push("/dashboard")}
-            disabled={isLoading}
-          >
-            🚀 {t("login.demoMode")}
           </Button>
         </CardContent>
         <CardFooter className="flex justify-center">

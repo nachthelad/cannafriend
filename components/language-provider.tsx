@@ -45,7 +45,6 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.google": "Continuar con Google",
         "login.terms":
           "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad",
-        "login.demoMode": "Modo Demo (Solo Prueba)",
 
         "signup.title": "Registrarse",
         "signup.email": "Correo Electrónico",
@@ -357,7 +356,6 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.google": "Continue with Google",
         "login.terms":
           "By continuing, you agree to our Terms of Service and Privacy Policy",
-        "login.demoMode": "Demo Mode (Test Only)",
 
         "signup.title": "Sign Up",
         "signup.email": "Email",

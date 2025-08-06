@@ -96,12 +96,7 @@ export function AddLogForm({
     const userId = auth.currentUser?.uid;
     const currentPlantId = showPlantSelector ? selectedPlantId : plantId;
 
-    if (
-      (!auth.currentUser && userId !== "demo-user-123") ||
-      !date ||
-      !currentPlantId
-    )
-      return;
+    if (!auth.currentUser || !date || !currentPlantId) return;
 
     setIsLoading(true);
 
@@ -112,29 +107,6 @@ export function AddLogForm({
         notes,
         createdAt: new Date().toISOString(),
       };
-
-      // For demo mode, simulate saving without actually writing to Firestore
-      if (userId === "demo-user-123") {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        toast({
-          title: t("logForm.success"),
-          description: "Demo: " + t("logForm.successDesc"),
-        });
-
-        // Call success callback with mock data
-        if (onSuccess) {
-          onSuccess({
-            id: "demo-" + Date.now(),
-            ...logData,
-            plantId: currentPlantId,
-          });
-        }
-
-        resetForm();
-        return;
-      }
 
       // Add type-specific fields
       switch (logType) {

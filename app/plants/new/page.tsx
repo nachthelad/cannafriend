@@ -62,16 +62,7 @@ export default function NewPlantPage() {
       if (user) {
         setUserId(user.uid);
       } else {
-        // Check if we're in demo mode
-        const isDemoMode =
-          (typeof window !== "undefined" &&
-            window.location.search.includes("demo=true")) ||
-          !auth.currentUser;
-        if (isDemoMode) {
-          setUserId("demo-user-123");
-        } else {
-          router.push("/login");
-        }
+        router.push("/login");
       }
     });
 
