@@ -49,9 +49,20 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "signup.title": "Registrarse",
         "signup.email": "Correo Electrónico",
         "signup.password": "Contraseña",
+        "signup.confirmPassword": "Confirmar Contraseña",
         "signup.submit": "Registrarse",
         "signup.loading": "Registrando...",
         "signup.error": "Error al registrarse",
+        "signup.passwordTooShort":
+          "La contraseña debe tener al menos 6 caracteres",
+        "signup.passwordsDoNotMatch": "Las contraseñas no coinciden",
+        "signup.passwordRequirements":
+          "La contraseña debe tener al menos 6 caracteres",
+        "signup.recaptchaRequired": "Por favor completa el reCAPTCHA",
+        "signup.recaptchaExpired":
+          "El reCAPTCHA ha expirado, por favor complétalo nuevamente",
+        "signup.recaptchaError":
+          "Error en el reCAPTCHA, por favor inténtalo nuevamente",
 
         // Onboarding
         "onboarding.title": "Bienvenido",
@@ -133,6 +144,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "plantPage.noFeedingRecords": "No hay registros de alimentación",
         "plantPage.lastTraining": "Último entrenamiento",
         "plantPage.noTrainingRecords": "No hay registros de entrenamiento",
+        "plantPage.floweringAge": "Edad de floración",
         "plantPage.noPhotos": "No hay fotos",
         "plantPage.noPhotosDesc": "Agrega fotos a tu planta",
 
@@ -206,6 +218,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logType.feeding": "Fertilización",
         "logType.training": "Entrenamiento",
         "logType.environment": "Ambiente",
+        "logType.flowering": "Paso a floración",
         "logType.note": "Nota",
 
         // Log Form
@@ -360,9 +373,17 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "signup.title": "Sign Up",
         "signup.email": "Email",
         "signup.password": "Password",
+        "signup.confirmPassword": "Confirm Password",
         "signup.submit": "Sign Up",
         "signup.loading": "Signing up...",
         "signup.error": "Sign up error",
+        "signup.passwordTooShort": "Password must be at least 6 characters",
+        "signup.passwordsDoNotMatch": "Passwords do not match",
+        "signup.passwordRequirements": "Password must be at least 6 characters",
+        "signup.recaptchaRequired": "Please complete the reCAPTCHA",
+        "signup.recaptchaExpired":
+          "The reCAPTCHA has expired, please complete it again",
+        "signup.recaptchaError": "reCAPTCHA error, please try again",
 
         // Onboarding
         "onboarding.title": "Welcome",
@@ -444,6 +465,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "plantPage.noFeedingRecords": "No feeding records",
         "plantPage.lastTraining": "Last training",
         "plantPage.noTrainingRecords": "No training records",
+        "plantPage.floweringAge": "Flowering age",
         "plantPage.noPhotos": "No photos",
         "plantPage.noPhotosDesc": "Add photos to your plant",
 
@@ -515,6 +537,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logType.feeding": "Feeding",
         "logType.training": "Training",
         "logType.environment": "Environment",
+        "logType.flowering": "Switch to flowering",
         "logType.note": "Note",
 
         // Log Form

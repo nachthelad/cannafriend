@@ -22,8 +22,8 @@ import { validateLogEntry } from "@/lib/validation";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { Loader2, Calendar } from "lucide-react";
-import { format } from "date-fns";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { formatDateObjectWithLocale } from "@/lib/utils";
+import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -45,7 +45,7 @@ export function AddLogForm({
   showPlantSelector = false,
   plants = [],
 }: AddLogFormProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
@@ -228,6 +228,7 @@ export function AddLogForm({
             <SelectItem value="environment">
               {t("logType.environment")}
             </SelectItem>
+            <SelectItem value="flowering">{t("logType.flowering")}</SelectItem>
             <SelectItem value="note">{t("logType.note")}</SelectItem>
           </SelectContent>
         </Select>
@@ -246,7 +247,7 @@ export function AddLogForm({
             >
               <Calendar className="mr-2 h-4 w-4" />
               {date ? (
-                format(date, "PPP")
+                formatDateObjectWithLocale(date, "PPP", language)
               ) : (
                 <span>{t("newPlant.pickDate")}</span>
               )}

@@ -55,6 +55,7 @@ export default function PlantPage({
   const [lastWatering, setLastWatering] = useState<LogEntry | null>(null);
   const [lastFeeding, setLastFeeding] = useState<LogEntry | null>(null);
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
+  const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
@@ -106,6 +107,9 @@ export default function PlantPage({
         const wateringLogs = logsData.filter((log) => log.type === "watering");
         const feedingLogs = logsData.filter((log) => log.type === "feeding");
         const trainingLogs = logsData.filter((log) => log.type === "training");
+        const floweringLogs = logsData.filter(
+          (log) => log.type === "flowering"
+        );
 
         // Set the latest logs
         if (wateringLogs.length > 0) {
@@ -116,6 +120,9 @@ export default function PlantPage({
         }
         if (trainingLogs.length > 0) {
           setLastTraining(trainingLogs[0]);
+        }
+        if (floweringLogs.length > 0) {
+          setLastFlowering(floweringLogs[0]);
         }
 
         // Fetch environment data
@@ -277,6 +284,7 @@ export default function PlantPage({
             lastWatering={lastWatering || undefined}
             lastFeeding={lastFeeding || undefined}
             lastTraining={lastTraining || undefined}
+            lastFlowering={lastFlowering || undefined}
           />
         </TabsContent>
 

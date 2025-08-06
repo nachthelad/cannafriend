@@ -1,19 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useTranslation } from "@/hooks/use-translation"
-import type { EnvironmentData } from "@/types"
-import { format, parseISO } from "date-fns"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react";
+import { useTranslation } from "@/hooks/use-translation";
+import type { EnvironmentData } from "@/types";
+import { formatDateWithLocale } from "@/lib/utils";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface EnvironmentChartProps {
-  data: EnvironmentData[]
+  data: EnvironmentData[];
 }
 
 export function EnvironmentChart({ data }: EnvironmentChartProps) {
-  const { t } = useTranslation()
-  const [activeTab, setActiveTab] = useState("temperature")
+  const { t, language } = useTranslation();
+  const [activeTab, setActiveTab] = useState("temperature");
 
   if (data.length === 0) {
     return (
@@ -21,23 +30,27 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
         <p>{t("environment.noData")}</p>
         <p className="text-sm">{t("environment.noDataDesc")}</p>
       </div>
-    )
+    );
   }
 
   // Format data for charts
   const chartData = data.map((item) => ({
-    date: format(parseISO(item.date), "MM/dd"),
+    date: formatDateWithLocale(item.date, "MM/dd", language),
     temperature: item.temperature,
     humidity: item.humidity,
     ph: item.ph,
-  }))
+  }));
 
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="temperature">{t("environment.temperature")}</TabsTrigger>
-          <TabsTrigger value="humidity">{t("environment.humidity")}</TabsTrigger>
+          <TabsTrigger value="temperature">
+            {t("environment.temperature")}
+          </TabsTrigger>
+          <TabsTrigger value="humidity">
+            {t("environment.humidity")}
+          </TabsTrigger>
           <TabsTrigger value="ph">{t("environment.ph")}</TabsTrigger>
         </TabsList>
 
@@ -87,11 +100,17 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="ph" stroke="#8b5cf6" name={t("environment.ph")} activeDot={{ r: 8 }} />
+              <Line
+                type="monotone"
+                dataKey="ph"
+                stroke="#8b5cf6"
+                name={t("environment.ph")}
+                activeDot={{ r: 8 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

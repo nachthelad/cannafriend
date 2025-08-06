@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
+import { useTheme } from "next-themes";
 import { auth, db } from "@/lib/firebase";
 import {
   doc,
@@ -49,6 +50,7 @@ import {
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -84,10 +86,19 @@ export default function SettingsPage() {
 
         if (userSnap.exists()) {
           const userData = userSnap.data();
+          const darkMode = userData.darkMode || false;
+
           setUserSettings({
             timezone: userData.timezone || "",
-            darkMode: userData.darkMode || false,
+            darkMode: darkMode,
           });
+
+          // Sync with theme context
+          if (darkMode && theme !== "dark") {
+            setTheme("dark");
+          } else if (!darkMode && theme !== "light") {
+            setTheme("light");
+          }
         }
       } catch (error: any) {
         toast({
@@ -103,7 +114,7 @@ export default function SettingsPage() {
     if (userId) {
       fetchUserSettings();
     }
-  }, [userId, toast, t]);
+  }, [userId, toast, t, theme, setTheme]);
 
   const handleTimezoneChange = async (value: string) => {
     if (!userId) return;
@@ -145,6 +156,9 @@ export default function SettingsPage() {
         ...userSettings,
         darkMode: checked,
       });
+
+      // Update theme context immediately
+      setTheme(checked ? "dark" : "light");
 
       toast({
         title: t("settings.darkModeUpdated"),

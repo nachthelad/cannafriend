@@ -19,13 +19,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { auth, googleProvider } from "@/lib/firebase";
+import { auth, googleProvider, db } from "@/lib/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { Loader2 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReCAPTCHA from "react-google-recaptcha";
+import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -35,14 +39,84 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [recaptchaError, setRecaptchaError] = useState("");
+
+  const handleRecaptchaChange = (token: string | null) => {
+    setRecaptchaToken(token || "");
+    setRecaptchaError("");
+  };
+
+  const handleRecaptchaExpired = () => {
+    setRecaptchaToken("");
+    setRecaptchaError(t("signup.recaptchaExpired"));
+  };
+
+  const handleRecaptchaError = () => {
+    setRecaptchaToken("");
+    setRecaptchaError(t("signup.recaptchaError"));
+  };
+
+  const validatePassword = (password: string, confirmPassword: string) => {
+    if (password.length < 6) {
+      return t("signup.passwordTooShort");
+    }
+    if (password !== confirmPassword) {
+      return t("signup.passwordsDoNotMatch");
+    }
+    return "";
+  };
+
+  // Real-time password validation
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+
+    if (confirmPassword && newPassword !== confirmPassword) {
+      setPasswordError(t("signup.passwordsDoNotMatch"));
+    } else if (newPassword.length > 0 && newPassword.length < 6) {
+      setPasswordError(t("signup.passwordTooShort"));
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newConfirmPassword = e.target.value;
+    setConfirmPassword(newConfirmPassword);
+
+    if (password && newConfirmPassword !== password) {
+      setPasswordError(t("signup.passwordsDoNotMatch"));
+    } else {
+      setPasswordError("");
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      // Check if user is new by looking for their user document
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // New user - redirect to onboarding
+        router.push("/onboarding");
+      } else {
+        // Existing user - redirect to dashboard
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       handleFirebaseError(error, "login");
     } finally {
@@ -53,6 +127,25 @@ export default function LoginPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Validate password
+    const passwordError = validatePassword(password, confirmPassword);
+    if (passwordError) {
+      setPasswordError(passwordError);
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate reCAPTCHA only if enabled
+    if (isRecaptchaEnabled() && !recaptchaToken) {
+      toast({
+        variant: "destructive",
+        title: t("signup.error"),
+        description: t("signup.recaptchaRequired"),
+      });
+      setIsLoading(false);
+      return;
+    }
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -68,8 +161,20 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await signInWithPopup(auth, googleProvider);
-      router.push("/dashboard");
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Check if user is new by looking for their user document
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // New user - redirect to onboarding
+        router.push("/onboarding");
+      } else {
+        // Existing user - redirect to dashboard
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       handleFirebaseError(error, "google login");
     } finally {
@@ -78,8 +183,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+      <Card className="w-full max-w-md border-0 shadow-xl dark:shadow-2xl">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
             {t("app.name")}
@@ -90,9 +195,19 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">{t("login.title")}</TabsTrigger>
-              <TabsTrigger value="signup">{t("signup.title")}</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100 dark:bg-slate-800">
+              <TabsTrigger
+                value="login"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700"
+              >
+                {t("login.title")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="signup"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700"
+              >
+                {t("signup.title")}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
@@ -144,14 +259,88 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">{t("signup.password")}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={handlePasswordChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">
+                    {t("signup.confirmPassword")}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={handleConfirmPasswordChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                {passwordError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{passwordError}</AlertDescription>
+                  </Alert>
+                )}
+                <div className="flex items-center space-x-2">
+                  <div className="grow">
+                    <div className="text-xs text-muted-foreground">
+                      {t("signup.passwordRequirements")}
+                    </div>
+                  </div>
+                </div>
+                {isRecaptchaEnabled() && (
+                  <>
+                    <div className="flex justify-center">
+                      <ReCAPTCHA
+                        sitekey={getRecaptchaSiteKey()}
+                        onChange={handleRecaptchaChange}
+                        onExpired={handleRecaptchaExpired}
+                        onError={handleRecaptchaError}
+                        theme="light"
+                      />
+                    </div>
+                    {recaptchaError && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{recaptchaError}</AlertDescription>
+                      </Alert>
+                    )}
+                  </>
+                )}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>

@@ -27,7 +27,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { AddLogForm } from "@/components/add-log-form";
 import { JournalEntries } from "@/components/journal-entries";
-import { Calendar } from "@/components/ui/calendar";
+import { LocalizedCalendar as Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon, Filter, Plus, Loader2 } from "lucide-react";
 import {
   format,
@@ -37,6 +37,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { es, enUS } from "date-fns/locale";
+import { formatDateWithLocale, formatDateObjectWithLocale } from "@/lib/utils";
 import type { Plant, LogEntry } from "@/types";
 
 export default function JournalPage() {
@@ -47,9 +48,7 @@ export default function JournalPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("list");
@@ -103,7 +102,7 @@ export default function JournalPage() {
               ...doc.data(),
               plantId: plant.id,
               plantName: plant.name,
-            } as LogEntry & { plantId: string; plantName: string });
+            } as LogEntry);
           });
         }
 
@@ -168,7 +167,7 @@ export default function JournalPage() {
     const logWithPlant = {
       ...newLog,
       plantName: plant?.name || "Unknown Plant",
-    };
+    } as LogEntry;
     setLogs([logWithPlant, ...logs]);
   };
 
@@ -267,6 +266,9 @@ export default function JournalPage() {
                       </SelectItem>
                       <SelectItem value="environment">
                         {t("logType.environment")}
+                      </SelectItem>
+                      <SelectItem value="flowering">
+                        {t("logType.flowering")}
                       </SelectItem>
                       <SelectItem value="note">{t("logType.note")}</SelectItem>
                     </SelectContent>
@@ -393,6 +395,9 @@ export default function JournalPage() {
                         <SelectItem value="environment">
                           {t("logType.environment")}
                         </SelectItem>
+                        <SelectItem value="flowering">
+                          {t("logType.flowering")}
+                        </SelectItem>
                         <SelectItem value="note">
                           {t("logType.note")}
                         </SelectItem>
@@ -427,9 +432,7 @@ export default function JournalPage() {
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold mb-4">
                     {t("journal.logsFor")}{" "}
-                    {format(selectedDate, "PPP", {
-                      locale: getCalendarLocale(),
-                    })}
+                    {formatDateObjectWithLocale(selectedDate, "PPP", language)}
                   </h3>
                   <JournalEntries
                     logs={getLogsForDate(selectedDate)}

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
-import { format, parseISO, differenceInDays } from "date-fns";
+import { formatDateWithLocale, calculateAgeInDays } from "@/lib/utils";
 import {
   Calendar,
   Leaf,
@@ -13,6 +13,7 @@ import {
   Droplet,
   Zap,
   Scissors,
+  Flower,
 } from "lucide-react";
 import type { LogEntry } from "@/types";
 
@@ -21,6 +22,7 @@ interface PlantDetailsProps {
   lastWatering?: LogEntry;
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
+  lastFlowering?: LogEntry;
 }
 
 export function PlantDetails({
@@ -28,11 +30,16 @@ export function PlantDetails({
   lastWatering,
   lastFeeding,
   lastTraining,
+  lastFlowering,
 }: PlantDetailsProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   const daysSincePlanting = plant.plantingDate
-    ? differenceInDays(new Date(), parseISO(plant.plantingDate))
+    ? calculateAgeInDays(plant.plantingDate)
+    : 0;
+
+  const daysSinceFlowering = lastFlowering?.date
+    ? calculateAgeInDays(lastFlowering.date)
     : 0;
 
   return (
@@ -81,7 +88,7 @@ export function PlantDetails({
               <Calendar className="h-4 w-4 mr-2 text-primary" />
               <span>
                 {plant.plantingDate &&
-                  format(parseISO(plant.plantingDate), "PPP")}
+                  formatDateWithLocale(plant.plantingDate, "PPP", language)}
               </span>
             </div>
           </div>
@@ -109,6 +116,20 @@ export function PlantDetails({
               </span>
             </div>
           </div>
+
+          {lastFlowering && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium">
+                {t("plantPage.floweringAge")}
+              </div>
+              <div className="flex items-center">
+                <Flower className="h-4 w-4 mr-2 text-pink-500" />
+                <span>
+                  {daysSinceFlowering} {t("plantPage.days")}
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <div className="text-sm font-medium">

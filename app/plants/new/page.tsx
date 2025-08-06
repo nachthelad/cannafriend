@@ -31,8 +31,8 @@ import { collection, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { Loader2, Calendar } from "lucide-react";
-import { format } from "date-fns";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { formatDateObjectWithLocale } from "@/lib/utils";
+import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -41,7 +41,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function NewPlantPage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
@@ -81,7 +81,11 @@ export default function NewPlantPage() {
         name,
         seedType,
         growType,
-        plantingDate: plantingDate.toISOString(),
+        plantingDate: new Date(
+          plantingDate.getFullYear(),
+          plantingDate.getMonth(),
+          plantingDate.getDate()
+        ).toISOString(),
         lightSchedule:
           growType === "indoor" && seedType !== "autofloreciente"
             ? lightSchedule
@@ -193,7 +197,11 @@ export default function NewPlantPage() {
                     >
                       <Calendar className="mr-2 h-4 w-4" />
                       {plantingDate ? (
-                        format(plantingDate, "PPP")
+                        formatDateObjectWithLocale(
+                          plantingDate,
+                          "PPP",
+                          language
+                        )
                       ) : (
                         <span>{t("newPlant.pickDate")}</span>
                       )}
