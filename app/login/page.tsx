@@ -1,92 +1,97 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/components/ui/use-toast"
-import { useTranslation } from "@/hooks/use-translation"
-import { auth, googleProvider } from "@/lib/firebase"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "@/hooks/use-translation";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import { auth, googleProvider } from "@/lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      router.push("/dashboard")
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/dashboard");
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("login.error"),
-        description: error.message,
-      })
+      handleFirebaseError(error, "login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
-      router.push("/onboarding")
+      await createUserWithEmailAndPassword(auth, email, password);
+      router.push("/onboarding");
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("signup.error"),
-        description: error.message,
-      })
+      handleFirebaseError(error, "signup");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await signInWithPopup(auth, googleProvider)
-      router.push("/dashboard")
+      await signInWithPopup(auth, googleProvider);
+      router.push("/dashboard");
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("login.error"),
-        description: error.message,
-      })
+      handleFirebaseError(error, "google login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleDemoMode = () => {
     // Skip authentication for demo purposes
-    router.push("/dashboard")
-  }
+    router.push("/dashboard");
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">{t("app.name")}</CardTitle>
-          <CardDescription className="text-center">{t("app.description")}</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">
+            {t("app.name")}
+          </CardTitle>
+          <CardDescription className="text-center">
+            {t("app.description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -170,10 +175,17 @@ export default function LoginPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">{t("login.or")}</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                {t("login.or")}
+              </span>
             </div>
           </div>
-          <Button variant="outline" className="w-full bg-transparent" onClick={handleGoogleLogin} disabled={isLoading}>
+          <Button
+            variant="outline"
+            className="w-full bg-transparent"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+          >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -206,9 +218,11 @@ export default function LoginPage() {
           </Button>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-xs text-center text-muted-foreground">{t("login.terms")}</p>
+          <p className="text-xs text-center text-muted-foreground">
+            {t("login.terms")}
+          </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

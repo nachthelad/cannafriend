@@ -1,20 +1,40 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { useToast } from "@/components/ui/use-toast"
-import { useTranslation } from "@/hooks/use-translation"
-import { auth, db } from "@/lib/firebase"
-import { doc, getDoc, updateDoc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
-import { onAuthStateChanged, deleteUser } from "firebase/auth"
-import { Layout } from "@/components/layout"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { Loader2, Trash2, AlertTriangle } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "@/hooks/use-translation";
+import { auth, db } from "@/lib/firebase";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
+import { onAuthStateChanged, deleteUser } from "firebase/auth";
+import { Layout } from "@/components/layout";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { Loader2, Trash2, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,200 +45,228 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
-  const { t, language, setLanguage } = useTranslation()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
+  const { t, language, setLanguage } = useTranslation();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [userSettings, setUserSettings] = useState<{
-    timezone: string
-    darkMode: boolean
+    timezone: string;
+    darkMode: boolean;
   }>({
     timezone: "",
     darkMode: false,
-  })
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserId(user.uid)
+        setUserId(user.uid);
       } else {
         // Check if we're in demo mode
-        const isDemoMode = window.location.search.includes("demo=true") || !auth.currentUser
+        const isDemoMode =
+          (typeof window !== "undefined" &&
+            window.location.search.includes("demo=true")) ||
+          !auth.currentUser;
         if (isDemoMode) {
-          setUserId("demo-user-123")
+          setUserId("demo-user-123");
         } else {
-          router.push("/login")
+          router.push("/login");
         }
       }
-    })
+    });
 
-    return () => unsubscribe()
-  }, [router])
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const fetchUserSettings = async () => {
-      if (!userId) return
+      if (!userId) return;
 
       try {
-        const userRef = doc(db, "users", userId)
-        const userSnap = await getDoc(userRef)
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
-          const userData = userSnap.data()
+          const userData = userSnap.data();
           setUserSettings({
             timezone: userData.timezone || "",
             darkMode: userData.darkMode || false,
-          })
+          });
         }
       } catch (error: any) {
         toast({
           variant: "destructive",
           title: t("settings.error"),
           description: error.message,
-        })
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (userId) {
-      fetchUserSettings()
+      fetchUserSettings();
     }
-  }, [userId, toast, t])
+  }, [userId, toast, t]);
 
   const handleTimezoneChange = async (value: string) => {
-    if (!userId) return
+    if (!userId) return;
 
     try {
-      const userRef = doc(db, "users", userId)
+      const userRef = doc(db, "users", userId);
       await updateDoc(userRef, {
         timezone: value,
-      })
+      });
 
       setUserSettings({
         ...userSettings,
         timezone: value,
-      })
+      });
 
       toast({
         title: t("settings.timezoneUpdated"),
         description: t("settings.timezoneUpdatedDesc"),
-      })
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("settings.error"),
         description: error.message,
-      })
+      });
     }
-  }
+  };
 
   const handleDarkModeChange = async (checked: boolean) => {
-    if (!userId) return
+    if (!userId) return;
 
     try {
-      const userRef = doc(db, "users", userId)
+      const userRef = doc(db, "users", userId);
       await updateDoc(userRef, {
         darkMode: checked,
-      })
+      });
 
       setUserSettings({
         ...userSettings,
         darkMode: checked,
-      })
+      });
 
       toast({
         title: t("settings.darkModeUpdated"),
-        description: checked ? t("settings.darkModeOn") : t("settings.darkModeOff"),
-      })
+        description: checked
+          ? t("settings.darkModeOn")
+          : t("settings.darkModeOff"),
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("settings.error"),
         description: error.message,
-      })
+      });
     }
-  }
+  };
 
   const handleDeleteAccount = async () => {
-    if (!userId || !auth.currentUser) return
+    if (!userId || !auth.currentUser) return;
 
-    setIsDeletingAccount(true)
+    setIsDeletingAccount(true);
 
     try {
       // Archive user data
-      const userRef = doc(db, "users", userId)
-      const userSnap = await getDoc(userRef)
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
-        const userData = userSnap.data()
+        const userData = userSnap.data();
 
         // Create archive document
         await setDoc(doc(db, "archived_users", userId), {
           ...userData,
           archivedAt: new Date().toISOString(),
-        })
+        });
 
         // Archive plants
-        const plantsRef = collection(db, "users", userId, "plants")
-        const plantsSnap = await getDocs(plantsRef)
+        const plantsRef = collection(db, "users", userId, "plants");
+        const plantsSnap = await getDocs(plantsRef);
 
         for (const plantDoc of plantsSnap.docs) {
-          const plantData = plantDoc.data()
+          const plantData = plantDoc.data();
 
           // Archive plant data
-          await setDoc(doc(db, "archived_users", userId, "plants", plantDoc.id), {
-            ...plantData,
-            archivedAt: new Date().toISOString(),
-          })
+          await setDoc(
+            doc(db, "archived_users", userId, "plants", plantDoc.id),
+            {
+              ...plantData,
+              archivedAt: new Date().toISOString(),
+            }
+          );
 
           // Archive logs
-          const logsRef = collection(db, "users", userId, "plants", plantDoc.id, "logs")
-          const logsSnap = await getDocs(logsRef)
+          const logsRef = collection(
+            db,
+            "users",
+            userId,
+            "plants",
+            plantDoc.id,
+            "logs"
+          );
+          const logsSnap = await getDocs(logsRef);
 
           for (const logDoc of logsSnap.docs) {
-            await setDoc(doc(db, "archived_users", userId, "plants", plantDoc.id, "logs", logDoc.id), {
-              ...logDoc.data(),
-              archivedAt: new Date().toISOString(),
-            })
+            await setDoc(
+              doc(
+                db,
+                "archived_users",
+                userId,
+                "plants",
+                plantDoc.id,
+                "logs",
+                logDoc.id
+              ),
+              {
+                ...logDoc.data(),
+                archivedAt: new Date().toISOString(),
+              }
+            );
           }
 
           // Delete original logs
           for (const logDoc of logsSnap.docs) {
-            await deleteDoc(doc(db, "users", userId, "plants", plantDoc.id, "logs", logDoc.id))
+            await deleteDoc(
+              doc(db, "users", userId, "plants", plantDoc.id, "logs", logDoc.id)
+            );
           }
 
           // Delete original plant
-          await deleteDoc(doc(db, "users", userId, "plants", plantDoc.id))
+          await deleteDoc(doc(db, "users", userId, "plants", plantDoc.id));
         }
 
         // Delete user document
-        await deleteDoc(userRef)
+        await deleteDoc(userRef);
       }
 
       // Delete Firebase Auth user
-      await deleteUser(auth.currentUser)
+      await deleteUser(auth.currentUser);
 
       toast({
         title: t("settings.accountDeleted"),
         description: t("settings.accountDeletedDesc"),
-      })
+      });
 
-      router.push("/login")
+      router.push("/login");
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("settings.deleteError"),
         description: error.message,
-      })
-      setIsDeletingAccount(false)
+      });
+      setIsDeletingAccount(false);
     }
-  }
+  };
 
   const timezones = [
     "America/Argentina/Buenos_Aires",
@@ -231,7 +279,7 @@ export default function SettingsPage() {
     "America/Los_Angeles",
     "Europe/London",
     "Europe/Paris",
-  ]
+  ];
 
   if (isLoading) {
     return (
@@ -240,7 +288,7 @@ export default function SettingsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </Layout>
-    )
+    );
   }
 
   return (
@@ -264,7 +312,10 @@ export default function SettingsPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="timezone">{t("settings.timezone")}</Label>
-                <Select value={userSettings.timezone} onValueChange={handleTimezoneChange}>
+                <Select
+                  value={userSettings.timezone}
+                  onValueChange={handleTimezoneChange}
+                >
                   <SelectTrigger id="timezone" className="w-full max-w-xs">
                     <SelectValue placeholder={t("settings.selectTimezone")} />
                   </SelectTrigger>
@@ -279,7 +330,11 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Switch id="dark-mode" checked={userSettings.darkMode} onCheckedChange={handleDarkModeChange} />
+                <Switch
+                  id="dark-mode"
+                  checked={userSettings.darkMode}
+                  onCheckedChange={handleDarkModeChange}
+                />
                 <Label htmlFor="dark-mode">{t("settings.darkMode")}</Label>
               </div>
             </CardContent>
@@ -296,7 +351,9 @@ export default function SettingsPage() {
             <CardContent>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive">{t("settings.deleteAccount")}</Button>
+                  <Button variant="destructive">
+                    {t("settings.deleteAccount")}
+                  </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -304,10 +361,14 @@ export default function SettingsPage() {
                       <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />
                       {t("settings.confirmDelete")}
                     </AlertDialogTitle>
-                    <AlertDialogDescription>{t("settings.confirmDeleteDesc")}</AlertDialogDescription>
+                    <AlertDialogDescription>
+                      {t("settings.confirmDeleteDesc")}
+                    </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{t("settings.cancel")}</AlertDialogCancel>
+                    <AlertDialogCancel>
+                      {t("settings.cancel")}
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteAccount}
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -330,5 +391,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </Layout>
-  )
+  );
 }
