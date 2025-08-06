@@ -10,7 +10,13 @@ export interface Plant {
 
 export interface LogEntry {
   id: string;
-  type: "watering" | "feeding" | "training" | "environment" | "note";
+  type:
+    | "watering"
+    | "feeding"
+    | "training"
+    | "environment"
+    | "note"
+    | "flowering";
   date: string;
   notes?: string;
   createdAt: string;

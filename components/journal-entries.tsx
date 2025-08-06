@@ -2,8 +2,15 @@
 
 import { useTranslation } from "@/hooks/use-translation";
 import type { LogEntry } from "@/types";
-import { format, parseISO } from "date-fns";
-import { Droplet, Leaf, Scissors, Thermometer, FileText } from "lucide-react";
+import { formatDateWithLocale } from "@/lib/utils";
+import {
+  Droplet,
+  Leaf,
+  Scissors,
+  Thermometer,
+  FileText,
+  Flower,
+} from "lucide-react";
 
 interface JournalEntriesProps {
   logs: LogEntry[];
@@ -14,7 +21,7 @@ export function JournalEntries({
   logs,
   showPlantName = false,
 }: JournalEntriesProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   if (logs.length === 0) {
     return (
@@ -35,6 +42,8 @@ export function JournalEntries({
         return <Scissors className="h-4 w-4 text-amber-500" />;
       case "environment":
         return <Thermometer className="h-4 w-4 text-red-500" />;
+      case "flowering":
+        return <Flower className="h-4 w-4 text-pink-500" />;
       default:
         return <FileText className="h-4 w-4 text-gray-500" />;
     }
@@ -54,6 +63,8 @@ export function JournalEntries({
         return `${t("logType.environment")} - ${log.temperature}°C, ${
           log.humidity
         }%, pH ${log.ph}`;
+      case "flowering":
+        return t("logType.flowering");
       default:
         return t("logType.note");
     }
@@ -68,7 +79,7 @@ export function JournalEntries({
             <span className="font-medium">{getLogTitle(log)}</span>
           </div>
           <div className="text-xs text-muted-foreground mb-1">
-            {log.date && format(parseISO(log.date), "PPP p")}
+            {log.date && formatDateWithLocale(log.date, "PPP p", language)}
             {showPlantName && (log as any).plantName && (
               <span className="ml-2 text-primary">
                 • {(log as any).plantName}

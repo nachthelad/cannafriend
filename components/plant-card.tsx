@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
-import { format, parseISO } from "date-fns";
+import { formatDateWithLocale } from "@/lib/utils";
 import { Leaf, Calendar, Droplet, Zap, Scissors } from "lucide-react";
 import type { LogEntry } from "@/types";
 
@@ -28,7 +28,7 @@ export function PlantCard({
   lastFeeding,
   lastTraining,
 }: PlantCardProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
 
   const handleClick = () => {
@@ -75,7 +75,8 @@ export function PlantCard({
         <div className="space-y-1">
           <div className="flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
-            {plant.plantingDate && format(parseISO(plant.plantingDate), "PPP")}
+            {plant.plantingDate &&
+              formatDateWithLocale(plant.plantingDate, "PPP", language)}
           </div>
           <div className="flex items-center">
             <Droplet className="h-3 w-3 mr-1" />
