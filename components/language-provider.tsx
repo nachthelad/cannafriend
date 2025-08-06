@@ -352,6 +352,58 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "plantCard.noFeedingRecords": "No hay registros de alimentación",
         "plantCard.lastTraining": "Último entrenamiento",
         "plantCard.noTrainingRecords": "No hay registros de entrenamiento",
+
+        // Photos
+        "photos.title": "Fotos",
+        "photos.photo": "foto",
+        "photos.photos": "fotos",
+        "photos.addPhotos": "Agregar Fotos",
+        "photos.uploadPhotos": "Subir Fotos",
+        "photos.noPhotos": "No hay fotos",
+        "photos.noPhotosDesc":
+          "Agrega fotos para documentar el crecimiento de tu planta",
+        "photos.addFirstPhoto": "Agregar Primera Foto",
+        "photos.plantPhoto": "Foto de planta",
+        "photos.uploadSuccess": "¡Fotos subidas!",
+        "photos.photosUpdated": "Las fotos han sido actualizadas correctamente",
+        "photos.uploadError": "Error al subir fotos",
+        "photos.removeSuccess": "Foto eliminada",
+        "photos.photoRemoved": "La foto ha sido eliminada correctamente",
+        "photos.removeError": "Error al eliminar la foto",
+
+        // Cover Photo
+        "photos.setAsCover": "Establecer como portada",
+        "photos.coverPhotoSet": "¡Foto de portada establecida!",
+        "photos.coverPhotoSetDesc":
+          "La foto se mostrará en la tarjeta de la planta",
+        "photos.coverPhotoError": "Error al establecer foto de portada",
+        "plantCard.coverPhoto": "Foto de portada",
+
+        // Image Upload
+        "imageUpload.dragDrop": "Arrastra y suelta imágenes aquí",
+        "imageUpload.orClick": "o haz clic para seleccionar",
+        "imageUpload.selectImages": "Seleccionar Imágenes",
+        "imageUpload.uploading": "Subiendo...",
+        "imageUpload.allowedTypes": "Tipos permitidos:",
+        "imageUpload.maxSize": "Tamaño máximo:",
+        "imageUpload.maxImages": "Máximo de imágenes:",
+        "imageUpload.preview": "Vista previa",
+        "imageUpload.image": "imagen",
+        "imageUpload.invalidType":
+          "Tipo de archivo no válido. Tipos permitidos:",
+        "imageUpload.tooLarge": "Archivo demasiado grande. Máximo:",
+        "imageUpload.tooManyImages": "Demasiadas imágenes",
+        "imageUpload.maxImagesReached":
+          "Has alcanzado el límite máximo de imágenes",
+        "imageUpload.validationErrors": "Errores de validación",
+        "imageUpload.uploadError": "Error al subir",
+        "imageUpload.uploadFailed": "Error al subir la imagen",
+        "imageUpload.uploadSuccess": "¡Imágenes subidas!",
+        "imageUpload.imagesUploaded": "imágenes subidas correctamente",
+
+        // Gallery
+        "gallery.image": "Imagen",
+        "gallery.thumbnail": "Miniatura",
       };
 
       const enTranslations = {
@@ -671,6 +723,56 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "plantCard.noFeedingRecords": "No feeding records",
         "plantCard.lastTraining": "Last training",
         "plantCard.noTrainingRecords": "No training records",
+
+        // Photos
+        "photos.title": "Photos",
+        "photos.photo": "photo",
+        "photos.photos": "photos",
+        "photos.addPhotos": "Add Photos",
+        "photos.uploadPhotos": "Upload Photos",
+        "photos.noPhotos": "No photos",
+        "photos.noPhotosDesc": "Add photos to document your plant's growth",
+        "photos.addFirstPhoto": "Add First Photo",
+        "photos.plantPhoto": "Plant photo",
+        "photos.uploadSuccess": "Photos uploaded!",
+        "photos.photosUpdated": "Photos have been updated successfully",
+        "photos.uploadError": "Error uploading photos",
+        "photos.removeSuccess": "Photo removed",
+        "photos.photoRemoved": "Photo has been removed successfully",
+        "photos.removeError": "Error removing photo",
+
+        // Cover Photo
+        "photos.setAsCover": "Set as cover",
+        "photos.coverPhotoSet": "Cover photo set!",
+        "photos.coverPhotoSetDesc":
+          "This photo will be displayed on the plant card",
+        "photos.coverPhotoError": "Error setting cover photo",
+        "plantCard.coverPhoto": "Cover photo",
+
+        // Image Upload
+        "imageUpload.dragDrop": "Drag and drop images here",
+        "imageUpload.orClick": "or click to select",
+        "imageUpload.selectImages": "Select Images",
+        "imageUpload.uploading": "Uploading...",
+        "imageUpload.allowedTypes": "Allowed types:",
+        "imageUpload.maxSize": "Max size:",
+        "imageUpload.maxImages": "Max images:",
+        "imageUpload.preview": "Preview",
+        "imageUpload.image": "image",
+        "imageUpload.invalidType": "Invalid file type. Allowed types:",
+        "imageUpload.tooLarge": "File too large. Maximum:",
+        "imageUpload.tooManyImages": "Too many images",
+        "imageUpload.maxImagesReached":
+          "You have reached the maximum number of images",
+        "imageUpload.validationErrors": "Validation errors",
+        "imageUpload.uploadError": "Upload error",
+        "imageUpload.uploadFailed": "Failed to upload image",
+        "imageUpload.uploadSuccess": "Images uploaded!",
+        "imageUpload.imagesUploaded": "images uploaded successfully",
+
+        // Gallery
+        "gallery.image": "Image",
+        "gallery.thumbnail": "Thumbnail",
       };
 
       setTranslations({
