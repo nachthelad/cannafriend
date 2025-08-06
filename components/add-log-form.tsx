@@ -1,82 +1,104 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/components/ui/use-toast"
-import { useTranslation } from "@/hooks/use-translation"
-import { auth, db } from "@/lib/firebase"
-import { collection, addDoc } from "firebase/firestore"
-import { Loader2, Calendar } from "lucide-react"
-import { format } from "date-fns"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import type { LogEntry } from "@/types"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "@/hooks/use-translation";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import { validateLogEntry } from "@/lib/validation";
+import { auth, db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { Loader2, Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import type { LogEntry, Plant } from "@/types";
 
 interface AddLogFormProps {
-  plantId: string
-  onSuccess?: (log: LogEntry) => void
+  plantId: string;
+  onSuccess?: (log: LogEntry) => void;
+  showPlantSelector?: boolean;
+  plants?: Plant[];
 }
 
-export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
-  const { t } = useTranslation()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
+export function AddLogForm({
+  plantId,
+  onSuccess,
+  showPlantSelector = false,
+  plants = [],
+}: AddLogFormProps) {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  const { handleFirebaseError, handleValidationError } = useErrorHandler();
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlantId, setSelectedPlantId] = useState(plantId);
 
   // Form state
-  const [logType, setLogType] = useState<string>("")
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [notes, setNotes] = useState("")
+  const [logType, setLogType] = useState<string>("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [notes, setNotes] = useState("");
 
   // Watering fields
-  const [wateringAmount, setWateringAmount] = useState("")
-  const [wateringMethod, setWateringMethod] = useState("")
+  const [wateringAmount, setWateringAmount] = useState("");
+  const [wateringMethod, setWateringMethod] = useState("");
 
   // Feeding fields
-  const [feedingType, setFeedingType] = useState("")
-  const [feedingNpk, setFeedingNpk] = useState("")
-  const [feedingAmount, setFeedingAmount] = useState("")
+  const [feedingType, setFeedingType] = useState("");
+  const [feedingNpk, setFeedingNpk] = useState("");
+  const [feedingAmount, setFeedingAmount] = useState("");
 
   // Training fields
-  const [trainingMethod, setTrainingMethod] = useState("")
+  const [trainingMethod, setTrainingMethod] = useState("");
 
   // Environment fields
-  const [temperature, setTemperature] = useState("")
-  const [humidity, setHumidity] = useState("")
-  const [ph, setPh] = useState("")
-  const [light, setLight] = useState("")
+  const [temperature, setTemperature] = useState("");
+  const [humidity, setHumidity] = useState("");
+  const [ph, setPh] = useState("");
+  const [light, setLight] = useState("");
 
   const resetForm = () => {
-    setLogType("")
-    setDate(new Date())
-    setNotes("")
-    setWateringAmount("")
-    setWateringMethod("")
-    setFeedingType("")
-    setFeedingNpk("")
-    setFeedingAmount("")
-    setTrainingMethod("")
-    setTemperature("")
-    setHumidity("")
-    setPh("")
-    setLight("")
-  }
+    setLogType("");
+    setDate(new Date());
+    setNotes("");
+    setWateringAmount("");
+    setWateringMethod("");
+    setFeedingType("");
+    setFeedingNpk("");
+    setFeedingAmount("");
+    setTrainingMethod("");
+    setTemperature("");
+    setHumidity("");
+    setPh("");
+    setLight("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const userId = auth.currentUser?.uid
+    const userId = auth.currentUser?.uid;
+    const currentPlantId = showPlantSelector ? selectedPlantId : plantId;
 
-    if ((!auth.currentUser && userId !== "demo-user-123") || !date) return
+    if (!auth.currentUser || !date || !currentPlantId) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       let logData: any = {
@@ -84,26 +106,7 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
         date: date.toISOString(),
         notes,
         createdAt: new Date().toISOString(),
-      }
-
-      // For demo mode, simulate saving without actually writing to Firestore
-      if (userId === "demo-user-123") {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        toast({
-          title: t("logForm.success"),
-          description: "Demo: " + t("logForm.successDesc"),
-        })
-
-        // Call success callback with mock data
-        if (onSuccess) {
-          onSuccess({ id: "demo-" + Date.now(), ...logData })
-        }
-
-        resetForm()
-        return
-      }
+      };
 
       // Add type-specific fields
       switch (logType) {
@@ -112,22 +115,21 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
             ...logData,
             amount: Number.parseFloat(wateringAmount),
             method: wateringMethod,
-          }
-          break
+          };
+          break;
         case "feeding":
           logData = {
             ...logData,
-            type: feedingType,
             npk: feedingNpk,
             amount: Number.parseFloat(feedingAmount),
-          }
-          break
+          };
+          break;
         case "training":
           logData = {
             ...logData,
             method: trainingMethod,
-          }
-          break
+          };
+          break;
         case "environment":
           logData = {
             ...logData,
@@ -135,48 +137,84 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
             humidity: Number.parseFloat(humidity),
             ph: Number.parseFloat(ph),
             light: Number.parseFloat(light),
-          }
+          };
 
           // Also save to environment collection for charts
-          const envRef = collection(db, "users", auth.currentUser.uid, "plants", plantId, "environment")
+          const envRef = collection(
+            db,
+            "users",
+            auth.currentUser!.uid,
+            "plants",
+            currentPlantId,
+            "environment"
+          );
           await addDoc(envRef, {
             date: date.toISOString(),
             temperature: Number.parseFloat(temperature),
             humidity: Number.parseFloat(humidity),
             ph: Number.parseFloat(ph),
             createdAt: new Date().toISOString(),
-          })
-          break
+          });
+          break;
       }
 
       // Save log
-      const logsRef = collection(db, "users", auth.currentUser.uid, "plants", plantId, "logs")
-      const docRef = await addDoc(logsRef, logData)
+      const logsRef = collection(
+        db,
+        "users",
+        auth.currentUser!.uid,
+        "plants",
+        currentPlantId,
+        "logs"
+      );
+      const docRef = await addDoc(logsRef, logData);
 
       toast({
         title: t("logForm.success"),
         description: t("logForm.successDesc"),
-      })
+      });
 
       // Call success callback with new log
       if (onSuccess) {
-        onSuccess({ id: docRef.id, ...logData })
+        onSuccess({ id: docRef.id, ...logData, plantId: currentPlantId });
       }
 
-      resetForm()
+      resetForm();
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("logForm.error"),
         description: error.message,
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {showPlantSelector && plants.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="plantSelect">{t("journal.selectPlant")}</Label>
+          <Select
+            value={selectedPlantId}
+            onValueChange={setSelectedPlantId}
+            required
+          >
+            <SelectTrigger id="plantSelect">
+              <SelectValue placeholder={t("journal.selectPlant")} />
+            </SelectTrigger>
+            <SelectContent>
+              {plants.map((plant) => (
+                <SelectItem key={plant.id} value={plant.id}>
+                  {plant.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="logType">{t("logForm.type")}</Label>
         <Select value={logType} onValueChange={setLogType} required>
@@ -187,7 +225,9 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
             <SelectItem value="watering">{t("logType.watering")}</SelectItem>
             <SelectItem value="feeding">{t("logType.feeding")}</SelectItem>
             <SelectItem value="training">{t("logType.training")}</SelectItem>
-            <SelectItem value="environment">{t("logType.environment")}</SelectItem>
+            <SelectItem value="environment">
+              {t("logType.environment")}
+            </SelectItem>
             <SelectItem value="note">{t("logType.note")}</SelectItem>
           </SelectContent>
         </Select>
@@ -199,14 +239,26 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
           <PopoverTrigger asChild>
             <Button
               variant={"outline"}
-              className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
             >
               <Calendar className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>{t("newPlant.pickDate")}</span>}
+              {date ? (
+                format(date, "PPP")
+              ) : (
+                <span>{t("newPlant.pickDate")}</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
-            <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
+            <CalendarComponent
+              mode="single"
+              selected={date}
+              onSelect={setDate}
+              initialFocus
+            />
           </PopoverContent>
         </Popover>
       </div>
@@ -227,7 +279,11 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
 
           <div className="space-y-2">
             <Label>{t("watering.method")}</Label>
-            <RadioGroup value={wateringMethod} onValueChange={setWateringMethod} className="flex flex-col space-y-1">
+            <RadioGroup
+              value={wateringMethod}
+              onValueChange={setWateringMethod}
+              className="flex flex-col space-y-1"
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="topWatering" id="topWatering" />
                 <Label htmlFor="topWatering" className="font-normal">
@@ -255,7 +311,11 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>{t("feeding.type")}</Label>
-            <RadioGroup value={feedingType} onValueChange={setFeedingType} className="flex flex-col space-y-1">
+            <RadioGroup
+              value={feedingType}
+              onValueChange={setFeedingType}
+              className="flex flex-col space-y-1"
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="organic" id="organic" />
                 <Label htmlFor="organic" className="font-normal">
@@ -298,7 +358,11 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
       {logType === "training" && (
         <div className="space-y-2">
           <Label>{t("training.method")}</Label>
-          <RadioGroup value={trainingMethod} onValueChange={setTrainingMethod} className="flex flex-col space-y-1">
+          <RadioGroup
+            value={trainingMethod}
+            onValueChange={setTrainingMethod}
+            className="flex flex-col space-y-1"
+          >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="topping" id="topping" />
               <Label htmlFor="topping" className="font-normal">
@@ -355,14 +419,26 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="ph">{t("environment.ph")}</Label>
-            <Input id="ph" type="number" step="0.1" value={ph} onChange={(e) => setPh(e.target.value)} required />
+            <Input
+              id="ph"
+              type="number"
+              step="0.1"
+              value={ph}
+              onChange={(e) => setPh(e.target.value)}
+              required
+            />
           </div>
         </div>
       )}
 
       <div className="space-y-2">
         <Label htmlFor="notes">{t("logForm.notes")}</Label>
-        <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+        <Textarea
+          id="notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+        />
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading || !logType}>
@@ -376,5 +452,5 @@ export function AddLogForm({ plantId, onSuccess }: AddLogFormProps) {
         )}
       </Button>
     </form>
-  )
+  );
 }

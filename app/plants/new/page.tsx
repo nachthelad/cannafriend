@@ -1,111 +1,116 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/components/ui/use-toast"
-import { useTranslation } from "@/hooks/use-translation"
-import { auth, db } from "@/lib/firebase"
-import { collection, addDoc } from "firebase/firestore"
-import { onAuthStateChanged } from "firebase/auth"
-import { Layout } from "@/components/layout"
-import { Loader2, Calendar } from "lucide-react"
-import { format } from "date-fns"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "@/hooks/use-translation";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import { validatePlant } from "@/lib/validation";
+import { auth, db } from "@/lib/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { Layout } from "@/components/layout";
+import { Loader2, Calendar } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export default function NewPlantPage() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [userId, setUserId] = useState<string | null>(null)
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { handleFirebaseError, handleValidationError } = useErrorHandler();
+  const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Form state
-  const [name, setName] = useState("")
-  const [strain, setStrain] = useState("")
-  const [seedType, setSeedType] = useState("")
-  const [growType, setGrowType] = useState("")
-  const [plantingDate, setPlantingDate] = useState<Date | undefined>(new Date())
-  const [lightSchedule, setLightSchedule] = useState("")
+  const [name, setName] = useState("");
+  const [seedType, setSeedType] = useState("");
+  const [growType, setGrowType] = useState("");
+  const [plantingDate, setPlantingDate] = useState<Date | undefined>(
+    new Date()
+  );
+  const [lightSchedule, setLightSchedule] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserId(user.uid)
+        setUserId(user.uid);
       } else {
-        // Check if we're in demo mode
-        const isDemoMode = window.location.search.includes("demo=true") || !auth.currentUser
-        if (isDemoMode) {
-          setUserId("demo-user-123")
-        } else {
-          router.push("/login")
-        }
+        router.push("/login");
       }
-    })
+    });
 
-    return () => unsubscribe()
-  }, [router])
+    return () => unsubscribe();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!userId || !plantingDate) return
+    if (!userId || !plantingDate) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const plantData = {
         name,
-        strain,
         seedType,
         growType,
         plantingDate: plantingDate.toISOString(),
-        lightSchedule: growType === "indoor" && seedType !== "autoflower" ? lightSchedule : null,
+        lightSchedule:
+          growType === "indoor" && seedType !== "autofloreciente"
+            ? lightSchedule
+            : null,
         createdAt: new Date().toISOString(),
+      };
+
+      // Validate plant data
+      const validation = validatePlant(plantData);
+      if (!validation.success) {
+        handleValidationError(validation.errors || [], "plant creation");
+        return;
       }
 
-      const plantsRef = collection(db, "users", userId, "plants")
-      const docRef = await addDoc(plantsRef, plantData)
+      const plantsRef = collection(db, "users", userId, "plants");
+      const docRef = await addDoc(plantsRef, plantData);
 
       toast({
         title: t("newPlant.success"),
         description: t("newPlant.successMessage"),
-      })
+      });
 
-      router.push(`/plants/${docRef.id}`)
+      router.push(`/plants/${docRef.id}`);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("newPlant.error"),
-        description: error.message,
-      })
+      handleFirebaseError(error, "plant creation");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
-
-  // Sample strain list
-  const strains = [
-    "Blue Dream",
-    "OG Kush",
-    "Girl Scout Cookies",
-    "Sour Diesel",
-    "Purple Haze",
-    "White Widow",
-    "Northern Lights",
-    "Granddaddy Purple",
-    "Durban Poison",
-    "AK-47",
-  ]
+  };
 
   return (
     <Layout>
@@ -119,44 +124,35 @@ export default function NewPlantPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">{t("newPlant.name")}</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="strain">{t("newPlant.strain")}</Label>
-                <Select value={strain} onValueChange={setStrain} required>
-                  <SelectTrigger id="strain">
-                    <SelectValue placeholder={t("newPlant.selectStrain")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {strains.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t("newPlant.namePlaceholder")}
+                  required
+                />
               </div>
 
               <div className="space-y-2">
                 <Label>{t("newPlant.seedType")}</Label>
-                <RadioGroup value={seedType} onValueChange={setSeedType} className="flex flex-col space-y-1">
+                <RadioGroup
+                  value={seedType}
+                  onValueChange={setSeedType}
+                  className="flex flex-col space-y-1"
+                >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="autoflower" id="autoflower" />
-                    <Label htmlFor="autoflower" className="font-normal">
-                      {t("newPlant.autoflower")}
+                    <RadioGroupItem
+                      value="autofloreciente"
+                      id="autofloreciente"
+                    />
+                    <Label htmlFor="autofloreciente" className="font-normal">
+                      {t("newPlant.autofloreciente")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="feminized" id="feminized" />
-                    <Label htmlFor="feminized" className="font-normal">
-                      {t("newPlant.feminized")}
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="regular" id="regular" />
-                    <Label htmlFor="regular" className="font-normal">
-                      {t("newPlant.regular")}
+                    <RadioGroupItem value="fotoperiodica" id="fotoperiodica" />
+                    <Label htmlFor="fotoperiodica" className="font-normal">
+                      {t("newPlant.fotoperiodica")}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -164,7 +160,11 @@ export default function NewPlantPage() {
 
               <div className="space-y-2">
                 <Label>{t("newPlant.growType")}</Label>
-                <RadioGroup value={growType} onValueChange={setGrowType} className="flex flex-col space-y-1">
+                <RadioGroup
+                  value={growType}
+                  onValueChange={setGrowType}
+                  className="flex flex-col space-y-1"
+                >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="indoor" id="indoor" />
                     <Label htmlFor="indoor" className="font-normal">
@@ -188,29 +188,50 @@ export default function NewPlantPage() {
                       variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !plantingDate && "text-muted-foreground",
+                        !plantingDate && "text-muted-foreground"
                       )}
                     >
                       <Calendar className="mr-2 h-4 w-4" />
-                      {plantingDate ? format(plantingDate, "PPP") : <span>{t("newPlant.pickDate")}</span>}
+                      {plantingDate ? (
+                        format(plantingDate, "PPP")
+                      ) : (
+                        <span>{t("newPlant.pickDate")}</span>
+                      )}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
-                    <CalendarComponent mode="single" selected={plantingDate} onSelect={setPlantingDate} initialFocus />
+                    <CalendarComponent
+                      mode="single"
+                      selected={plantingDate}
+                      onSelect={setPlantingDate}
+                      initialFocus
+                    />
                   </PopoverContent>
                 </Popover>
               </div>
 
-              {growType === "indoor" && seedType !== "autoflower" && (
+              {growType === "indoor" && seedType !== "autofloreciente" && (
                 <div className="space-y-2">
-                  <Label htmlFor="lightSchedule">{t("newPlant.lightSchedule")}</Label>
-                  <Select value={lightSchedule} onValueChange={setLightSchedule} required>
+                  <Label htmlFor="lightSchedule">
+                    {t("newPlant.lightSchedule")}
+                  </Label>
+                  <Select
+                    value={lightSchedule}
+                    onValueChange={setLightSchedule}
+                    required
+                  >
                     <SelectTrigger id="lightSchedule">
-                      <SelectValue placeholder={t("newPlant.selectLightSchedule")} />
+                      <SelectValue
+                        placeholder={t("newPlant.selectLightSchedule")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="18/6">{t("newPlant.vegetative")} (18/6)</SelectItem>
-                      <SelectItem value="12/12">{t("newPlant.flowering")} (12/12)</SelectItem>
+                      <SelectItem value="18/6">
+                        {t("newPlant.vegetative")} (18/6)
+                      </SelectItem>
+                      <SelectItem value="12/12">
+                        {t("newPlant.flowering")} (12/12)
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -231,5 +252,5 @@ export default function NewPlantPage() {
         </Card>
       </div>
     </Layout>
-  )
+  );
 }
