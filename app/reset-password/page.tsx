@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";

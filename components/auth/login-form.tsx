@@ -11,16 +11,9 @@ import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormData {
   email: string;
@@ -60,20 +53,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     setLoadingStep(t("login.verifyingCredentials"));
 
     try {
-      // Primero verificar si el email existe en la BD
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", data.email));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        toast({
-          variant: "destructive",
-          title: t("auth.error"),
-          description: t("login.emailNotRegistered"),
-        });
-        return;
-      }
-
       setLoadingStep(t("login.signingIn"));
       const result = await signInWithEmailAndPassword(
         auth,
@@ -167,6 +146,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <Input
           id="email"
           type="email"
+          autoComplete="email"
+          inputMode="email"
+          aria-invalid={Boolean(errors.email) || undefined}
           placeholder="ejemplo@correo.com"
           className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
           {...register("email", {
@@ -201,6 +183,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            aria-invalid={Boolean(errors.password) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("password", {
               required: t("common.fieldRequired"),
@@ -216,6 +200,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={
+              showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />

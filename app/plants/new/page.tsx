@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { validatePlant } from "@/lib/validation";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -39,23 +39,59 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/common/image-upload";
+import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
+import {
+  SEED_TYPES,
+  GROW_TYPES,
+  LIGHT_SCHEDULES,
+  LIGHT_SCHEDULE_OPTIONS,
+  requiresLightSchedule,
+  type SeedType,
+  type GrowType,
+  type LightSchedule,
+} from "@/lib/plant-config";
 
 export default function NewPlantPage() {
-  const { t, language } = useTranslation();
+  const { t, language } = useTranslation() as any;
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Form state
-  const [name, setName] = useState("");
-  const [seedType, setSeedType] = useState("");
-  const [growType, setGrowType] = useState("");
+  // Form state (RHF)
+  type PlantForm = {
+    name: string;
+    seedType: SeedType | "";
+    growType: GrowType | "";
+    lightSchedule: LightSchedule | "";
+    seedBank?: string;
+  };
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<PlantForm>({
+    defaultValues: {
+      name: "",
+      seedType: "",
+      growType: "",
+      lightSchedule: "",
+      seedBank: "",
+    },
+  });
+  const name = watch("name");
+  const seedType = watch("seedType");
+  const growType = watch("growType");
+  const lightSchedule = watch("lightSchedule");
+  const seedBank = watch("seedBank");
   const [plantingDate, setPlantingDate] = useState<Date | undefined>(
     new Date()
   );
-  const [lightSchedule, setLightSchedule] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -69,9 +105,7 @@ export default function NewPlantPage() {
     return () => unsubscribe();
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async () => {
     if (!userId || !plantingDate) return;
 
     setIsLoading(true);
@@ -87,18 +121,14 @@ export default function NewPlantPage() {
           plantingDate.getDate()
         ).toISOString(),
         lightSchedule:
-          growType === "indoor" && seedType !== "autofloreciente"
+          seedType && growType && requiresLightSchedule(seedType, growType)
             ? lightSchedule
             : null,
+        seedBank: (seedBank || "").trim() || null,
+        photos: photos.length > 0 ? photos : null,
+        coverPhoto: photos.length > 0 ? photos[0] : null,
         createdAt: new Date().toISOString(),
       };
-
-      // Validate plant data
-      const validation = validatePlant(plantData);
-      if (!validation.success) {
-        handleValidationError(validation.errors || [], "plant creation");
-        return;
-      }
 
       const plantsRef = collection(db, "users", userId, "plants");
       const docRef = await addDoc(plantsRef, plantData);
@@ -125,63 +155,102 @@ export default function NewPlantPage() {
             <CardDescription>{t("newPlant.description")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">{t("newPlant.name")}</Label>
                 <Input
                   id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   placeholder={t("newPlant.namePlaceholder")}
-                  required
+                  {...register("name", {
+                    validate: (v) =>
+                      (v && v.trim().length > 0) ||
+                      (t("validation.required") as string),
+                  })}
                 />
+                {errors.name && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.name.message)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label>{t("newPlant.seedType")}</Label>
+                {/* Hidden field to register for validation */}
+                <input
+                  type="hidden"
+                  {...register("seedType", {
+                    required: t("validation.required") as string,
+                  })}
+                  value={seedType || ""}
+                />
                 <RadioGroup
                   value={seedType}
-                  onValueChange={setSeedType}
+                  onValueChange={(value) =>
+                    setValue("seedType", value as SeedType)
+                  }
                   className="flex flex-col space-y-1"
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
-                      value="autofloreciente"
-                      id="autofloreciente"
+                      value={SEED_TYPES.AUTOFLOWERING}
+                      id="autoflowering"
                     />
-                    <Label htmlFor="autofloreciente" className="font-normal">
-                      {t("newPlant.autofloreciente")}
+                    <Label htmlFor="autoflowering" className="font-normal">
+                      {t("newPlant.autoflowering")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="fotoperiodica" id="fotoperiodica" />
-                    <Label htmlFor="fotoperiodica" className="font-normal">
-                      {t("newPlant.fotoperiodica")}
+                    <RadioGroupItem
+                      value={SEED_TYPES.PHOTOPERIODIC}
+                      id="photoperiodic"
+                    />
+                    <Label htmlFor="photoperiodic" className="font-normal">
+                      {t("newPlant.photoperiodic")}
                     </Label>
                   </div>
                 </RadioGroup>
+                {errors.seedType && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.seedType.message)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label>{t("newPlant.growType")}</Label>
+                <input
+                  type="hidden"
+                  {...register("growType", {
+                    required: t("validation.required") as string,
+                  })}
+                  value={growType || ""}
+                />
                 <RadioGroup
                   value={growType}
-                  onValueChange={setGrowType}
+                  onValueChange={(value) =>
+                    setValue("growType", value as GrowType)
+                  }
                   className="flex flex-col space-y-1"
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="indoor" id="indoor" />
+                    <RadioGroupItem value={GROW_TYPES.INDOOR} id="indoor" />
                     <Label htmlFor="indoor" className="font-normal">
                       {t("newPlant.indoor")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="outdoor" id="outdoor" />
+                    <RadioGroupItem value={GROW_TYPES.OUTDOOR} id="outdoor" />
                     <Label htmlFor="outdoor" className="font-normal">
                       {t("newPlant.outdoor")}
                     </Label>
                   </div>
                 </RadioGroup>
+                {errors.growType && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.growType.message)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -218,32 +287,65 @@ export default function NewPlantPage() {
                 </Popover>
               </div>
 
-              {growType === "indoor" && seedType !== "autofloreciente" && (
-                <div className="space-y-2">
-                  <Label htmlFor="lightSchedule">
-                    {t("newPlant.lightSchedule")}
-                  </Label>
-                  <Select
-                    value={lightSchedule}
-                    onValueChange={setLightSchedule}
-                    required
-                  >
-                    <SelectTrigger id="lightSchedule">
-                      <SelectValue
-                        placeholder={t("newPlant.selectLightSchedule")}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="18/6">
-                        {t("newPlant.vegetative")} (18/6)
-                      </SelectItem>
-                      <SelectItem value="12/12">
-                        {t("newPlant.flowering")} (12/12)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              {growType &&
+                seedType &&
+                requiresLightSchedule(seedType, growType) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="lightSchedule">
+                      {t("newPlant.lightSchedule")}
+                    </Label>
+                    <input
+                      type="hidden"
+                      {...register("lightSchedule", {
+                        required: t("validation.required") as string,
+                      })}
+                      value={lightSchedule || ""}
+                    />
+                    <Select
+                      value={lightSchedule}
+                      onValueChange={(value) =>
+                        setValue("lightSchedule", value as LightSchedule)
+                      }
+                    >
+                      <SelectTrigger id="lightSchedule">
+                        <SelectValue
+                          placeholder={t("newPlant.selectLightSchedule")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={LIGHT_SCHEDULES.VEGETATIVE}>
+                          {t("newPlant.vegetative")} (18/6)
+                        </SelectItem>
+                        <SelectItem value={LIGHT_SCHEDULES.FLOWERING}>
+                          {t("newPlant.flowering")} (12/12)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.lightSchedule && (
+                      <p className="text-xs text-destructive">
+                        {String(errors.lightSchedule.message)}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+              <div className="space-y-2">
+                <Label htmlFor="seedBank">{t("newPlant.seedBank")}</Label>
+                <Input
+                  id="seedBank"
+                  placeholder={t("newPlant.seedBankPlaceholder")}
+                  {...register("seedBank")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("newPlant.photos")}</Label>
+                <ImageUpload
+                  onImagesChange={setPhotos}
+                  maxImages={DEFAULT_MAX_IMAGES}
+                  maxSizeMB={DEFAULT_MAX_SIZE_MB}
+                />
+              </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (

@@ -1,10 +1,14 @@
+import type { SeedType, GrowType, LightSchedule } from "@/lib/plant-config";
+import type { LogType, WateringMethod } from "@/lib/log-config";
+
 export interface Plant {
   id: string;
   name: string;
-  seedType: "autofloreciente" | "fotoperiodica";
-  growType: "indoor" | "outdoor";
+  seedType: SeedType;
+  growType: GrowType;
   plantingDate: string;
-  lightSchedule?: string;
+  lightSchedule?: LightSchedule;
+  seedBank?: string; // Banco de semillas (opcional)
   photos?: string[]; // URLs de las fotos de la planta
   coverPhoto?: string; // URL de la foto de portada para la plant card
   createdAt: string;
@@ -12,13 +16,7 @@ export interface Plant {
 
 export interface LogEntry {
   id: string;
-  type:
-    | "watering"
-    | "feeding"
-    | "training"
-    | "environment"
-    | "note"
-    | "flowering";
+  type: LogType;
   date: string;
   notes?: string;
   createdAt: string;
@@ -27,7 +25,7 @@ export interface LogEntry {
 
   // Watering specific
   amount?: number;
-  method?: string;
+  method?: WateringMethod;
 
   // Feeding specific
   npk?: string;

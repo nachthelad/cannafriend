@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "@/hooks/use-translation";
-import { AuthTabs } from "./auth-tabs";
+import { AuthTabs } from "@/components/auth/auth-tabs";
 
 interface MobileLoginSectionProps {
   className?: string;

@@ -15,8 +15,8 @@ import {
 import { useTranslation } from "@/hooks/use-translation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/common/theme-toggle";
+import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { cn } from "@/lib/utils";
 import { Home, Menu, Settings, LogOut, Leaf, Calendar, X } from "lucide-react";
 

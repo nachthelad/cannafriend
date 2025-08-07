@@ -5,6 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
+import { getImageAltText } from "@/lib/image-config";
 
 interface ImageGalleryModalProps {
   images: string[];
@@ -58,7 +59,7 @@ export function ImageGalleryModal({
           <div className="flex items-center justify-center h-full">
             <img
               src={images[currentIndex]}
-              alt={`${t("gallery.image")} ${currentIndex + 1}`}
+              alt={getImageAltText(currentIndex, t("gallery.image"))}
               className="max-w-full max-h-full object-contain"
               onKeyDown={handleKeyDown}
               tabIndex={0}
@@ -110,7 +111,7 @@ export function ImageGalleryModal({
                 >
                   <img
                     src={image}
-                    alt={`${t("gallery.thumbnail")} ${index + 1}`}
+                    alt={getImageAltText(index, t("gallery.thumbnail"))}
                     className="w-full h-full object-cover"
                   />
                 </button>

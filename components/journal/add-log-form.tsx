@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +16,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { validateLogEntry } from "@/lib/validation";
+
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import {
+  LOG_TYPES,
+  LOG_TYPE_OPTIONS,
+  WATERING_METHOD_OPTIONS,
+  FEEDING_TYPE_OPTIONS,
+  TRAINING_METHOD_OPTIONS,
+  type LogType,
+  type WateringMethod,
+  type TrainingMethod,
+} from "@/lib/log-config";
+import { buildLogsPath, buildEnvironmentPath } from "@/lib/firebase-config";
 import { Loader2, Calendar } from "lucide-react";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
@@ -31,6 +43,31 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { LogEntry, Plant } from "@/types";
+
+// Form data interface
+interface LogFormData {
+  logType: string;
+  date: Date;
+  notes?: string;
+
+  // Watering fields
+  wateringAmount?: string;
+  wateringMethod?: string;
+
+  // Feeding fields
+  feedingType?: string;
+  feedingNpk?: string;
+  feedingAmount?: string;
+
+  // Training fields
+  trainingMethod?: string;
+
+  // Environment fields
+  temperature?: string;
+  humidity?: string;
+  ph?: string;
+  light?: string;
+}
 
 interface AddLogFormProps {
   plantId: string;
@@ -51,108 +88,85 @@ export function AddLogForm({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlantId, setSelectedPlantId] = useState(plantId);
 
-  // Form state
-  const [logType, setLogType] = useState<string>("");
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [notes, setNotes] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm<LogFormData>({
+    defaultValues: {
+      logType: "",
+      date: new Date(),
+      notes: "",
+    },
+  });
 
-  // Watering fields
-  const [wateringAmount, setWateringAmount] = useState("");
-  const [wateringMethod, setWateringMethod] = useState("");
-
-  // Feeding fields
-  const [feedingType, setFeedingType] = useState("");
-  const [feedingNpk, setFeedingNpk] = useState("");
-  const [feedingAmount, setFeedingAmount] = useState("");
-
-  // Training fields
-  const [trainingMethod, setTrainingMethod] = useState("");
-
-  // Environment fields
-  const [temperature, setTemperature] = useState("");
-  const [humidity, setHumidity] = useState("");
-  const [ph, setPh] = useState("");
-  const [light, setLight] = useState("");
+  const logType = watch("logType");
+  const date = watch("date");
 
   const resetForm = () => {
-    setLogType("");
-    setDate(new Date());
-    setNotes("");
-    setWateringAmount("");
-    setWateringMethod("");
-    setFeedingType("");
-    setFeedingNpk("");
-    setFeedingAmount("");
-    setTrainingMethod("");
-    setTemperature("");
-    setHumidity("");
-    setPh("");
-    setLight("");
+    reset();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: LogFormData) => {
     const userId = auth.currentUser?.uid;
     const currentPlantId = showPlantSelector ? selectedPlantId : plantId;
 
-    if (!auth.currentUser || !date || !currentPlantId) return;
+    if (!auth.currentUser || !data.date || !currentPlantId) return;
 
     setIsLoading(true);
 
     try {
       let logData: any = {
-        type: logType,
-        date: date.toISOString(),
-        notes,
+        type: data.logType,
+        date: data.date.toISOString(),
+        notes: data.notes,
         createdAt: new Date().toISOString(),
       };
 
       // Add type-specific fields
-      switch (logType) {
-        case "watering":
+      switch (data.logType) {
+        case LOG_TYPES.WATERING:
           logData = {
             ...logData,
-            amount: Number.parseFloat(wateringAmount),
-            method: wateringMethod,
+            amount: Number.parseFloat(data.wateringAmount || "0"),
+            method: data.wateringMethod,
           };
           break;
-        case "feeding":
+        case LOG_TYPES.FEEDING:
           logData = {
             ...logData,
-            npk: feedingNpk,
-            amount: Number.parseFloat(feedingAmount),
+            npk: data.feedingNpk,
+            amount: Number.parseFloat(data.feedingAmount || "0"),
           };
           break;
-        case "training":
+        case LOG_TYPES.TRAINING:
           logData = {
             ...logData,
-            method: trainingMethod,
+            method: data.trainingMethod,
           };
           break;
-        case "environment":
+        case LOG_TYPES.ENVIRONMENT:
           logData = {
             ...logData,
-            temperature: Number.parseFloat(temperature),
-            humidity: Number.parseFloat(humidity),
-            ph: Number.parseFloat(ph),
-            light: Number.parseFloat(light),
+            temperature: Number.parseFloat(data.temperature || "0"),
+            humidity: Number.parseFloat(data.humidity || "0"),
+            ph: Number.parseFloat(data.ph || "0"),
+            light: Number.parseFloat(data.light || "0"),
           };
 
           // Also save to environment collection for charts
           const envRef = collection(
             db,
-            "users",
-            auth.currentUser!.uid,
-            "plants",
-            currentPlantId,
-            "environment"
+            buildEnvironmentPath(auth.currentUser!.uid, currentPlantId)
           );
           await addDoc(envRef, {
-            date: date.toISOString(),
-            temperature: Number.parseFloat(temperature),
-            humidity: Number.parseFloat(humidity),
-            ph: Number.parseFloat(ph),
+            date: data.date.toISOString(),
+            temperature: Number.parseFloat(data.temperature || "0"),
+            humidity: Number.parseFloat(data.humidity || "0"),
+            ph: Number.parseFloat(data.ph || "0"),
             createdAt: new Date().toISOString(),
           });
           break;
@@ -161,11 +175,7 @@ export function AddLogForm({
       // Save log
       const logsRef = collection(
         db,
-        "users",
-        auth.currentUser!.uid,
-        "plants",
-        currentPlantId,
-        "logs"
+        buildLogsPath(auth.currentUser!.uid, currentPlantId)
       );
       const docRef = await addDoc(logsRef, logData);
 
@@ -192,7 +202,7 @@ export function AddLogForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {showPlantSelector && plants.length > 0 && (
         <div className="space-y-2">
           <Label htmlFor="plantSelect">{t("journal.selectPlant")}</Label>
@@ -217,19 +227,26 @@ export function AddLogForm({
 
       <div className="space-y-2">
         <Label htmlFor="logType">{t("logForm.type")}</Label>
-        <Select value={logType} onValueChange={setLogType} required>
+        <input
+          type="hidden"
+          {...register("logType", {
+            required: t("logForm.selectType") as string,
+          })}
+          value={logType || ""}
+        />
+        <Select
+          value={logType}
+          onValueChange={(value) => setValue("logType", value as LogType)}
+        >
           <SelectTrigger id="logType">
             <SelectValue placeholder={t("logForm.selectType")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="watering">{t("logType.watering")}</SelectItem>
-            <SelectItem value="feeding">{t("logType.feeding")}</SelectItem>
-            <SelectItem value="training">{t("logType.training")}</SelectItem>
-            <SelectItem value="environment">
-              {t("logType.environment")}
-            </SelectItem>
-            <SelectItem value="flowering">{t("logType.flowering")}</SelectItem>
-            <SelectItem value="note">{t("logType.note")}</SelectItem>
+            {LOG_TYPE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {t(`logType.${option.label}`)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -257,7 +274,7 @@ export function AddLogForm({
             <CalendarComponent
               mode="single"
               selected={date}
-              onSelect={setDate}
+              onSelect={(newDate) => newDate && setValue("date", newDate)}
               initialFocus
             />
           </PopoverContent>
@@ -265,71 +282,104 @@ export function AddLogForm({
       </div>
 
       {/* Type-specific fields */}
-      {logType === "watering" && (
+      {logType === LOG_TYPES.WATERING && (
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="wateringAmount">{t("watering.amount")}</Label>
             <Input
               id="wateringAmount"
               type="number"
-              value={wateringAmount}
-              onChange={(e) => setWateringAmount(e.target.value)}
-              required
+              {...register("wateringAmount", {
+                validate: (value) => {
+                  if (logType !== LOG_TYPES.WATERING) return true;
+                  if (!value)
+                    return (t("validation.required") as string) || "Required";
+                  const n = Number.parseFloat(value);
+                  return (
+                    (Number.isFinite(n) && n > 0) ||
+                    (t("validation.numberGreaterZero") as string) ||
+                    "Must be > 0"
+                  );
+                },
+              })}
             />
+            {errors.wateringAmount && (
+              <p className="text-xs text-destructive">
+                {String(errors.wateringAmount.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label>{t("watering.method")}</Label>
+            <input
+              type="hidden"
+              {...register("wateringMethod", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.WATERING || value
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
+              value={watch("wateringMethod") || ""}
+            />
             <RadioGroup
-              value={wateringMethod}
-              onValueChange={setWateringMethod}
+              value={watch("wateringMethod")}
+              onValueChange={(value) =>
+                setValue("wateringMethod", value as WateringMethod)
+              }
               className="flex flex-col space-y-1"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="topWatering" id="topWatering" />
-                <Label htmlFor="topWatering" className="font-normal">
-                  {t("watering.topWatering")}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="bottomWatering" id="bottomWatering" />
-                <Label htmlFor="bottomWatering" className="font-normal">
-                  {t("watering.bottomWatering")}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="drip" id="drip" />
-                <Label htmlFor="drip" className="font-normal">
-                  {t("watering.drip")}
-                </Label>
-              </div>
+              {WATERING_METHOD_OPTIONS.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.value} id={option.value} />
+                  <Label htmlFor={option.value} className="font-normal">
+                    {t(`watering.${option.label}`)}
+                  </Label>
+                </div>
+              ))}
             </RadioGroup>
+            {errors.wateringMethod && (
+              <p className="text-xs text-destructive">
+                {String(errors.wateringMethod.message)}
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {logType === "feeding" && (
+      {logType === LOG_TYPES.FEEDING && (
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>{t("feeding.type")}</Label>
+            <input
+              type="hidden"
+              {...register("feedingType", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.FEEDING || value
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
+              value={watch("feedingType") || ""}
+            />
             <RadioGroup
-              value={feedingType}
-              onValueChange={setFeedingType}
+              value={watch("feedingType")}
+              onValueChange={(value) => setValue("feedingType", value)}
               className="flex flex-col space-y-1"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="organic" id="organic" />
-                <Label htmlFor="organic" className="font-normal">
-                  {t("feeding.organic")}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="synthetic" id="synthetic" />
-                <Label htmlFor="synthetic" className="font-normal">
-                  {t("feeding.synthetic")}
-                </Label>
-              </div>
+              {FEEDING_TYPE_OPTIONS.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.value} id={option.value} />
+                  <Label htmlFor={option.value} className="font-normal">
+                    {t(`feeding.${option.label}`)}
+                  </Label>
+                </div>
+              ))}
             </RadioGroup>
+            {errors.feedingType && (
+              <p className="text-xs text-destructive">
+                {String(errors.feedingType.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -337,10 +387,19 @@ export function AddLogForm({
             <Input
               id="feedingNpk"
               placeholder="e.g. 20-20-20"
-              value={feedingNpk}
-              onChange={(e) => setFeedingNpk(e.target.value)}
-              required
+              {...register("feedingNpk", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.FEEDING ||
+                  (value && value.trim().length > 0)
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
             />
+            {errors.feedingNpk && (
+              <p className="text-xs text-destructive">
+                {String(errors.feedingNpk.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -348,51 +407,67 @@ export function AddLogForm({
             <Input
               id="feedingAmount"
               type="number"
-              value={feedingAmount}
-              onChange={(e) => setFeedingAmount(e.target.value)}
-              required
+              {...register("feedingAmount", {
+                validate: (value) => {
+                  if (logType !== LOG_TYPES.FEEDING) return true;
+                  if (!value)
+                    return (t("validation.required") as string) || "Required";
+                  const n = Number.parseFloat(value);
+                  return (
+                    (Number.isFinite(n) && n > 0) ||
+                    (t("validation.numberGreaterZero") as string) ||
+                    "Must be > 0"
+                  );
+                },
+              })}
             />
+            {errors.feedingAmount && (
+              <p className="text-xs text-destructive">
+                {String(errors.feedingAmount.message)}
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {logType === "training" && (
+      {logType === LOG_TYPES.TRAINING && (
         <div className="space-y-2">
           <Label>{t("training.method")}</Label>
+          <input
+            type="hidden"
+            {...register("trainingMethod", {
+              validate: (value) =>
+                logType !== LOG_TYPES.TRAINING || value
+                  ? true
+                  : (t("validation.required") as string) || "Required",
+            })}
+            value={watch("trainingMethod") || ""}
+          />
           <RadioGroup
-            value={trainingMethod}
-            onValueChange={setTrainingMethod}
+            value={watch("trainingMethod")}
+            onValueChange={(value) =>
+              setValue("trainingMethod", value as TrainingMethod)
+            }
             className="flex flex-col space-y-1"
           >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="topping" id="topping" />
-              <Label htmlFor="topping" className="font-normal">
-                {t("training.topping")}
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="lst" id="lst" />
-              <Label htmlFor="lst" className="font-normal">
-                {t("training.lst")}
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="defoliation" id="defoliation" />
-              <Label htmlFor="defoliation" className="font-normal">
-                {t("training.defoliation")}
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="supercropping" id="supercropping" />
-              <Label htmlFor="supercropping" className="font-normal">
-                {t("training.supercropping")}
-              </Label>
-            </div>
+            {TRAINING_METHOD_OPTIONS.map((option) => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={option.value} id={option.value} />
+                <Label htmlFor={option.value} className="font-normal">
+                  {t(`training.${option.label}`)}
+                </Label>
+              </div>
+            ))}
           </RadioGroup>
+          {errors.trainingMethod && (
+            <p className="text-xs text-destructive">
+              {String(errors.trainingMethod.message)}
+            </p>
+          )}
         </div>
       )}
 
-      {logType === "environment" && (
+      {logType === LOG_TYPES.ENVIRONMENT && (
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="temperature">{t("environment.temperature")}</Label>
@@ -400,10 +475,18 @@ export function AddLogForm({
               id="temperature"
               type="number"
               step="0.1"
-              value={temperature}
-              onChange={(e) => setTemperature(e.target.value)}
-              required
+              {...register("temperature", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.ENVIRONMENT || (value && value !== "")
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
             />
+            {errors.temperature && (
+              <p className="text-xs text-destructive">
+                {String(errors.temperature.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -412,10 +495,18 @@ export function AddLogForm({
               id="humidity"
               type="number"
               step="0.1"
-              value={humidity}
-              onChange={(e) => setHumidity(e.target.value)}
-              required
+              {...register("humidity", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.ENVIRONMENT || (value && value !== "")
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
             />
+            {errors.humidity && (
+              <p className="text-xs text-destructive">
+                {String(errors.humidity.message)}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -424,22 +515,25 @@ export function AddLogForm({
               id="ph"
               type="number"
               step="0.1"
-              value={ph}
-              onChange={(e) => setPh(e.target.value)}
-              required
+              {...register("ph", {
+                validate: (value) =>
+                  logType !== LOG_TYPES.ENVIRONMENT || (value && value !== "")
+                    ? true
+                    : (t("validation.required") as string) || "Required",
+              })}
             />
+            {errors.ph && (
+              <p className="text-xs text-destructive">
+                {String(errors.ph.message)}
+              </p>
+            )}
           </div>
         </div>
       )}
 
       <div className="space-y-2">
         <Label htmlFor="notes">{t("logForm.notes")}</Label>
-        <Textarea
-          id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-        />
+        <Textarea id="notes" rows={3} {...register("notes")} />
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading || !logType}>

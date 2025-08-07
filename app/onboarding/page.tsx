@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,20 +22,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2 } from "lucide-react";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { LanguageSwitcher } from "@/components/common/language-switcher";
 
 export default function OnboardingPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation() as any;
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [timezone, setTimezone] = useState("");
+  type OnboardingForm = { timezone: string };
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset,
+  } = useForm<OnboardingForm>({
+    defaultValues: { timezone: "" },
+  });
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,9 +60,7 @@ export default function OnboardingPage() {
     return () => unsubscribe();
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: OnboardingForm) => {
     if (!userId) return;
 
     setIsLoading(true);
@@ -60,7 +69,7 @@ export default function OnboardingPage() {
       await setDoc(
         doc(db, "users", userId),
         {
-          timezone,
+          timezone: data.timezone,
           createdAt: new Date().toISOString(),
         },
         { merge: true }
@@ -111,10 +120,21 @@ export default function OnboardingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="timezone">{t("onboarding.timezone")}</Label>
-              <Select value={timezone} onValueChange={setTimezone} required>
+              {/* Hidden registered field for validation */}
+              <input
+                type="hidden"
+                {...register("timezone", {
+                  required: t("onboarding.selectTimezone") as string,
+                })}
+                value={watch("timezone") || ""}
+              />
+              <Select
+                value={watch("timezone")}
+                onValueChange={(v) => setValue("timezone", v)}
+              >
                 <SelectTrigger id="timezone">
                   <SelectValue placeholder={t("onboarding.selectTimezone")} />
                 </SelectTrigger>
@@ -126,6 +146,11 @@ export default function OnboardingPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.timezone && (
+                <p className="text-xs text-destructive">
+                  {String(errors.timezone.message)}
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (

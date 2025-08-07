@@ -54,12 +54,12 @@ export function PlantDetails({
             <div>
               <Badge
                 variant={
-                  plant.seedType === "autofloreciente" ? "default" : "outline"
+                  plant.seedType === "autoflowering" ? "default" : "outline"
                 }
               >
-                {plant.seedType === "autofloreciente"
-                  ? t("newPlant.autofloreciente")
-                  : t("newPlant.fotoperiodica")}
+                {plant.seedType === "autoflowering"
+                  ? t("newPlant.autoflowering")
+                  : t("newPlant.photoperiodic")}
               </Badge>
             </div>
           </div>
@@ -94,7 +94,7 @@ export function PlantDetails({
           </div>
 
           {plant.growType === "indoor" &&
-            plant.seedType !== "autofloreciente" &&
+            plant.seedType !== "autoflowering" &&
             plant.lightSchedule && (
               <div className="space-y-2">
                 <div className="text-sm font-medium">
@@ -106,6 +106,18 @@ export function PlantDetails({
                 </div>
               </div>
             )}
+
+          {plant.seedBank && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium">
+                {t("newPlant.seedBank")}
+              </div>
+              <div className="flex items-center">
+                <Leaf className="h-4 w-4 mr-2 text-primary" />
+                <span>{plant.seedBank}</span>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <div className="text-sm font-medium">{t("plantPage.age")}</div>

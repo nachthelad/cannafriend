@@ -8,7 +8,7 @@ import { auth, googleProvider, db } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface GoogleLoginButtonProps {
   variant?: "default" | "outline";

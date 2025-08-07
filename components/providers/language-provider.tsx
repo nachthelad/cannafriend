@@ -2,9 +2,9 @@
 
 import { createContext, useState, useEffect, type ReactNode } from "react";
 
-type Language = "es" | "en";
+export type Language = "es" | "en";
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
@@ -219,8 +219,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.name": "Nombre",
         "newPlant.namePlaceholder": "Ej: Ultra Wonka, OG Kush, etc.",
         "newPlant.seedType": "Tipo de Semilla",
-        "newPlant.autofloreciente": "Autofloreciente",
-        "newPlant.fotoperiodica": "Fotoperiódica",
+        "newPlant.autoflowering": "Autofloreciente",
+        "newPlant.photoperiodic": "Fotoperiódica",
         "newPlant.growType": "Tipo de Cultivo",
         "newPlant.indoor": "Interior",
         "newPlant.outdoor": "Exterior",
@@ -235,6 +235,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.success": "¡Planta agregada!",
         "newPlant.successMessage": "Tu planta ha sido agregada correctamente",
         "newPlant.error": "Error al agregar la planta",
+        "newPlant.seedBank": "Banco de Semillas",
+        "newPlant.seedBankPlaceholder":
+          "Ej: Dutch Passion, Barney's Farm, etc.",
+        "newPlant.photos": "Fotos",
 
         // Plant Page
         "plantPage.details": "Detalles",
@@ -716,8 +720,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.name": "Name",
         "newPlant.namePlaceholder": "e.g. Ultra Wonka, OG Kush, etc.",
         "newPlant.seedType": "Seed Type",
-        "newPlant.autofloreciente": "Autoflowering",
-        "newPlant.fotoperiodica": "Photoperiodic",
+        "newPlant.autoflowering": "Autoflowering",
+        "newPlant.photoperiodic": "Photoperiodic",
         "newPlant.growType": "Grow Type",
         "newPlant.indoor": "Indoor",
         "newPlant.outdoor": "Outdoor",
@@ -732,6 +736,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.success": "Plant added!",
         "newPlant.successMessage": "Your plant has been added successfully",
         "newPlant.error": "Error adding plant",
+        "newPlant.seedBank": "Seed Bank",
+        "newPlant.seedBankPlaceholder":
+          "e.g. Dutch Passion, Barney's Farm, etc.",
+        "newPlant.photos": "Photos",
 
         // Plant Page
         "plantPage.details": "Details",

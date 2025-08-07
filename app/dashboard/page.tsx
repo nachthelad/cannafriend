@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -23,9 +23,9 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { PlantCard } from "@/components/plant-card";
-import { ReminderSystem } from "@/components/reminder-system";
-import { Search } from "@/components/search";
+import { PlantCard } from "@/components/plant/plant-card";
+import { ReminderSystem } from "@/components/plant/reminder-system";
+import { Search } from "@/components/common/search";
 import { Plus, Loader2 } from "lucide-react";
 import type { Plant, LogEntry } from "@/types";
 
