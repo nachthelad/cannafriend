@@ -540,7 +540,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       };
 
       const enTranslations = {
-        "app.name": "Grow Tracker",
+        "app.name": "cannafriend",
         "app.description": "Track your plant growth",
 
         // Login/Signup

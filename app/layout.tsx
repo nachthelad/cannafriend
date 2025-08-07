@@ -50,14 +50,14 @@ export default function RootLayout({
         <link
           rel="icon"
           type="image/png"
-          sizes="192x192"
-          href="/icon-192x192.png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
         />
         <link
           rel="icon"
           type="image/png"
-          sizes="512x512"
-          href="/icon-512x512.png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
         />
         <script
           dangerouslySetInnerHTML={{

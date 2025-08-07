@@ -6,6 +6,7 @@ import { FeaturesSection } from "@/components/marketing/features-section";
 import { MobileLoginSection } from "@/components/marketing/mobile-login-section";
 import { DesktopFeaturesSection } from "@/components/marketing/desktop-features-section";
 import { LoginCard } from "@/components/auth/login-card";
+import Logo from "@/components/common/logo";
 
 export default function LoginPage() {
   return (
@@ -32,7 +33,9 @@ export default function LoginPage() {
         {/* Centered Title and Subtitle */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-2xl">
-            <div className="text-6xl mb-6">🌱</div>
+            <div className="mb-6 flex justify-center">
+              <Logo size={64} className="text-primary" />
+            </div>
             <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
               cannafriend
             </h1>

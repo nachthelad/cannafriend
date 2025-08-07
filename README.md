@@ -1,30 +1,42 @@
-# Cannabis Grow Tracker
+## cannafriend
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Minimal, friendly cannabis plant growth tracker. Log activities, visualize environment trends, manage reminders, and keep photo timelines for each plant — all in an installable PWA with dark mode and multilingual support.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/nachthelads-projects/v0-cannabis-grow-tracker)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/CZ74wSGhXae)
+### Core features
 
-## Overview
+- **Secure accounts**: Email/Password and Google sign‑in, onboarding, and password recovery. New users are guided through timezone setup.
+- **Plants**: Create plants with seed type (autoflowering/photoperiodic), grow type (indoor/outdoor), optional light schedule, seed bank, planting date, and photos. Set a cover photo and delete plants when needed.
+- **Journal**: Add logs for watering, feeding (NPK), training, environment (temperature/humidity/pH), and flowering. View logs in a list or calendar, filter by plant/type/date, and see localized dates.
+- **Environment charts**: Temperature, humidity, and pH graphed over time for each plant.
+- **Reminders**: Per‑plant reminders (watering/feeding/training/custom) with daily/weekly/custom frequencies. Activate/deactivate and delete reminders any time.
+- **Photos**: Drag‑and‑drop uploads with size/type validation, gallery preview, lightbox, and cover selection. Images are stored per user for privacy.
+- **Settings**: Language (ES/EN), timezone, and dark mode.
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+### User experience
 
-## Deployment
+- **Clean UI** with accessible controls, keyboard‑friendly interactions, and informative toasts.
+- **Localization** in Spanish and English with instant switching.
+- **Responsive** layouts for mobile and desktop.
 
-Your project is live at:
+### PWA
 
-**[https://vercel.com/nachthelads-projects/v0-cannabis-grow-tracker](https://vercel.com/nachthelads-projects/v0-cannabis-grow-tracker)**
+- Installable on desktop and mobile with app icons and manifest.
+- Works offline with an offline fallback page for a graceful experience.
 
-## Build your app
+### Privacy & security
 
-Continue building your app on:
+- Data is scoped to the authenticated user. Firestore security rules restrict read/write to the owner’s `users/{uid}` namespace.
+- Storage rules limit access to each user’s own images and validate file type/size on upload.
+- No public user listing or unauthenticated access to private data.
 
-**[https://v0.dev/chat/projects/CZ74wSGhXae](https://v0.dev/chat/projects/CZ74wSGhXae)**
+### What you can do in the app
 
-## How It Works
+- Add a new plant and start logging activities from day one.
+- Track environment changes over time to optimize growth.
+- Keep a visual history by uploading photos and setting a cover image.
+- Set reminders so you never miss critical care windows.
+- Switch language and theme, stay productive online or offline, and install the app to your device.
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+### Notes
+
+- This application is intended for legal and responsible cultivation contexts. Please follow all applicable local laws.
