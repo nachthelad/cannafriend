@@ -19,14 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, getDocs, orderBy, where } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { AddLogForm } from "@/components/add-log-form";
-import { JournalEntries } from "@/components/journal-entries";
+import { AddLogForm } from "@/components/journal/add-log-form";
+import { JournalEntries } from "@/components/journal/journal-entries";
 import { LocalizedCalendar as Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon, Filter, Plus, Loader2 } from "lucide-react";
 import {

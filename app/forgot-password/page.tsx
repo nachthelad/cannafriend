@@ -15,9 +15,11 @@ import {
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
 import { useToast } from "@/hooks/use-toast";
-import { auth, db } from "@/lib/firebase";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import {
+  sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -37,6 +39,7 @@ export default function ForgotPasswordPage() {
     handleSubmit,
     formState: { errors },
     watch,
+    setError,
   } = useForm<ForgotPasswordFormData>({
     defaultValues: {
       email: "",
@@ -45,53 +48,23 @@ export default function ForgotPasswordPage() {
 
   const email = watch("email");
 
-  const checkEmailExists = async (email: string): Promise<boolean> => {
-    try {
-      console.log("Starting email check for:", email);
-
-      // Buscar en la colección de usuarios en Firestore
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", email));
-      const querySnapshot = await getDocs(q);
-
-      console.log("Query executed, empty:", querySnapshot.empty);
-      console.log("Query size:", querySnapshot.size);
-
-      // Log all documents for debugging
-      querySnapshot.forEach((doc) => {
-        console.log("Found document:", doc.id, doc.data());
-      });
-
-      return !querySnapshot.empty;
-    } catch (error) {
-      console.error("Error checking email:", error);
-      console.error("Error details:", error);
-      return false;
-    }
-  };
-
   const onSubmit = async (data: ForgotPasswordFormData) => {
     console.log("Form submitted with email:", data.email);
     setIsLoading(true);
     setLoadingStep(t("forgotPassword.verifyingEmail"));
 
     try {
-      // Primero verificar si el email existe en la BD
-      console.log("Checking if email exists in database...");
-      const emailExists = await checkEmailExists(data.email);
-      console.log("Email exists:", emailExists);
-
-      if (!emailExists) {
-        console.log("Email not found, showing error toast");
-        toast({
-          variant: "destructive",
-          title: t("forgotPassword.emailNotRegisteredTitle"),
-          description: t("forgotPassword.emailNotRegisteredDescription"),
+      // Verificar si existe una cuenta para este email usando Firebase Auth
+      setLoadingStep(t("forgotPassword.verifyingEmail"));
+      const methods = await fetchSignInMethodsForEmail(auth, data.email);
+      if (!methods || methods.length === 0) {
+        setError("email", {
+          message: t("forgotPassword.emailNotRegisteredDescription"),
         });
         return;
       }
 
-      // Si el email existe, enviar el email de recuperación con configuración personalizada
+      // Enviar el email de recuperación con configuración personalizada
       setLoadingStep(t("forgotPassword.sendingEmail"));
       console.log("Email found, sending password reset email to:", data.email);
       console.log("Reset URL:", `${window.location.origin}/reset-password`);
@@ -130,8 +103,7 @@ export default function ForgotPasswordPage() {
             errorMessage = t("auth.tooManyRequests");
             break;
           case "auth/user-not-found":
-            errorMessage =
-              "No se encontró una cuenta con este correo electrónico.";
+            errorMessage = t("forgotPassword.emailNotRegisteredDescription");
             break;
           default:
             errorMessage = error.message || t("common.unknownError");

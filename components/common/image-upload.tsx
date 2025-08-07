@@ -2,12 +2,24 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { storage, auth } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_MAX_IMAGES,
+  DEFAULT_MAX_SIZE_MB,
+  ALLOWED_IMAGE_TYPES,
+  ALLOWED_IMAGE_EXTENSIONS,
+  STORAGE_IMAGES_PATH,
+  IMAGE_UPLOAD_ERRORS,
+  generateImageFileName,
+  getImageStoragePath,
+  validateImageFile,
+  getImageAcceptAttribute,
+} from "@/lib/image-config";
 
 interface ImageUploadProps {
   onImagesChange: (urls: string[]) => void;
@@ -16,20 +28,10 @@ interface ImageUploadProps {
   className?: string;
 }
 
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-];
-
-const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
-
 export function ImageUpload({
   onImagesChange,
-  maxImages = 5,
-  maxSizeMB = 5,
+  maxImages = DEFAULT_MAX_IMAGES,
+  maxSizeMB = DEFAULT_MAX_SIZE_MB,
   className,
 }: ImageUploadProps) {
   const { t } = useTranslation();
@@ -37,30 +39,15 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFile = (file: File): string | null => {
-    // Verificar tipo de archivo
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return `${t("imageUpload.invalidType")} ${ALLOWED_EXTENSIONS.join(", ")}`;
-    }
-
-    // Verificar tamaño
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      return `${t("imageUpload.tooLarge")} ${maxSizeMB}MB`;
-    }
-
-    return null;
-  };
-
   const uploadImage = async (file: File): Promise<string> => {
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      throw new Error("Usuario no autenticado");
+      throw new Error(IMAGE_UPLOAD_ERRORS.USER_NOT_AUTHENTICATED);
     }
 
-    const timestamp = Date.now();
-    const fileName = `${timestamp}_${file.name}`;
-    const storageRef = ref(storage, `images/${userId}/${fileName}`);
+    const fileName = generateImageFileName(file.name);
+    const storagePath = getImageStoragePath(userId, fileName);
+    const storageRef = ref(storage, storagePath);
 
     const snapshot = await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(snapshot.ref);
@@ -83,7 +70,7 @@ export function ImageUpload({
 
       // Validar archivos
       for (const file of files) {
-        const error = validateFile(file);
+        const error = validateImageFile(file, maxSizeMB);
         if (error) {
           errors.push(`${file.name}: ${error}`);
         } else {
@@ -178,7 +165,7 @@ export function ImageUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept={ALLOWED_TYPES.join(",")}
+          accept={getImageAcceptAttribute()}
           onChange={handleFileSelect}
           className="hidden"
           disabled={uploading}
@@ -207,7 +194,7 @@ export function ImageUpload({
         </div>
 
         <p className="text-xs text-muted-foreground mt-2">
-          {t("imageUpload.allowedTypes")} {ALLOWED_EXTENSIONS.join(", ")}
+          {t("imageUpload.allowedTypes")} {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
           <br />
           {t("imageUpload.maxSize")} {maxSizeMB}MB
           <br />

@@ -13,7 +13,7 @@ import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import ReCAPTCHA from "react-google-recaptcha";
 import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
 
@@ -164,6 +164,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <Input
           id="email"
           type="email"
+          autoComplete="email"
+          inputMode="email"
+          aria-invalid={Boolean(errors.email) || undefined}
           placeholder="ejemplo@correo.com"
           className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
           {...register("email", {
@@ -198,6 +201,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
+            aria-invalid={Boolean(errors.password) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("password", {
               required: t("common.fieldRequired"),
@@ -238,6 +243,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           <Input
             id="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
+            autoComplete="new-password"
+            aria-invalid={Boolean(errors.confirmPassword) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("confirmPassword", {
               required: t("common.fieldRequired"),

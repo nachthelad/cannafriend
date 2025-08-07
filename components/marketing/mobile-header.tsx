@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
-import { GoogleLoginButton } from "./google-login-button";
+import { GoogleLoginButton } from "@/components/auth/google-login-button";
 
 interface MobileHeaderProps {
   className?: string;

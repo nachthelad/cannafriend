@@ -12,10 +12,15 @@ import {
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Plus, X, Crown } from "lucide-react";
-import { ImageUpload } from "@/components/image-upload";
-import { ImageGalleryModal } from "@/components/image-gallery-modal";
+import { ImageUpload } from "@/components/common/image-upload";
+import {
+  DEFAULT_MAX_IMAGES,
+  DEFAULT_MAX_SIZE_MB,
+  getImageAltText,
+} from "@/lib/image-config";
+import { ImageGalleryModal } from "@/components/plant/photos/image-gallery-modal";
 
 interface PhotoGalleryProps {
   photos: string[];
@@ -189,7 +194,7 @@ export function PhotoGallery({
             >
               <Image
                 src={photo || "/placeholder.svg"}
-                alt={`${t("photos.plantPhoto")} ${index + 1}`}
+                alt={getImageAltText(index, t("photos.plantPhoto"))}
                 fill
                 className="object-cover transition-transform group-hover:scale-105"
                 onClick={() => openGallery(photos, index)}
@@ -243,8 +248,8 @@ export function PhotoGallery({
           </DialogHeader>
           <ImageUpload
             onImagesChange={handlePhotosChange}
-            maxImages={10}
-            maxSizeMB={5}
+            maxImages={DEFAULT_MAX_IMAGES}
+            maxSizeMB={DEFAULT_MAX_SIZE_MB}
             className="mt-4"
           />
         </DialogContent>

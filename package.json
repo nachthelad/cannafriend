@@ -9,7 +9,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -64,8 +63,7 @@
     "workbox-expiration": "latest",
     "workbox-precaching": "latest",
     "workbox-routing": "latest",
-    "workbox-strategies": "latest",
-    "zod": "3.25.67"
+    "workbox-strategies": "latest"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -63,14 +64,32 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Form state
-  const [selectedPlant, setSelectedPlant] = useState("");
-  const [reminderType, setReminderType] =
-    useState<Reminder["type"]>("watering");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [frequency, setFrequency] = useState<Reminder["frequency"]>("weekly");
-  const [interval, setInterval] = useState("7");
+  // Form state via RHF
+  type ReminderForm = {
+    selectedPlant: string;
+    reminderType: Reminder["type"];
+    title?: string;
+    description?: string;
+    frequency: Reminder["frequency"];
+    interval: string; // keep string for input, convert to number on submit
+  };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<ReminderForm>({
+    defaultValues: {
+      selectedPlant: "",
+      reminderType: "watering",
+      title: "",
+      description: "",
+      frequency: "weekly",
+      interval: "7",
+    },
+  });
 
   useEffect(() => {
     fetchReminders();
@@ -102,28 +121,27 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
     }
   };
 
-  const handleAddReminder = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddReminder = async (data: ReminderForm) => {
+    if (!auth.currentUser || !data.selectedPlant) return;
 
-    if (!auth.currentUser || !selectedPlant) return;
-
-    const plant = plants.find((p) => p.id === selectedPlant);
+    const plant = plants.find((p) => p.id === data.selectedPlant);
     if (!plant) return;
 
     try {
       const now = new Date();
       const nextReminder = new Date(
-        now.getTime() + parseInt(interval) * 24 * 60 * 60 * 1000
+        now.getTime() + parseInt(data.interval) * 24 * 60 * 60 * 1000
       );
 
       const reminderData = {
-        plantId: selectedPlant,
+        plantId: data.selectedPlant,
         plantName: plant.name,
-        type: reminderType,
-        title: title || getDefaultTitle(reminderType),
-        description: description || getDefaultDescription(reminderType),
-        frequency,
-        interval: parseInt(interval),
+        type: data.reminderType,
+        title: data.title || getDefaultTitle(data.reminderType),
+        description:
+          data.description || getDefaultDescription(data.reminderType),
+        frequency: data.frequency,
+        interval: parseInt(data.interval),
         lastReminder: now.toISOString(),
         nextReminder: nextReminder.toISOString(),
         isActive: true,
@@ -144,7 +162,7 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
       });
 
       setShowAddForm(false);
-      resetForm();
+      reset();
       fetchReminders();
     } catch (error: any) {
       handleFirebaseError(error, "creating reminder");
@@ -245,14 +263,12 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
     }
   };
 
-  const resetForm = () => {
-    setSelectedPlant("");
-    setReminderType("watering");
-    setTitle("");
-    setDescription("");
-    setFrequency("weekly");
-    setInterval("7");
-  };
+  const selectedPlant = watch("selectedPlant");
+  const reminderType = watch("reminderType");
+  const title = watch("title");
+  const description = watch("description");
+  const frequency = watch("frequency");
+  const interval = watch("interval");
 
   const activeReminders = reminders.filter((r) => r.isActive);
   const overdueReminders = activeReminders.filter(
@@ -320,13 +336,22 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAddReminder} className="space-y-4">
+            <form
+              onSubmit={handleSubmit(handleAddReminder)}
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label>{t("reminders.selectPlant")}</Label>
+                <input
+                  type="hidden"
+                  {...register("selectedPlant", {
+                    required: t("reminders.selectPlant") as string,
+                  })}
+                  value={selectedPlant || ""}
+                />
                 <Select
                   value={selectedPlant}
-                  onValueChange={setSelectedPlant}
-                  required
+                  onValueChange={(v) => setValue("selectedPlant", v)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={t("reminders.selectPlant")} />
@@ -339,14 +364,24 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.selectedPlant && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.selectedPlant.message)}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label>{t("reminders.reminderType")}</Label>
+                <input
+                  type="hidden"
+                  {...register("reminderType", { required: true })}
+                  value={reminderType || ""}
+                />
                 <Select
                   value={reminderType}
-                  onValueChange={(value) =>
-                    setReminderType(value as Reminder["type"])
+                  onValueChange={(v) =>
+                    setValue("reminderType", v as Reminder["type"])
                   }
                 >
                   <SelectTrigger>
@@ -372,8 +407,7 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
               <div className="space-y-2">
                 <Label>{t("reminders.title")}</Label>
                 <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  {...register("title")}
                   placeholder={getDefaultTitle(reminderType)}
                 />
               </div>
@@ -381,8 +415,7 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
               <div className="space-y-2">
                 <Label>{t("reminders.description")}</Label>
                 <Input
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  {...register("description")}
                   placeholder={getDefaultDescription(reminderType)}
                 />
               </div>
@@ -390,10 +423,15 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t("reminders.frequency")}</Label>
+                  <input
+                    type="hidden"
+                    {...register("frequency", { required: true })}
+                    value={frequency || ""}
+                  />
                   <Select
                     value={frequency}
-                    onValueChange={(value) =>
-                      setFrequency(value as Reminder["frequency"])
+                    onValueChange={(v) =>
+                      setValue("frequency", v as Reminder["frequency"])
                     }
                   >
                     <SelectTrigger>
@@ -418,10 +456,19 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
                   <Input
                     type="number"
                     min="1"
-                    value={interval}
-                    onChange={(e) => setInterval(e.target.value)}
+                    {...register("interval", {
+                      validate: (value) => {
+                        const n = Number.parseInt(value || "");
+                        return (Number.isFinite(n) && n > 0) || "Must be > 0";
+                      },
+                    })}
                     placeholder="7"
                   />
+                  {errors.interval && (
+                    <p className="text-xs text-destructive">
+                      {String(errors.interval.message)}
+                    </p>
+                  )}
                 </div>
               </div>
 

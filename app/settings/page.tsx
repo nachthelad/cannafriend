@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useTheme } from "next-themes";
 import { auth, db } from "@/lib/firebase";
@@ -34,7 +34,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, deleteUser } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { Loader2, Trash2, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,

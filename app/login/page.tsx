@@ -1,11 +1,11 @@
 "use client";
 
-import { MobileHeader } from "@/components/mobile-header";
-import { AppIntroduction } from "@/components/app-introduction";
-import { FeaturesSection } from "@/components/features-section";
-import { MobileLoginSection } from "@/components/mobile-login-section";
-import { DesktopFeaturesSection } from "@/components/desktop-features-section";
-import { LoginCard } from "@/components/login-card";
+import { MobileHeader } from "@/components/marketing/mobile-header";
+import { AppIntroduction } from "@/components/marketing/app-introduction";
+import { FeaturesSection } from "@/components/marketing/features-section";
+import { MobileLoginSection } from "@/components/marketing/mobile-login-section";
+import { DesktopFeaturesSection } from "@/components/marketing/desktop-features-section";
+import { LoginCard } from "@/components/auth/login-card";
 
 export default function LoginPage() {
   return (

@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -25,15 +25,33 @@ import {
   getDocs,
   where,
   limit,
+  deleteDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { PlantDetails } from "@/components/plant-details";
-import { JournalEntries } from "@/components/journal-entries";
-import { EnvironmentChart } from "@/components/environment-chart";
-import { PhotoGallery } from "@/components/photo-gallery";
-import { AddLogForm } from "@/components/add-log-form";
-import { Loader2, CalendarIcon, LineChart, ImageIcon } from "lucide-react";
+import { PlantDetails } from "@/components/plant/plant-details";
+import { JournalEntries } from "@/components/journal/journal-entries";
+import { EnvironmentChart } from "@/components/plant/environment-chart";
+import { PhotoGallery } from "@/components/plant/photos/photo-gallery";
+import { AddLogForm } from "@/components/journal/add-log-form";
+import {
+  Loader2,
+  CalendarIcon,
+  LineChart,
+  ImageIcon,
+  Trash2,
+} from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
 import { addDoc } from "firebase/firestore";
 
@@ -57,6 +75,7 @@ export default function PlantPage({
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
   const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -190,13 +209,87 @@ export default function PlantPage({
     );
   }
 
+  const handleDeletePlant = async () => {
+    if (!userId) return;
+    setIsDeleting(true);
+
+    try {
+      // Delete subcollection docs: logs
+      const logsRef = collection(db, "users", userId, "plants", id, "logs");
+      const logsSnap = await getDocs(logsRef);
+      for (const d of logsSnap.docs) {
+        await deleteDoc(d.ref);
+      }
+
+      // Delete subcollection docs: environment
+      const envRef = collection(
+        db,
+        "users",
+        userId,
+        "plants",
+        id,
+        "environment"
+      );
+      const envSnap = await getDocs(envRef);
+      for (const d of envSnap.docs) {
+        await deleteDoc(d.ref);
+      }
+
+      // Delete plant document
+      await deleteDoc(doc(db, "users", userId, "plants", id));
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("common.error"),
+        description: error?.message,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">{plant.name}</h1>
-        <p className="text-muted-foreground">
-          {t(`newPlant.${plant.seedType}`)}
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">{plant.name}</h1>
+          <p className="text-muted-foreground">
+            {t(`newPlant.${plant.seedType}`)}
+          </p>
+        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="icon"
+              aria-label="Delete plant"
+              className="shrink-0"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("settings.confirmDelete")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("settings.confirmDeleteDesc")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>
+                {t("common.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeletePlant}
+                disabled={isDeleting}
+              >
+                {t("common.delete")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <Tabs defaultValue="details" className="w-full">
