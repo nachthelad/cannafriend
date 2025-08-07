@@ -45,6 +45,128 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.google": "Continuar con Google",
         "login.terms":
           "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad",
+        "terms.title": "Términos de Servicio",
+        "terms.lastUpdated": "Última actualización",
+        "terms.acceptance": "Aceptación de los Términos",
+        "terms.acceptanceDesc":
+          "Al acceder y usar cannafriend, aceptas estar sujeto a estos términos de servicio.",
+        "terms.use": "Uso del Servicio",
+        "terms.useDesc":
+          "cannafriend es una aplicación para el seguimiento del crecimiento de plantas. Debes usar el servicio de manera responsable y legal.",
+        "terms.account": "Cuenta de Usuario",
+        "terms.accountDesc":
+          "Eres responsable de mantener la confidencialidad de tu cuenta y contraseña.",
+        "terms.privacy": "Privacidad",
+        "terms.privacyDesc":
+          "Tu privacidad es importante. Consulta nuestra Política de Privacidad para más detalles.",
+        "terms.termination": "Terminación",
+        "terms.terminationDesc":
+          "Podemos terminar o suspender tu cuenta en cualquier momento por violación de estos términos.",
+        "terms.changes": "Cambios en los Términos",
+        "terms.changesDesc":
+          "Nos reservamos el derecho de modificar estos términos en cualquier momento.",
+        "terms.contact": "Contacto",
+        "terms.contactDesc":
+          "Si tienes preguntas sobre estos términos, contáctanos en nachthelad.dev@gmail.com",
+
+        // Privacy Policy
+        "privacy.title": "Política de Privacidad",
+        "privacy.lastUpdated": "Última actualización",
+        "privacy.intro": "Introducción",
+        "privacy.introDesc":
+          "Esta Política de Privacidad describe cómo cannafriend recopila, usa y protege tu información personal.",
+        "privacy.collection": "Información que Recopilamos",
+        "privacy.collectionDesc":
+          "Recopilamos información que nos proporcionas directamente, como tu correo electrónico y datos de tu cuenta.",
+        "privacy.usage": "Cómo Usamos tu Información",
+        "privacy.usageDesc":
+          "Usamos tu información para proporcionar y mejorar nuestros servicios, comunicarnos contigo y personalizar tu experiencia.",
+        "privacy.sharing": "Compartir Información",
+        "privacy.sharingDesc":
+          "No vendemos, alquilamos ni compartimos tu información personal con terceros sin tu consentimiento.",
+        "privacy.security": "Seguridad",
+        "privacy.securityDesc":
+          "Implementamos medidas de seguridad técnicas y organizativas para proteger tu información personal.",
+        "privacy.cookies": "Cookies",
+        "privacy.cookiesDesc":
+          "Utilizamos cookies para mejorar tu experiencia en nuestra aplicación.",
+        "privacy.rights": "Tus Derechos",
+        "privacy.rightsDesc":
+          "Tienes derecho a acceder, corregir o eliminar tu información personal en cualquier momento.",
+        "privacy.changes": "Cambios en la Política",
+        "privacy.changesDesc":
+          "Podemos actualizar esta política de privacidad ocasionalmente. Te notificaremos de cualquier cambio importante.",
+        "privacy.contact": "Contacto",
+        "privacy.contactDesc":
+          "Si tienes preguntas sobre esta política de privacidad, contáctanos en nachthelad.dev@gmail.com",
+        "login.forgotPassword": "¿Olvidaste tu contraseña?",
+        "login.enterEmailFirst":
+          "Por favor ingresa tu correo electrónico primero",
+        "login.passwordResetSent": "Correo de recuperación enviado",
+        "login.checkEmailForReset":
+          "Revisa tu correo electrónico para restablecer tu contraseña",
+        "login.verifyingCredentials": "Verificando credenciales...",
+        "login.signingIn": "Iniciando sesión...",
+        "login.verifyingConfig": "Verificando configuración...",
+        "login.emailNotRegistered":
+          "El correo electrónico no está registrado. Por favor, regístrate o verifica tu email.",
+
+        // Password Reset
+        "forgotPassword.title": "Recuperar contraseña",
+        "forgotPassword.description":
+          "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+        "forgotPassword.email": "Correo electrónico",
+        "forgotPassword.submit": "Enviar email de recuperación",
+        "forgotPassword.loading": "Enviando...",
+        "forgotPassword.success": "Email enviado",
+        "forgotPassword.successMessage":
+          "Se ha enviado un email de recuperación a tu correo electrónico. Revisa tu bandeja de entrada.",
+        "forgotPassword.error": "Error al enviar el email",
+        "forgotPassword.emailNotRegistered":
+          "El correo electrónico no está registrado. Por favor, intenta con otro correo o regístrate.",
+        "forgotPassword.backToLogin": "Volver al login",
+        "forgotPassword.emailSent": "Email enviado",
+        "forgotPassword.emailSentMessage":
+          "Hemos enviado un email de recuperación a tu correo electrónico.",
+        "forgotPassword.checkEmail":
+          "Revisa tu bandeja de entrada y sigue las instrucciones para restablecer tu contraseña.",
+        "forgotPassword.verifyingEmail": "Verificando email...",
+        "forgotPassword.sendingEmail": "Enviando email de recuperación...",
+        "forgotPassword.emailSentTitle": "Email enviado",
+        "forgotPassword.emailSentDescription":
+          "Se ha enviado un email de recuperación. Revisa tu bandeja de entrada (y spam). Redirigiendo al login...",
+        "forgotPassword.emailNotRegisteredTitle": "Email no registrado",
+        "forgotPassword.emailNotRegisteredDescription":
+          "No se encontró una cuenta con este correo electrónico. Por favor, verifica el email o regístrate.",
+
+        "resetPassword.title": "Restablecer contraseña",
+        "resetPassword.description":
+          "Ingresa tu nueva contraseña para completar el proceso de recuperación.",
+        "resetPassword.password": "Nueva contraseña",
+        "resetPassword.confirmPassword": "Confirmar contraseña",
+        "resetPassword.submit": "Actualizar contraseña",
+        "resetPassword.loading": "Actualizando...",
+        "resetPassword.success": "¡Contraseña actualizada!",
+        "resetPassword.successMessage":
+          "Tu contraseña ha sido restablecida exitosamente.",
+        "resetPassword.error": "Error al restablecer la contraseña",
+        "resetPassword.passwordsDoNotMatch": "Las contraseñas no coinciden.",
+        "resetPassword.weakPassword":
+          "La contraseña es demasiado débil. Usa al menos 6 caracteres.",
+        "resetPassword.expiredLink":
+          "El enlace ha expirado. Solicita un nuevo enlace.",
+        "resetPassword.invalidLink":
+          "Enlace inválido. Solicita un nuevo enlace.",
+        "resetPassword.verifying": "Verificando enlace...",
+        "resetPassword.invalidLinkError":
+          "Enlace inválido. Solicita un nuevo enlace de recuperación.",
+        "resetPassword.expiredLinkError":
+          "El enlace de recuperación ha expirado o es inválido. Solicita un nuevo enlace.",
+        "resetPassword.updatingPassword": "Actualizando contraseña...",
+        "resetPassword.successDescription":
+          "Tu contraseña ha sido actualizada exitosamente. Serás redirigido al login.",
+        "resetPassword.redirectingMessage":
+          "Serás redirigido al login en 3 segundos...",
 
         "signup.title": "Registrarse",
         "signup.email": "Correo Electrónico",
@@ -63,6 +185,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "El reCAPTCHA ha expirado, por favor complétalo nuevamente",
         "signup.recaptchaError":
           "Error en el reCAPTCHA, por favor inténtalo nuevamente",
+        "signup.validatingData": "Validando datos...",
+        "signup.creatingAccount": "Creando cuenta...",
+        "signup.savingData": "Guardando datos...",
 
         // Onboarding
         "onboarding.title": "Bienvenido",
@@ -265,6 +390,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // Common
         "common.error": "Error",
         "common.unknownError": "Error desconocido",
+        "common.fieldRequired": "Este campo es requerido",
         "common.success": "Éxito",
         "common.loading": "Cargando...",
         "common.save": "Guardar",
@@ -276,13 +402,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.back": "Volver",
 
         // Auth Errors
+        "auth.error": "Error de autenticación",
         "auth.userNotFound": "Usuario no encontrado",
         "auth.wrongPassword": "Contraseña incorrecta",
         "auth.emailAlreadyInUse": "El correo electrónico ya está en uso",
         "auth.weakPassword": "La contraseña es demasiado débil",
         "auth.invalidEmail": "Correo electrónico inválido",
+        "auth.incompleteEmail": "Por favor completa el correo electrónico",
         "auth.tooManyRequests": "Demasiados intentos. Intenta más tarde",
         "auth.networkError": "Error de conexión. Verifica tu internet",
+        "auth.passwordTooShort": "La contraseña es muy corta",
 
         // Firebase Errors
         "firebase.permissionDenied":
@@ -421,6 +550,60 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.google": "Continue with Google",
         "login.terms":
           "By continuing, you agree to our Terms of Service and Privacy Policy",
+        "terms.title": "Terms of Service",
+        "terms.lastUpdated": "Last updated",
+        "terms.acceptance": "Acceptance of Terms",
+        "terms.acceptanceDesc":
+          "By accessing and using cannafriend, you agree to be bound by these terms of service.",
+        "terms.use": "Use of Service",
+        "terms.useDesc":
+          "cannafriend is an application for tracking plant growth. You must use the service responsibly and legally.",
+        "terms.account": "User Account",
+        "terms.accountDesc":
+          "You are responsible for maintaining the confidentiality of your account and password.",
+        "terms.privacy": "Privacy",
+        "terms.privacyDesc":
+          "Your privacy is important. Please refer to our Privacy Policy for more details.",
+        "terms.termination": "Termination",
+        "terms.terminationDesc":
+          "We may terminate or suspend your account at any time for violation of these terms.",
+        "terms.changes": "Changes to Terms",
+        "terms.changesDesc":
+          "We reserve the right to modify these terms at any time.",
+        "terms.contact": "Contact",
+        "terms.contactDesc":
+          "If you have questions about these terms, please contact us at nachthelad.dev@gmail.com",
+
+        // Privacy Policy
+        "privacy.title": "Privacy Policy",
+        "privacy.lastUpdated": "Last updated",
+        "privacy.intro": "Introduction",
+        "privacy.introDesc":
+          "This Privacy Policy describes how cannafriend collects, uses, and protects your personal information.",
+        "privacy.collection": "Information We Collect",
+        "privacy.collectionDesc":
+          "We collect information you provide directly to us, such as your email address and account data.",
+        "privacy.usage": "How We Use Your Information",
+        "privacy.usageDesc":
+          "We use your information to provide and improve our services, communicate with you, and personalize your experience.",
+        "privacy.sharing": "Sharing Information",
+        "privacy.sharingDesc":
+          "We do not sell, rent, or share your personal information with third parties without your consent.",
+        "privacy.security": "Security",
+        "privacy.securityDesc":
+          "We implement technical and organizational security measures to protect your personal information.",
+        "privacy.cookies": "Cookies",
+        "privacy.cookiesDesc":
+          "We use cookies to enhance your experience in our application.",
+        "privacy.rights": "Your Rights",
+        "privacy.rightsDesc":
+          "You have the right to access, correct, or delete your personal information at any time.",
+        "privacy.changes": "Changes to Policy",
+        "privacy.changesDesc":
+          "We may update this privacy policy occasionally. We will notify you of any significant changes.",
+        "privacy.contact": "Contact",
+        "privacy.contactDesc":
+          "If you have questions about this privacy policy, please contact us at nachthelad.dev@gmail.com",
 
         "signup.title": "Sign Up",
         "signup.email": "Email",
@@ -436,6 +619,73 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "signup.recaptchaExpired":
           "The reCAPTCHA has expired, please complete it again",
         "signup.recaptchaError": "reCAPTCHA error, please try again",
+        "signup.validatingData": "Validating data...",
+        "signup.creatingAccount": "Creating account...",
+        "signup.savingData": "Saving data...",
+
+        // Forgot Password
+        "forgotPassword.title": "Recover Password",
+        "forgotPassword.description":
+          "Enter your email and we'll send you a link to reset your password.",
+        "forgotPassword.email": "Email",
+        "forgotPassword.submit": "Send recovery email",
+        "forgotPassword.loading": "Sending...",
+        "forgotPassword.success": "Email sent",
+        "forgotPassword.successMessage":
+          "A recovery email has been sent to your email address. Check your inbox.",
+        "forgotPassword.error": "Error sending email",
+        "forgotPassword.emailNotRegistered":
+          "The email address is not registered. Please try another email or sign up.",
+        "forgotPassword.backToLogin": "Back to login",
+        "forgotPassword.emailSent": "Email sent",
+        "forgotPassword.emailSentMessage":
+          "We have sent a recovery email to your email address.",
+        "forgotPassword.checkEmail":
+          "Check your inbox and follow the instructions to reset your password.",
+        "forgotPassword.verifyingEmail": "Verifying email...",
+        "forgotPassword.sendingEmail": "Sending recovery email...",
+        "forgotPassword.emailSentTitle": "Email sent",
+        "forgotPassword.emailSentDescription":
+          "A recovery email has been sent. Check your inbox (and spam). Redirecting to login...",
+        "forgotPassword.emailNotRegisteredTitle": "Email not registered",
+        "forgotPassword.emailNotRegisteredDescription":
+          "No account found with this email address. Please verify the email or sign up.",
+
+        // Reset Password
+        "resetPassword.title": "Reset Password",
+        "resetPassword.description":
+          "Enter your new password to complete the recovery process.",
+        "resetPassword.password": "New password",
+        "resetPassword.confirmPassword": "Confirm password",
+        "resetPassword.submit": "Update password",
+        "resetPassword.loading": "Updating...",
+        "resetPassword.success": "Password updated!",
+        "resetPassword.successMessage":
+          "Your password has been reset successfully.",
+        "resetPassword.error": "Error resetting password",
+        "resetPassword.passwordsDoNotMatch": "Passwords do not match.",
+        "resetPassword.weakPassword":
+          "Password is too weak. Use at least 6 characters.",
+        "resetPassword.expiredLink":
+          "The link has expired. Request a new link.",
+        "resetPassword.invalidLink": "Invalid link. Request a new link.",
+        "resetPassword.verifying": "Verifying link...",
+        "resetPassword.invalidLinkError":
+          "Invalid link. Request a new recovery link.",
+        "resetPassword.expiredLinkError":
+          "The recovery link has expired or is invalid. Request a new link.",
+        "resetPassword.updatingPassword": "Updating password...",
+        "resetPassword.successDescription":
+          "Your password has been updated successfully. You will be redirected to login.",
+        "resetPassword.redirectingMessage":
+          "You will be redirected to login in 3 seconds...",
+
+        // Login
+        "login.verifyingCredentials": "Verifying credentials...",
+        "login.signingIn": "Signing in...",
+        "login.verifyingConfig": "Verifying configuration...",
+        "login.emailNotRegistered":
+          "The email address is not registered. Please sign up or verify your email.",
 
         // Onboarding
         "onboarding.title": "Welcome",
@@ -636,6 +886,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // Common
         "common.error": "Error",
         "common.unknownError": "Unknown error",
+        "common.fieldRequired": "This field is required",
         "common.success": "Success",
         "common.loading": "Loading...",
         "common.save": "Save",
@@ -647,13 +898,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.back": "Back",
 
         // Auth Errors
+        "auth.error": "Authentication error",
         "auth.userNotFound": "User not found",
         "auth.wrongPassword": "Wrong password",
         "auth.emailAlreadyInUse": "Email already in use",
         "auth.weakPassword": "Password is too weak",
         "auth.invalidEmail": "Invalid email",
+        "auth.incompleteEmail": "Please complete the email",
         "auth.tooManyRequests": "Too many attempts. Try again later",
         "auth.networkError": "Connection error. Check your internet",
+        "auth.passwordTooShort": "Password is too short",
 
         // Firebase Errors
         "firebase.permissionDenied":

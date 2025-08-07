@@ -1,10 +1,21 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only access their own data
+    // Allow checking if email exists for password recovery (unauthenticated)
     match /users/{userId} {
-      // Allow users to read and write their own user document
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow reading user document to check if email exists (for password recovery)
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow unauthenticated users to query users collection to check email existence
+      // This is needed for password recovery flow
+      allow list: if request.auth == null && 
+        request.query.limit <= 1 && 
+        request.query.filters.size() == 1 && 
+        request.query.filters[0].fieldPath == "email" && 
+        request.query.filters[0].op == "==";
+      
+      // Allow users to write their own user document
+      allow write: if request.auth != null && request.auth.uid == userId;
       
       // Allow users to read and write their own plants
       match /plants/{plantId} {
@@ -26,7 +37,5 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
-    
-
   }
 } 
