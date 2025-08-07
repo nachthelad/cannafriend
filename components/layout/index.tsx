@@ -19,6 +19,7 @@ import { ThemeToggle } from "@/components/common/theme-toggle";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { cn } from "@/lib/utils";
 import { Home, Menu, Settings, LogOut, Leaf, Calendar, X } from "lucide-react";
+import Logo from "@/components/common/logo";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -74,7 +75,7 @@ export function Layout({ children }: LayoutProps) {
             href="/dashboard"
             className="flex items-center gap-2 font-semibold"
           >
-            <Leaf className="h-6 w-6 text-primary" />
+            <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
           </Link>
         </div>
@@ -131,7 +132,7 @@ export function Layout({ children }: LayoutProps) {
                   href="/dashboard"
                   className="flex items-center gap-2 font-semibold"
                 >
-                  <Leaf className="h-6 w-6 text-primary" />
+                  <Logo size={20} className="text-primary" />
                   <span className="text-xl">{t("app.name")}</span>
                 </Link>
                 <Button
@@ -179,7 +180,7 @@ export function Layout({ children }: LayoutProps) {
             href="/dashboard"
             className="flex items-center gap-2 font-semibold"
           >
-            <Leaf className="h-6 w-6 text-primary" />
+            <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
