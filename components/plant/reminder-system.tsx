@@ -44,7 +44,6 @@ interface Reminder {
   type: "watering" | "feeding" | "training" | "custom";
   title: string;
   description: string;
-  frequency: "daily" | "weekly" | "custom";
   interval: number; // days
   lastReminder: string;
   nextReminder: string;
@@ -63,6 +62,7 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  // Notifications removed
 
   // Form state via RHF
   type ReminderForm = {
@@ -70,7 +70,6 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
     reminderType: Reminder["type"];
     title?: string;
     description?: string;
-    frequency: Reminder["frequency"];
     interval: string; // keep string for input, convert to number on submit
   };
   const {
@@ -86,7 +85,6 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
       reminderType: "watering",
       title: "",
       description: "",
-      frequency: "weekly",
       interval: "7",
     },
   });
@@ -140,7 +138,6 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
         title: data.title || getDefaultTitle(data.reminderType),
         description:
           data.description || getDefaultDescription(data.reminderType),
-        frequency: data.frequency,
         interval: parseInt(data.interval),
         lastReminder: now.toISOString(),
         nextReminder: nextReminder.toISOString(),
@@ -197,6 +194,40 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
       });
     } catch (error: any) {
       handleFirebaseError(error, "updating reminder");
+    }
+  };
+
+  // Mark as done: move nextReminder by interval days and update lastReminder to now
+  const handleMarkDone = async (reminderId: string, intervalDays: number) => {
+    if (!auth.currentUser) return;
+    try {
+      const now = new Date();
+      const next = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
+      const reminderRef = doc(
+        db,
+        "users",
+        auth.currentUser.uid,
+        "reminders",
+        reminderId
+      );
+      await updateDoc(reminderRef, {
+        lastReminder: now.toISOString(),
+        nextReminder: next.toISOString(),
+      });
+      setReminders((prev) =>
+        prev.map((r) =>
+          r.id === reminderId
+            ? {
+                ...r,
+                lastReminder: now.toISOString(),
+                nextReminder: next.toISOString(),
+              }
+            : r
+        )
+      );
+      toast({ title: t("reminders.updated") });
+    } catch (error: any) {
+      handleFirebaseError(error, "marking reminder done");
     }
   };
 
@@ -267,13 +298,29 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
   const reminderType = watch("reminderType");
   const title = watch("title");
   const description = watch("description");
-  const frequency = watch("frequency");
   const interval = watch("interval");
 
   const activeReminders = reminders.filter((r) => r.isActive);
+  const now = new Date();
   const overdueReminders = activeReminders.filter(
-    (r) => new Date(r.nextReminder) < new Date()
+    (r) => new Date(r.nextReminder) < now
   );
+  const dueSoonThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const dueSoonReminders = activeReminders.filter((r) => {
+    const next = new Date(r.nextReminder);
+    return next >= now && next <= dueSoonThreshold;
+  });
+
+  const [overdueToastShown, setOverdueToastShown] = useState(false);
+  useEffect(() => {
+    if (!overdueToastShown && overdueReminders.length > 0) {
+      toast({
+        title: t("reminders.overdue"),
+        description: `${overdueReminders.length} ${t("reminders.overdue")}`,
+      });
+      setOverdueToastShown(true);
+    }
+  }, [overdueReminders.length, overdueToastShown, t, toast]);
 
   if (isLoading) {
     return (
@@ -313,7 +360,17 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
                     </div>
                   </div>
                 </div>
-                <Badge variant="destructive">{t("reminders.overdue")}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="destructive">{t("reminders.overdue")}</Badge>
+                  <Button
+                    size="sm"
+                    onClick={() =>
+                      handleMarkDone(reminder.id, reminder.interval)
+                    }
+                  >
+                    {t("reminders.markDone")}
+                  </Button>
+                </div>
               </div>
             ))}
           </CardContent>
@@ -422,36 +479,6 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("reminders.frequency")}</Label>
-                  <input
-                    type="hidden"
-                    {...register("frequency", { required: true })}
-                    value={frequency || ""}
-                  />
-                  <Select
-                    value={frequency}
-                    onValueChange={(v) =>
-                      setValue("frequency", v as Reminder["frequency"])
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">
-                        {t("reminders.daily")}
-                      </SelectItem>
-                      <SelectItem value="weekly">
-                        {t("reminders.weekly")}
-                      </SelectItem>
-                      <SelectItem value="custom">
-                        {t("reminders.custom")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
                   <Label>{t("reminders.interval")}</Label>
                   <Input
                     type="number"
@@ -497,10 +524,22 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
               <CardTitle>{t("reminders.title")}</CardTitle>
               <CardDescription>{t("reminders.description")}</CardDescription>
             </div>
-            <Button onClick={() => setShowAddForm(true)}>
-              <Bell className="mr-2 h-4 w-4" />
-              {t("reminders.add")}
-            </Button>
+            <div className="flex items-center gap-2">
+              {overdueReminders.length > 0 && (
+                <Badge variant="destructive">
+                  {t("reminders.overdue")} {overdueReminders.length}
+                </Badge>
+              )}
+              {dueSoonReminders.length > 0 && (
+                <Badge>
+                  {t("reminders.dueSoon")} {dueSoonReminders.length}
+                </Badge>
+              )}
+              <Button onClick={() => setShowAddForm(true)}>
+                <Bell className="mr-2 h-4 w-4" />
+                {t("reminders.add")}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -522,9 +561,8 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
                     <div>
                       <div className="font-medium">{reminder.title}</div>
                       <div className="text-sm text-muted-foreground">
-                        {reminder.plantName} •{" "}
-                        {t(`reminders.${reminder.frequency}`)} •{" "}
-                        {reminder.interval} {t("reminders.days")}
+                        {reminder.plantName} • {reminder.interval}{" "}
+                        {t("reminders.days")}
                       </div>
                     </div>
                   </div>

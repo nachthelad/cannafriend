@@ -8,6 +8,7 @@ import { storage, auth } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { downscaleAndConvert } from "@/lib/image-processing";
 import {
   DEFAULT_MAX_IMAGES,
   DEFAULT_MAX_SIZE_MB,
@@ -45,11 +46,24 @@ export function ImageUpload({
       throw new Error(IMAGE_UPLOAD_ERRORS.USER_NOT_AUTHENTICATED);
     }
 
-    const fileName = generateImageFileName(file.name);
+    // Downscale and convert before upload to reduce size
+    let processed: File = file;
+    try {
+      processed = await downscaleAndConvert(file, {
+        maxDimension: 1600,
+        outputQuality: 0.8,
+        preferMimeType: "image/webp",
+      });
+    } catch (e) {
+      // If processing fails, fall back to original file
+      console.warn("Image processing failed, using original file", e);
+    }
+
+    const fileName = generateImageFileName(processed.name);
     const storagePath = getImageStoragePath(userId, fileName);
     const storageRef = ref(storage, storagePath);
 
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(storageRef, processed);
     const downloadURL = await getDownloadURL(snapshot.ref);
 
     return downloadURL;
