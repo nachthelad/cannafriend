@@ -48,6 +48,7 @@ export function PlantCard({
             alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
             fill
             className="object-cover"
+            priority
           />
         ) : plant.photos && plant.photos.length > 0 ? (
           <Image
@@ -55,6 +56,7 @@ export function PlantCard({
             alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
             fill
             className="object-cover"
+            priority
           />
         ) : (
           <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 relative">

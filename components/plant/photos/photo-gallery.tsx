@@ -198,6 +198,7 @@ export function PhotoGallery({
                 fill
                 className="object-cover transition-transform group-hover:scale-105"
                 onClick={() => openGallery(photos, index)}
+                loading="lazy"
               />
 
               {/* Indicador de foto de portada */}

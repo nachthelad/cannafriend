@@ -184,6 +184,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
+            placeholder="••••••••"
             aria-invalid={Boolean(errors.password) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("password", {

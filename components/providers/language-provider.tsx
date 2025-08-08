@@ -32,7 +32,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     const loadTranslations = async () => {
       const esTranslations = {
         "app.name": "cannafriend",
-        "app.description": "Seguimiento de crecimiento de plantas",
+        "app.description": "Inicia sesión para continuar",
 
         // Login/Signup
         "login.title": "Iniciar Sesión",
@@ -281,6 +281,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.title": "Configuración",
         "settings.preferences": "Preferencias",
         "settings.preferencesDesc": "Personaliza tu experiencia",
+        "settings.account": "Cuenta",
+        "settings.accountDesc": "Resumen de tu cuenta",
         "settings.language": "Idioma",
         "settings.timezone": "Zona Horaria",
         "settings.selectTimezone": "Selecciona tu zona horaria",
@@ -296,8 +298,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.dangerZoneDesc": "Acciones irreversibles",
         "settings.deleteAccount": "Eliminar Cuenta",
         "settings.confirmDelete": "¿Estás seguro?",
-        "settings.confirmDeleteDesc":
-          "Esta acción no se puede deshacer. Todos tus datos serán archivados y tu cuenta será eliminada permanentemente.",
+        "settings.confirmDeleteDesc": "Esta acción no se puede deshacer.",
+        // Plant Delete
+        "plant.deleteTitle": "Eliminar planta",
+        "plant.deleteDesc":
+          "Esta acción no se puede deshacer. Se eliminarán la planta y sus registros.",
+        "plant.deleteConfirm": "Eliminar planta",
         "settings.cancel": "Cancelar",
         "settings.confirmDeleteButton": "Sí, eliminar mi cuenta",
         "settings.deleting": "Eliminando...",
@@ -305,6 +311,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.accountDeletedDesc":
           "Tu cuenta ha sido eliminada correctamente",
         "settings.deleteError": "Error al eliminar la cuenta",
+        "settings.enableNotifications": "Activar notificaciones",
+        "settings.reauthRequired":
+          "Por seguridad, vuelve a iniciar sesión y reintenta.",
 
         // Navigation
         "nav.dashboard": "Panel de Control",
@@ -464,6 +473,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Agrega recordatorios para mantener un seguimiento de tus plantas",
         "reminders.overdue": "Vencidos",
         "reminders.overdueDesc": "Estos recordatorios están vencidos",
+        "reminders.dueSoon": "Próximos",
+        "reminders.dueSoonDesc": "Vencen en las próximas 24 horas",
+        "reminders.markDone": "OK",
         "reminders.wateringTitle": "Regar planta",
         "reminders.wateringDesc": "Es hora de regar tu planta",
         "reminders.feedingTitle": "Fertilizar planta",
@@ -472,6 +484,18 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.trainingDesc": "Es hora de entrenar tu planta",
         "reminders.customTitle": "Recordatorio personalizado",
         "reminders.customDesc": "Recordatorio personalizado",
+
+        // Notifications
+        "notifications.enable": "Activar notificaciones",
+        "notifications.enabled": "Notificaciones activadas",
+        "notifications.permissionDenied": "Permiso denegado",
+        "notifications.missingVapid": "Falta la clave pública VAPID",
+        "notifications.unsupported":
+          "Notificaciones no soportadas en este navegador",
+        "notifications.tokenFailed":
+          "No se pudo obtener el token de notificación",
+        "notifications.unknown": "No se pudo activar",
+        "notifications.tokenCopied": "Token copiado al portapapeles",
 
         // Search
         "search.placeholder": "Buscar plantas, registros...",
@@ -541,7 +565,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
       const enTranslations = {
         "app.name": "cannafriend",
-        "app.description": "Track your plant growth",
+        "app.description": "Sign in to continue",
 
         // Login/Signup
         "login.title": "Login",
@@ -783,6 +807,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.title": "Settings",
         "settings.preferences": "Preferences",
         "settings.preferencesDesc": "Customize your experience",
+        "settings.account": "Account",
+        "settings.accountDesc": "Your account summary",
         "settings.language": "Language",
         "settings.timezone": "Timezone",
         "settings.selectTimezone": "Select your timezone",
@@ -798,8 +824,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.dangerZoneDesc": "Irreversible actions",
         "settings.deleteAccount": "Delete Account",
         "settings.confirmDelete": "Are you sure?",
-        "settings.confirmDeleteDesc":
-          "This action cannot be undone. All your data will be archived and your account will be permanently deleted.",
+        "settings.confirmDeleteDesc": "This action cannot be undone.",
+        // Plant Delete
+        "plant.deleteTitle": "Delete plant",
+        "plant.deleteDesc":
+          "This action cannot be undone. The plant and its logs will be deleted.",
+        "plant.deleteConfirm": "Delete plant",
         "settings.cancel": "Cancel",
         "settings.confirmDeleteButton": "Yes, delete my account",
         "settings.deleting": "Deleting...",
@@ -807,6 +837,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.accountDeletedDesc":
           "Your account has been deleted successfully",
         "settings.deleteError": "Error deleting account",
+        "settings.enableNotifications": "Enable Notifications",
+        "settings.reauthRequired":
+          "For security, please sign in again and retry.",
 
         // Navigation
         "nav.dashboard": "Dashboard",
@@ -964,6 +997,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Add reminders to keep track of your plants",
         "reminders.overdue": "Overdue",
         "reminders.overdueDesc": "These reminders are overdue",
+        "reminders.dueSoon": "Due soon",
+        "reminders.dueSoonDesc": "Due in the next 24 hours",
+        "reminders.markDone": "Done",
         "reminders.wateringTitle": "Water plant",
         "reminders.wateringDesc": "Time to water your plant",
         "reminders.feedingTitle": "Feed plant",
@@ -972,6 +1008,17 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.trainingDesc": "Time to train your plant",
         "reminders.customTitle": "Custom reminder",
         "reminders.customDesc": "Custom reminder",
+
+        // Notifications
+        "notifications.enable": "Enable notifications",
+        "notifications.enabled": "Notifications enabled",
+        "notifications.permissionDenied": "Permission denied",
+        "notifications.missingVapid": "Missing public VAPID key",
+        "notifications.unsupported":
+          "Notifications not supported in this browser",
+        "notifications.tokenFailed": "Failed to obtain notification token",
+        "notifications.unknown": "Could not enable",
+        "notifications.tokenCopied": "Token copied to clipboard",
 
         // Search
         "search.placeholder": "Search plants, logs...",

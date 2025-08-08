@@ -75,3 +75,5 @@ self.addEventListener("activate", (event) => {
     })
   );
 });
+
+// Note: Push notifications removed per project decision; SW handles only caching/offline.

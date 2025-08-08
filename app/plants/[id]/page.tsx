@@ -253,43 +253,40 @@ export default function PlantPage({
   return (
     <Layout>
       <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
+        <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold">{plant.name}</h1>
-          <p className="text-muted-foreground">
-            {t(`newPlant.${plant.seedType}`)}
-          </p>
-        </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              size="icon"
-              aria-label="Delete plant"
-              className="shrink-0"
-            >
-              <Trash2 className="h-5 w-5" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("settings.confirmDelete")}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("settings.confirmDeleteDesc")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                {t("common.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeletePlant}
-                disabled={isDeleting}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Delete plant"
+                className="shrink-0 hover:bg-transparent"
               >
-                {t("common.delete")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                <Trash2 className="h-5 w-5 text-red-600" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("plant.deleteTitle")}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t("plant.deleteDesc")}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  {t("common.cancel")}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeletePlant}
+                  disabled={isDeleting}
+                >
+                  {t("plant.deleteConfirm")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <Tabs defaultValue="details" className="w-full">
