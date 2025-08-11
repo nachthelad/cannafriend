@@ -62,11 +62,13 @@ export default function SettingsPage() {
     darkMode: boolean;
     email?: string;
     providerId?: string;
+    roles?: { grower: boolean; consumer: boolean };
   }>({
     timezone: "",
     darkMode: true,
     email: "",
     providerId: "",
+    roles: { grower: true, consumer: false },
   });
 
   useEffect(() => {
@@ -99,6 +101,10 @@ export default function SettingsPage() {
             darkMode: darkMode,
             email: auth.currentUser?.email || "",
             providerId: auth.currentUser?.providerData?.[0]?.providerId || "",
+            roles: {
+              grower: Boolean(userData.roles?.grower ?? true),
+              consumer: Boolean(userData.roles?.consumer ?? false),
+            },
           });
 
           // Sync with theme context
@@ -467,6 +473,58 @@ export default function SettingsPage() {
                   onCheckedChange={handleDarkModeChange}
                 />
                 <Label htmlFor="dark-mode">{t("settings.darkMode")}</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t("settings.roles")}</Label>
+                <div className="grid grid-cols-2 gap-3 max-w-xs">
+                  <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
+                    <input
+                      id="role-grower"
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={Boolean(userSettings.roles?.grower)}
+                      onChange={async (e) => {
+                        if (!userId) return;
+                        const newRoles = {
+                          grower: e.target.checked,
+                          consumer: Boolean(userSettings.roles?.consumer),
+                        };
+                        await updateDoc(doc(db, "users", userId), {
+                          roles: newRoles,
+                        });
+                        setUserSettings({ ...userSettings, roles: newRoles });
+                        toast({ title: t("settings.updated") });
+                        // Full refresh to ensure nav and routes update correctly
+                        window.location.reload();
+                      }}
+                    />
+                    <span>{t("onboarding.grower")}</span>
+                  </label>
+                  <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
+                    <input
+                      id="role-consumer"
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={Boolean(userSettings.roles?.consumer)}
+                      onChange={async (e) => {
+                        if (!userId) return;
+                        const newRoles = {
+                          grower: Boolean(userSettings.roles?.grower),
+                          consumer: e.target.checked,
+                        };
+                        await updateDoc(doc(db, "users", userId), {
+                          roles: newRoles,
+                        });
+                        setUserSettings({ ...userSettings, roles: newRoles });
+                        toast({ title: t("settings.updated") });
+                        // Full refresh to ensure nav and routes update correctly
+                        window.location.reload();
+                      }}
+                    />
+                    <span>{t("onboarding.consumer")}</span>
+                  </label>
+                </div>
               </div>
             </CardContent>
           </Card>

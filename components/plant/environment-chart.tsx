@@ -15,6 +15,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Thermometer, Droplets } from "lucide-react";
 
 interface EnvironmentChartProps {
   data: EnvironmentData[];
@@ -45,13 +46,23 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="temperature">
-            {t("environment.temperature")}
+          <TabsTrigger value="temperature" className="gap-2">
+            <Thermometer className="h-5 w-5" />
+            <span className="hidden sm:inline">
+              {t("environment.temperature")}
+            </span>
+            <span className="sm:hidden">Temp</span>
           </TabsTrigger>
-          <TabsTrigger value="humidity">
-            {t("environment.humidity")}
+          <TabsTrigger value="humidity" className="gap-2">
+            <Droplets className="h-5 w-5" />
+            <span className="hidden sm:inline">
+              {t("environment.humidity")}
+            </span>
+            <span className="sm:hidden">Hum</span>
           </TabsTrigger>
-          <TabsTrigger value="ph">{t("environment.ph")}</TabsTrigger>
+          <TabsTrigger value="ph" className="gap-2">
+            <span className="font-medium">pH</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="temperature" className="h-64">
@@ -61,7 +72,8 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Legend />
+              {/* Hide legend on small screens to avoid overlap */}
+              <Legend wrapperStyle={{ display: "none" }} />
               <Line
                 type="monotone"
                 dataKey="temperature"
@@ -80,7 +92,7 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Legend />
+              <Legend wrapperStyle={{ display: "none" }} />
               <Line
                 type="monotone"
                 dataKey="humidity"
@@ -99,7 +111,7 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Legend />
+              <Legend wrapperStyle={{ display: "none" }} />
               <Line
                 type="monotone"
                 dataKey="ph"

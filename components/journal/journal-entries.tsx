@@ -11,15 +11,19 @@ import {
   FileText,
   Flower,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface JournalEntriesProps {
   logs: LogEntry[];
   showPlantName?: boolean;
+  onDelete?: (log: LogEntry) => void;
 }
 
 export function JournalEntries({
   logs,
   showPlantName = false,
+  onDelete,
 }: JournalEntriesProps) {
   const { t, language } = useTranslation();
 
@@ -78,9 +82,21 @@ export function JournalEntries({
     <div className="space-y-4">
       {logs.map((log) => (
         <div key={log.id} className="border-b pb-4 last:border-0 last:pb-0">
-          <div className="flex items-center gap-2 mb-1">
-            {getLogIcon(log.type)}
-            <span className="font-medium">{getLogTitle(log)}</span>
+          <div className="flex items-center gap-2 mb-1 justify-between">
+            <div className="flex items-center gap-2">
+              {getLogIcon(log.type)}
+              <span className="font-medium">{getLogTitle(log)}</span>
+            </div>
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Delete log"
+                onClick={() => onDelete(log)}
+              >
+                <Trash2 className="h-4 w-4 text-red-600" />
+              </Button>
+            )}
           </div>
           <div className="text-xs text-muted-foreground mb-1">
             {log.date && formatDateWithLocale(log.date, "PPP p", language)}
