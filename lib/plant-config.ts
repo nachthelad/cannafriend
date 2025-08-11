@@ -23,8 +23,8 @@ export const LIGHT_SCHEDULES = {
   FLOWERING: "12/12",
 } as const;
 
-export type LightSchedule =
-  (typeof LIGHT_SCHEDULES)[keyof typeof LIGHT_SCHEDULES];
+// Light schedule can be any free-text string like "20/4", "18/6", "24/0", "12/12"
+export type LightSchedule = string;
 
 // Light schedule options for UI
 export const LIGHT_SCHEDULE_OPTIONS = [
@@ -66,5 +66,8 @@ export const isValidGrowType = (value: string): value is GrowType => {
 };
 
 export const isValidLightSchedule = (value: string): value is LightSchedule => {
-  return Object.values(LIGHT_SCHEDULES).includes(value as LightSchedule);
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  // Accept formats like 20/4, 18/6, 24/0, 12/12
+  return /^\d{1,2}\/\d{1,2}$/.test(trimmed);
 };

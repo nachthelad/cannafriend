@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { LogEntry, Plant } from "@/types";
+import { isValidLightSchedule } from "@/lib/plant-config";
 
 // Form data interface
 interface LogFormData {
@@ -67,6 +68,9 @@ interface LogFormData {
   humidity?: string;
   ph?: string;
   light?: string;
+
+  // Flowering fields
+  lightSchedule?: string;
 }
 
 interface AddLogFormProps {
@@ -169,6 +173,12 @@ export function AddLogForm({
             ph: Number.parseFloat(data.ph || "0"),
             createdAt: new Date().toISOString(),
           });
+          break;
+        case LOG_TYPES.FLOWERING:
+          logData = {
+            ...logData,
+            lightSchedule: (data.lightSchedule || "").trim() || undefined,
+          };
           break;
       }
 
@@ -525,6 +535,32 @@ export function AddLogForm({
             {errors.ph && (
               <p className="text-xs text-destructive">
                 {String(errors.ph.message)}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {logType === LOG_TYPES.FLOWERING && (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="lightSchedule">{t("newPlant.lightSchedule")}</Label>
+            <Input
+              id="lightSchedule"
+              placeholder={t("newPlant.lightSchedulePlaceholder")}
+              {...register("lightSchedule", {
+                validate: (value) => {
+                  if (logType !== LOG_TYPES.FLOWERING) return true;
+                  if (!value || !value.trim())
+                    return (t("validation.required") as string) || "Required";
+                  const ok = isValidLightSchedule(value.trim());
+                  return ok || (t("validation.invalidLightSchedule") as string);
+                },
+              })}
+            />
+            {errors.lightSchedule && (
+              <p className="text-xs text-destructive">
+                {String(errors.lightSchedule.message)}
               </p>
             )}
           </div>

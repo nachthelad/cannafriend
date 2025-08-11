@@ -228,6 +228,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.pickDate": "Selecciona una fecha",
         "newPlant.lightSchedule": "Ciclo de Luz",
         "newPlant.selectLightSchedule": "Selecciona un ciclo de luz",
+        "newPlant.lightSchedulePlaceholder": "Ej: 20/4, 18/6, 24/0, 12/12",
         "newPlant.vegetative": "Vegetativo",
         "newPlant.flowering": "Floración",
         "newPlant.submit": "Guardar Planta",
@@ -436,6 +437,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.error": "Error de validación",
         "validation.unknownError": "Error de validación desconocido",
         "validation.required": "Este campo es requerido",
+        "validation.invalidLightSchedule":
+          "Formato inválido. Usa HH/HH, por ejemplo 20/4, 18/6, 24/0, 12/12",
         "validation.email": "Correo electrónico inválido",
         "validation.password": "La contraseña debe tener al menos 6 caracteres",
         "validation.minLength": "Debe tener al menos {min} caracteres",
@@ -753,6 +756,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.pickDate": "Pick a date",
         "newPlant.lightSchedule": "Light Schedule",
         "newPlant.selectLightSchedule": "Select a light schedule",
+        "newPlant.lightSchedulePlaceholder": "e.g. 20/4, 18/6, 24/0, 12/12",
         "newPlant.vegetative": "Vegetative",
         "newPlant.flowering": "Flowering",
         "newPlant.submit": "Save Plant",
@@ -960,6 +964,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.error": "Validation error",
         "validation.unknownError": "Unknown validation error",
         "validation.required": "This field is required",
+        "validation.invalidLightSchedule":
+          "Invalid format. Use HH/HH, e.g. 20/4, 18/6, 24/0, 12/12",
         "validation.email": "Invalid email",
         "validation.password": "Password must be at least 6 characters",
         "validation.minLength": "Must be at least {min} characters",

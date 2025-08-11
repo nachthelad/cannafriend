@@ -35,6 +35,9 @@ export interface LogEntry {
   humidity?: number;
   ph?: number;
   light?: number;
+
+  // Flowering specific
+  lightSchedule?: string;
 }
 
 export interface EnvironmentData {
