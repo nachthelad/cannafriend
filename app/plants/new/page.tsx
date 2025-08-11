@@ -16,13 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// removed select components for light schedule; using free text input now
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -44,9 +38,8 @@ import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import {
   SEED_TYPES,
   GROW_TYPES,
-  LIGHT_SCHEDULES,
-  LIGHT_SCHEDULE_OPTIONS,
   requiresLightSchedule,
+  isValidLightSchedule,
   type SeedType,
   type GrowType,
   type LightSchedule,
@@ -294,33 +287,21 @@ export default function NewPlantPage() {
                     <Label htmlFor="lightSchedule">
                       {t("newPlant.lightSchedule")}
                     </Label>
-                    <input
-                      type="hidden"
+                    <Input
+                      id="lightSchedule"
+                      placeholder={t("newPlant.lightSchedulePlaceholder")}
                       {...register("lightSchedule", {
-                        required: t("validation.required") as string,
+                        validate: (v) => {
+                          if (!v || !v.trim())
+                            return t("validation.required") as string;
+                          const ok = isValidLightSchedule(v.trim());
+                          return (
+                            ok ||
+                            (t("validation.invalidLightSchedule") as string)
+                          );
+                        },
                       })}
-                      value={lightSchedule || ""}
                     />
-                    <Select
-                      value={lightSchedule}
-                      onValueChange={(value) =>
-                        setValue("lightSchedule", value as LightSchedule)
-                      }
-                    >
-                      <SelectTrigger id="lightSchedule">
-                        <SelectValue
-                          placeholder={t("newPlant.selectLightSchedule")}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={LIGHT_SCHEDULES.VEGETATIVE}>
-                          {t("newPlant.vegetative")} (18/6)
-                        </SelectItem>
-                        <SelectItem value={LIGHT_SCHEDULES.FLOWERING}>
-                          {t("newPlant.flowering")} (12/12)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
                     {errors.lightSchedule && (
                       <p className="text-xs text-destructive">
                         {String(errors.lightSchedule.message)}

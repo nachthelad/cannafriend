@@ -64,7 +64,11 @@ export function JournalEntries({
           log.humidity
         }%, pH ${log.ph}`;
       case "flowering":
-        return t("logType.flowering");
+        return log.lightSchedule
+          ? `${t("logType.flowering")} - ${t("newPlant.lightSchedule")}: ${
+              log.lightSchedule
+            }`
+          : t("logType.flowering");
       default:
         return t("logType.note");
     }
