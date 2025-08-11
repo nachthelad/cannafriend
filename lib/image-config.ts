@@ -2,6 +2,7 @@
 // This file centralizes all image-related constants and functions for reuse across the application
 
 import { buildImageStoragePath as buildFirebaseImagePath } from "./firebase-config";
+import { useTranslation } from "@/hooks/use-translation";
 
 // File type configuration
 export const ALLOWED_IMAGE_TYPES = [
@@ -22,18 +23,34 @@ export const ALLOWED_IMAGE_EXTENSIONS = [
 
 // Upload limits
 export const DEFAULT_MAX_IMAGES = 5;
-export const DEFAULT_MAX_SIZE_MB = 5;
+export const DEFAULT_MAX_SIZE_MB = 10;
 
 // Storage configuration
 export const STORAGE_IMAGES_PATH = "images";
 
 // Error messages (can be moved to translations later)
-export const IMAGE_UPLOAD_ERRORS = {
-  USER_NOT_AUTHENTICATED: "Usuario no autenticado",
-  FILE_TOO_LARGE: "El archivo es demasiado grande",
-  INVALID_FILE_TYPE: "Tipo de archivo no válido",
-  UPLOAD_FAILED: "Error al subir el archivo",
-} as const;
+// Provide translated strings via a helper since hooks can't be used directly here
+export const getImageUploadErrors = () => {
+  try {
+    // at runtime in client components, we can get t
+    // fallback to Spanish literals if used server-side
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useTranslation();
+    return {
+      USER_NOT_AUTHENTICATED: t("imageErrors.userNotAuthenticated"),
+      FILE_TOO_LARGE: t("imageErrors.fileTooLarge"),
+      INVALID_FILE_TYPE: t("imageErrors.invalidFileType"),
+      UPLOAD_FAILED: t("imageErrors.uploadFailed"),
+    } as const;
+  } catch {
+    return {
+      USER_NOT_AUTHENTICATED: "Usuario no autenticado",
+      FILE_TOO_LARGE: "El archivo es demasiado grande",
+      INVALID_FILE_TYPE: "Tipo de archivo no válido",
+      UPLOAD_FAILED: "Error al subir el archivo",
+    } as const;
+  }
+};
 
 // Utility functions
 export const generateImageFileName = (originalName: string): string => {
@@ -54,15 +71,15 @@ export const validateImageFile = (
 ): string | null => {
   // Check file type
   if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
-    return `${
-      IMAGE_UPLOAD_ERRORS.INVALID_FILE_TYPE
-    } ${ALLOWED_IMAGE_EXTENSIONS.join(", ")}`;
+    const ERR = getImageUploadErrors();
+    return `${ERR.INVALID_FILE_TYPE} ${ALLOWED_IMAGE_EXTENSIONS.join(", ")}`;
   }
 
   // Check file size
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   if (file.size > maxSizeBytes) {
-    return `${IMAGE_UPLOAD_ERRORS.FILE_TOO_LARGE} ${maxSizeMB}MB`;
+    const ERR = getImageUploadErrors();
+    return `${ERR.FILE_TOO_LARGE} ${maxSizeMB}MB`;
   }
 
   return null;

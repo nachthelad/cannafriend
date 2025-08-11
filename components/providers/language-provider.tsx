@@ -194,6 +194,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "onboarding.description": "Configura tu cuenta para comenzar",
         "onboarding.timezone": "Zona Horaria",
         "onboarding.selectTimezone": "Selecciona tu zona horaria",
+        "onboarding.roles": "¿Cómo usarás la app?",
+        "onboarding.grower": "Cultivador",
+        "onboarding.consumer": "Fumador",
+        "onboarding.selectAtLeastOneRole": "Selecciona al menos una opción",
         "onboarding.submit": "Continuar",
         "onboarding.loading": "Guardando...",
         "onboarding.success": "¡Configuración guardada!",
@@ -204,7 +208,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Esta información nos ayuda a mostrar fechas y recordatorios en tu zona horaria",
 
         // Dashboard
-        "dashboard.title": "Panel de Control",
+        "dashboard.title": "Panel de Cultivo",
         "dashboard.addPlant": "Agregar Planta",
         "dashboard.noPlants": "No tienes plantas",
         "dashboard.noPlantDesc":
@@ -282,6 +286,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.title": "Configuración",
         "settings.preferences": "Preferencias",
         "settings.preferencesDesc": "Personaliza tu experiencia",
+        "settings.roles": "Roles",
+        "settings.updated": "Configuración actualizada",
         "settings.account": "Cuenta",
         "settings.accountDesc": "Resumen de tu cuenta",
         "settings.language": "Idioma",
@@ -367,8 +373,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.submit": "Guardar Registro",
         "logForm.loading": "Guardando...",
         "logForm.success": "¡Registro guardado!",
+        "logForm.successDesc": "El registro ha sido guardado correctamente",
         "logForm.error": "Error al guardar el registro",
         "logForm.selectType": "Selecciona un tipo",
+        "logForm.selectDate": "Selecciona una fecha",
 
         // Watering
         "watering.amount": "Cantidad (ml)",
@@ -487,6 +495,49 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.trainingDesc": "Es hora de entrenar tu planta",
         "reminders.customTitle": "Recordatorio personalizado",
         "reminders.customDesc": "Recordatorio personalizado",
+        "reminders.noPlants": "No hay plantas",
+        "reminders.noPlantsDesc": "Agrega una planta para crear recordatorios",
+        "reminders.noPlantsHint": "Agrega una planta para crear recordatorios",
+        "reminders.pageDescription": "Gestiona recordatorios para tus plantas",
+
+        // Strains (Consumer)
+        "strains.title": "Variedades Fumadas",
+        "strains.description":
+          "Lleva un registro de tus variedades y sesiones.",
+        "strains.addSession": "Nueva sesión",
+        "strains.required": "La variedad es obligatoria",
+        "strains.saved": "Sesión guardada",
+        "strains.noSessions": "Sin sesiones",
+        "strains.noSessionsDesc": "Crea tu primera sesión para empezar.",
+        "strains.strain": "Variedad",
+        "strains.strainPlaceholder": "Ej: OG Kush",
+        "strains.method": "Método",
+        "strains.methodPlaceholder": "Pipe, Vaper, Joint, Bongo...",
+        "strains.amount": "Cantidad",
+        "strains.amountPlaceholder": "Ej: 0.3g",
+        "strains.notes": "Notas",
+        "strains.notesPlaceholder": "Efectos, sabor, estado de ánimo...",
+        "strains.save": "Guardar",
+        "strains.edit": "Editar",
+        "strains.update": "Actualizar",
+        "strains.updated": "Sesión actualizada",
+        "strains.delete": "Eliminar",
+        "strains.deleted": "Sesión eliminada",
+        "strains.editSession": "Editar sesión",
+        "strains.deleteConfirmTitle": "Eliminar sesión",
+        "strains.deleteConfirmDesc":
+          "Esta acción no se puede deshacer. Perderás la información cargada.",
+        "strains.deleteConfirm": "Sí, eliminar",
+
+        // Add chooser (mobile +)
+        "addChooser.title": "¿Qué deseas agregar?",
+        "addChooser.plant": "Nueva planta",
+        "addChooser.session": "Nueva sesión",
+
+        // Home chooser (mobile home when both roles)
+        "homeChooser.title": "¿A dónde quieres ir?",
+        "homeChooser.dashboard": "Panel de cultivo",
+        "homeChooser.sessions": "Sesiones",
 
         // Notifications
         "notifications.enable": "Activar notificaciones",
@@ -564,6 +615,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // Gallery
         "gallery.image": "Imagen",
         "gallery.thumbnail": "Miniatura",
+
+        // Image Errors
+        "imageErrors.userNotAuthenticated": "Usuario no autenticado",
+        "imageErrors.fileTooLarge": "El archivo es demasiado grande",
+        "imageErrors.invalidFileType": "Tipo de archivo no válido",
+        "imageErrors.uploadFailed": "Error al subir el archivo",
       };
 
       const enTranslations = {
@@ -723,6 +780,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "onboarding.description": "Set up your account to get started",
         "onboarding.timezone": "Timezone",
         "onboarding.selectTimezone": "Select your timezone",
+        "onboarding.roles": "How will you use the app?",
+        "onboarding.grower": "Grower",
+        "onboarding.consumer": "Consumer",
+        "onboarding.selectAtLeastOneRole": "Select at least one option",
         "onboarding.submit": "Continue",
         "onboarding.loading": "Saving...",
         "onboarding.success": "Settings saved!",
@@ -811,6 +872,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.title": "Settings",
         "settings.preferences": "Preferences",
         "settings.preferencesDesc": "Customize your experience",
+        "settings.roles": "Roles",
+        "settings.updated": "Settings updated",
         "settings.account": "Account",
         "settings.accountDesc": "Your account summary",
         "settings.language": "Language",
@@ -894,8 +957,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.submit": "Save Log",
         "logForm.loading": "Saving...",
         "logForm.success": "Log saved!",
+        "logForm.successDesc": "The log has been saved successfully",
         "logForm.error": "Error saving log",
         "logForm.selectType": "Select a type",
+        "logForm.selectDate": "Select a date",
 
         // Watering
         "watering.amount": "Amount (ml)",
@@ -1014,6 +1079,48 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.trainingDesc": "Time to train your plant",
         "reminders.customTitle": "Custom reminder",
         "reminders.customDesc": "Custom reminder",
+        "reminders.noPlants": "No plants",
+        "reminders.noPlantsDesc": "Add a plant to create reminders",
+        "reminders.noPlantsHint": "Add a plant to create reminders",
+        "reminders.pageDescription": "Manage reminders for your plants",
+
+        // Strains (Consumer)
+        "strains.title": "Smoked Strains",
+        "strains.description": "Track your strains and consumption sessions.",
+        "strains.addSession": "New session",
+        "strains.required": "Strain is required",
+        "strains.saved": "Session saved",
+        "strains.noSessions": "No sessions",
+        "strains.noSessionsDesc": "Create your first session to get started.",
+        "strains.strain": "Strain",
+        "strains.strainPlaceholder": "e.g. OG Kush",
+        "strains.method": "Method",
+        "strains.methodPlaceholder": "Pipe, Vape, Joint, Bong...",
+        "strains.amount": "Amount",
+        "strains.amountPlaceholder": "e.g. 0.3g",
+        "strains.notes": "Notes",
+        "strains.notesPlaceholder": "Effects, flavor, mood...",
+        "strains.save": "Save",
+        "strains.edit": "Edit",
+        "strains.update": "Update",
+        "strains.updated": "Session updated",
+        "strains.delete": "Delete",
+        "strains.deleted": "Session deleted",
+        "strains.editSession": "Edit session",
+        "strains.deleteConfirmTitle": "Delete session",
+        "strains.deleteConfirmDesc":
+          "This action cannot be undone. You will lose the saved information.",
+        "strains.deleteConfirm": "Yes, delete",
+
+        // Add chooser (mobile +)
+        "addChooser.title": "What would you like to add?",
+        "addChooser.plant": "New plant",
+        "addChooser.session": "New session",
+
+        // Home chooser (mobile home when both roles)
+        "homeChooser.title": "Where do you want to go?",
+        "homeChooser.dashboard": "Grower dashboard",
+        "homeChooser.sessions": "Sessions",
 
         // Notifications
         "notifications.enable": "Enable notifications",
@@ -1088,6 +1195,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // Gallery
         "gallery.image": "Image",
         "gallery.thumbnail": "Thumbnail",
+
+        // Image Errors
+        "imageErrors.userNotAuthenticated": "User not authenticated",
+        "imageErrors.fileTooLarge": "File is too large",
+        "imageErrors.invalidFileType": "Invalid file type",
+        "imageErrors.uploadFailed": "Failed to upload file",
       };
 
       setTranslations({

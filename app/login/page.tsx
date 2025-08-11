@@ -10,8 +10,9 @@ import Logo from "@/components/common/logo";
 import { useTranslation } from "@/hooks/use-translation";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -20,9 +21,25 @@ export default function LoginPage() {
 
   // If already authenticated, skip login
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        router.push("/dashboard");
+        try {
+          const snap = await getDoc(doc(db, "users", user.uid));
+          const data = snap.exists() ? snap.data() : ({} as any);
+          const roles = (data as any)?.roles || {
+            grower: true,
+            consumer: false,
+          };
+          if (roles.consumer && !roles.grower) {
+            router.push("/strains");
+          } else if (roles.grower && !roles.consumer) {
+            router.push("/onboarding");
+          } else {
+            router.push("/dashboard");
+          }
+        } catch {
+          router.push("/dashboard");
+        }
       } else {
         setCheckingAuth(false);
       }

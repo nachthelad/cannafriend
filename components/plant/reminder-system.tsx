@@ -34,7 +34,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Bell, Clock, Droplet, Leaf, Scissors, X } from "lucide-react";
+import { Bell, Clock, Droplet, Leaf, Scissors, X, Plus } from "lucide-react";
 import type { Plant } from "@/types";
 
 interface Reminder {
@@ -53,9 +53,14 @@ interface Reminder {
 
 interface ReminderSystemProps {
   plants: Plant[];
+  // When true, render only the overdue card (if any). Used on dashboard.
+  showOnlyOverdue?: boolean;
 }
 
-export function ReminderSystem({ plants }: ReminderSystemProps) {
+export function ReminderSystem({
+  plants,
+  showOnlyOverdue = false,
+}: ReminderSystemProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
@@ -313,6 +318,7 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
 
   const [overdueToastShown, setOverdueToastShown] = useState(false);
   useEffect(() => {
+    if (showOnlyOverdue) return; // avoid toast on dashboard
     if (!overdueToastShown && overdueReminders.length > 0) {
       toast({
         title: t("reminders.overdue"),
@@ -320,13 +326,57 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
       });
       setOverdueToastShown(true);
     }
-  }, [overdueReminders.length, overdueToastShown, t, toast]);
+  }, [overdueReminders.length, overdueToastShown, t, toast, showOnlyOverdue]);
 
   if (isLoading) {
     return (
       <Card>
         <CardContent className="flex justify-center items-center h-32">
           <div className="text-muted-foreground">{t("reminders.loading")}</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (showOnlyOverdue) {
+    // Render only the overdue card if there are overdue reminders; otherwise render nothing
+    if (overdueReminders.length === 0) return null;
+    return (
+      <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+        <CardHeader>
+          <CardTitle className="text-orange-800 dark:text-orange-200">
+            {t("reminders.overdue")} ({overdueReminders.length})
+          </CardTitle>
+          <CardDescription className="text-orange-600 dark:text-orange-300">
+            {t("reminders.overdueDesc")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {overdueReminders.map((reminder) => (
+            <div
+              key={reminder.id}
+              className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
+            >
+              <div className="flex items-center gap-3">
+                {getReminderIcon(reminder.type)}
+                <div>
+                  <div className="font-medium">{reminder.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {reminder.plantName}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="destructive">{t("reminders.overdue")}</Badge>
+                <Button
+                  size="sm"
+                  onClick={() => handleMarkDone(reminder.id, reminder.interval)}
+                >
+                  {t("reminders.markDone")}
+                </Button>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
     );
@@ -535,7 +585,19 @@ export function ReminderSystem({ plants }: ReminderSystemProps) {
                   {t("reminders.dueSoon")} {dueSoonReminders.length}
                 </Badge>
               )}
-              <Button onClick={() => setShowAddForm(true)}>
+              {/* Mobile: icon-only plus */}
+              <Button
+                onClick={() => setShowAddForm(true)}
+                size="icon"
+                className="md:hidden"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+              {/* Desktop: full button with label */}
+              <Button
+                onClick={() => setShowAddForm(true)}
+                className="hidden md:inline-flex"
+              >
                 <Bell className="mr-2 h-4 w-4" />
                 {t("reminders.add")}
               </Button>

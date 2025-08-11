@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
 import { formatDateWithLocale, calculateAgeInDays } from "@/lib/utils";
@@ -44,33 +43,17 @@ export function PlantDetails({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{t("plantPage.details")}</CardTitle>
-      </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="text-sm font-medium">{t("newPlant.seedType")}</div>
-            <div>
-              <Badge
-                variant={
-                  plant.seedType === "autoflowering" ? "default" : "outline"
-                }
-              >
-                {plant.seedType === "autoflowering"
-                  ? t("newPlant.autoflowering")
-                  : t("newPlant.photoperiodic")}
-              </Badge>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("newPlant.growType")}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-sm font-medium">{t("newPlant.growType")}</div>
-            <div className="flex items-center">
+            <div className="flex items-center text-base font-medium text-foreground">
               {plant.growType === "indoor" ? (
-                <Sun className="h-4 w-4 mr-2 text-primary" />
+                <Sun className="h-5 w-5 mr-2 text-primary" />
               ) : (
-                <Moon className="h-4 w-4 mr-2 text-primary" />
+                <Moon className="h-5 w-5 mr-2 text-primary" />
               )}
               <span>
                 {plant.growType === "indoor"
@@ -80,12 +63,12 @@ export function PlantDetails({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="text-sm font-medium">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("newPlant.plantingDate")}
             </div>
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-primary" />
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Calendar className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {plant.plantingDate &&
                   formatDateWithLocale(plant.plantingDate, "PPP", language)}
@@ -96,33 +79,35 @@ export function PlantDetails({
           {plant.growType === "indoor" &&
             plant.seedType !== "autoflowering" &&
             plant.lightSchedule && (
-              <div className="space-y-2">
-                <div className="text-sm font-medium">
+              <div className="space-y-1">
+                <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   {t("newPlant.lightSchedule")}
                 </div>
-                <div className="flex items-center">
-                  <Sun className="h-4 w-4 mr-2 text-primary" />
+                <div className="flex items-center text-base font-medium text-foreground">
+                  <Sun className="h-5 w-5 mr-2 text-primary" />
                   <span>{plant.lightSchedule}</span>
                 </div>
               </div>
             )}
 
           {plant.seedBank && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium">
+            <div className="space-y-1">
+              <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("newPlant.seedBank")}
               </div>
-              <div className="flex items-center">
-                <Leaf className="h-4 w-4 mr-2 text-primary" />
+              <div className="flex items-center text-base font-medium text-foreground">
+                <Leaf className="h-5 w-5 mr-2 text-primary" />
                 <span>{plant.seedBank}</span>
               </div>
             </div>
           )}
 
-          <div className="space-y-2">
-            <div className="text-sm font-medium">{t("plantPage.age")}</div>
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-primary" />
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("plantPage.age")}
+            </div>
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Calendar className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {daysSincePlanting} {t("plantPage.days")}
               </span>
@@ -130,12 +115,12 @@ export function PlantDetails({
           </div>
 
           {lastFlowering && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium">
+            <div className="space-y-1">
+              <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("plantPage.floweringAge")}
               </div>
-              <div className="flex items-center">
-                <Flower className="h-4 w-4 mr-2 text-pink-500" />
+              <div className="flex items-center text-base font-medium text-foreground">
+                <Flower className="h-5 w-5 mr-2 text-pink-500" />
                 <span>
                   {daysSinceFlowering} {t("plantPage.days")}
                 </span>
@@ -143,12 +128,12 @@ export function PlantDetails({
             </div>
           )}
 
-          <div className="space-y-2">
-            <div className="text-sm font-medium">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("plantPage.lastWatering")}
             </div>
-            <div className="flex items-center">
-              <Droplet className="h-4 w-4 mr-2 text-primary" />
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Droplet className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastWatering
                   ? `${lastWatering.amount}ml (${t(
@@ -159,12 +144,12 @@ export function PlantDetails({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="text-sm font-medium">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("plantPage.lastFeeding")}
             </div>
-            <div className="flex items-center">
-              <Zap className="h-4 w-4 mr-2 text-primary" />
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Zap className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastFeeding
                   ? `${lastFeeding.npk} (${lastFeeding.amount}ml/L)`
@@ -173,12 +158,12 @@ export function PlantDetails({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="text-sm font-medium">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("plantPage.lastTraining")}
             </div>
-            <div className="flex items-center">
-              <Scissors className="h-4 w-4 mr-2 text-primary" />
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Scissors className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastTraining
                   ? t(`training.${lastTraining.method}`)

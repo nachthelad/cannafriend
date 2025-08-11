@@ -23,14 +23,22 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { PlantCard } from "@/components/plant/plant-card";
 import { ReminderSystem } from "@/components/plant/reminder-system";
+import { PlantCard } from "@/components/plant/plant-card";
 import { Search } from "@/components/common/search";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const { roles } = useUserRoles();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +54,7 @@ export default function DashboardPage() {
     {}
   );
   const [userId, setUserId] = useState<string | null>(null);
+  const [hasOverdue, setHasOverdue] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -126,6 +135,28 @@ export default function DashboardPage() {
         setLastWaterings(wateringsData);
         setLastFeedings(feedingsData);
         setLastTrainings(trainingsData);
+
+        // Compute overdue reminders for dashboard badge
+        try {
+          const remindersRef = collection(db, "users", userId, "reminders");
+          const rq = query(remindersRef);
+          const rsnap = await getDocs(rq);
+          const now = new Date();
+          let overdue = false;
+          rsnap.forEach((d) => {
+            const r: any = d.data();
+            if (
+              r?.isActive &&
+              r?.nextReminder &&
+              new Date(r.nextReminder) < now
+            ) {
+              overdue = true;
+            }
+          });
+          setHasOverdue(overdue);
+        } catch {
+          // ignore reminder fetch errors on dashboard
+        }
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -155,12 +186,46 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
-        <Button onClick={() => router.push("/plants/new")}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t("dashboard.addPlant")}
-        </Button>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex items-center">
+          {/* Desktop title */}
+          <h1 className="hidden md:block text-3xl font-bold">
+            {t("dashboard.title")}
+          </h1>
+          {/* Mobile: title acts as trigger when both roles; otherwise just title */}
+          {roles?.grower && roles?.consumer ? (
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button aria-label="switch" className="flex items-center p-0">
+                    <h1 className="text-3xl font-bold">
+                      {t("dashboard.title")}
+                    </h1>
+                    <ChevronDown className="h-5 w-5 ml-1" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" sideOffset={2}>
+                  <DropdownMenuItem
+                    className="text-base py-2"
+                    onClick={() => router.push("/strains")}
+                  >
+                    {t("strains.title")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <h1 className="md:hidden text-3xl font-bold">
+              {t("dashboard.title")}
+            </h1>
+          )}
+        </div>
+        {hasOverdue && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-xs">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            {t("reminders.overdue")}
+          </span>
+        )}
       </div>
 
       {isLoading ? (
@@ -169,29 +234,26 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Reminders Section */}
-          {plants.length > 0 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">
-                {t("dashboard.reminders")}
-              </h2>
-              <ReminderSystem plants={plants} />
-            </div>
-          )}
+          {/* Overdue Reminders only (Top) */}
+          <div>
+            <ReminderSystem plants={plants} showOnlyOverdue />
+          </div>
 
           {/* Plants Section */}
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="text-xl font-semibold">
                 {t("dashboard.yourPlants")}
               </h2>
               {plants.length > 0 && (
-                <Search
-                  placeholder={t("search.placeholder")}
-                  onSearch={handleSearch}
-                  onClear={handleClearSearch}
-                  className="w-64"
-                />
+                <div className="mt-2">
+                  <Search
+                    placeholder={t("search.placeholder")}
+                    onSearch={handleSearch}
+                    onClear={handleClearSearch}
+                    className="w-full"
+                  />
+                </div>
               )}
             </div>
             {plants.length > 0 ? (
