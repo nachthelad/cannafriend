@@ -35,7 +35,10 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  type OnboardingForm = { timezone: string };
+  type OnboardingForm = {
+    timezone: string;
+    roles: { grower: boolean; consumer: boolean };
+  };
   const {
     register,
     handleSubmit: rhfHandleSubmit,
@@ -44,7 +47,7 @@ export default function OnboardingPage() {
     watch,
     reset,
   } = useForm<OnboardingForm>({
-    defaultValues: { timezone: "" },
+    defaultValues: { timezone: "", roles: { grower: true, consumer: false } },
   });
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -70,6 +73,10 @@ export default function OnboardingPage() {
         doc(db, "users", userId),
         {
           timezone: data.timezone,
+          roles: {
+            grower: Boolean(data.roles?.grower),
+            consumer: Boolean(data.roles?.consumer),
+          },
           createdAt: new Date().toISOString(),
         },
         { merge: true }
@@ -151,6 +158,43 @@ export default function OnboardingPage() {
                   {String(errors.timezone.message)}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t("onboarding.roles")}</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={watch("roles.grower")}
+                    onChange={(e) => setValue("roles.grower", e.target.checked)}
+                  />
+                  <span>{t("onboarding.grower")}</span>
+                </label>
+                <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={watch("roles.consumer")}
+                    onChange={(e) =>
+                      setValue("roles.consumer", e.target.checked)
+                    }
+                  />
+                  <span>{t("onboarding.consumer")}</span>
+                </label>
+              </div>
+              {(() => {
+                const r = watch("roles");
+                if (!r?.grower && !r?.consumer) {
+                  return (
+                    <p className="text-xs text-destructive">
+                      {t("onboarding.selectAtLeastOneRole")}
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (

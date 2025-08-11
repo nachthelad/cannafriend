@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
@@ -23,24 +23,14 @@ import {
   query,
   orderBy,
   getDocs,
-  where,
-  limit,
   deleteDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
-import { EnvironmentChart } from "@/components/plant/environment-chart";
-import { PhotoGallery } from "@/components/plant/photos/photo-gallery";
 import { AddLogForm } from "@/components/journal/add-log-form";
-import {
-  Loader2,
-  CalendarIcon,
-  LineChart,
-  ImageIcon,
-  Trash2,
-} from "lucide-react";
+import { Loader2, Trash2, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +42,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
 import { addDoc } from "firebase/firestore";
 
@@ -70,12 +67,23 @@ export default function PlantPage({
   const [environmentData, setEnvironmentData] = useState<EnvironmentData[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
+  const [selectedPhoto, setSelectedPhoto] = useState<string>("");
   const [lastWatering, setLastWatering] = useState<LogEntry | null>(null);
   const [lastFeeding, setLastFeeding] = useState<LogEntry | null>(null);
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
   const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const recomputeLasts = (logsData: LogEntry[]) => {
+    const wateringLogs = logsData.filter((log) => log.type === "watering");
+    const feedingLogs = logsData.filter((log) => log.type === "feeding");
+    const trainingLogs = logsData.filter((log) => log.type === "training");
+    const floweringLogs = logsData.filter((log) => log.type === "flowering");
+    setLastWatering(wateringLogs[0] || null);
+    setLastFeeding(feedingLogs[0] || null);
+    setLastTraining(trainingLogs[0] || null);
+    setLastFlowering(floweringLogs[0] || null);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -121,27 +129,7 @@ export default function PlantPage({
         });
         setLogs(logsData);
 
-        // Filter logs by type in the client (same logic as dashboard)
-        const wateringLogs = logsData.filter((log) => log.type === "watering");
-        const feedingLogs = logsData.filter((log) => log.type === "feeding");
-        const trainingLogs = logsData.filter((log) => log.type === "training");
-        const floweringLogs = logsData.filter(
-          (log) => log.type === "flowering"
-        );
-
-        // Set the latest logs
-        if (wateringLogs.length > 0) {
-          setLastWatering(wateringLogs[0]);
-        }
-        if (feedingLogs.length > 0) {
-          setLastFeeding(feedingLogs[0]);
-        }
-        if (trainingLogs.length > 0) {
-          setLastTraining(trainingLogs[0]);
-        }
-        if (floweringLogs.length > 0) {
-          setLastFlowering(floweringLogs[0]);
-        }
+        recomputeLasts(logsData);
 
         // Fetch environment data
         const envRef = collection(
@@ -163,8 +151,11 @@ export default function PlantPage({
 
         // Fetch photos from plant document
         const plantData = plantSnap.data();
-        setPhotos(plantData.photos || []);
-        setCoverPhoto(plantData.coverPhoto || "");
+        const loadedPhotos: string[] = plantData.photos || [];
+        const loadedCover: string = plantData.coverPhoto || "";
+        setPhotos(loadedPhotos);
+        setCoverPhoto(loadedCover);
+        setSelectedPhoto(loadedCover || loadedPhotos[0] || "");
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -250,68 +241,129 @@ export default function PlantPage({
     }
   };
 
+  const handleDeleteLog = async (logId: string) => {
+    if (!userId) return;
+    try {
+      await deleteDoc(doc(db, "users", userId, "plants", id, "logs", logId));
+      const updated = logs.filter((l) => l.id !== logId);
+      setLogs(updated);
+      recomputeLasts(updated);
+      toast({
+        title: t("journal.deleted"),
+        description: t("journal.deletedDesc"),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("common.error"),
+        description: error.message,
+      });
+    }
+  };
+
   return (
     <Layout>
       <div className="mb-6 flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold">{plant.name}</h1>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Delete plant"
-                className="shrink-0 hover:bg-transparent"
+        <div className="flex items-start justify-between w-full">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold">{plant.name}</h1>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Delete plant"
+                    className="shrink-0 hover:bg-transparent"
+                  >
+                    <Trash2 className="h-5 w-5 text-red-600" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t("plant.deleteTitle")}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("plant.deleteDesc")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>
+                      {t("common.cancel")}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeletePlant}
+                      disabled={isDeleting}
+                    >
+                      {t("plant.deleteConfirm")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <div className="mt-1">
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  plant.seedType === "autoflowering"
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-foreground"
+                }`}
               >
-                <Trash2 className="h-5 w-5 text-red-600" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t("plant.deleteTitle")}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t("plant.deleteDesc")}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleting}>
-                  {t("common.cancel")}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeletePlant}
-                  disabled={isDeleting}
-                >
-                  {t("plant.deleteConfirm")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                {plant.seedType === "autoflowering"
+                  ? t("newPlant.autoflowering")
+                  : t("newPlant.photoperiodic")}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="w-full">
-        <TabsList className="grid grid-cols-4 mb-6">
-          <TabsTrigger value="details">
-            <ImageIcon className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("plantPage.details")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="journal">
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("plantPage.journal")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="environment">
-            <LineChart className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">
-              {t("plantPage.environment")}
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="photos">
-            <ImageIcon className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("plantPage.photos")}</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Profile layout */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left: main image + thumbnails */}
+        <Card className="overflow-hidden">
+          <div className="relative aspect-[4/3] bg-muted">
+            <Image
+              src={
+                selectedPhoto || coverPhoto || photos[0] || "/placeholder.svg"
+              }
+              alt={plant.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          </div>
+          {photos.length > 1 && (
+            <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
+              {photos.map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setSelectedPhoto(p)}
+                  className={`relative aspect-square overflow-hidden rounded-md border ${
+                    (selectedPhoto || coverPhoto) === p
+                      ? "ring-2 ring-primary"
+                      : ""
+                  }`}
+                >
+                  <Image
+                    src={p}
+                    alt={`${plant.name} ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="100px"
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </Card>
 
-        <TabsContent value="details">
+        {/* Right: plant details + environment */}
+        <div className="space-y-6">
           <PlantDetails
             plant={plant}
             lastWatering={lastWatering || undefined}
@@ -319,71 +371,40 @@ export default function PlantPage({
             lastTraining={lastTraining || undefined}
             lastFlowering={lastFlowering || undefined}
           />
-        </TabsContent>
+        </div>
+      </div>
 
-        <TabsContent value="journal">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("plantPage.addLog")}</CardTitle>
-                <CardDescription>{t("plantPage.addLogDesc")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AddLogForm
-                  plantId={id}
-                  onSuccess={(newLog) => setLogs([newLog, ...logs])}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
-                <CardDescription>
-                  {t("plantPage.recentLogsDesc")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <JournalEntries logs={logs} />
-              </CardContent>
-            </Card>
+      {/* Journal section */}
+      <Card className="mt-6">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
+            <CardDescription>{t("plantPage.recentLogsDesc")}</CardDescription>
           </div>
-        </TabsContent>
-
-        <TabsContent value="environment">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("plantPage.environmentData")}</CardTitle>
-              <CardDescription>
-                {t("plantPage.environmentDataDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <EnvironmentChart data={environmentData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="photos">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("plantPage.photoGallery")}</CardTitle>
-              <CardDescription>
-                {t("plantPage.photoGalleryDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PhotoGallery
-                photos={photos}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="icon" aria-label="Add log">
+                <Plus className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                <DialogTitle>{t("plantPage.addLog")}</DialogTitle>
+              </DialogHeader>
+              <AddLogForm
                 plantId={id}
-                onPhotosUpdate={setPhotos}
-                coverPhoto={coverPhoto}
-                onCoverPhotoUpdate={setCoverPhoto}
+                onSuccess={(newLog) => setLogs([newLog, ...logs])}
               />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          <JournalEntries
+            logs={logs}
+            onDelete={(log) => handleDeleteLog(log.id!)}
+          />
+        </CardContent>
+      </Card>
     </Layout>
   );
 }
