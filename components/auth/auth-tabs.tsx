@@ -22,7 +22,7 @@ export function AuthTabs({ className = "" }: AuthTabsProps) {
             <span className="w-full border-t border-gray-200 dark:border-gray-700" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white/95 dark:bg-gray-800/95 px-2 text-gray-500 dark:text-gray-400">
+            <span className="bg-white/95 dark:bg-gray-900/95 px-2 text-gray-500 dark:text-gray-400 rounded">
               {t("login.or")}
             </span>
           </div>
@@ -30,19 +30,9 @@ export function AuthTabs({ className = "" }: AuthTabsProps) {
       </div>
 
       <Tabs defaultValue="login" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4 bg-gray-100 dark:bg-gray-700">
-          <TabsTrigger
-            value="login"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-gray-700 dark:text-gray-200"
-          >
-            {t("login.title")}
-          </TabsTrigger>
-          <TabsTrigger
-            value="signup"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 text-gray-700 dark:text-gray-200"
-          >
-            {t("signup.title")}
-          </TabsTrigger>
+        <TabsList className="w-full mb-4">
+          <TabsTrigger value="login">{t("login.title")}</TabsTrigger>
+          <TabsTrigger value="signup">{t("signup.title")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="login">

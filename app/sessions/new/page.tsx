@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import { addDoc, collection } from "firebase/firestore";
+import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
+import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default function NewSessionPage() {
@@ -28,7 +30,7 @@ export default function NewSessionPage() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       if (u) setUserId(u.uid);
-      else router.push("/login");
+      else router.push(ROUTE_LOGIN);
     });
     return () => unsub();
   }, [router]);
@@ -44,7 +46,7 @@ export default function NewSessionPage() {
     }
     setIsSaving(true);
     try {
-      const ref = collection(db, "users", userId, "sessions");
+      const ref = sessionsCol(userId);
       await addDoc(ref, {
         strain,
         amount,
@@ -53,7 +55,7 @@ export default function NewSessionPage() {
         date: new Date().toISOString(),
       });
       toast({ title: t("strains.saved") });
-      router.push("/strains");
+      router.push(ROUTE_STRAINS);
     } catch (e: any) {
       toast({
         variant: "destructive",

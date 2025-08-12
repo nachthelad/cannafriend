@@ -33,6 +33,14 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { onAuthStateChanged, deleteUser } from "firebase/auth";
+import { ROUTE_LOGIN } from "@/lib/routes";
+import {
+  userDoc,
+  plantsCol,
+  logsCol,
+  remindersCol,
+  plantDoc as plantDocRef,
+} from "@/lib/paths";
 import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
@@ -76,7 +84,7 @@ export default function SettingsPage() {
       if (user) {
         setUserId(user.uid);
       } else {
-        router.push("/login");
+        router.push(ROUTE_LOGIN);
       }
     });
 
@@ -88,7 +96,7 @@ export default function SettingsPage() {
       if (!userId) return;
 
       try {
-        const userRef = doc(db, "users", userId);
+        const userRef = userDoc(userId);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
@@ -134,7 +142,7 @@ export default function SettingsPage() {
     if (!userId) return;
 
     try {
-      const userRef = doc(db, "users", userId);
+      const userRef = userDoc(userId);
       await updateDoc(userRef, {
         timezone: value,
       });
@@ -161,7 +169,7 @@ export default function SettingsPage() {
     if (!userId) return;
 
     try {
-      const userRef = doc(db, "users", userId);
+      const userRef = userDoc(userId);
       await updateDoc(userRef, {
         darkMode: checked,
       });
@@ -209,7 +217,7 @@ export default function SettingsPage() {
       };
 
       // Archive user data
-      const userRef = doc(db, "users", userId);
+      const userRef = userDoc(userId);
       const userSnap = await getDoc(userRef);
 
       if (userSnap.exists()) {
@@ -222,7 +230,7 @@ export default function SettingsPage() {
         });
 
         // Archive plants
-        const plantsRef = collection(db, "users", userId, "plants");
+        const plantsRef = plantsCol(userId);
         const plantsSnap = await getDocs(plantsRef);
 
         for (const plantDoc of plantsSnap.docs) {
@@ -238,14 +246,7 @@ export default function SettingsPage() {
           );
 
           // Archive logs
-          const logsRef = collection(
-            db,
-            "users",
-            userId,
-            "plants",
-            plantDoc.id,
-            "logs"
-          );
+          const logsRef = logsCol(userId, plantDoc.id);
           const logsSnap = await getDocs(logsRef);
 
           for (const logDoc of logsSnap.docs) {
@@ -294,12 +295,12 @@ export default function SettingsPage() {
           }
 
           // Delete original plant
-          await deleteDoc(doc(db, "users", userId, "plants", plantDoc.id));
+          await deleteDoc(plantDocRef(userId, plantDoc.id));
         }
 
         // Archive and delete reminders
         try {
-          const remindersRef = collection(db, "users", userId, "reminders");
+          const remindersRef = remindersCol(userId);
           const remindersSnap = await getDocs(remindersRef);
           for (const r of remindersSnap.docs) {
             await setDoc(doc(db, "archived_users", userId, "reminders", r.id), {

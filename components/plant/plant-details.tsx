@@ -15,21 +15,29 @@ import {
   Flower,
 } from "lucide-react";
 import type { LogEntry } from "@/types";
+import { InlineEdit } from "@/components/common/inline-edit";
+import { updateDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { userDoc, plantDoc } from "@/lib/paths";
 
 interface PlantDetailsProps {
   plant: Plant;
+  userId: string;
   lastWatering?: LogEntry;
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
   lastFlowering?: LogEntry;
+  onUpdate?: (patch: Partial<Plant>) => void;
 }
 
 export function PlantDetails({
   plant,
+  userId,
   lastWatering,
   lastFeeding,
   lastTraining,
   lastFlowering,
+  onUpdate,
 }: PlantDetailsProps) {
   const { t, language } = useTranslation();
 
@@ -45,6 +53,42 @@ export function PlantDetails({
     <Card>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Editable: Plant name */}
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("newPlant.name")}
+            </div>
+            <InlineEdit
+              value={plant.name}
+              onSave={async (newName) => {
+                await updateDoc(plantDoc(userId, plant.id), {
+                  name: newName,
+                });
+                onUpdate?.({ name: newName });
+              }}
+              placeholder={t("newPlant.namePlaceholder")}
+            />
+          </div>
+          {/* Editable: Seed bank */}
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("newPlant.seedBank")}
+            </div>
+            <div className="flex items-center gap-2">
+              <Leaf className="h-5 w-5 text-primary" />
+              <InlineEdit
+                value={plant.seedBank || ""}
+                onSave={async (newBank) => {
+                  await updateDoc(plantDoc(userId, plant.id), {
+                    seedBank: newBank,
+                  });
+                  onUpdate?.({ seedBank: newBank });
+                }}
+                placeholder={t("newPlant.seedBankPlaceholder")}
+                className="flex-1"
+              />
+            </div>
+          </div>
           <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("newPlant.growType")}
@@ -89,18 +133,6 @@ export function PlantDetails({
                 </div>
               </div>
             )}
-
-          {plant.seedBank && (
-            <div className="space-y-1">
-              <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                {t("newPlant.seedBank")}
-              </div>
-              <div className="flex items-center text-base font-medium text-foreground">
-                <Leaf className="h-5 w-5 mr-2 text-primary" />
-                <span>{plant.seedBank}</span>
-              </div>
-            </div>
-          )}
 
           <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">

@@ -19,7 +19,10 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { ROUTE_LOGIN } from "@/lib/routes";
+import { plantsCol, logsCol } from "@/lib/paths";
 import {
   collection,
   query,
@@ -52,22 +55,16 @@ export default function JournalPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        router.push("/login");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,8 +72,7 @@ export default function JournalPage() {
 
       try {
         // Fetch plants
-        const plantsRef = collection(db, "users", userId, "plants");
-        const plantsQuery = query(plantsRef);
+        const plantsQuery = query(plantsCol(userId));
         const plantsSnap = await getDocs(plantsQuery);
 
         const plantsData: Plant[] = [];
@@ -88,15 +84,10 @@ export default function JournalPage() {
         // Fetch all logs from all plants
         const allLogs: LogEntry[] = [];
         for (const plant of plantsData) {
-          const logsRef = collection(
-            db,
-            "users",
-            userId,
-            "plants",
-            plant.id,
-            "logs"
+          const logsQuery = query(
+            logsCol(userId, plant.id),
+            orderBy("date", "desc")
           );
-          const logsQuery = query(logsRef, orderBy("date", "desc"));
           const logsSnap = await getDocs(logsQuery);
           logsSnap.forEach((docSnap) => {
             allLogs.push({

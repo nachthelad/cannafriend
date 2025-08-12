@@ -11,9 +11,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuthUser } from "@/hooks/use-auth-user";
 import { collection, getDocs, query } from "firebase/firestore";
+import { ROUTE_LOGIN } from "@/lib/routes";
+import { plantsCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
@@ -23,25 +25,19 @@ export default function RemindersPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [plants, setPlants] = useState<Plant[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        router.push("/login");
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const fetchPlants = async () => {
       if (!userId) return;
       try {
-        const plantsRef = collection(db, "users", userId, "plants");
-        const q = query(plantsRef);
+        const q = query(plantsCol(userId));
         const snap = await getDocs(q);
         const list: Plant[] = [];
         snap.forEach((d) => list.push({ id: d.id, ...d.data() } as Plant));

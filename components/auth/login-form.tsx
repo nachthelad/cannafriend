@@ -12,6 +12,8 @@ import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { userDoc } from "@/lib/paths";
+import { resolveHomePathForRoles } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -63,15 +65,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       setLoadingStep(t("login.verifyingConfig"));
       // Check if user is new by looking for their user document
-      const userRef = doc(db, "users", user.uid);
+      const userRef = userDoc(user.uid);
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        // New user - redirect to onboarding
         router.push("/onboarding");
       } else {
-        // Existing user - redirect to dashboard
-        router.push("/dashboard");
+        const data = userSnap.data() as any;
+        const roles = data?.roles || { grower: true, consumer: false };
+        router.push(resolveHomePathForRoles(roles));
       }
 
       onSuccess?.();
