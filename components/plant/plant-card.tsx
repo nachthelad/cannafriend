@@ -2,13 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
@@ -38,25 +32,25 @@ export function PlantCard({
 
   return (
     <Card
-      className="overflow-hidden cursor-pointer transition-all hover:shadow-md"
+      className="group overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
       onClick={handleClick}
     >
-      <div className="h-32 relative">
+      <div className="relative aspect-[4/3] sm:aspect-video">
         {plant.coverPhoto ? (
           <Image
             src={plant.coverPhoto}
             alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
             fill
-            className="object-cover"
-            priority
+            className="object-cover transition-transform duration-300"
+            loading="lazy"
           />
         ) : plant.photos && plant.photos.length > 0 ? (
           <Image
             src={plant.photos[0]}
             alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
             fill
-            className="object-cover"
-            priority
+            className="object-cover transition-transform duration-300"
+            loading="lazy"
           />
         ) : (
           <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 relative">
@@ -65,19 +59,21 @@ export function PlantCard({
             </div>
           </div>
         )}
-      </div>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-xl">{plant.name}</CardTitle>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+          <h3 className="text-white text-lg font-semibold drop-shadow">
+            {plant.name}
+          </h3>
           <Badge
             variant={plant.seedType === "autoflowering" ? "default" : "outline"}
+            className="bg-white/90 text-black backdrop-blur-sm"
           >
             {plant.seedType === "autoflowering"
               ? t("newPlant.autoflowering")
               : t("newPlant.photoperiodic")}
           </Badge>
         </div>
-      </CardHeader>
+      </div>
       <CardContent className="pb-2">
         <div className="flex items-center text-sm text-muted-foreground">
           <Badge variant="outline" className="mr-2">
