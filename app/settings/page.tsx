@@ -496,8 +496,6 @@ export default function SettingsPage() {
                         });
                         setUserSettings({ ...userSettings, roles: newRoles });
                         toast({ title: t("settings.updated") });
-                        // Full refresh to ensure nav and routes update correctly
-                        window.location.reload();
                       }}
                     />
                     <span>{t("onboarding.grower")}</span>
@@ -519,8 +517,6 @@ export default function SettingsPage() {
                         });
                         setUserSettings({ ...userSettings, roles: newRoles });
                         toast({ title: t("settings.updated") });
-                        // Full refresh to ensure nav and routes update correctly
-                        window.location.reload();
                       }}
                     />
                     <span>{t("onboarding.consumer")}</span>

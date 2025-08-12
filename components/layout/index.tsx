@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
@@ -24,6 +24,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { roles, isLoading: rolesLoading } = useUserRoles();
   const homeHref =
@@ -33,6 +34,23 @@ export function Layout({ children }: LayoutProps) {
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
+
+  // Redirect if current path is no longer allowed after roles update (no full reload)
+  useEffect(() => {
+    if (rolesLoading || !roles) return;
+    const isGrowerArea = [
+      "/dashboard",
+      "/plants",
+      "/reminders",
+      "/journal",
+    ].some((p) => pathname?.startsWith(p));
+    const isConsumerArea = pathname?.startsWith("/strains");
+    if (roles.consumer && !roles.grower && isGrowerArea) {
+      router.replace("/strains");
+    } else if (roles.grower && !roles.consumer && isConsumerArea) {
+      router.replace("/dashboard");
+    }
+  }, [rolesLoading, roles, pathname, router]);
 
   const handleSignOut = async () => {
     try {
