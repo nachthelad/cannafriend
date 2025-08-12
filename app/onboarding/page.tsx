@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
@@ -87,7 +87,24 @@ export default function OnboardingPage() {
         description: t("onboarding.successMessage"),
       });
 
-      router.push("/dashboard");
+      // Decide next route based on user roles
+      try {
+        const snap = await getDoc(doc(db, "users", userId));
+        const data = snap.exists() ? (snap.data() as any) : {};
+        const roles = (data as any)?.roles || {
+          grower: true,
+          consumer: false,
+        };
+
+        if (roles.consumer && !roles.grower) {
+          router.push("/strains");
+        } else {
+          router.push("/dashboard");
+        }
+      } catch {
+        // Fallback to dashboard if roles cannot be determined
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
