@@ -25,7 +25,9 @@ export function Layout({ children }: LayoutProps) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { roles } = useUserRoles();
+  const { roles, isLoading: rolesLoading } = useUserRoles();
+  const homeHref =
+    roles && roles.consumer && !roles.grower ? "/strains" : "/dashboard";
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -74,7 +76,7 @@ export function Layout({ children }: LayoutProps) {
   ];
 
   const routes = baseRoutes.filter((r) => {
-    if (!roles) return true;
+    if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
     const growerPaths = ["/dashboard", "/plants/new", "/reminders", "/journal"];
     const consumerPaths = ["/strains"]; // sidebar entry for consumer
     const isGrowerRoute =
@@ -91,7 +93,7 @@ export function Layout({ children }: LayoutProps) {
       <aside className="hidden md:flex w-64 flex-col border-r bg-card">
         <div className="flex h-14 items-center border-b px-4">
           <Link
-            href="/dashboard"
+            href={homeHref}
             className="flex items-center gap-2 font-semibold"
           >
             <Logo size={20} className="text-primary" />
@@ -100,21 +102,23 @@ export function Layout({ children }: LayoutProps) {
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
           <div className="space-y-1">
-            {routes.map((route) => (
-              <Link
-                key={route.href}
-                href={route.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  pathname === route.href
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-accent hover:text-accent-foreground"
-                )}
-              >
-                <route.icon className="h-4 w-4" />
-                {route.label}
-              </Link>
-            ))}
+            {rolesLoading
+              ? null
+              : routes.map((route) => (
+                  <Link
+                    key={route.href}
+                    href={route.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      pathname === route.href
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <route.icon className="h-4 w-4" />
+                    {route.label}
+                  </Link>
+                ))}
           </div>
         </nav>
         <div className="border-t p-4">
@@ -134,7 +138,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Mobile header (no sidebar) */}
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
           <Link
-            href="/dashboard"
+            href={homeHref}
             className="flex items-center gap-2 font-semibold"
           >
             <Logo size={20} className="text-primary" />
