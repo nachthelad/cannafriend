@@ -16,6 +16,7 @@ import { Home, Settings, LogOut, Calendar, Bell, Plus } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -120,23 +121,30 @@ export function Layout({ children }: LayoutProps) {
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
           <div className="space-y-1">
-            {rolesLoading
-              ? null
-              : routes.map((route) => (
-                  <Link
-                    key={route.href}
-                    href={route.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                      pathname === route.href
-                        ? "bg-primary text-primary-foreground"
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <route.icon className="h-4 w-4" />
-                    {route.label}
-                  </Link>
-                ))}
+            {rolesLoading ? (
+              <>
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full" />
+              </>
+            ) : (
+              routes.map((route) => (
+                <Link
+                  key={route.href}
+                  href={route.href}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    pathname === route.href
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <route.icon className="h-4 w-4" />
+                  {route.label}
+                </Link>
+              ))
+            )}
           </div>
         </nav>
         <div className="border-t p-4">

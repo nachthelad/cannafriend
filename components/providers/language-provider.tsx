@@ -628,7 +628,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "photos.coverPhotoSetDesc":
           "La foto se mostrará en la tarjeta de la planta",
         "photos.coverPhotoError": "Error al establecer foto de portada",
+        "photos.coverSet": "¡Portada actualizada!",
         "plantCard.coverPhoto": "Foto de portada",
+        "photos.setCoverConfirmTitle": "Establecer como portada",
+        "photos.setCoverConfirmDesc":
+          "¿Querés establecer esta foto como portada de la planta?",
 
         // Image Upload
         "imageUpload.dragDrop": "Arrastra y suelta imágenes aquí",
@@ -1248,7 +1252,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "photos.coverPhotoSetDesc":
           "This photo will be displayed on the plant card",
         "photos.coverPhotoError": "Error setting cover photo",
+        "photos.coverSet": "Cover set!",
         "plantCard.coverPhoto": "Cover photo",
+        "photos.setCoverConfirmTitle": "Set as cover",
+        "photos.setCoverConfirmDesc":
+          "Do you want to set this photo as the plant's cover?",
 
         // Image Upload
         "imageUpload.dragDrop": "Drag and drop images here",

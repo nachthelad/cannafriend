@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
@@ -47,7 +48,15 @@ export function MobileBottomNav(): React.ReactElement {
             : "grid-cols-5"
         )}
       >
-        {rolesLoading || !roles ? null : (
+        {rolesLoading || !roles ? (
+          <>
+            <Skeleton className="h-12" />
+            <Skeleton className="h-12" />
+            <Skeleton className="h-12" />
+            {!roles || roles.grower ? <Skeleton className="h-12" /> : null}
+            <Skeleton className="h-12" />
+          </>
+        ) : (
           <>
             {/* Home */}
             {roles.consumer && !roles.grower ? (

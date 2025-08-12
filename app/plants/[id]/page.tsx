@@ -35,7 +35,7 @@ import { JournalEntries } from "@/components/journal/journal-entries";
 import { AddLogForm } from "@/components/journal/add-log-form";
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
-import { Loader2, Trash2, Plus } from "lucide-react";
+import { Loader2, Trash2, Plus, Star } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -420,6 +420,60 @@ export default function PlantPage({
                     sizes="100px"
                     loading="lazy"
                   />
+
+                  {/* Controls: Set cover + Delete photo */}
+                  {coverPhoto !== p && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute left-1 bottom-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                          onClick={(e) => e.stopPropagation()}
+                          aria-label={t("photos.setAsCover")}
+                        >
+                          <Star className="h-3.5 w-3.5 text-yellow-500" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("photos.setCoverConfirmTitle")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("photos.setCoverConfirmDesc")}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {t("settings.cancel")}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (!userId) return;
+                              try {
+                                await updateDoc(plantDocRef(userId, id), {
+                                  coverPhoto: p,
+                                });
+                                setCoverPhoto(p);
+                                setSelectedPhoto(p);
+                                toast({ title: t("photos.coverSet") });
+                              } catch (error: any) {
+                                toast({
+                                  variant: "destructive",
+                                  title: t("common.error"),
+                                  description: error.message,
+                                });
+                              }
+                            }}
+                          >
+                            {t("photos.setAsCover")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
 
                   {/* Delete photo small button */}
                   <AlertDialog>
