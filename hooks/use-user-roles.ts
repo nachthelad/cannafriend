@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
+import { userDoc } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 
 export type UserRoles = {
@@ -25,7 +26,7 @@ export function useUserRoles(): {
         return;
       }
       try {
-        const snap = await getDoc(doc(db, "users", user.uid));
+        const snap = await getDoc(userDoc(user.uid));
         const data = snap.exists() ? snap.data() : {};
         const userRoles: UserRoles = {
           grower: Boolean((data as any)?.roles?.grower ?? true),

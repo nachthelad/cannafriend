@@ -15,7 +15,10 @@ import {
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { ROUTE_LOGIN, ROUTE_DASHBOARD } from "@/lib/routes";
+import { plantDoc as plantDocRef, logsCol } from "@/lib/paths";
 import {
   doc,
   getDoc,
@@ -30,6 +33,8 @@ import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { AddLogForm } from "@/components/journal/add-log-form";
+import { ImageUpload } from "@/components/common/image-upload";
+import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import { Loader2, Trash2, Plus } from "lucide-react";
 import {
   AlertDialog,
@@ -50,7 +55,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
-import { addDoc } from "firebase/firestore";
+import { addDoc, updateDoc } from "firebase/firestore";
 
 export default function PlantPage({
   params,
@@ -68,11 +73,13 @@ export default function PlantPage({
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
+  const [showUpload, setShowUpload] = useState(false);
   const [lastWatering, setLastWatering] = useState<LogEntry | null>(null);
   const [lastFeeding, setLastFeeding] = useState<LogEntry | null>(null);
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
   const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
   const [isDeleting, setIsDeleting] = useState(false);
   const recomputeLasts = (logsData: LogEntry[]) => {
     const wateringLogs = logsData.filter((log) => log.type === "watering");
@@ -86,16 +93,9 @@ export default function PlantPage({
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        router.push("/login");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const fetchPlantData = async () => {
@@ -103,7 +103,7 @@ export default function PlantPage({
 
       try {
         // Fetch plant details
-        const plantRef = doc(db, "users", userId, "plants", id);
+        const plantRef = plantDocRef(userId, id);
         const plantSnap = await getDoc(plantRef);
 
         if (!plantSnap.exists()) {
@@ -112,14 +112,14 @@ export default function PlantPage({
             title: t("plantPage.notFound"),
             description: t("plantPage.notFoundDesc"),
           });
-          router.push("/dashboard");
+          router.push(ROUTE_DASHBOARD);
           return;
         }
 
         setPlant({ id: plantSnap.id, ...plantSnap.data() } as Plant);
 
         // Fetch logs
-        const logsRef = collection(db, "users", userId, "plants", id, "logs");
+        const logsRef = logsCol(userId, id);
         const logsQuery = query(logsRef, orderBy("date", "desc"));
         const logsSnap = await getDocs(logsQuery);
 
@@ -206,7 +206,7 @@ export default function PlantPage({
 
     try {
       // Delete subcollection docs: logs
-      const logsRef = collection(db, "users", userId, "plants", id, "logs");
+      const logsRef = logsCol(userId, id);
       const logsSnap = await getDocs(logsRef);
       for (const d of logsSnap.docs) {
         await deleteDoc(d.ref);
@@ -227,7 +227,7 @@ export default function PlantPage({
       }
 
       // Delete plant document
-      await deleteDoc(doc(db, "users", userId, "plants", id));
+      await deleteDoc(plantDocRef(userId, id));
 
       router.push("/dashboard");
     } catch (error: any) {
@@ -258,6 +258,50 @@ export default function PlantPage({
         title: t("common.error"),
         description: error.message,
       });
+    }
+  };
+
+  const handleRemovePhoto = async (index: number) => {
+    if (!userId) return;
+    const newPhotos = photos.filter((_, i) => i !== index);
+    try {
+      await updateDoc(plantDocRef(userId, id), { photos: newPhotos });
+      setPhotos(newPhotos);
+      if (selectedPhoto === photos[index]) {
+        setSelectedPhoto(newPhotos[0] || coverPhoto || "");
+      }
+      toast({
+        title: t("photos.removeSuccess"),
+        description: t("photos.photoRemoved"),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("photos.removeError"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handlePhotosChange = async (newPhotos: string[]) => {
+    if (!userId) return;
+    try {
+      const updated = [...photos, ...newPhotos];
+      await updateDoc(plantDocRef(userId, id), { photos: updated });
+      setPhotos(updated);
+      if (!coverPhoto && updated.length > 0) setSelectedPhoto(updated[0]);
+      toast({
+        title: t("photos.uploadSuccess"),
+        description: t("photos.photosUpdated"),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("photos.uploadError"),
+        description: error.message,
+      });
+    } finally {
+      setShowUpload(false);
     }
   };
 
@@ -335,6 +379,19 @@ export default function PlantPage({
               priority
             />
           </div>
+          <div className="flex items-center justify-between px-3 pb-2">
+            <div className="text-sm text-muted-foreground">
+              {photos.length}{" "}
+              {photos.length === 1 ? t("photos.photo") : t("photos.photos")}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowUpload(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" /> {t("photos.addPhotos")}
+            </Button>
+          </div>
           {photos.length > 1 && (
             <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
               {photos.map((p, idx) => (
@@ -356,6 +413,45 @@ export default function PlantPage({
                     sizes="100px"
                     loading="lazy"
                   />
+
+                  {/* Delete photo small button */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={t("photos.removeSuccess")}
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {t("settings.confirmDelete")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t("settings.confirmDeleteDesc")}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          {t("settings.cancel")}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleRemovePhoto(idx);
+                          }}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {t("strains.deleteConfirm")}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </button>
               ))}
             </div>
@@ -366,10 +462,14 @@ export default function PlantPage({
         <div className="space-y-6">
           <PlantDetails
             plant={plant}
+            userId={userId!}
             lastWatering={lastWatering || undefined}
             lastFeeding={lastFeeding || undefined}
             lastTraining={lastTraining || undefined}
             lastFlowering={lastFlowering || undefined}
+            onUpdate={(patch) =>
+              setPlant((prev) => (prev ? { ...prev, ...patch } : prev))
+            }
           />
         </div>
       </div>
@@ -405,6 +505,21 @@ export default function PlantPage({
           />
         </CardContent>
       </Card>
+
+      {/* Upload photos modal */}
+      <Dialog open={showUpload} onOpenChange={setShowUpload}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{t("photos.uploadPhotos")}</DialogTitle>
+          </DialogHeader>
+          <ImageUpload
+            onImagesChange={handlePhotosChange}
+            maxImages={DEFAULT_MAX_IMAGES}
+            maxSizeMB={DEFAULT_MAX_SIZE_MB}
+            className="mt-4"
+          />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

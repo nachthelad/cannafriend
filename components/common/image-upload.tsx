@@ -12,10 +12,8 @@ import { downscaleAndConvert } from "@/lib/image-processing";
 import {
   DEFAULT_MAX_IMAGES,
   DEFAULT_MAX_SIZE_MB,
-  ALLOWED_IMAGE_TYPES,
   ALLOWED_IMAGE_EXTENSIONS,
-  STORAGE_IMAGES_PATH,
-  IMAGE_UPLOAD_ERRORS,
+  getImageUploadErrors,
   generateImageFileName,
   getImageStoragePath,
   validateImageFile,
@@ -43,7 +41,8 @@ export function ImageUpload({
   const uploadImage = async (file: File): Promise<string> => {
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      throw new Error(IMAGE_UPLOAD_ERRORS.USER_NOT_AUTHENTICATED);
+      const ERR = getImageUploadErrors();
+      throw new Error(ERR.USER_NOT_AUTHENTICATED);
     }
 
     // Downscale and convert before upload to reduce size

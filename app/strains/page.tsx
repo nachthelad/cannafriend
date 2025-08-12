@@ -12,8 +12,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2, Pencil, Trash2, ChevronDown } from "lucide-react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { ROUTE_LOGIN } from "@/lib/routes";
+import { sessionsCol } from "@/lib/paths";
 import {
   collection,
   getDocs,
@@ -31,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { formatDateTime } from "@/lib/format";
 import {
   Dialog,
   DialogContent,
@@ -67,25 +70,23 @@ export default function StrainsPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
   const [editOpen, setEditOpen] = useState(false);
   const [editSession, setEditSession] = useState<Session | null>(null);
   const [editNotes, setEditNotes] = useState("");
   const { roles } = useUserRoles();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user) setUserId(user.uid);
-      else router.push("/login");
-    });
-    return () => unsub();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const fetchSessions = async () => {
       if (!userId) return;
       try {
-        const ref = collection(db, "users", userId, "sessions");
+        const ref = sessionsCol(userId);
         const q = query(ref);
         const snap = await getDocs(q);
         const list: Session[] = [];
@@ -237,14 +238,7 @@ export default function StrainsPage() {
                 <div className="min-w-0 pr-2">
                   <CardTitle className="truncate">{s.strain}</CardTitle>
                   <CardDescription className="text-xs mt-1">
-                    {new Date(s.date).toLocaleString(undefined, {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
+                    {formatDateTime(s.date, "short")}
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">

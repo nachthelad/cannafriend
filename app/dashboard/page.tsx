@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { auth, db } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { ROUTE_LOGIN } from "@/lib/routes";
+import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
 import {
   collection,
   query,
@@ -53,28 +56,21 @@ export default function DashboardPage() {
   const [lastTrainings, setLastTrainings] = useState<Record<string, LogEntry>>(
     {}
   );
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
   const [hasOverdue, setHasOverdue] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        router.push("/login");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     const fetchPlants = async () => {
       if (!userId) return;
 
       try {
-        const plantsRef = collection(db, "users", userId, "plants");
-        const q = query(plantsRef);
+        const q = query(plantsCol(userId));
         const querySnapshot = await getDocs(q);
 
         const plantsData: Plant[] = [];
@@ -89,17 +85,10 @@ export default function DashboardPage() {
 
           // Get last watering for this plant
           try {
-            const logsRef = collection(
-              db,
-              "users",
-              userId,
-              "plants",
-              doc.id,
-              "logs"
+            const allLogsQuery = query(
+              logsCol(userId, doc.id),
+              orderBy("date", "desc")
             );
-
-            // Debug: Check all logs for this plant
-            const allLogsQuery = query(logsRef, orderBy("date", "desc"));
             const allLogsSnap = await getDocs(allLogsQuery);
             const allLogs = allLogsSnap.docs.map((doc) => ({
               id: doc.id,
@@ -138,8 +127,7 @@ export default function DashboardPage() {
 
         // Compute overdue reminders for dashboard badge
         try {
-          const remindersRef = collection(db, "users", userId, "reminders");
-          const rq = query(remindersRef);
+          const rq = query(remindersCol(userId));
           const rsnap = await getDocs(rq);
           const now = new Date();
           let overdue = false;

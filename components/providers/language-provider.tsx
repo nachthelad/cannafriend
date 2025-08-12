@@ -33,6 +33,45 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       const esTranslations = {
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
+        "landing.hero":
+          "Tu compañero perfecto para el cultivo de plantas. Registra, monitorea y optimiza el crecimiento de tus plantas de manera profesional.",
+
+        // Features (landing)
+        "features.management.title": "Gestión de Plantas",
+        "features.management.desc":
+          "Registra y gestiona múltiples plantas con información detallada de cada una, con búsqueda rápida",
+        "features.journal.title": "Diario de Cultivo",
+        "features.journal.desc":
+          "Lleva un registro completo de actividades (riego, fertilización, entrenamiento) y agrega recordatorios",
+        "features.gallery.title": "Galería de Fotos",
+        "features.gallery.desc":
+          "Documenta el crecimiento de tus plantas con fotos organizadas por fecha",
+        "features.monitoring.title": "Monitoreo Ambiental",
+        "features.monitoring.desc":
+          "Registra temperatura, humedad, pH y otros parámetros ambientales",
+        "features.reminders.title": "Recordatorios",
+        "features.reminders.desc":
+          "Configura avisos para no olvidar riegos, tareas o sesiones",
+        "features.roles.title": "Dos modos: Cultivador y Fumador",
+        "features.roles.desc":
+          "Elige cómo usar la app: registra y gestiona cultivos o lleva un registro de tus sesiones y variedades",
+        "features.search.title": "Búsqueda Avanzada",
+        "features.search.desc":
+          "Encuentra rápidamente plantas, registros y actividades específicas",
+        "features.section.grower": "Modo Cultivador",
+        "features.section.consumer": "Modo Fumador",
+        "features.consumer.sessions.title": "Sesiones",
+        "features.consumer.sessions.desc":
+          "Carga sesiones con variedad, método (pipe, vaper, joint, etc.), cantidad y notas",
+        "features.consumer.history.title": "Historial",
+        "features.consumer.history.desc":
+          "Consulta y organiza tus sesiones registradas",
+        "features.consumer.notes.title": "Notas y experiencias",
+        "features.consumer.notes.desc":
+          "Anota efectos, sabor y estado de ánimo",
+        "features.consumer.photos.title": "Fotos (próximamente)",
+        "features.consumer.photos.desc":
+          "Adjunta imágenes a tus sesiones para documentar",
 
         // Login/Signup
         "login.title": "Iniciar Sesión",
@@ -329,6 +368,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "nav.settings": "Configuración",
         "nav.signOut": "Cerrar Sesión",
         "nav.menu": "Menú de Navegación",
+        "nav.goToApp": "Ir a la app",
 
         // Journal
         "journal.title": "Diario de Cultivo",
@@ -626,6 +666,44 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       const enTranslations = {
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
+        "landing.hero":
+          "Your perfect companion for plant growing. Record, monitor, and optimize your plants' growth like a pro.",
+
+        // Features (landing)
+        "features.management.title": "Plant Management",
+        "features.management.desc":
+          "Register and manage multiple plants with detailed info and quick search",
+        "features.journal.title": "Grow Journal",
+        "features.journal.desc":
+          "Keep a complete log (watering, feeding, training) and add reminders",
+        "features.gallery.title": "Photo Gallery",
+        "features.gallery.desc":
+          "Document your plants' growth with photos organized by date",
+        "features.monitoring.title": "Environmental Monitoring",
+        "features.monitoring.desc":
+          "Track temperature, humidity, pH and other environmental parameters",
+        "features.reminders.title": "Reminders",
+        "features.reminders.desc":
+          "Set reminders so you don't forget watering, tasks or sessions",
+        "features.roles.title": "Two modes: Grower and Consumer",
+        "features.roles.desc":
+          "Choose how you use the app: manage your grows or track your sessions and strains",
+        "features.search.title": "Advanced Search",
+        "features.search.desc":
+          "Quickly find plants, logs and specific activities",
+        "features.section.grower": "Grower mode",
+        "features.section.consumer": "Consumer mode",
+        "features.consumer.sessions.title": "Sessions",
+        "features.consumer.sessions.desc":
+          "Log sessions with strain, method (pipe, vape, joint, etc.), amount and notes",
+        "features.consumer.history.title": "History",
+        "features.consumer.history.desc":
+          "Browse and organize your recorded sessions",
+        "features.consumer.notes.title": "Notes and experiences",
+        "features.consumer.notes.desc": "Write effects, flavor and mood",
+        "features.consumer.photos.title": "Photos (coming soon)",
+        "features.consumer.photos.desc":
+          "Attach images to your sessions to document",
 
         // Login/Signup
         "login.title": "Login",
@@ -915,6 +993,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "nav.settings": "Settings",
         "nav.signOut": "Sign Out",
         "nav.menu": "Navigation Menu",
+        "nav.goToApp": "Go to app",
 
         // Journal
         "journal.title": "Grow Journal",

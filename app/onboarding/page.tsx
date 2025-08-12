@@ -26,6 +26,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { userDoc } from "@/lib/paths";
+import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
@@ -70,7 +72,7 @@ export default function OnboardingPage() {
 
     try {
       await setDoc(
-        doc(db, "users", userId),
+        userDoc(userId),
         {
           timezone: data.timezone,
           roles: {
@@ -89,18 +91,10 @@ export default function OnboardingPage() {
 
       // Decide next route based on user roles
       try {
-        const snap = await getDoc(doc(db, "users", userId));
+        const snap = await getDoc(userDoc(userId));
         const data = snap.exists() ? (snap.data() as any) : {};
-        const roles = (data as any)?.roles || {
-          grower: true,
-          consumer: false,
-        };
-
-        if (roles.consumer && !roles.grower) {
-          router.push("/strains");
-        } else {
-          router.push("/dashboard");
-        }
+        const roles = (data as any)?.roles || { grower: true, consumer: false };
+        router.push(resolveHomePathForRoles(roles));
       } catch {
         // Fallback to dashboard if roles cannot be determined
         router.push("/dashboard");
