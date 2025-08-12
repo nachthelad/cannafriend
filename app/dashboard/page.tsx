@@ -12,19 +12,10 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { auth } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
-import {
-  collection,
-  query,
-  getDocs,
-  where,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { query, getDocs, orderBy } from "firebase/firestore";
 import { Layout } from "@/components/layout";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";

@@ -140,6 +140,63 @@ export default function JournalPage() {
       return log.date && isSameDay(parseISO(log.date), date);
     });
 
+  // Precompute days with logs for markers (YYYY-MM-DD local)
+  const daysWithLogs = new Set(
+    logs
+      .filter((log) => {
+        if (selectedPlant !== "all" && (log as any).plantId !== selectedPlant)
+          return false;
+        if (selectedLogType !== "all" && log.type !== selectedLogType)
+          return false;
+        return Boolean(log.date);
+      })
+      .map((l) => {
+        const d = parseISO(l.date as string);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      })
+  );
+
+  // Annotate calendar days with a dot marker using DOM (desktop + mobile)
+  useEffect(() => {
+    let raf = 0;
+    const annotate = () => {
+      const buttons = document.querySelectorAll(
+        '[data-slot="calendar"] [data-day]'
+      ) as NodeListOf<HTMLElement>;
+      buttons.forEach((btn) => {
+        const dateStr = btn.getAttribute("data-day") || "";
+        const has = daysWithLogs.has(dateStr);
+        let dot = btn.querySelector<HTMLSpanElement>(".log-dot");
+        if (has) {
+          if (!dot) {
+            dot = document.createElement("span");
+            dot.className =
+              "log-dot pointer-events-none absolute bottom-[6px] md:bottom-[2px] left-1/2 -translate-x-1/2 inline-block h-1.5 w-1.5 rounded-full bg-primary";
+            if (!btn.style.position) btn.style.position = "relative";
+            btn.appendChild(dot);
+          }
+        } else if (dot) {
+          dot.remove();
+        }
+      });
+    };
+
+    // schedule on next frame to ensure calendar is mounted
+    raf = requestAnimationFrame(annotate);
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(annotate);
+    });
+    observer.observe(document.body, { subtree: true, childList: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [daysWithLogs, selectedPlant, selectedLogType]);
+
   const handleLogSuccess = (newLog: LogEntry) => {
     const plant = plants.find((p) => p.id === (newLog as any).plantId);
     const logWithPlant = {
@@ -188,9 +245,9 @@ export default function JournalPage() {
         <p className="text-muted-foreground">{t("journal.description")}</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Filters */}
-        <Card>
+      <div className="grid gap-6 md:grid-cols-[320px_1fr]">
+        {/* Left column: Filters + calendar */}
+        <Card className="md:sticky md:top-4 h-fit">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="mr-2 h-4 w-4" />
@@ -260,6 +317,7 @@ export default function JournalPage() {
                 onSelect={setSelectedDate}
                 locale={getCalendarLocale()}
               />
+              {/* Calendar markers dot via CSS: inject data-has-logs flag per day via DOM attribute hook */}
               {selectedDate && (
                 <Button
                   variant="outline"
@@ -273,12 +331,8 @@ export default function JournalPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Spacer to balance grid on desktop */}
-        <div className="hidden md:block" />
-
-        {/* Logs List */}
-        <Card className="md:col-span-2">
+        {/* Right column: Logs List */}
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>{t("journal.recentLogs")}</CardTitle>

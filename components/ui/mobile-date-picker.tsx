@@ -63,6 +63,7 @@ export function MobileDatePicker({
                 onSelect={(d) => handleSelect(d)}
                 className="rounded-lg border p-4 [--cell-size:3rem] sm:[--cell-size:3rem]"
                 locale={locale}
+                // marker function removed due to React attribute constraints
               />
             </div>
           </DialogContent>
@@ -77,6 +78,7 @@ export function MobileDatePicker({
           onSelect={onSelect}
           className="rounded-md border"
           locale={locale}
+          // marker function removed due to React attribute constraints
         />
       </div>
     </>

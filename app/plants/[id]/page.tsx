@@ -395,11 +395,18 @@ export default function PlantPage({
           {photos.length > 1 && (
             <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
               {photos.map((p, idx) => (
-                <button
+                <div
                   key={idx}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedPhoto(p)}
-                  className={`relative aspect-square overflow-hidden rounded-md border ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedPhoto(p);
+                    }
+                  }}
+                  className={`relative aspect-square overflow-hidden rounded-md border cursor-pointer ${
                     (selectedPhoto || coverPhoto) === p
                       ? "ring-2 ring-primary"
                       : ""
@@ -452,7 +459,7 @@ export default function PlantPage({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                </button>
+                </div>
               ))}
             </div>
           )}
