@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,90 @@ import { addDoc, collection } from "firebase/firestore";
 import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
+import { ImageUpload } from "@/components/common/image-upload";
+import { Loader2, Calendar, Clock } from "lucide-react";
+import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn, formatDateObjectWithLocale } from "@/lib/utils";
+import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
+import { es, enUS } from "date-fns/locale";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function TimeField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const sanitize = (v: string) => {
+    // allow only digits and one colon, up to 5 chars total
+    const filtered = v.replace(/[^0-9:]/g, "");
+    const parts = filtered.split(":");
+    if (parts.length > 2) {
+      // collapse extra colons
+      const [a, b] = parts;
+      return `${a}:${b}`.slice(0, 5);
+    }
+    return filtered.slice(0, 5);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(sanitize(e.target.value));
+  };
+
+  const handleBlur = () => {
+    const raw = (value || "").trim();
+    if (!raw) return;
+    const onlyDigits = raw.replace(/\D/g, "");
+    let hh = 0;
+    let mm = 0;
+    if (raw.includes(":")) {
+      const [h, m = "0"] = raw.split(":");
+      hh = Number.parseInt(h || "0", 10);
+      mm = Number.parseInt(m || "0", 10);
+    } else if (onlyDigits.length <= 2) {
+      hh = Number.parseInt(onlyDigits || "0", 10);
+      mm = 0;
+    } else {
+      const d = onlyDigits.padEnd(4, "0");
+      hh = Number.parseInt(d.slice(0, 2), 10);
+      mm = Number.parseInt(d.slice(2, 4), 10);
+    }
+    if (!Number.isFinite(hh) || !Number.isFinite(mm)) return;
+    hh = Math.min(23, Math.max(0, hh));
+    mm = Math.min(59, Math.max(0, mm));
+    onChange(`${pad2(hh)}:${pad2(mm)}`);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Clock className="h-4 w-4 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder="HH:MM"
+        inputMode="numeric"
+        className="w-32"
+      />
+    </div>
+  );
+}
 
 export default function NewSessionPage() {
   const { t } = useTranslation();
@@ -25,6 +110,10 @@ export default function NewSessionPage() {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
   const [notes, setNotes] = useState("");
+  const [sessionDate, setSessionDate] = useState<Date>(new Date());
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -47,12 +136,36 @@ export default function NewSessionPage() {
     setIsSaving(true);
     try {
       const ref = sessionsCol(userId);
+      const buildDateTime = (base: Date, hhmm: string) => {
+        if (!hhmm) return null;
+        const [hh, mm] = hhmm.split(":").map((x) => Number.parseInt(x, 10));
+        const d = new Date(base);
+        d.setHours(
+          Number.isFinite(hh) ? hh : 0,
+          Number.isFinite(mm) ? mm : 0,
+          0,
+          0
+        );
+        return d.toISOString();
+      };
+      const startISO = buildDateTime(sessionDate, startTime);
+      const endISO = buildDateTime(sessionDate, endTime);
+      const dateISO =
+        startISO ||
+        new Date(
+          sessionDate.getFullYear(),
+          sessionDate.getMonth(),
+          sessionDate.getDate()
+        ).toISOString();
       await addDoc(ref, {
         strain,
         amount,
         method,
         notes,
-        date: new Date().toISOString(),
+        startTime: startISO,
+        endTime: endISO,
+        photos: photos.length > 0 ? photos : null,
+        date: dateISO,
       });
       toast({ title: t("strains.saved") });
       router.push(ROUTE_STRAINS);
@@ -85,6 +198,53 @@ export default function NewSessionPage() {
                 placeholder={t("strains.strainPlaceholder")}
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("logForm.date")}</label>
+              <div className="md:hidden">
+                <MobileDatePicker
+                  selected={sessionDate}
+                  onSelect={(d) => d && setSessionDate(d)}
+                  locale={t("common.language") === "es" ? es : enUS}
+                />
+              </div>
+              <div className="hidden md:block">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {formatDateObjectWithLocale(sessionDate, "PPP")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={sessionDate}
+                      onSelect={(d) => d && setSessionDate(d)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("strains.startTime")}
+                </label>
+                <TimeField value={startTime} onChange={setStartTime} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("strains.endTime")}
+                </label>
+                <TimeField value={endTime} onChange={setEndTime} />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">
@@ -116,6 +276,34 @@ export default function NewSessionPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t("strains.notesPlaceholder")}
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium">
+                {t("strains.photos")}
+              </label>
+              <ImageUpload
+                onImagesChange={(newUrls) =>
+                  setPhotos((prev) => [...prev, ...newUrls])
+                }
+                maxSizeMB={5}
+              />
+              {photos.length > 0 && (
+                <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {photos.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="relative w-full aspect-square overflow-hidden rounded-md border"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`photo ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex justify-end">
               <Button onClick={onSave} disabled={isSaving}>

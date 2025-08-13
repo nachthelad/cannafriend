@@ -65,8 +65,17 @@ export default function Home() {
       {/* Mobile Layout */}
       <div className="block lg:hidden">
         <div className="p-4">
-          {/* Header with login buttons */}
-          <MobileHeader onLoginClick={() => setLoginOpen(true)} />
+          {/* Header with login/go-to-app depending on auth */}
+          <MobileHeader
+            isLoggedIn={isLoggedIn}
+            onPrimaryClick={() => {
+              if (isLoggedIn) {
+                void handleDesktopLoginClick();
+              } else {
+                setLoginOpen(true);
+              }
+            }}
+          />
 
           {/* App Introduction */}
           <AppIntroduction />
