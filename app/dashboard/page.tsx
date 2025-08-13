@@ -20,7 +20,7 @@ import { Layout } from "@/components/layout";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { Search } from "@/components/common/search";
-import { Plus, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
+import { Plus, Loader2, AlertTriangle, ChevronDown, Bell } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -224,6 +224,16 @@ export default function DashboardPage() {
               <h2 className="text-xl font-semibold">
                 {t("dashboard.yourPlants")}
               </h2>
+              <div className="mt-2 md:hidden">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push("/reminders")}
+                  className="inline-flex items-center gap-2"
+                >
+                  <Bell className="h-4 w-4" /> {t("dashboard.reminders")}
+                </Button>
+              </div>
               {plants.length > 0 && (
                 <div className="mt-2">
                   <Search

@@ -161,16 +161,16 @@ export function MobileBottomNav(): React.ReactElement {
             {/* Slot 4: grower = Reminders, consumer-only = (nothing, Settings comes next) */}
             {roles.grower ? (
               <Link
-                href="/reminders"
+                href="/stash"
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/reminders")
+                  isActive("/stash")
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                aria-label="Reminders"
+                aria-label="Stash"
               >
-                <Bell className="h-5 w-5" />
+                <Package className="h-5 w-5" />
               </Link>
             ) : null}
 
