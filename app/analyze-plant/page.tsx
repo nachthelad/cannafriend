@@ -13,7 +13,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import ReactMarkdown from "react-markdown";
 import { ImageUpload } from "@/components/common/image-upload";
 import { auth } from "@/lib/firebase";
-import { addDoc } from "firebase/firestore";
+import { addDoc, getDocs, query, orderBy } from "firebase/firestore";
 import { analysesCol } from "@/lib/paths";
 
 type JournalEntry = {
@@ -26,7 +26,7 @@ type JournalEntry = {
   response: string;
 };
 
-const JOURNAL_STORAGE_KEY = "cf_ai_analysis_journal";
+// Remote-only listing; no localStorage fallback
 
 export default function AnalyzePlantPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function AnalyzePlantPage() {
   const [question, setQuestion] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [response, setResponse] = useState<string>("");
-  const [journal, setJournal] = useState<JournalEntry[]>([]);
+  const [remoteAnalyses, setRemoteAnalyses] = useState<JournalEntry[]>([]);
 
   const defaultPrompt = t("analyzePlant.defaultPrompt");
 
@@ -64,30 +64,37 @@ export default function AnalyzePlantPage() {
 
   // No client-only gating; align with other pages (dashboard).
 
-  // Load journal from localStorage
+  // Load analyses from Firestore (remote only)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(JOURNAL_STORAGE_KEY);
-      if (raw) {
-        const parsed: JournalEntry[] = JSON.parse(raw);
-        setJournal(parsed);
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    (async () => {
+      try {
+        const q = query(analysesCol(uid), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        const items: JournalEntry[] = [];
+        snap.forEach((doc) => {
+          const d = doc.data() as any;
+          items.push({
+            id: doc.id,
+            createdAt: d.createdAt || new Date().toISOString(),
+            imageUrl: d.imageUrl || undefined,
+            imageType: d.imageType || "image/jpeg",
+            question: d.question || "",
+            response: d.response || "",
+          });
+        });
+        setRemoteAnalyses(items);
+      } catch (e) {
+        console.warn("Failed to load analyses from Firestore", e);
       }
-    } catch {
-      // ignore
-    }
+    })();
   }, []);
 
-  const saveJournal = (items: JournalEntry[]) => {
-    setJournal(items);
-    try {
-      localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(items));
-    } catch {
-      // ignore
-    }
-  };
+  // Removed localStorage journal saving; remote only
 
   const clearJournal = () => {
-    saveJournal([]);
+    setRemoteAnalyses([]);
     toast({ title: "Cleared", description: "AI Analysis Journal cleared." });
   };
 
@@ -186,7 +193,7 @@ export default function AnalyzePlantPage() {
         question: q,
         response: answer,
       };
-      saveJournal([entry, ...journal]);
+      setRemoteAnalyses((prev) => [entry, ...prev]);
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -302,7 +309,7 @@ export default function AnalyzePlantPage() {
                   <div className="inline-flex items-center gap-2 text-base font-medium">
                     <History className="h-4 w-4" /> {t("analyzePlant.journal")}
                   </div>
-                  {journal.length > 0 && (
+                  {remoteAnalyses.length > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -314,13 +321,13 @@ export default function AnalyzePlantPage() {
                   )}
                 </div>
 
-                {journal.length === 0 ? (
+                {remoteAnalyses.length === 0 ? (
                   <div className="text-sm text-muted-foreground">
                     {t("analyzePlant.noAnalyses")}
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {journal.map((entry) => (
+                    {remoteAnalyses.map((entry) => (
                       <div
                         key={entry.id}
                         className="rounded-md border p-3 space-y-2"
