@@ -8,9 +8,9 @@
 
 Para habilitar reCAPTCHA, agrega esta variable de entorno:
 
-```env
+\`\`\`env
 NEXT_PUBLIC_ENABLE_RECAPTCHA=true
-```
+\`\`\`
 
 ## Configuración para Desarrollo
 
@@ -39,16 +39,16 @@ Después de crear el sitio, obtendrás:
 
 Crea un archivo `.env.local` en la raíz del proyecto:
 
-```env
+\`\`\`env
 NEXT_PUBLIC_ENABLE_RECAPTCHA=true
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY=tu_site_key_aqui
-```
+\`\`\`
 
 ### 4. Validación en el backend (Opcional)
 
 Para una validación completa, también deberías validar el token en el backend:
 
-```typescript
+\`\`\`typescript
 // Ejemplo de validación en el backend
 const validateRecaptcha = async (token: string) => {
   const response = await fetch(
@@ -65,7 +65,7 @@ const validateRecaptcha = async (token: string) => {
   const data = await response.json();
   return data.success;
 };
-```
+\`\`\`
 
 ## Variables de Entorno Disponibles
 

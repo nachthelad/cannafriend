@@ -15,7 +15,7 @@
 1. En la consola de Firebase, ve a Storage > Reglas
 2. Reemplaza el contenido con las reglas del archivo `storage.rules`:
 
-```javascript
+\`\`\`javascript
 rules_version = '2';
 
 service firebase.storage {
@@ -39,7 +39,7 @@ service firebase.storage {
     }
   }
 }
-```
+\`\`\`
 
 3. Haz clic en "Publicar"
 
@@ -50,7 +50,7 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
 1. Ve a Storage > Configuración
 2. En la pestaña "CORS", agrega las siguientes reglas:
 
-```json
+\`\`\`json
 [
   {
     "origin": ["*"],
@@ -58,7 +58,7 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
     "maxAgeSeconds": 3600
   }
 ]
-```
+\`\`\`
 
 ## Características implementadas
 
@@ -98,13 +98,13 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
 
 ### 📁 Estructura de archivos:
 
-```
+\`\`\`
 images/
 └── {userId}/
     ├── {timestamp}_image1.jpg
     ├── {timestamp}_image2.png
     └── ...
-```
+\`\`\`
 
 ### 🔒 Seguridad:
 

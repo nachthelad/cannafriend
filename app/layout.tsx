@@ -25,6 +25,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
   },
+    generator: 'v0.app'
 };
 
 export const viewport: Viewport = {
