@@ -12,7 +12,15 @@ import { signOut } from "firebase/auth";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { cn } from "@/lib/utils";
-import { Home, Settings, LogOut, Calendar, Bell, Plus } from "lucide-react";
+import {
+  Home,
+  Settings,
+  LogOut,
+  Calendar,
+  Bell,
+  Plus,
+  Package,
+} from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
@@ -78,6 +86,11 @@ export function Layout({ children }: LayoutProps) {
       icon: Plus,
     },
     {
+      href: "/stash",
+      label: t("stash.title"),
+      icon: Package,
+    },
+    {
       href: "/journal",
       label: t("nav.journal"),
       icon: Calendar,
@@ -97,7 +110,7 @@ export function Layout({ children }: LayoutProps) {
   const routes = baseRoutes.filter((r) => {
     if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
     const growerPaths = ["/dashboard", "/plants/new", "/reminders", "/journal"];
-    const consumerPaths = ["/strains"]; // sidebar entry for consumer
+    const consumerPaths = ["/strains", "/stash"]; // sidebar entry for consumer
     const isGrowerRoute =
       growerPaths.includes(r.href) || r.href.startsWith("/plants");
     const isConsumerRoute = consumerPaths.includes(r.href);

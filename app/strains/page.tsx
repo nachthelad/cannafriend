@@ -21,11 +21,12 @@ import {
   ChevronDown,
   Calendar,
   Clock,
+  Heart,
 } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
-import { sessionsCol } from "@/lib/paths";
+import { sessionsCol, userDoc } from "@/lib/paths";
 import {
   collection,
   getDocs,
@@ -34,6 +35,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
+import { arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { useTranslation } from "@/hooks/use-translation";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -102,6 +104,8 @@ export default function StrainsPage() {
   const [editEndTime, setEditEndTime] = useState("");
   const [editPhotos, setEditPhotos] = useState<string[]>([]);
   const { roles } = useUserRoles();
+  const [favoriteStrains, setFavoriteStrains] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -121,6 +125,11 @@ export default function StrainsPage() {
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
         setSessions(list);
+        // load favorites
+        const uSnap = await getDoc(userDoc(userId));
+        setFavoriteStrains(
+          ((uSnap.data() as any)?.favoriteStrains as string[]) || []
+        );
       } catch (e: any) {
         toast({
           variant: "destructive",
@@ -133,6 +142,29 @@ export default function StrainsPage() {
     };
     if (userId) void fetchSessions();
   }, [userId]);
+
+  const normalizeStrain = (name: string) => name.trim().toLowerCase();
+
+  const toggleFavorite = async (strainName: string) => {
+    if (!userId) return;
+    const norm = normalizeStrain(strainName);
+    const isFav = favoriteStrains.includes(norm);
+    try {
+      await updateDoc(userDoc(userId), {
+        favoriteStrains: isFav ? arrayRemove(norm) : arrayUnion(norm),
+      });
+      setFavoriteStrains((prev) =>
+        isFav ? prev.filter((s) => s !== norm) : [...prev, norm]
+      );
+      toast({ title: isFav ? t("favorites.removed") : t("favorites.added") });
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: t("common.error"),
+        description: e?.message || String(e),
+      });
+    }
+  };
 
   const openEdit = (s: Session) => {
     setEditSession(s);
@@ -291,6 +323,21 @@ export default function StrainsPage() {
           >
             <Plus className="h-5 w-5" />
           </Button>
+          <Button
+            variant={showFavoritesOnly ? "secondary" : "outline"}
+            onClick={() => setShowFavoritesOnly((v) => !v)}
+            className="hidden sm:inline-flex"
+          >
+            <Heart className="mr-2 h-4 w-4" /> {t("favorites.filter")}
+          </Button>
+          <Button
+            onClick={() => setShowFavoritesOnly((v) => !v)}
+            aria-label={t("favorites.filter")}
+            className="h-9 w-9 p-0 sm:hidden"
+            variant={showFavoritesOnly ? "secondary" : "outline"}
+          >
+            <Heart className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
@@ -313,64 +360,116 @@ export default function StrainsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {sessions.map((s) => (
-            <Card key={s.id}>
-              <CardHeader className="flex items-start justify-between space-y-0 gap-2">
-                <div className="min-w-0 pr-2">
-                  <CardTitle className="truncate">{s.strain}</CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    {formatDateTime(s.date, "short")}
-                  </CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("strains.edit")}
-                    onClick={() => openEdit(s)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t("strains.delete")}
-                        className="text-destructive hover:text-destructive"
+          {sessions
+            .filter((s) =>
+              showFavoritesOnly
+                ? favoriteStrains.includes(normalizeStrain(s.strain))
+                : true
+            )
+            .map((s) => (
+              <Card key={s.id}>
+                <CardHeader className="flex items-start justify-between space-y-0 gap-2">
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="truncate">{s.strain}</CardTitle>
+                      <button
+                        type="button"
+                        onClick={() => toggleFavorite(s.strain)}
+                        aria-label="toggle favorite"
+                        className={cn(
+                          "inline-flex h-7 w-7 items-center justify-center rounded-md",
+                          favoriteStrains.includes(normalizeStrain(s.strain))
+                            ? "text-red-500"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {t("strains.deleteConfirmTitle")}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t("strains.deleteConfirmDesc")}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          {t("settings.cancel")}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDelete(s.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        <Heart
+                          className={cn(
+                            "h-4 w-4",
+                            favoriteStrains.includes(
+                              normalizeStrain(s.strain)
+                            ) && "fill-current"
+                          )}
+                        />
+                      </button>
+                    </div>
+                    <CardDescription className="text-xs mt-1">
+                      {formatDateTime(s.date, "short")}
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("strains.edit")}
+                      onClick={() => openEdit(s)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("strains.delete")}
+                          className="text-destructive hover:text-destructive"
                         >
-                          {t("strains.deleteConfirm")}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {s.notes && <p className="text-sm">{s.notes}</p>}
-              </CardContent>
-            </Card>
-          ))}
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("strains.deleteConfirmTitle")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("strains.deleteConfirmDesc")}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {t("settings.cancel")}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(s.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            {t("strains.deleteConfirm")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {(s.method || s.amount) && (
+                    <p className="text-xs text-muted-foreground">
+                      {s.method ? s.method : ""}
+                      {s.method && s.amount ? " • " : ""}
+                      {s.amount ? s.amount : ""}
+                    </p>
+                  )}
+                  {s.notes && <p className="text-sm">{s.notes}</p>}
+                  {s.photos && s.photos.length > 0 && (
+                    <div className="mt-1 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {s.photos.slice(0, 8).map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="relative w-full aspect-square overflow-hidden rounded-md border"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={url}
+                            alt={`photo ${idx + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
         </div>
       )}
 
