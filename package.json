@@ -51,7 +51,6 @@
     "next-themes": "latest",
     "node:fs": "latest",
     "node:path": "latest",
-    "openai": "latest",
     "react": "^19",
     "react-day-picker": "latest",
     "react-dom": "^19",
@@ -70,7 +69,6 @@
     "workbox-precaching": "latest",
     "workbox-routing": "latest",
     "workbox-strategies": "latest",
-    "ws": "latest",
     "zod": "^3.25.67"
   },
   "devDependencies": {

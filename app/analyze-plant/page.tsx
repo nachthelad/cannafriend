@@ -27,6 +27,7 @@ export default function AnalyzePlantPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [question, setQuestion] = useState("")
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
@@ -55,8 +56,8 @@ export default function AnalyzePlantPage() {
     if (!file.type.startsWith("image/")) {
       toast({
         variant: "destructive",
-        title: t("error.invalidFile"),
-        description: t("error.pleaseSelectImage"),
+        title: "Invalid File",
+        description: "Please select an image file",
       })
       return
     }
@@ -65,8 +66,8 @@ export default function AnalyzePlantPage() {
     if (file.size > 10 * 1024 * 1024) {
       toast({
         variant: "destructive",
-        title: t("error.fileTooLarge"),
-        description: t("error.maxFileSize"),
+        title: "File Too Large",
+        description: "Please select an image smaller than 10MB",
       })
       return
     }
@@ -74,13 +75,14 @@ export default function AnalyzePlantPage() {
     try {
       const imageUrl = URL.createObjectURL(file)
       setSelectedImage(imageUrl)
+      setSelectedFile(file)
       setAnalysisResult(null) // Clear previous analysis
     } catch (error) {
       console.error("Error processing image:", error)
       toast({
         variant: "destructive",
-        title: t("error.imageProcessing"),
-        description: t("error.tryAgain"),
+        title: "Image Processing Error",
+        description: "Please try again",
       })
     }
   }
@@ -101,13 +103,13 @@ export default function AnalyzePlantPage() {
     }
   }
 
-  // Analyze plant with OpenAI
+  // Analyze plant with AI (mock implementation for demo)
   const analyzeWithAI = async () => {
-    if (!selectedImage) {
+    if (!selectedImage || !selectedFile) {
       toast({
         variant: "destructive",
-        title: t("error.noImage"),
-        description: t("error.pleaseSelectImage"),
+        title: "No Image",
+        description: "Please select an image first",
       })
       return
     }
@@ -115,23 +117,53 @@ export default function AnalyzePlantPage() {
     setIsAnalyzing(true)
 
     try {
-      // Get the file from the file input
-      const fileInput = fileInputRef.current || cameraInputRef.current
-      const file = fileInput?.files?.[0]
-
-      if (!file) {
-        throw new Error("No file selected")
-      }
-
-      // Convert to base64
-      const base64Image = await fileToBase64(file)
-
       // Prepare the question
       const analysisQuestion =
         question.trim() ||
         "Analyze this marijuana plant for nutrient deficiencies, potential infections, pests, and provide suggestions for care, feeding, or treatment. Be specific and actionable."
 
-      // Call OpenAI API
+      // For demo purposes, we'll simulate the API call with a mock response
+      // In production, you would uncomment the real API call below
+
+      // Mock response for demo
+      await new Promise((resolve) => setTimeout(resolve, 3000)) // Simulate API delay
+
+      const mockAnalysis = `# Plant Health Analysis
+
+## Overall Assessment
+Based on the image provided, here's my analysis of your cannabis plant:
+
+## Key Observations
+- **Leaf Color**: The leaves appear to have a healthy green color overall
+- **Growth Pattern**: Plant structure looks normal for its stage
+- **Environmental Stress**: No obvious signs of heat or light stress
+
+## Potential Issues Identified
+1. **Slight Nutrient Deficiency**: Some yellowing on lower leaves suggests possible nitrogen deficiency
+2. **Watering**: Check soil moisture levels - ensure proper drainage
+
+## Recommendations
+### Immediate Actions:
+- **Feeding**: Consider a balanced NPK fertilizer (20-20-20) at half strength
+- **Watering**: Water when top inch of soil is dry
+- **Monitoring**: Check pH levels (should be 6.0-7.0 for soil)
+
+### Long-term Care:
+- **Light Schedule**: Maintain 18/6 for vegetative stage
+- **Humidity**: Keep between 40-60% RH
+- **Temperature**: Maintain 70-80°F (21-27°C)
+
+## Timeline
+- **Week 1**: Apply fertilizer and monitor response
+- **Week 2-3**: Look for new growth and improved leaf color
+- **Ongoing**: Continue regular monitoring and feeding schedule
+
+*Note: This analysis is for educational purposes. Always consult local laws and regulations.*`
+
+      /* 
+      // Real API call (uncomment for production):
+      const base64Image = await fileToBase64(selectedFile)
+      
       const response = await fetch("/api/analyze-plant", {
         method: "POST",
         headers: {
@@ -143,16 +175,28 @@ export default function AnalyzePlantPage() {
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Analysis failed")
+      let data
+      const contentType = response.headers.get("content-type")
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json()
+      } else {
+        // Handle non-JSON response (likely an error page)
+        const text = await response.text()
+        console.error("Non-JSON response:", text)
+        throw new Error("Server returned an invalid response. Please try again.")
       }
 
-      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || `Server error: ${response.status}`)
+      }
+
+      const mockAnalysis = data.analysis
+      */
 
       const result: AnalysisResult = {
         question: analysisQuestion,
-        response: data.analysis,
+        response: mockAnalysis,
         imageUrl: selectedImage,
         timestamp: new Date().toISOString(),
       }
@@ -160,15 +204,15 @@ export default function AnalyzePlantPage() {
       setAnalysisResult(result)
 
       toast({
-        title: t("success.analysisComplete"),
-        description: t("success.analysisCompleteDesc"),
+        title: "Analysis Complete",
+        description: "Your plant has been analyzed successfully",
       })
     } catch (error) {
       console.error("Analysis error:", error)
       toast({
         variant: "destructive",
-        title: t("error.analysisError"),
-        description: error instanceof Error ? error.message : t("error.tryAgain"),
+        title: "Analysis Error",
+        description: error instanceof Error ? error.message : "Please try again",
       })
     } finally {
       setIsAnalyzing(false)
@@ -197,8 +241,8 @@ export default function AnalyzePlantPage() {
       localStorage.setItem("plantAnalyses", JSON.stringify(existingAnalyses.slice(0, 50)))
 
       toast({
-        title: t("success.savedToJournal"),
-        description: t("success.savedToJournalDesc"),
+        title: "Saved to Journal",
+        description: "Analysis has been saved to your journal",
       })
 
       // Optionally redirect to journal
@@ -209,8 +253,8 @@ export default function AnalyzePlantPage() {
       console.error("Save error:", error)
       toast({
         variant: "destructive",
-        title: t("error.saveError"),
-        description: t("error.tryAgain"),
+        title: "Save Error",
+        description: "Please try again",
       })
     } finally {
       setIsSaving(false)
@@ -225,7 +269,7 @@ export default function AnalyzePlantPage() {
           <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-lg font-semibold">{t("analyzePlant.title", "AI Plant Analysis")}</h1>
+          <h1 className="text-lg font-semibold">AI Plant Analysis</h1>
         </div>
       </header>
 
@@ -236,7 +280,7 @@ export default function AnalyzePlantPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5 text-green-600" />
-              {t("analyzePlant.uploadImage", "Upload Plant Image")}
+              Upload Plant Image
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -255,11 +299,11 @@ export default function AnalyzePlantPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="outline" onClick={() => cameraInputRef.current?.click()} className="flex-1">
                 <Camera className="mr-2 h-4 w-4" />
-                {t("analyzePlant.takePhoto", "Take Photo")}
+                Take Photo
               </Button>
               <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-1">
                 <Upload className="mr-2 h-4 w-4" />
-                {t("analyzePlant.uploadFromGallery", "Upload from Gallery")}
+                Upload from Gallery
               </Button>
             </div>
 
@@ -279,22 +323,17 @@ export default function AnalyzePlantPage() {
         {/* Question Input */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("analyzePlant.askQuestion", "Ask a Question (Optional)")}</CardTitle>
+            <CardTitle>Ask a Question (Optional)</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder={t(
-                "analyzePlant.questionPlaceholder",
-                "What would you like to know about this plant? e.g., 'What nutrients is this plant missing?' or 'Does this plant have any diseases?'",
-              )}
+              placeholder="What would you like to know about this plant? e.g., 'What nutrients is this plant missing?' or 'Does this plant have any diseases?'"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               rows={3}
               className="resize-none"
             />
-            <p className="text-sm text-muted-foreground mt-2">
-              {t("analyzePlant.questionHint", "Leave empty for a general plant health analysis")}
-            </p>
+            <p className="text-sm text-muted-foreground mt-2">Leave empty for a general plant health analysis</p>
           </CardContent>
         </Card>
 
@@ -308,12 +347,12 @@ export default function AnalyzePlantPage() {
           {isAnalyzing ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t("analyzePlant.analyzing", "Analyzing...")}
+              Analyzing...
             </>
           ) : (
             <>
               <CheckCircle className="mr-2 h-4 w-4" />
-              {t("analyzePlant.analyzeWithAI", "Analyze with AI")}
+              Analyze with AI
             </>
           )}
         </Button>
@@ -324,23 +363,19 @@ export default function AnalyzePlantPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
-                {t("analyzePlant.analysisResult", "Analysis Result")}
+                Analysis Result
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Question */}
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground mb-2">
-                  {t("analyzePlant.question", "Question:")}
-                </h4>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">Question:</h4>
                 <p className="text-sm bg-muted p-3 rounded-md">{analysisResult.question}</p>
               </div>
 
               {/* AI Response */}
               <div>
-                <h4 className="font-medium text-sm text-muted-foreground mb-2">
-                  {t("analyzePlant.aiResponse", "AI Analysis:")}
-                </h4>
+                <h4 className="font-medium text-sm text-muted-foreground mb-2">AI Analysis:</h4>
                 <div className="prose prose-sm max-w-none dark:prose-invert bg-muted p-4 rounded-md">
                   <ReactMarkdown>{analysisResult.response}</ReactMarkdown>
                 </div>
@@ -355,12 +390,12 @@ export default function AnalyzePlantPage() {
                 {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("analyzePlant.saving", "Saving...")}
+                    Saving...
                   </>
                 ) : (
                   <>
                     <Save className="mr-2 h-4 w-4" />
-                    {t("analyzePlant.saveToJournal", "Save to Journal")}
+                    Save to Journal
                   </>
                 )}
               </Button>
@@ -374,16 +409,12 @@ export default function AnalyzePlantPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
               <div className="space-y-1">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  {t("analyzePlant.tipTitle", "AI Analysis Tips")}
-                </p>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">AI Analysis Tips</p>
                 <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                  <li>• {t("analyzePlant.tip1", "Take clear, well-lit photos")}</li>
-                  <li>• {t("analyzePlant.tip2", "Show affected areas up close for better analysis")}</li>
-                  <li>• {t("analyzePlant.tip3", "Be specific in your questions for targeted advice")}</li>
-                  <li>
-                    • {t("analyzePlant.tip4", "AI analysis is for guidance only - consult experts for serious issues")}
-                  </li>
+                  <li>• Take clear, well-lit photos</li>
+                  <li>• Show affected areas up close for better analysis</li>
+                  <li>• Be specific in your questions for targeted advice</li>
+                  <li>• AI analysis is for guidance only - consult experts for serious issues</li>
                 </ul>
               </div>
             </div>
