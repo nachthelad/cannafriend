@@ -63,7 +63,9 @@ export default function RemindersPage() {
     <Layout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold">{t("dashboard.reminders")}</h1>
-        <p className="text-muted-foreground">{t("reminders.  ")}</p>
+        <p className="text-muted-foreground">
+          {t("reminders.pageDescription")}
+        </p>
       </div>
 
       {plants.length > 0 ? (

@@ -549,10 +549,7 @@ export function ReminderSystem({
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button type="submit" className="flex-1">
-                  {t("reminders.add")}
-                </Button>
+              <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -560,6 +557,7 @@ export function ReminderSystem({
                 >
                   {t("common.cancel")}
                 </Button>
+                <Button type="submit">{t("reminders.add")}</Button>
               </div>
             </form>
           </CardContent>
