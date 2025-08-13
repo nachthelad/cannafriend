@@ -16,3 +16,5 @@ export const sessionsCol = (uid: string) =>
   collection(db, "users", uid, "sessions");
 export const remindersCol = (uid: string) =>
   collection(db, "users", uid, "reminders");
+
+export const stashCol = (uid: string) => collection(db, "users", uid, "stash");

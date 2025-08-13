@@ -42,6 +42,11 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
+      // Allow users to read and write their own stash/inventory
+      match /stash/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
       // fcmTokens removed (notifications disabled)
     }
 

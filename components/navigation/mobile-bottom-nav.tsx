@@ -5,7 +5,15 @@ import type React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Home, Calendar, Plus, Settings, Bell } from "lucide-react";
+import {
+  Home,
+  Calendar,
+  Plus,
+  Settings,
+  Bell,
+  Package,
+  LogOut,
+} from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { cn } from "@/lib/utils";
 import {
@@ -17,6 +25,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
@@ -42,10 +52,7 @@ export function MobileBottomNav(): React.ReactElement {
     >
       <div
         className={cn(
-          "relative mx-auto grid max-w-7xl items-center px-4 py-2",
-          roles && roles.consumer && !roles.grower
-            ? "grid-cols-3"
-            : "grid-cols-5"
+          "relative mx-auto grid max-w-7xl items-center px-4 py-2 grid-cols-5"
         )}
       >
         {rolesLoading || !roles ? (
@@ -100,8 +107,21 @@ export function MobileBottomNav(): React.ReactElement {
               </Link>
             )}
 
-            {/* Journal: hide for consumer-only */}
-            {roles.grower && (
+            {/* Slot 2: consumer-only = Stash, grower = Journal */}
+            {roles.consumer && !roles.grower ? (
+              <Link
+                href="/stash"
+                className={cn(
+                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
+                  isActive("/stash")
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                aria-label="Stash"
+              >
+                <Package className="h-5 w-5" />
+              </Link>
+            ) : roles.grower ? (
               <Link
                 href="/journal"
                 className={cn(
@@ -114,7 +134,7 @@ export function MobileBottomNav(): React.ReactElement {
               >
                 <Calendar className="h-5 w-5" />
               </Link>
-            )}
+            ) : null}
 
             {/* Center Add button: new plant if grower, new session if consumer-only */}
             <div className="flex items-center justify-center">
@@ -138,8 +158,8 @@ export function MobileBottomNav(): React.ReactElement {
               )}
             </div>
 
-            {/* Reminders (hide if consumer-only) */}
-            {roles.grower && (
+            {/* Slot 4: grower = Reminders, consumer-only = (nothing, Settings comes next) */}
+            {roles.grower ? (
               <Link
                 href="/reminders"
                 className={cn(
@@ -152,7 +172,7 @@ export function MobileBottomNav(): React.ReactElement {
               >
                 <Bell className="h-5 w-5" />
               </Link>
-            )}
+            ) : null}
 
             {/* Settings */}
             <Link
@@ -167,6 +187,18 @@ export function MobileBottomNav(): React.ReactElement {
             >
               <Settings className="h-5 w-5" />
             </Link>
+
+            {/* Slot 5: Sign out at the end (consumer-only) */}
+            {roles.consumer && !roles.grower ? (
+              <button
+                type="button"
+                onClick={() => signOut(auth)}
+                className="flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs text-muted-foreground hover:text-foreground"
+                aria-label="Sign out"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            ) : null}
           </>
         )}
       </div>
