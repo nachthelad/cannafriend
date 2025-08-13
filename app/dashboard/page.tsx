@@ -20,7 +20,14 @@ import { Layout } from "@/components/layout";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { Search } from "@/components/common/search";
-import { Plus, Loader2, AlertTriangle, ChevronDown, Bell } from "lucide-react";
+import {
+  Plus,
+  Loader2,
+  AlertTriangle,
+  ChevronDown,
+  Bell,
+  Brain,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
 
 export default function DashboardPage() {
@@ -35,6 +43,7 @@ export default function DashboardPage() {
   const { roles } = useUserRoles();
   const router = useRouter();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
   const [isLoading, setIsLoading] = useState(true);
   const [plants, setPlants] = useState<Plant[]>([]);
   const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
@@ -224,7 +233,7 @@ export default function DashboardPage() {
               <h2 className="text-xl font-semibold">
                 {t("dashboard.yourPlants")}
               </h2>
-              <div className="mt-2 md:hidden">
+              <div className="mt-2 md:hidden flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -233,6 +242,16 @@ export default function DashboardPage() {
                 >
                   <Bell className="h-4 w-4" /> {t("dashboard.reminders")}
                 </Button>
+                {isPremium && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => router.push("/analyze-plant")}
+                    className="inline-flex items-center gap-2 text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600 shadow-sm"
+                  >
+                    <Brain className="h-4 w-4" /> {t("analyzePlant.title")}
+                  </Button>
+                )}
               </div>
               {plants.length > 0 && (
                 <div className="mt-2">

@@ -47,6 +47,11 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
+      // Allow users to read and write their own AI analyses
+      match /analyses/{analysisId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
       // fcmTokens removed (notifications disabled)
     }
 
@@ -66,4 +71,4 @@ service cloud.firestore {
       }
     }
   }
-} 
+}

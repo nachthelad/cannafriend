@@ -18,3 +18,10 @@ export const remindersCol = (uid: string) =>
   collection(db, "users", uid, "reminders");
 
 export const stashCol = (uid: string) => collection(db, "users", uid, "stash");
+
+// AI Analyses
+export const analysesCol = (uid: string) =>
+  collection(db, "users", uid, "analyses");
+
+export const analysisDoc = (uid: string, analysisId: string) =>
+  doc(db, "users", uid, "analyses", analysisId);
