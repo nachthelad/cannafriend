@@ -351,7 +351,14 @@ export default function NewSessionPage() {
                   </div>
                 )}
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(ROUTE_STRAINS)}
+                >
+                  {t("common.cancel")}
+                </Button>
                 <Button type="submit" disabled={isSaving}>
                   {t("strains.save")}
                 </Button>

@@ -572,6 +572,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "strains.endTime": "Hora de fin",
         "strains.photos": "Fotos",
 
+        // Favorites (Consumer)
+        "favorites.filter": "Favoritas",
+        "favorites.added": "Agregada a favoritas",
+        "favorites.removed": "Quitada de favoritas",
+        "favorites.only": "Solo favoritas",
+
         // Stash/Inventory (Consumer)
         "stash.title": "Inventario",
         "stash.description": "Gestiona tus flores, extractos y comestibles",
@@ -1234,6 +1240,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "strains.startTime": "Start time",
         "strains.endTime": "End time",
         "strains.photos": "Photos",
+
+        // Favorites (Consumer)
+        "favorites.filter": "Favorites",
+        "favorites.added": "Added to favorites",
+        "favorites.removed": "Removed from favorites",
+        "favorites.only": "Favorites only",
 
         // Stash/Inventory (Consumer)
         "stash.title": "Stash",
