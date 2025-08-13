@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout";
 import {
@@ -11,7 +12,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2, Pencil, Trash2, ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Plus,
+  Loader2,
+  Pencil,
+  Trash2,
+  ChevronDown,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -34,6 +44,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { formatDateTime } from "@/lib/format";
+import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn, formatDateObjectWithLocale } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +59,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/common/image-upload";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +80,9 @@ type Session = {
   effects?: string[];
   notes?: string;
   date: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  photos?: string[] | null;
 };
 
 export default function StrainsPage() {
@@ -75,6 +96,11 @@ export default function StrainsPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editSession, setEditSession] = useState<Session | null>(null);
   const [editNotes, setEditNotes] = useState("");
+  const [editStrain, setEditStrain] = useState("");
+  const [editDate, setEditDate] = useState<Date>(new Date());
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editEndTime, setEditEndTime] = useState("");
+  const [editPhotos, setEditPhotos] = useState<string[]>([]);
   const { roles } = useUserRoles();
 
   useEffect(() => {
@@ -111,18 +137,73 @@ export default function StrainsPage() {
   const openEdit = (s: Session) => {
     setEditSession(s);
     setEditNotes(s.notes || "");
+    setEditStrain(s.strain || "");
+    // Date
+    try {
+      setEditDate(s.date ? new Date(s.date) : new Date());
+    } catch {
+      setEditDate(new Date());
+    }
+    // Time HH:MM from ISO
+    const isoToHHMM = (v?: string | null) => {
+      if (!v) return "";
+      const d = new Date(v);
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mm}`;
+    };
+    setEditStartTime(isoToHHMM(s.startTime || undefined));
+    setEditEndTime(isoToHHMM(s.endTime || undefined));
+    setEditPhotos([...(s.photos || [])]);
     setEditOpen(true);
   };
 
   const saveEdit = async () => {
     if (!userId || !editSession) return;
     try {
+      const buildDateTime = (base: Date, hhmm: string) => {
+        if (!hhmm) return null;
+        const [hh, mm] = hhmm.split(":").map((x) => Number.parseInt(x, 10));
+        const d = new Date(base);
+        d.setHours(
+          Number.isFinite(hh) ? hh : 0,
+          Number.isFinite(mm) ? mm : 0,
+          0,
+          0
+        );
+        return d.toISOString();
+      };
+      const startISO = buildDateTime(editDate, editStartTime);
+      const endISO = buildDateTime(editDate, editEndTime);
+      const dateISO =
+        startISO ||
+        new Date(
+          editDate.getFullYear(),
+          editDate.getMonth(),
+          editDate.getDate()
+        ).toISOString();
+
       await updateDoc(doc(db, "users", userId, "sessions", editSession.id), {
         notes: editNotes,
+        strain: editStrain,
+        date: dateISO,
+        startTime: startISO,
+        endTime: endISO,
+        photos: editPhotos.length > 0 ? editPhotos : null,
       });
       setSessions((prev) =>
         prev.map((x) =>
-          x.id === editSession.id ? { ...x, notes: editNotes } : x
+          x.id === editSession.id
+            ? {
+                ...x,
+                notes: editNotes,
+                strain: editStrain,
+                date: dateISO,
+                startTime: startISO,
+                endTime: endISO,
+                photos: editPhotos.length > 0 ? editPhotos : null,
+              }
+            : x
         )
       );
       toast({ title: t("strains.updated") });
@@ -302,12 +383,87 @@ export default function StrainsPage() {
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">
+                {t("strains.strain")}
+              </label>
+              <Input
+                value={editStrain}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEditStrain(e.target.value)
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("logForm.date")}</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn("w-full justify-start text-left font-normal")}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {formatDateObjectWithLocale(editDate, "PPP")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <CalendarComponent
+                    mode="single"
+                    selected={editDate}
+                    onSelect={(d) => d && setEditDate(d)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("strains.startTime")}
+                </label>
+                <TimeField value={editStartTime} onChange={setEditStartTime} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("strains.endTime")}
+                </label>
+                <TimeField value={editEndTime} onChange={setEditEndTime} />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium">
                 {t("strains.notes")}
               </label>
               <Textarea
                 value={editNotes}
                 onChange={(e) => setEditNotes(e.target.value)}
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium">
+                {t("strains.photos")}
+              </label>
+              <ImageUpload
+                onImagesChange={(newUrls) =>
+                  setEditPhotos((prev) => [...prev, ...newUrls])
+                }
+                maxSizeMB={5}
+              />
+              {editPhotos.length > 0 && (
+                <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {editPhotos.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="relative w-full aspect-square overflow-hidden rounded-md border"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`photo ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -319,5 +475,67 @@ export default function StrainsPage() {
         </DialogContent>
       </Dialog>
     </Layout>
+  );
+}
+
+function TimeField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const sanitize = (v: string) => {
+    const filtered = v.replace(/[^0-9:]/g, "");
+    const parts = filtered.split(":");
+    if (parts.length > 2) {
+      const [a, b] = parts;
+      return `${a}:${b}`.slice(0, 5);
+    }
+    return filtered.slice(0, 5);
+  };
+
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(sanitize(e.target.value));
+  };
+
+  const handleBlur = () => {
+    const raw = (value || "").trim();
+    if (!raw) return;
+    const onlyDigits = raw.replace(/\D/g, "");
+    let hh = 0;
+    let mm = 0;
+    if (raw.includes(":")) {
+      const [h, m = "0"] = raw.split(":");
+      hh = Number.parseInt(h || "0", 10);
+      mm = Number.parseInt(m || "0", 10);
+    } else if (onlyDigits.length <= 2) {
+      hh = Number.parseInt(onlyDigits || "0", 10);
+      mm = 0;
+    } else {
+      const d = onlyDigits.padEnd(4, "0");
+      hh = Number.parseInt(d.slice(0, 2), 10);
+      mm = Number.parseInt(d.slice(2, 4), 10);
+    }
+    if (!Number.isFinite(hh) || !Number.isFinite(mm)) return;
+    hh = Math.min(23, Math.max(0, hh));
+    mm = Math.min(59, Math.max(0, mm));
+    onChange(`${pad2(hh)}:${pad2(mm)}`);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Clock className="h-4 w-4 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder="HH:MM"
+        inputMode="numeric"
+        className="w-32"
+      />
+    </div>
   );
 }

@@ -62,14 +62,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.section.consumer": "Modo Fumador",
         "features.consumer.sessions.title": "Sesiones",
         "features.consumer.sessions.desc":
-          "Carga sesiones con variedad, método (pipe, vaper, joint, etc.), cantidad y notas",
+          "Carga sesiones con variedad, método (pipe, vaper, joint, etc.), cantidad, fecha/horario y notas",
         "features.consumer.history.title": "Historial",
         "features.consumer.history.desc":
           "Consulta y organiza tus sesiones registradas",
         "features.consumer.notes.title": "Notas y experiencias",
         "features.consumer.notes.desc":
           "Anota efectos, sabor y estado de ánimo",
-        "features.consumer.photos.title": "Fotos (próximamente)",
+        "features.consumer.photos.title": "Fotos",
         "features.consumer.photos.desc":
           "Adjunta imágenes a tus sesiones para documentar",
 
@@ -568,6 +568,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "strains.deleteConfirmDesc":
           "Esta acción no se puede deshacer. Perderás la información cargada.",
         "strains.deleteConfirm": "Sí, eliminar",
+        "strains.startTime": "Hora de inicio",
+        "strains.endTime": "Hora de fin",
+        "strains.photos": "Fotos",
 
         // Add chooser (mobile +)
         "addChooser.title": "¿Qué deseas agregar?",
@@ -699,13 +702,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.section.consumer": "Consumer mode",
         "features.consumer.sessions.title": "Sessions",
         "features.consumer.sessions.desc":
-          "Log sessions with strain, method (pipe, vape, joint, etc.), amount and notes",
+          "Log sessions with strain, method (pipe, vape, joint, etc.), amount, date/time and notes",
         "features.consumer.history.title": "History",
         "features.consumer.history.desc":
           "Browse and organize your recorded sessions",
         "features.consumer.notes.title": "Notes and experiences",
         "features.consumer.notes.desc": "Write effects, flavor and mood",
-        "features.consumer.photos.title": "Photos (coming soon)",
+        "features.consumer.photos.title": "Photos",
         "features.consumer.photos.desc":
           "Attach images to your sessions to document",
 
@@ -1194,6 +1197,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "strains.deleteConfirmDesc":
           "This action cannot be undone. You will lose the saved information.",
         "strains.deleteConfirm": "Yes, delete",
+        "strains.startTime": "Start time",
+        "strains.endTime": "End time",
+        "strains.photos": "Photos",
 
         // Add chooser (mobile +)
         "addChooser.title": "What would you like to add?",

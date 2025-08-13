@@ -6,12 +6,14 @@ import { GoogleLoginButton } from "@/components/auth/google-login-button";
 
 interface MobileHeaderProps {
   className?: string;
-  onLoginClick?: () => void;
+  isLoggedIn?: boolean;
+  onPrimaryClick?: () => void;
 }
 
 export function MobileHeader({
   className = "",
-  onLoginClick,
+  isLoggedIn = false,
+  onPrimaryClick,
 }: MobileHeaderProps) {
   const { t } = useTranslation();
 
@@ -20,8 +22,8 @@ export function MobileHeader({
       <Button
         variant="outline"
         onClick={() => {
-          if (onLoginClick) {
-            onLoginClick();
+          if (onPrimaryClick) {
+            onPrimaryClick();
           } else {
             document
               .getElementById("login-section")
@@ -30,13 +32,15 @@ export function MobileHeader({
         }}
         className="flex-1 mr-2 bg-white/90 dark:bg-gray-800/90 border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100"
       >
-        {t("login.title")}
+        {isLoggedIn ? (t("nav.goToApp") as any) : t("login.title")}
       </Button>
-      <GoogleLoginButton
-        variant="outline"
-        className="flex-shrink-0"
-        size="icon"
-      />
+      {!isLoggedIn && (
+        <GoogleLoginButton
+          variant="outline"
+          className="flex-shrink-0"
+          size="icon"
+        />
+      )}
     </div>
   );
 }
