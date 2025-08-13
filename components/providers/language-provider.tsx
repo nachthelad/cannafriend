@@ -31,6 +31,36 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     // Load translations
     const loadTranslations = async () => {
       const esTranslations = {
+        // Analyze Plant
+        "analyzePlant.title": "Análisis con IA",
+        "analyzePlant.defaultPrompt":
+          "Analiza esta planta de marihuana para detectar deficiencias de nutrientes, posibles infecciones y sugerencias de cuidado o alimentación.",
+        "analyzePlant.uploadImage": "Foto de la planta",
+        "analyzePlant.takePhoto": "Tomar foto",
+        "analyzePlant.uploadFromGallery": "Subir",
+        "analyzePlant.askQuestion": "Pregunta (opcional)",
+        "analyzePlant.questionPlaceholder": "Ej.: ¿Qué le falta a esta planta?",
+        "analyzePlant.analyzeWithAI": "Analizar con IA",
+        "analyzePlant.analysisResult": "Resultado de IA",
+        "analyzePlant.journal": "Diario de Análisis IA",
+        "analyzePlant.noAnalyses":
+          "Aún no hay análisis. Tus resultados aparecerán aquí.",
+        "analyzePlant.defaultQuestion": "Análisis general",
+        "analyzePlant.viewHistory": "Ver historial",
+        "analyzePlant.hideHistory": "Ocultar historial",
+        // Analysis details page
+        "analysis.notFound": "Análisis no encontrado",
+
+        // Premium
+        "premium.title": "Función premium",
+        "premium.analyzeDesc":
+          "Desbloquea el análisis con IA para diagnosticar y optimizar el cuidado.",
+        "premium.upgrade": "Mejorar a Premium",
+
+        // Common
+        "common.clear": "Limpiar",
+        "common.tapToView": "Ver",
+        "common.view": "Ver",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
         "landing.hero":
@@ -711,6 +741,36 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       };
 
       const enTranslations = {
+        // Analyze Plant
+        "analyzePlant.title": "AI Analysis",
+        "analyzePlant.defaultPrompt":
+          "Analyze this marijuana plant for nutrient deficiencies, potential infections, and suggestions for care or feeding.",
+        "analyzePlant.uploadImage": "Plant photo",
+        "analyzePlant.takePhoto": "Take Photo",
+        "analyzePlant.uploadFromGallery": "Upload",
+        "analyzePlant.askQuestion": "Question (optional)",
+        "analyzePlant.questionPlaceholder": "E.g., What is this plant missing?",
+        "analyzePlant.analyzeWithAI": "Analyze with AI",
+        "analyzePlant.analysisResult": "AI Result",
+        "analyzePlant.journal": "AI Analysis Journal",
+        "analyzePlant.noAnalyses":
+          "No analyses yet. Your results will appear here.",
+        "analyzePlant.defaultQuestion": "General analysis",
+        "analyzePlant.viewHistory": "View history",
+        "analyzePlant.hideHistory": "Hide history",
+        // Analysis details page
+        "analysis.notFound": "Analysis not found",
+
+        // Premium
+        "premium.title": "Premium feature",
+        "premium.analyzeDesc":
+          "Unlock AI-powered plant analysis to diagnose issues and optimize care.",
+        "premium.upgrade": "Upgrade to Premium",
+
+        // Common
+        "common.clear": "Clear",
+        "common.tapToView": "Tap to view",
+        "common.view": "View",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
         "landing.hero":

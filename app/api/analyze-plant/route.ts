@@ -1,157 +1,171 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-// Mock OpenAI implementation for demo
-// In production, uncomment the OpenAI import and implementation below
+// We import from openai if available; otherwise, use fetch to the REST endpoint.
+// Using edge-friendly approach with fetch to avoid bundling issues.
 
-/*
-import OpenAI from "openai"
+export const runtime = "edge";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "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",
-})
-*/
+type Body = {
+  question: string;
+  imageBase64?: string;
+  imageUrl?: string;
+  imageType?: string;
+};
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { image, question } = await request.json()
-
-    if (!image) {
-      return NextResponse.json({ error: "No image provided" }, { status: 400 })
+    const {
+      question,
+      imageBase64,
+      imageUrl,
+      imageType = "image/jpeg",
+    } = (await req.json()) as Body;
+    if (!imageBase64 && !imageUrl) {
+      return NextResponse.json({ error: "Missing image" }, { status: 400 });
     }
 
-    if (!question) {
-      return NextResponse.json({ error: "No question provided" }, { status: 400 })
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Missing OPENAI_API_KEY" },
+        { status: 500 }
+      );
     }
 
-    // Mock response for demo purposes
-    // Remove this and uncomment the OpenAI implementation below for production
+    const preferredModel = process.env.OPENAI_VISION_MODEL || "gpt-4.1";
+    const fallbackModel = "gpt-4.1-mini";
 
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate API delay
-
-    const mockAnalysis = `# Plant Health Analysis
-
-## Overall Assessment
-Based on the image provided, here's my analysis of your cannabis plant:
-
-## Key Observations
-- **Leaf Color**: The leaves show good overall health with vibrant green coloration
-- **Growth Pattern**: Plant structure appears normal for its developmental stage
-- **Environmental Conditions**: No obvious signs of environmental stress
-
-## Potential Issues Identified
-1. **Minor Nutrient Considerations**: Some slight variations in leaf color may indicate:
-   - Possible nitrogen levels could be optimized
-   - Phosphorus uptake appears adequate
-   - Potassium levels seem balanced
-
-2. **Environmental Factors**: 
-   - Lighting appears adequate
-   - No signs of heat stress visible
-   - Humidity levels seem appropriate
-
-## Detailed Recommendations
-
-### Immediate Actions (Next 1-2 weeks):
-- **Nutrition**: Consider a balanced feeding schedule with NPK ratio of 20-20-20 at 1/4 strength
-- **Watering**: Maintain consistent moisture without overwatering
-- **pH Monitoring**: Ensure soil pH stays between 6.0-7.0
-- **Light Distance**: Maintain proper distance to prevent light burn
-
-### Medium-term Care (2-4 weeks):
-- **Training**: Consider low-stress training (LST) if in vegetative stage
-- **Pruning**: Remove any yellowing lower leaves to redirect energy
-- **Environmental Control**: Maintain 70-80°F temperature and 40-60% humidity
-
-### Long-term Strategy:
-- **Feeding Schedule**: Transition to bloom nutrients when flowering begins
-- **Support Structure**: Install support for branches as plant grows
-- **Pest Prevention**: Regular inspection for common pests
-
-## Expected Timeline
-- **Week 1**: Apply recommended feeding and monitor response
-- **Week 2-3**: Look for improved leaf color and new growth
-- **Week 4+**: Continue monitoring and adjust care as needed
-
-## Important Notes
-- This analysis is for educational purposes only
-- Always follow local laws and regulations
-- Consider consulting with experienced growers for complex issues
-- Monitor plant response and adjust recommendations accordingly
-
-*Analysis generated on ${new Date().toLocaleDateString()} for educational purposes.*`
-
-    return NextResponse.json({ analysis: mockAnalysis })
-
-    /* 
-    // Real OpenAI implementation (uncomment for production):
-    
-    try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+    const buildPayload = (model: string) =>
+      ({
+        model,
         messages: [
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `You are an expert cannabis cultivation advisor. ${question}
-
-Please provide a detailed analysis including:
-1. Overall plant health assessment
-2. Any visible nutrient deficiencies or excesses
-3. Signs of pests or diseases
-4. Environmental stress indicators
-5. Specific actionable recommendations
-6. Timeline for expected improvements
-
-Format your response with clear headings and bullet points for easy reading.`,
+                text:
+                  question ||
+                  "Analyze this marijuana plant for nutrient deficiencies, potential infections, and suggestions for care or feeding.",
               },
               {
                 type: "image_url",
                 image_url: {
-                  url: `data:image/jpeg;base64,${image}`,
-                  detail: "high",
+                  url: imageBase64
+                    ? `data:${imageType};base64,${imageBase64}`
+                    : (imageUrl as string),
                 },
               },
             ],
           },
         ],
-        max_tokens: 1500,
-        temperature: 0.7,
-      })
+      } as const);
 
-      const analysis = response.choices[0]?.message?.content
+    const endpoint = "https://api.openai.com/v1/chat/completions";
 
-      if (!analysis) {
-        return NextResponse.json({ error: "No analysis received from AI" }, { status: 500 })
+    // Lightweight pre-check: ensure the image is a plant/cannabis-related photo
+    const classifyPayload = (model: string) => ({
+      model,
+      messages: [
+        {
+          role: "system",
+          content:
+            'You are a strict image gatekeeper. Determine if the image is a photo of a plant (preferably cannabis). Reply ONLY with JSON: {"isPlant": true|false, "reason": string}.',
+        },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "Is this a plant photo?" },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageBase64
+                  ? `data:${imageType};base64,${imageBase64}`
+                  : (imageUrl as string),
+              },
+            },
+          ],
+        },
+      ],
+      temperature: 0,
+    });
+
+    const classify = async (): Promise<{ ok: boolean; reason?: string }> => {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(classifyPayload(fallbackModel)),
+      });
+      if (!res.ok) return { ok: true }; // if classifier fails, don't block
+      const data = await res.json();
+      const txt: string = data?.choices?.[0]?.message?.content || "";
+      try {
+        const parsed = JSON.parse(txt);
+        if (parsed && parsed.isPlant === false) {
+          return {
+            ok: false,
+            reason: String(parsed.reason || "Not a plant photo"),
+          };
+        }
+      } catch {
+        // non-JSON; allow
       }
+      return { ok: true };
+    };
 
-      return NextResponse.json({ analysis })
-    } catch (error) {
-      console.error("OpenAI API error:", error)
-
-      if (error instanceof Error) {
-        if (error.message.includes("rate_limit")) {
-          return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 })
-        }
-        if (error.message.includes("invalid_api_key")) {
-          return NextResponse.json({ error: "Invalid API key configuration" }, { status: 401 })
-        }
-        if (error.message.includes("content_policy")) {
-          return NextResponse.json({ error: "Image content violates policy" }, { status: 400 })
-        }
-      }
-
-      return NextResponse.json({ error: "Failed to analyze image. Please try again." }, { status: 500 })
+    const gate = await classify();
+    if (!gate.ok) {
+      return NextResponse.json(
+        {
+          error: "non_plant",
+          message: gate.reason || "Image does not appear to be a plant",
+        },
+        { status: 422 }
+      );
     }
-    */
-  } catch (error) {
-    console.error("API route error:", error)
+
+    const tryRequest = async (model: string) =>
+      fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(buildPayload(model)),
+      });
+
+    let resp = await tryRequest(preferredModel);
+    if (!resp.ok) {
+      const text = await resp.text();
+      // If model not found or no access, try fallback
+      if (text && /model_not_found|does not have access to model/i.test(text)) {
+        resp = await tryRequest(fallbackModel);
+      } else {
+        return NextResponse.json(
+          { error: text || "OpenAI error" },
+          { status: 500 }
+        );
+      }
+    }
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      return NextResponse.json(
+        { error: text || "OpenAI error" },
+        { status: 500 }
+      );
+    }
+    const data = await resp.json();
+    const content = data?.choices?.[0]?.message?.content ?? "";
+
+    return NextResponse.json({ content });
+  } catch (e: any) {
     return NextResponse.json(
-      {
-        error: "Internal server error. Please try again.",
-      },
-      { status: 500 },
-    )
+      { error: e?.message || "Unexpected error" },
+      { status: 500 }
+    );
   }
 }

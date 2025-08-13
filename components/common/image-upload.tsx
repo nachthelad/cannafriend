@@ -25,6 +25,7 @@ interface ImageUploadProps {
   maxImages?: number;
   maxSizeMB?: number;
   className?: string;
+  buttonSize?: "sm" | "default";
 }
 
 export function ImageUpload({
@@ -32,6 +33,7 @@ export function ImageUpload({
   maxImages = DEFAULT_MAX_IMAGES,
   maxSizeMB = DEFAULT_MAX_SIZE_MB,
   className,
+  buttonSize = "sm",
 }: ImageUploadProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -195,7 +197,7 @@ export function ImageUpload({
           <Button
             type="button"
             variant="outline"
-            size="sm"
+            size={buttonSize}
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
           >

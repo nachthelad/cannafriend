@@ -22,6 +22,8 @@ import {
   Package,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { usePremium } from "@/hooks/use-premium";
+import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,17 +109,36 @@ export function Layout({ children }: LayoutProps) {
     },
   ];
 
-  const routes = baseRoutes.filter((r) => {
-    if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
-    const growerPaths = ["/dashboard", "/plants/new", "/reminders", "/journal"];
-    const consumerPaths = ["/strains", "/stash"]; // sidebar entry for consumer
-    const isGrowerRoute =
-      growerPaths.includes(r.href) || r.href.startsWith("/plants");
-    const isConsumerRoute = consumerPaths.includes(r.href);
-    if (!roles.grower && isGrowerRoute) return false;
-    if (!roles.consumer && isConsumerRoute) return false;
-    return true;
-  });
+  const { isPremium } = usePremium();
+
+  const routes = baseRoutes
+    .concat(
+      isPremium
+        ? [
+            {
+              href: "/analyze-plant",
+              label: t("analyzePlant.title"),
+              icon: Brain,
+            },
+          ]
+        : []
+    )
+    .filter((r) => {
+      if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
+      const growerPaths = [
+        "/dashboard",
+        "/plants/new",
+        "/reminders",
+        "/journal",
+      ];
+      const consumerPaths = ["/strains", "/stash"]; // sidebar entry for consumer
+      const isGrowerRoute =
+        growerPaths.includes(r.href) || r.href.startsWith("/plants");
+      const isConsumerRoute = consumerPaths.includes(r.href);
+      if (!roles.grower && isGrowerRoute) return false;
+      if (!roles.consumer && isConsumerRoute) return false;
+      return true;
+    });
 
   return (
     <div className="flex min-h-screen bg-background">
