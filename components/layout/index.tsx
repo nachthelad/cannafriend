@@ -130,7 +130,7 @@ export function Layout({ children }: LayoutProps) {
         if (roles.consumer) {
           items.push({
             href: ROUTE_AI_CONSUMER,
-            label: "AI Chat",
+            label: t("aiConsumer.title"),
             icon: Brain,
           });
         }
@@ -166,6 +166,11 @@ export function Layout({ children }: LayoutProps) {
           >
             <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
+            {isPremium && (
+              <span className="text-xs font-medium text-primary opacity-70 ml-1">
+                Premium
+              </span>
+            )}
           </Link>
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
@@ -229,6 +234,11 @@ export function Layout({ children }: LayoutProps) {
           >
             <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
+            {isPremium && (
+              <span className="text-xs font-medium text-primary opacity-70 ml-1">
+                Premium
+              </span>
+            )}
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />

@@ -171,7 +171,7 @@ export function MobileBottomNav(): React.ReactElement {
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                aria-label="AI Chat"
+                aria-label={t("aiConsumer.title")}
               >
                 <Brain className="h-5 w-5" />
               </Link>

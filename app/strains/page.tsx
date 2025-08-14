@@ -316,7 +316,7 @@ export default function StrainsPage() {
                 onClick={() => router.push("/ai-consumer")}
                 className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
               >
-                <Brain className="mr-2 h-4 w-4" /> AI Chat
+                <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title")}
               </Button>
             </div>
           ) : null}

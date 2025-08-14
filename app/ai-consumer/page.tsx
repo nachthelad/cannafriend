@@ -93,7 +93,7 @@ export default function AIConsumerPage() {
       <div className="space-y-6">
         <div className="mb-6 flex items-center gap-3">
           <h1 className="text-3xl font-bold inline-flex items-center gap-2">
-            <MessageSquare className="h-6 w-6" /> {t("aiConsumer.title")}
+            {t("aiConsumer.title")}
           </h1>
         </div>
         {!isPremium ? (

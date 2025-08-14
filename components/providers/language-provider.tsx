@@ -62,7 +62,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "premium.back": "Volver al panel",
 
         // AI Consumer Chat
-        "aiConsumer.title": "Chat de IA",
+        "aiConsumer.title": "Consultale a la IA",
         "aiConsumer.intro":
           "Pregúntale sobre técnica de armado, mejorar porros, dosis, planificación de sesiones, terpenos/sabores, almacenamiento, etiqueta y reducción de daños.",
         "aiConsumer.placeholder":
@@ -593,7 +593,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.pageDescription": "Gestiona recordatorios para tus plantas",
 
         // Strains (Consumer)
-        "strains.title": "Variedades Fumadas",
+        "strains.title": "Variedades",
         "strains.description":
           "Lleva un registro de tus variedades y sesiones.",
         "strains.addSession": "Nueva sesión",
@@ -1315,7 +1315,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.pageDescription": "Manage reminders for your plants",
 
         // Strains (Consumer)
-        "strains.title": "Smoked Strains",
+        "strains.title": "Strains",
         "strains.description": "Track your strains and consumption sessions.",
         "strains.addSession": "New session",
         "strains.required": "Strain is required",
