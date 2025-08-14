@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { adminAuth } from "@/lib/firebase-admin";
+import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
 
 // We import from openai if available; otherwise, use fetch to the REST endpoint.
 // Using edge-friendly approach with fetch to avoid bundling issues.
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 type Body = {
   question: string;
@@ -14,6 +16,47 @@ type Body = {
 
 export async function POST(req: NextRequest) {
   try {
+    const authHeader =
+      req.headers.get("authorization") || req.headers.get("Authorization");
+    if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
+      return NextResponse.json({ error: "missing_auth" }, { status: 401 });
+    }
+    const idToken = authHeader.split(" ")[1];
+    let decoded: any;
+    try {
+      decoded = await adminAuth().verifyIdToken(idToken);
+    } catch {
+      return NextResponse.json({ error: "invalid_auth" }, { status: 401 });
+    }
+    if (
+      process.env.REQUIRE_PREMIUM_FOR_AI === "true" &&
+      !Boolean((decoded as any)?.premium)
+    ) {
+      return NextResponse.json({ error: "premium_required" }, { status: 403 });
+    }
+
+    // Basic rate limit: default 12 reqs / 60s per user+ip (configurable)
+    const limit = Number(process.env.AI_VISION_RATELIMIT_LIMIT || 12);
+    const windowMs = Number(
+      process.env.AI_VISION_RATELIMIT_WINDOW_MS || 60_000
+    );
+    const ip = extractClientIp(req.headers) || "unknown";
+    const key = `ai-vision:${decoded.uid}:${ip}`;
+    const rl = checkRateLimit(key, limit, windowMs);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "rate_limited" },
+        {
+          status: 429,
+          headers: {
+            "x-ratelimit-limit": String(rl.limit),
+            "x-ratelimit-remaining": String(rl.remaining),
+            "retry-after": String(Math.ceil(rl.resetMs / 1000)),
+          },
+        }
+      );
+    }
+
     const {
       question,
       imageBase64,
@@ -22,6 +65,13 @@ export async function POST(req: NextRequest) {
     } = (await req.json()) as Body;
     if (!imageBase64 && !imageUrl) {
       return NextResponse.json({ error: "Missing image" }, { status: 400 });
+    }
+    if (imageBase64) {
+      // quick guard: reject > 6MB base64 payloads
+      const approxBytes = Math.ceil((imageBase64.length * 3) / 4);
+      if (approxBytes > 6 * 1024 * 1024) {
+        return NextResponse.json({ error: "image_too_large" }, { status: 413 });
+      }
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -104,6 +154,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(classifyPayload(fallbackModel)),
+        cache: "no-store",
       });
       if (!res.ok) return { ok: true }; // if classifier fails, don't block
       const data = await res.json();
@@ -141,6 +192,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify(buildPayload(model)),
+        cache: "no-store",
       });
 
     let resp = await tryRequest(preferredModel);

@@ -16,6 +16,7 @@ type ListedUser = {
   email: string | null;
   displayName: string | null;
   premium: boolean;
+  createdAt?: number;
 };
 
 const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
@@ -26,6 +27,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [users, setUsers] = useState<ListedUser[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sortDir, setSortDir] = useState<"newest" | "oldest">("newest");
   const isAdmin = useMemo(
     () => (user?.email || "").toLowerCase() === ADMIN_EMAIL,
     [user?.email]
@@ -105,17 +107,28 @@ export default function AdminPage() {
             <CardTitle>Admin – Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-4">
               <div className="text-sm text-muted-foreground">
                 Only visible to {ADMIN_EMAIL}
               </div>
-              <Button
-                variant="secondary"
-                disabled={loading}
-                onClick={fetchUsers}
-              >
-                Refresh
-              </Button>
+              <div className="flex items-center gap-2">
+                <label className="text-sm">Sort:</label>
+                <select
+                  className="border rounded px-2 py-1 text-sm bg-background"
+                  value={sortDir}
+                  onChange={(e) => setSortDir(e.target.value as any)}
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+                <Button
+                  variant="secondary"
+                  disabled={loading}
+                  onClick={fetchUsers}
+                >
+                  Refresh
+                </Button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -123,22 +136,34 @@ export default function AdminPage() {
                   <tr className="text-left border-b">
                     <th className="py-2 pr-4">Email</th>
                     <th className="py-2 pr-4">Name</th>
+                    <th className="py-2 pr-4">Registered</th>
                     <th className="py-2">Premium</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((u) => (
-                    <tr key={u.uid} className="border-b last:border-0">
-                      <td className="py-2 pr-4">{u.email || "—"}</td>
-                      <td className="py-2 pr-4">{u.displayName || "—"}</td>
-                      <td className="py-2">
-                        <Switch
-                          checked={u.premium}
-                          onCheckedChange={(val) => togglePremium(u, val)}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                  {[...users]
+                    .sort((a, b) => {
+                      const ca = a.createdAt || 0;
+                      const cb = b.createdAt || 0;
+                      return sortDir === "newest" ? cb - ca : ca - cb;
+                    })
+                    .map((u) => (
+                      <tr key={u.uid} className="border-b last:border-0">
+                        <td className="py-2 pr-4">{u.email || "—"}</td>
+                        <td className="py-2 pr-4">{u.displayName || "—"}</td>
+                        <td className="py-2 pr-4">
+                          {u.createdAt
+                            ? new Date(u.createdAt).toLocaleDateString()
+                            : "—"}
+                        </td>
+                        <td className="py-2">
+                          <Switch
+                            checked={u.premium}
+                            onCheckedChange={(val) => togglePremium(u, val)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

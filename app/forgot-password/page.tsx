@@ -50,7 +50,6 @@ export default function ForgotPasswordPage() {
   const email = watch("email");
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    console.log("Form submitted with email:", data.email);
     setIsLoading(true);
     setLoadingStep(t("forgotPassword.verifyingEmail"));
 
@@ -67,32 +66,18 @@ export default function ForgotPasswordPage() {
 
       // Enviar el email de recuperación con configuración personalizada
       setLoadingStep(t("forgotPassword.sendingEmail"));
-      console.log("Email found, sending password reset email to:", data.email);
-      console.log("Reset URL:", `${window.location.origin}/reset-password`);
-
       await sendPasswordResetEmail(auth, data.email, {
         url: `${window.location.origin}/reset-password`,
         handleCodeInApp: true,
       });
-
-      console.log("Password reset email sent successfully");
-      console.log("Showing success toast");
       toast({
         title: t("forgotPassword.emailSentTitle"),
         description: t("forgotPassword.emailSentDescription"),
       });
-
-      console.log("Setting timeout to redirect to login");
-      // Redirigir inmediatamente al login después de enviar el email
       setTimeout(() => {
-        console.log("Redirecting to login");
         router.push(ROUTE_LOGIN);
       }, 2000);
     } catch (error: any) {
-      console.error("Error in password reset:", error);
-      console.error("Error code:", error?.code);
-      console.error("Error message:", error?.message);
-
       let errorMessage = t("forgotPassword.error");
 
       if (error?.code) {
@@ -111,7 +96,6 @@ export default function ForgotPasswordPage() {
         }
       }
 
-      console.log("Showing error toast with message:", errorMessage);
       toast({
         variant: "destructive",
         title: t("common.error"),
