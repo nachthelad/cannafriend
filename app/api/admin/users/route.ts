@@ -23,6 +23,14 @@ async function verifyAdmin(req: NextRequest) {
   }
 }
 
+type AdminUserSource = {
+  uid: string;
+  email?: string | null;
+  displayName?: string | null;
+  customClaims?: unknown;
+  metadata?: { creationTime?: string };
+};
+
 export async function GET(req: NextRequest) {
   const gate = await verifyAdmin(req);
   if (!gate.ok) {
@@ -31,11 +39,14 @@ export async function GET(req: NextRequest) {
 
   try {
     const list = await adminAuth().listUsers(1000);
-    const users = list.users.map((u) => ({
+    const users = list.users.map((u: AdminUserSource) => ({
       uid: u.uid,
       email: u.email,
       displayName: u.displayName,
       premium: Boolean((u.customClaims as any)?.premium),
+      createdAt: u.metadata?.creationTime
+        ? new Date(u.metadata.creationTime).getTime()
+        : 0,
     }));
     return NextResponse.json({ users });
   } catch (e: any) {
