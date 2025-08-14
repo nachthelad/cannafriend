@@ -13,6 +13,7 @@ import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { ROUTE_ONBOARDING } from "@/lib/routes";
 import { useToast } from "@/hooks/use-toast";
 import ReCAPTCHA from "react-google-recaptcha";
 import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
@@ -123,7 +124,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         timezone: null, // Se configurará en onboarding
       });
 
-      router.push("/onboarding");
+      router.push(ROUTE_ONBOARDING);
       onSuccess?.();
     } catch (error: any) {
       handleFirebaseError(error, "signup");

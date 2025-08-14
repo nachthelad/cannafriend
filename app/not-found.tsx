@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,10 +28,10 @@ export default function NotFound() {
           </div>
           <div className="flex flex-col space-y-2">
             <Button asChild className="w-full">
-              <Link href="/dashboard">Volver al Dashboard</Link>
+              <Link href={ROUTE_DASHBOARD}>Volver al Dashboard</Link>
             </Button>
             <Button variant="outline" asChild className="w-full">
-              <Link href="/login">Ir al Login</Link>
+              <Link href={ROUTE_LOGIN}>Ir al Login</Link>
             </Button>
           </div>
         </CardContent>

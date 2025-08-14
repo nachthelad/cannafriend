@@ -5,6 +5,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { ROUTE_LOGIN, ROUTE_DASHBOARD } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -58,7 +59,7 @@ export default function OnboardingPage() {
       if (user) {
         setUserId(user.uid);
       } else {
-        router.push("/login");
+        router.push(ROUTE_LOGIN);
       }
     });
 
@@ -97,7 +98,7 @@ export default function OnboardingPage() {
         router.push(resolveHomePathForRoles(roles));
       } catch {
         // Fallback to dashboard if roles cannot be determined
-        router.push("/dashboard");
+        router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
       }
     } catch (error: any) {
       toast({

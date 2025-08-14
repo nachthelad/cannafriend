@@ -62,21 +62,21 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "premium.back": "Volver al panel",
 
         // AI Consumer Chat
-        "aiConsumer.title": "Chat de IA",
+        "aiConsumer.title": "Consultale a la IA",
         "aiConsumer.intro":
           "Pregúntale sobre técnica de armado, mejorar porros, dosis, planificación de sesiones, terpenos/sabores, almacenamiento, etiqueta y reducción de daños.",
         "aiConsumer.placeholder":
           "Pregunta sobre armado, dosis, rutinas, sabores...",
         "aiConsumer.send": "Enviar",
         "aiConsumer.tryPrompt":
-          'Prueba: "¿Cómo hago un porro más firme sin que se canalee?"',
+          "Escribe tu pregunta debajo y aquí aparecerá junto con las respuestas",
         "aiConsumer.recent": "Conversaciones recientes",
         "aiConsumer.viewAll": "Ver todos los chats",
 
         // Consumer Chat pages
-        "consumerChat.list.title": "Chats de consumidor recientes",
+        "consumerChat.list.title": "Chats recientes",
         "consumerChat.list.empty": "Aún no hay chats.",
-        "consumerChat.detail.title": "Chat de consumidor",
+        "consumerChat.detail.title": "Chat Completo",
         "consumerChat.detail.empty": "Aún no hay mensajes.",
 
         // Common
@@ -178,9 +178,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "privacy.security": "Seguridad",
         "privacy.securityDesc":
           "Implementamos medidas de seguridad técnicas y organizativas para proteger tu información personal.",
-        "privacy.cookies": "Cookies",
+        "privacy.cookies": "Cookies y Tecnologías de Seguimiento",
         "privacy.cookiesDesc":
-          "Utilizamos cookies para mejorar tu experiencia en nuestra aplicación.",
+          "Utilizamos cookies para mejorar tu experiencia en nuestra aplicación. También utilizamos Google AdSense, que puede usar cookies para personalizar anuncios basados en tus visitas anteriores a nuestro sitio web u otros sitios web.",
+        "privacy.advertising": "Publicidad y Servicios de Terceros",
+        "privacy.advertisingDesc":
+          "Utilizamos Google AdSense para mostrar anuncios en nuestro sitio web. Google puede usar cookies e información sobre tus visitas para proporcionar anuncios relevantes. Puedes optar por no recibir anuncios personalizados visitando la página de configuración de anuncios de Google.",
         "privacy.rights": "Tus Derechos",
         "privacy.rightsDesc":
           "Tienes derecho a acceder, corregir o eliminar tu información personal en cualquier momento.",
@@ -190,6 +193,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "privacy.contact": "Contacto",
         "privacy.contactDesc":
           "Si tienes preguntas sobre esta política de privacidad, contáctanos en nachthelad.dev@gmail.com",
+
+        // Cookie consent
+        "cookies.title": "Política de Cookies",
+        "cookies.description":
+          "Utilizamos cookies para mejorar tu experiencia y mostrar anuncios relevantes.",
+        "cookies.learnMore": "Leer más",
+        "cookies.accept": "Aceptar",
+        "cookies.decline": "Rechazar",
         "login.forgotPassword": "¿Olvidaste tu contraseña?",
         "login.enterEmailFirst":
           "Por favor ingresa tu correo electrónico primero",
@@ -593,7 +604,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.pageDescription": "Gestiona recordatorios para tus plantas",
 
         // Strains (Consumer)
-        "strains.title": "Variedades Fumadas",
+        "strains.title": "Variedades",
         "strains.description":
           "Lleva un registro de tus variedades y sesiones.",
         "strains.addSession": "Nueva sesión",
@@ -801,14 +812,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Ask about rolling, dosage, routines, flavors...",
         "aiConsumer.send": "Send",
         "aiConsumer.tryPrompt":
-          'Try: "How do I make a tighter joint without canoeing?"',
+          "Write your question below and it will appear here along with the answers",
         "aiConsumer.recent": "Recent conversations",
         "aiConsumer.viewAll": "View all chats",
 
         // Consumer Chat pages
-        "consumerChat.list.title": "Recent consumer chats",
+        "consumerChat.list.title": "Recent chats",
         "consumerChat.list.empty": "No chats yet.",
-        "consumerChat.detail.title": "Consumer Chat",
+        "consumerChat.detail.title": "Complete Chat",
         "consumerChat.detail.empty": "No messages yet.",
 
         // Common
@@ -909,9 +920,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "privacy.security": "Security",
         "privacy.securityDesc":
           "We implement technical and organizational security measures to protect your personal information.",
-        "privacy.cookies": "Cookies",
+        "privacy.cookies": "Cookies and Tracking Technologies",
         "privacy.cookiesDesc":
-          "We use cookies to enhance your experience in our application.",
+          "We use cookies to enhance your experience in our application. We also use Google AdSense, which may use cookies to personalize ads based on your previous visits to our website or other websites.",
+        "privacy.advertising": "Advertising and Third-Party Services",
+        "privacy.advertisingDesc":
+          "We use Google AdSense to display advertisements on our website. Google may use cookies and information about your visits to provide relevant ads. You can opt out of personalized advertising by visiting Google's Ad Settings page.",
         "privacy.rights": "Your Rights",
         "privacy.rightsDesc":
           "You have the right to access, correct, or delete your personal information at any time.",
@@ -921,6 +935,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "privacy.contact": "Contact",
         "privacy.contactDesc":
           "If you have questions about this privacy policy, please contact us at nachthelad.dev@gmail.com",
+
+        // Cookie consent
+        "cookies.title": "Cookie Policy",
+        "cookies.description":
+          "We use cookies to enhance your experience and show relevant advertisements.",
+        "cookies.learnMore": "Learn more",
+        "cookies.accept": "Accept",
+        "cookies.decline": "Decline",
 
         "signup.title": "Sign Up",
         "signup.email": "Email",
@@ -1315,7 +1337,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.pageDescription": "Manage reminders for your plants",
 
         // Strains (Consumer)
-        "strains.title": "Smoked Strains",
+        "strains.title": "Strains",
         "strains.description": "Track your strains and consumption sessions.",
         "strains.addSession": "New session",
         "strains.required": "Strain is required",

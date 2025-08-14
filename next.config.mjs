@@ -7,9 +7,23 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ["firebasestorage.googleapis.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "pagead2.googlesyndication.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
     // Enable Next.js image optimization for remote images
     unoptimized: false,
+    formats: ["image/webp", "image/avif"],
   },
   // PWA configuration
   async headers() {
@@ -36,7 +50,8 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self'",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com; img-src 'self' data: https://pagead2.googlesyndication.com;",
           },
         ],
       },

@@ -27,7 +27,20 @@ import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROUTE_ANALYZE_PLANT, ROUTE_AI_CONSUMER } from "@/lib/routes";
+import {
+  ROUTE_ANALYZE_PLANT,
+  ROUTE_AI_CONSUMER,
+  ROUTE_DASHBOARD,
+  ROUTE_STRAINS,
+  ROUTE_PLANTS_NEW,
+  ROUTE_PLANTS,
+  ROUTE_JOURNAL,
+  ROUTE_REMINDERS,
+  ROUTE_SETTINGS,
+  ROUTE_STASH,
+  resolveHomePathForRoles,
+} from "@/lib/routes";
+import { CookieConsent } from "@/components/common/cookie-consent";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -39,8 +52,7 @@ export function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { roles, isLoading: rolesLoading } = useUserRoles();
-  const homeHref =
-    roles && roles.consumer && !roles.grower ? "/strains" : "/dashboard";
+  const homeHref = resolveHomePathForRoles(roles);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -51,16 +63,16 @@ export function Layout({ children }: LayoutProps) {
   useEffect(() => {
     if (rolesLoading || !roles) return;
     const isGrowerArea = [
-      "/dashboard",
-      "/plants",
-      "/reminders",
-      "/journal",
+      ROUTE_DASHBOARD,
+      ROUTE_PLANTS,
+      ROUTE_REMINDERS,
+      ROUTE_JOURNAL,
     ].some((p) => pathname?.startsWith(p));
-    const isConsumerArea = pathname?.startsWith("/strains");
+    const isConsumerArea = pathname?.startsWith(ROUTE_STRAINS);
     if (roles.consumer && !roles.grower && isGrowerArea) {
-      router.replace("/strains");
+      router.replace(resolveHomePathForRoles(roles));
     } else if (roles.grower && !roles.consumer && isConsumerArea) {
-      router.replace("/dashboard");
+      router.replace(resolveHomePathForRoles(roles));
     }
   }, [rolesLoading, roles, pathname, router]);
 
@@ -74,37 +86,37 @@ export function Layout({ children }: LayoutProps) {
 
   const baseRoutes = [
     {
-      href: "/dashboard",
+      href: ROUTE_DASHBOARD,
       label: t("nav.dashboard"),
       icon: Home,
     },
     {
-      href: "/plants/new",
+      href: ROUTE_PLANTS_NEW,
       label: t("nav.addPlant"),
       icon: Plus,
     },
     {
-      href: "/strains",
+      href: ROUTE_STRAINS,
       label: t("strains.title"),
       icon: Plus,
     },
     {
-      href: "/stash",
+      href: ROUTE_STASH,
       label: t("stash.title"),
       icon: Package,
     },
     {
-      href: "/journal",
+      href: ROUTE_JOURNAL,
       label: t("nav.journal"),
       icon: Calendar,
     },
     {
-      href: "/reminders",
+      href: ROUTE_REMINDERS,
       label: t("dashboard.reminders"),
       icon: Bell,
     },
     {
-      href: "/settings",
+      href: ROUTE_SETTINGS,
       label: t("nav.settings"),
       icon: Settings,
     },
@@ -116,7 +128,7 @@ export function Layout({ children }: LayoutProps) {
   const withAnalyze = (() => {
     const arr = baseRoutes.slice();
     if (isPremium) {
-      const insertIdx = arr.findIndex((r) => r.href === "/settings");
+      const insertIdx = arr.findIndex((r) => r.href === ROUTE_SETTINGS);
       const idx = insertIdx >= 0 ? insertIdx : arr.length;
       if (roles) {
         const items: Array<{ href: string; label: string; icon: any }> = [];
@@ -130,7 +142,7 @@ export function Layout({ children }: LayoutProps) {
         if (roles.consumer) {
           items.push({
             href: ROUTE_AI_CONSUMER,
-            label: "AI Chat",
+            label: t("aiConsumer.title"),
             icon: Brain,
           });
         }
@@ -145,10 +157,15 @@ export function Layout({ children }: LayoutProps) {
 
   const routes = withAnalyze.filter((r) => {
     if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
-    const growerPaths = ["/dashboard", "/plants/new", "/reminders", "/journal"];
-    const consumerPaths = ["/strains", "/stash"]; // sidebar entry for consumer
+    const growerPaths: string[] = [
+      ROUTE_DASHBOARD,
+      ROUTE_PLANTS_NEW,
+      ROUTE_REMINDERS,
+      ROUTE_JOURNAL,
+    ];
+    const consumerPaths: string[] = [ROUTE_STRAINS, ROUTE_STASH]; // sidebar entry for consumer
     const isGrowerRoute =
-      growerPaths.includes(r.href) || r.href.startsWith("/plants");
+      growerPaths.includes(r.href) || r.href.startsWith(ROUTE_PLANTS);
     const isConsumerRoute = consumerPaths.includes(r.href);
     if (!roles.grower && isGrowerRoute) return false;
     if (!roles.consumer && isConsumerRoute) return false;
@@ -166,6 +183,11 @@ export function Layout({ children }: LayoutProps) {
           >
             <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
+            {isPremium && (
+              <span className="text-xs font-medium text-primary opacity-70 ml-1">
+                Premium
+              </span>
+            )}
           </Link>
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
@@ -179,9 +201,10 @@ export function Layout({ children }: LayoutProps) {
               </>
             ) : (
               routes.map((route) => {
-                const isAnalyze =
-                  route.href === "/analyze-plant" ||
-                  route.href === "/ai-consumer";
+                const isAnalyze = [
+                  ROUTE_ANALYZE_PLANT,
+                  ROUTE_AI_CONSUMER,
+                ].includes(route.href as any);
                 const baseClasses =
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
                 const active = pathname === route.href;
@@ -229,6 +252,11 @@ export function Layout({ children }: LayoutProps) {
           >
             <Logo size={20} className="text-primary" />
             <span className="text-xl">{t("app.name")}</span>
+            {isPremium && (
+              <span className="text-xs font-medium text-primary opacity-70 ml-1">
+                Premium
+              </span>
+            )}
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
@@ -243,6 +271,8 @@ export function Layout({ children }: LayoutProps) {
         {/* Mobile bottom navigation */}
         <MobileBottomNav />
       </div>
+      {/* Cookie consent banner */}
+      <CookieConsent />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Loader2, MessageSquare } from "lucide-react";
 import { usePremium } from "@/hooks/use-premium";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useRouter } from "next/navigation";
+import { ROUTE_ANALYZE_PLANT } from "@/lib/routes";
 import { auth } from "@/lib/firebase";
 import {
   addDoc,
@@ -41,7 +42,7 @@ export default function AIConsumerPage() {
   useEffect(() => {
     if (isPremium && roles?.grower && !roles.consumer) {
       // Growers should use image analysis instead
-      router.replace("/analyze-plant");
+      router.replace(ROUTE_ANALYZE_PLANT);
     }
   }, [isPremium, roles, router]);
 
@@ -93,7 +94,7 @@ export default function AIConsumerPage() {
       <div className="space-y-6">
         <div className="mb-6 flex items-center gap-3">
           <h1 className="text-3xl font-bold inline-flex items-center gap-2">
-            <MessageSquare className="h-6 w-6" /> {t("aiConsumer.title")}
+            {t("aiConsumer.title")}
           </h1>
         </div>
         {!isPremium ? (

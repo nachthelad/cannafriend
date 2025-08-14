@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTE_AI_CONSUMER } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -68,7 +69,7 @@ export default function AnalyzePlantPage() {
   // Redirect consumer-only users to AI Chat instead of image analysis
   useEffect(() => {
     if (isPremium && roles?.consumer && !roles.grower) {
-      router.replace("/ai-consumer");
+      router.replace(ROUTE_AI_CONSUMER);
     }
   }, [isPremium, roles, router]);
 

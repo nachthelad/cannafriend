@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type React from "react";
 import { useRouter } from "next/navigation";
+import { ROUTE_AI_CONSUMER, resolveHomePathForRoles } from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import {
   Card,
@@ -283,7 +284,7 @@ export default function StrainsPage() {
                   <DropdownMenuTrigger asChild>
                     <button
                       aria-label="switch"
-                      className="flex items-center p-"
+                      className="flex items-center p-1"
                     >
                       <h1 className="text-3xl font-bold">
                         {t("strains.title")}
@@ -294,7 +295,10 @@ export default function StrainsPage() {
                   <DropdownMenuContent align="start" sideOffset={2}>
                     <DropdownMenuItem
                       className="text-base py-2"
-                      onClick={() => router.push("/dashboard")}
+                      onClick={() => {
+                        const homePath = resolveHomePathForRoles(roles);
+                        router.push(homePath);
+                      }}
                     >
                       {t("dashboard.title")}
                     </DropdownMenuItem>
@@ -313,10 +317,10 @@ export default function StrainsPage() {
           {isPremium ? (
             <div className="mt-3">
               <Button
-                onClick={() => router.push("/ai-consumer")}
+                onClick={() => router.push(ROUTE_AI_CONSUMER)}
                 className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
               >
-                <Brain className="mr-2 h-4 w-4" /> AI Chat
+                <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title")}
               </Button>
             </div>
           ) : null}

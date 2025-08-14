@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  ROUTE_STRAINS,
+  ROUTE_REMINDERS,
+  ROUTE_ANALYZE_PLANT,
+  resolveHomePathForRoles,
+} from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -195,7 +201,7 @@ export default function DashboardPage() {
                 <DropdownMenuContent align="start" sideOffset={2}>
                   <DropdownMenuItem
                     className="text-base py-2"
-                    onClick={() => router.push("/strains")}
+                    onClick={() => router.push(ROUTE_STRAINS)}
                   >
                     {t("strains.title")}
                   </DropdownMenuItem>
@@ -237,7 +243,7 @@ export default function DashboardPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push("/reminders")}
+                  onClick={() => router.push(ROUTE_REMINDERS)}
                   className="inline-flex items-center gap-2"
                 >
                   <Bell className="h-4 w-4" /> {t("dashboard.reminders")}
@@ -246,7 +252,7 @@ export default function DashboardPage() {
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => router.push("/analyze-plant")}
+                    onClick={() => router.push(ROUTE_ANALYZE_PLANT)}
                     className="inline-flex items-center gap-2 text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600 shadow-sm"
                   >
                     <Brain className="h-4 w-4" /> {t("analyzePlant.title")}

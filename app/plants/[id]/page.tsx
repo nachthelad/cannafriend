@@ -17,7 +17,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { ROUTE_LOGIN, ROUTE_DASHBOARD } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
 import { plantDoc as plantDocRef, logsCol } from "@/lib/paths";
 import {
   doc,
@@ -79,6 +80,7 @@ export default function PlantPage({
   const [lastTraining, setLastTraining] = useState<LogEntry | null>(null);
   const [lastFlowering, setLastFlowering] = useState<LogEntry | null>(null);
   const { user, isLoading: authLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const userId = user?.uid ?? null;
   const [isDeleting, setIsDeleting] = useState(false);
   const recomputeLasts = (logsData: LogEntry[]) => {
@@ -112,7 +114,7 @@ export default function PlantPage({
             title: t("plantPage.notFound"),
             description: t("plantPage.notFoundDesc"),
           });
-          router.push(ROUTE_DASHBOARD);
+          router.push(resolveHomePathForRoles(roles));
           return;
         }
 
@@ -191,7 +193,7 @@ export default function PlantPage({
             <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/dashboard")}>
+            <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
               {t("plantPage.backToDashboard")}
             </Button>
           </CardContent>
@@ -229,7 +231,7 @@ export default function PlantPage({
       // Delete plant document
       await deleteDoc(plantDocRef(userId, id));
 
-      router.push("/dashboard");
+      router.push(resolveHomePathForRoles(roles));
     } catch (error: any) {
       toast({
         variant: "destructive",

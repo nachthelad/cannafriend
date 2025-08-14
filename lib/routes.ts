@@ -5,10 +5,19 @@ export const ROUTE_DASHBOARD = "/dashboard" as const;
 export const ROUTE_ONBOARDING = "/onboarding" as const;
 export const ROUTE_STRAINS = "/strains" as const;
 export const ROUTE_PLANTS_NEW = "/plants/new" as const;
+export const ROUTE_PLANTS = "/plants" as const;
 export const ROUTE_ANALYZE_PLANT = "/analyze-plant" as const;
 export const ROUTE_AI_CONSUMER = "/ai-consumer" as const;
 export const ROUTE_CONSUMER_CHAT = "/consumer-chat" as const;
 export const ROUTE_PREMIUM = "/premium" as const;
+export const ROUTE_SETTINGS = "/settings" as const;
+export const ROUTE_JOURNAL = "/journal" as const;
+export const ROUTE_REMINDERS = "/reminders" as const;
+export const ROUTE_STASH = "/stash" as const;
+export const ROUTE_PRIVACY = "/privacy" as const;
+export const ROUTE_TERMS = "/terms" as const;
+export const ROUTE_ADMIN = "/admin" as const;
+export const ROUTE_HOME = "/" as const;
 
 export type AppPath =
   | typeof ROUTE_LOGIN
@@ -16,9 +25,19 @@ export type AppPath =
   | typeof ROUTE_ONBOARDING
   | typeof ROUTE_STRAINS
   | typeof ROUTE_PLANTS_NEW
+  | typeof ROUTE_PLANTS
   | typeof ROUTE_ANALYZE_PLANT
   | typeof ROUTE_AI_CONSUMER
   | typeof ROUTE_CONSUMER_CHAT
+  | typeof ROUTE_PREMIUM
+  | typeof ROUTE_SETTINGS
+  | typeof ROUTE_JOURNAL
+  | typeof ROUTE_REMINDERS
+  | typeof ROUTE_STASH
+  | typeof ROUTE_PRIVACY
+  | typeof ROUTE_TERMS
+  | typeof ROUTE_ADMIN
+  | typeof ROUTE_HOME
   | string;
 
 export type Roles = { grower: boolean; consumer: boolean };

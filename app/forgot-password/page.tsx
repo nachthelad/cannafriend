@@ -22,6 +22,7 @@ import {
 } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ROUTE_LOGIN } from "@/lib/routes";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -85,7 +86,7 @@ export default function ForgotPasswordPage() {
       // Redirigir inmediatamente al login después de enviar el email
       setTimeout(() => {
         console.log("Redirecting to login");
-        router.push("/login");
+        router.push(ROUTE_LOGIN);
       }, 2000);
     } catch (error: any) {
       console.error("Error in password reset:", error);
@@ -190,7 +191,7 @@ export default function ForgotPasswordPage() {
             </Button>
 
             <div className="text-center">
-              <Link href="/login">
+              <Link href={ROUTE_LOGIN}>
                 <Button
                   type="button"
                   variant="link"

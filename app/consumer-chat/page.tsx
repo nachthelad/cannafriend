@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { resolveHomePathForRoles } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { auth } from "@/lib/firebase";
 import { getDocs, orderBy, query, onSnapshot } from "firebase/firestore";
 import { consumerChatsCol } from "@/lib/paths";
@@ -17,6 +22,8 @@ export default function ConsumerChatListPage() {
   const { t } = useTranslation();
   const { user } = useAuthUser();
   const { isPremium } = usePremium();
+  const router = useRouter();
+  const { roles } = useUserRoles();
   const [items, setItems] = useState<
     Array<{ id: string; preview: string; createdAt: string }>
   >([]);
@@ -51,6 +58,14 @@ export default function ConsumerChatListPage() {
   return (
     <Layout>
       <div className="space-y-6">
+        <Button
+          variant="ghost"
+          className="mb-4"
+          onClick={() => router.push(resolveHomePathForRoles(roles))}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("common.back")}
+        </Button>
         {!isPremium ? (
           <PremiumRequiredCard />
         ) : (

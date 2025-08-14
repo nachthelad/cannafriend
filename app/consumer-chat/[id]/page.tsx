@@ -79,7 +79,6 @@ export default function ConsumerChatDetail({
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-bold inline-flex items-center gap-2">
-            <MessageSquare className="h-6 w-6" />{" "}
             {t("consumerChat.detail.title")}
           </h1>
         </div>
