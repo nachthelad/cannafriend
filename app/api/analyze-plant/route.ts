@@ -32,13 +32,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const preferredModel = process.env.OPENAI_VISION_MODEL || "gpt-4.1";
-    const fallbackModel = "gpt-4.1-mini";
+    const preferredModel = process.env.OPENAI_VISION_MODEL || "gpt-4.1-mini";
+    const fallbackModel = "gpt-4.1";
 
     const buildPayload = (model: string) =>
       ({
         model,
         messages: [
+          {
+            role: "system",
+            content:
+              'You are a direct, concise assistant. Answer immediately without praise, flattery, or filler. Do not say things like "Great question", "Thanks for asking", "I hope this helps", or apologize unless an actual error occurred. No small talk. Do not ask follow-up questions. End your response and do not ask if the user has any more questions. Instead tell him to create a new analysis.',
+          },
           {
             role: "user",
             content: [
@@ -59,6 +64,7 @@ export async function POST(req: NextRequest) {
             ],
           },
         ],
+        temperature: 0.2,
       } as const);
 
     const endpoint = "https://api.openai.com/v1/chat/completions";

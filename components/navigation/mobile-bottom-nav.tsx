@@ -5,15 +5,7 @@ import type React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-  Home,
-  Calendar,
-  Plus,
-  Settings,
-  Bell,
-  Package,
-  LogOut,
-} from "lucide-react";
+import { Home, Calendar, Plus, Settings, Package, Brain } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { cn } from "@/lib/utils";
 import {
@@ -25,8 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
@@ -158,7 +148,7 @@ export function MobileBottomNav(): React.ReactElement {
               )}
             </div>
 
-            {/* Slot 4: grower = Reminders, consumer-only = (nothing, Settings comes next) */}
+            {/* Slot 4: grower = Reminders, consumer-only = AI Chat when premium */}
             {roles.grower ? (
               <Link
                 href="/stash"
@@ -171,6 +161,19 @@ export function MobileBottomNav(): React.ReactElement {
                 aria-label="Stash"
               >
                 <Package className="h-5 w-5" />
+              </Link>
+            ) : roles.consumer ? (
+              <Link
+                href="/ai-consumer"
+                className={cn(
+                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
+                  isActive("/ai-consumer")
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                aria-label="AI Chat"
+              >
+                <Brain className="h-5 w-5" />
               </Link>
             ) : null}
 
@@ -187,18 +190,6 @@ export function MobileBottomNav(): React.ReactElement {
             >
               <Settings className="h-5 w-5" />
             </Link>
-
-            {/* Slot 5: Sign out at the end (consumer-only) */}
-            {roles.consumer && !roles.grower ? (
-              <button
-                type="button"
-                onClick={() => signOut(auth)}
-                className="flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs text-muted-foreground hover:text-foreground"
-                aria-label="Sign out"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            ) : null}
           </>
         )}
       </div>

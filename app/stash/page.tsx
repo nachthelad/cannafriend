@@ -256,9 +256,20 @@ export default function StashPage() {
           <p className="text-muted-foreground mt-1">{t("stash.description")}</p>
         </div>
         <div className="shrink-0">
-          <Button onClick={openNew}>
-            <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
-          </Button>
+          <div className="hidden sm:block">
+            <Button onClick={openNew}>
+              <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
+            </Button>
+          </div>
+          <div className="sm:hidden">
+            <Button
+              onClick={openNew}
+              aria-label={t("stash.addItem")}
+              className="h-9 w-9 p-0"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -271,9 +282,20 @@ export default function StashPage() {
             <CardDescription>{t("stash.emptyDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
-            </Button>
+            <div className="hidden sm:block">
+              <Button onClick={openNew}>
+                <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
+              </Button>
+            </div>
+            <div className="sm:hidden">
+              <Button
+                onClick={openNew}
+                aria-label={t("stash.addItem")}
+                className="h-9 w-9 p-0"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (

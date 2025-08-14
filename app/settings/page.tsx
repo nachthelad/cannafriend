@@ -32,7 +32,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import { onAuthStateChanged, deleteUser } from "firebase/auth";
+import { onAuthStateChanged, deleteUser, signOut } from "firebase/auth";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import {
   userDoc,
@@ -370,6 +370,19 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push(ROUTE_LOGIN);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("settings.error"),
+        description: error.message,
+      });
+    }
+  };
+
   const timezones = [
     "America/Argentina/Buenos_Aires",
     "America/Mexico_City",
@@ -432,6 +445,11 @@ export default function SettingsPage() {
                 <span className="text-muted-foreground">
                   {userSettings.email}
                 </span>
+              </div>
+              <div className="mt-4">
+                <Button variant="outline" onClick={handleSignOut}>
+                  {t("nav.signOut")}
+                </Button>
               </div>
             </CardContent>
           </Card>

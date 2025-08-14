@@ -56,6 +56,28 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "premium.analyzeDesc":
           "Desbloquea el análisis con IA para diagnosticar y optimizar el cuidado.",
         "premium.upgrade": "Mejorar a Premium",
+        // Premium page
+        "premium.wip": "Estamos trabajando en el plan Premium.",
+        "premium.mercadoPago": "Pronto podrás pagar con Mercado Pago.",
+        "premium.back": "Volver al panel",
+
+        // AI Consumer Chat
+        "aiConsumer.title": "Chat de IA",
+        "aiConsumer.intro":
+          "Pregúntale sobre técnica de armado, mejorar porros, dosis, planificación de sesiones, terpenos/sabores, almacenamiento, etiqueta y reducción de daños.",
+        "aiConsumer.placeholder":
+          "Pregunta sobre armado, dosis, rutinas, sabores...",
+        "aiConsumer.send": "Enviar",
+        "aiConsumer.tryPrompt":
+          'Prueba: "¿Cómo hago un porro más firme sin que se canalee?"',
+        "aiConsumer.recent": "Conversaciones recientes",
+        "aiConsumer.viewAll": "Ver todos los chats",
+
+        // Consumer Chat pages
+        "consumerChat.list.title": "Chats de consumidor recientes",
+        "consumerChat.list.empty": "Aún no hay chats.",
+        "consumerChat.detail.title": "Chat de consumidor",
+        "consumerChat.detail.empty": "Aún no hay mensajes.",
 
         // Common
         "common.clear": "Limpiar",
@@ -766,6 +788,28 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "premium.analyzeDesc":
           "Unlock AI-powered plant analysis to diagnose issues and optimize care.",
         "premium.upgrade": "Upgrade to Premium",
+        // Premium page
+        "premium.wip": "We're working on the Premium plan.",
+        "premium.mercadoPago": "You'll be able to pay with Mercado Pago soon.",
+        "premium.back": "Back to dashboard",
+
+        // AI Consumer Chat
+        "aiConsumer.title": "AI Chat",
+        "aiConsumer.intro":
+          "Ask about rolling technique, improving joints, dosage, session planning, flavors/terpenes, storage, etiquette, and harm reduction.",
+        "aiConsumer.placeholder":
+          "Ask about rolling, dosage, routines, flavors...",
+        "aiConsumer.send": "Send",
+        "aiConsumer.tryPrompt":
+          'Try: "How do I make a tighter joint without canoeing?"',
+        "aiConsumer.recent": "Recent conversations",
+        "aiConsumer.viewAll": "View all chats",
+
+        // Consumer Chat pages
+        "consumerChat.list.title": "Recent consumer chats",
+        "consumerChat.list.empty": "No chats yet.",
+        "consumerChat.detail.title": "Consumer Chat",
+        "consumerChat.detail.empty": "No messages yet.",
 
         // Common
         "common.clear": "Clear",

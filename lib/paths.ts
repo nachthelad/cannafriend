@@ -25,3 +25,7 @@ export const analysesCol = (uid: string) =>
 
 export const analysisDoc = (uid: string, analysisId: string) =>
   doc(db, "users", uid, "analyses", analysisId);
+
+// AI Consumer Chats
+export const consumerChatsCol = (uid: string) =>
+  collection(db, "users", uid, "consumerChats");
