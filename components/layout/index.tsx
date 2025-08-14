@@ -27,6 +27,7 @@ import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ROUTE_ANALYZE_PLANT, ROUTE_AI_CONSUMER } from "@/lib/routes";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -111,17 +112,33 @@ export function Layout({ children }: LayoutProps) {
 
   const { isPremium } = usePremium();
 
-  // Insert Analyze with AI above Settings for premium users
+  // Insert AI entries above Settings for premium users
   const withAnalyze = (() => {
     const arr = baseRoutes.slice();
     if (isPremium) {
       const insertIdx = arr.findIndex((r) => r.href === "/settings");
       const idx = insertIdx >= 0 ? insertIdx : arr.length;
-      arr.splice(idx, 0, {
-        href: "/analyze-plant",
-        label: t("analyzePlant.title"),
-        icon: Brain,
-      } as any);
+      if (roles) {
+        const items: Array<{ href: string; label: string; icon: any }> = [];
+        if (roles.grower) {
+          items.push({
+            href: ROUTE_ANALYZE_PLANT,
+            label: t("analyzePlant.title"),
+            icon: Brain,
+          });
+        }
+        if (roles.consumer) {
+          items.push({
+            href: ROUTE_AI_CONSUMER,
+            label: "AI Chat",
+            icon: Brain,
+          });
+        }
+        // Insert in reverse to preserve order at same index
+        for (let i = items.length - 1; i >= 0; i -= 1) {
+          arr.splice(idx, 0, items[i] as any);
+        }
+      }
     }
     return arr;
   })();
@@ -162,7 +179,9 @@ export function Layout({ children }: LayoutProps) {
               </>
             ) : (
               routes.map((route) => {
-                const isAnalyze = route.href === "/analyze-plant";
+                const isAnalyze =
+                  route.href === "/analyze-plant" ||
+                  route.href === "/ai-consumer";
                 const baseClasses =
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
                 const active = pathname === route.href;

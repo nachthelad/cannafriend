@@ -1,0 +1,147 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { auth } from "@/lib/firebase";
+import { Layout } from "@/components/layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+
+type ListedUser = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  premium: boolean;
+};
+
+const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
+
+export default function AdminPage() {
+  const { user, isLoading } = useAuthUser();
+  const router = useRouter();
+  const [users, setUsers] = useState<ListedUser[]>([]);
+  const [loading, setLoading] = useState(false);
+  const isAdmin = useMemo(
+    () => (user?.email || "").toLowerCase() === ADMIN_EMAIL,
+    [user?.email]
+  );
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
+      if (!isAdmin) {
+        router.replace("/dashboard");
+        return;
+      }
+    }
+  }, [isLoading, isAdmin, user, router]);
+
+  const fetchUsers = async () => {
+    if (!auth.currentUser) return;
+    setLoading(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/admin/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "request_failed");
+      setUsers(data.users as ListedUser[]);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      void fetchUsers();
+    }
+  }, [isAdmin]);
+
+  const togglePremium = async (u: ListedUser, next: boolean) => {
+    if (!auth.currentUser) return;
+    const prev = users;
+    setUsers((list) =>
+      list.map((it) => (it.uid === u.uid ? { ...it, premium: next } : it))
+    );
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ uid: u.uid, premium: next }),
+      });
+      if (!res.ok) {
+        throw new Error((await res.json())?.error || "update_failed");
+      }
+    } catch (e) {
+      console.error(e);
+      setUsers(prev);
+    }
+  };
+
+  if (isLoading || !isAdmin) {
+    return null;
+  }
+
+  return (
+    <Layout>
+      <div className="mx-auto max-w-5xl w-full p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Admin – Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm text-muted-foreground">
+                Only visible to {ADMIN_EMAIL}
+              </div>
+              <Button
+                variant="secondary"
+                disabled={loading}
+                onClick={fetchUsers}
+              >
+                Refresh
+              </Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left border-b">
+                    <th className="py-2 pr-4">Email</th>
+                    <th className="py-2 pr-4">Name</th>
+                    <th className="py-2">Premium</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u.uid} className="border-b last:border-0">
+                      <td className="py-2 pr-4">{u.email || "—"}</td>
+                      <td className="py-2 pr-4">{u.displayName || "—"}</td>
+                      <td className="py-2">
+                        <Switch
+                          checked={u.premium}
+                          onCheckedChange={(val) => togglePremium(u, val)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </Layout>
+  );
+}

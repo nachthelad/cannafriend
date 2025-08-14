@@ -4,19 +4,13 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
-// Hardcoded allowlist for early access. Emails should be lowercased.
-// Edit this array to add or remove users with access to premium-gated features.
-const ALLOWED_EMAILS: string[] = [
-  // "user@example.com","
-  "nacho.vent@gmail.com",
-  "devpala@gmail.com",
-];
+// Email allowlist removed; premium is controlled via custom claim `premium` or a local dev override.
 
 /**
  * Premium/Access hook for gating premium-only features.
  * - Enables access if:
  *   a) localStorage flag `cf_premium` is "1" (manual override), OR
- *   b) the authenticated user's email is in the ALLOWED_EMAILS list
+ *   b) the authenticated user's ID token has custom claim `premium: true`
  */
 export function usePremium() {
   const [isPremium, setIsPremium] = useState<boolean>(false);
@@ -37,12 +31,17 @@ export function usePremium() {
     let localPremium = readLocal();
     setIsPremium(localPremium);
 
-    // Subscribe to auth to check email allowlist
-    const unsub = onAuthStateChanged(auth, (user) => {
-      const email = user?.email?.toLowerCase() ?? null;
-      const emailAllowed = email ? ALLOWED_EMAILS.includes(email) : false;
+    // Subscribe to auth and read the custom claim
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      let hasClaim = false;
+      try {
+        if (user) {
+          const token = await user.getIdTokenResult(true);
+          hasClaim = Boolean((token.claims as any)?.premium);
+        }
+      } catch {}
       localPremium = readLocal();
-      setIsPremium(Boolean(localPremium || emailAllowed));
+      setIsPremium(Boolean(localPremium || hasClaim));
     });
 
     return () => unsub();

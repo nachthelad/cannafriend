@@ -10,8 +10,10 @@ import { Layout } from "@/components/layout";
 import { Brain, Loader2, Trash2, History } from "lucide-react";
 import { usePremium } from "@/hooks/use-premium";
 import { useTranslation } from "@/hooks/use-translation";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import ReactMarkdown from "react-markdown";
 import { ImageUpload } from "@/components/common/image-upload";
+import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { auth } from "@/lib/firebase";
 import { addDoc, getDocs, query, orderBy } from "firebase/firestore";
 import { analysesCol } from "@/lib/paths";
@@ -33,6 +35,7 @@ export default function AnalyzePlantPage() {
   const { toast } = useToast();
   const { isPremium } = usePremium();
   const { t } = useTranslation();
+  const { roles } = useUserRoles();
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null); // data URL (base64)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
@@ -62,7 +65,12 @@ export default function AnalyzePlantPage() {
   );
   const formatTimestamp = (iso: string) => dateFormatter.format(new Date(iso));
 
-  // No client-only gating; align with other pages (dashboard).
+  // Redirect consumer-only users to AI Chat instead of image analysis
+  useEffect(() => {
+    if (isPremium && roles?.consumer && !roles.grower) {
+      router.replace("/ai-consumer");
+    }
+  }, [isPremium, roles, router]);
 
   // Load analyses from Firestore (remote only)
   useEffect(() => {
@@ -215,21 +223,7 @@ export default function AnalyzePlantPage() {
         </div>
 
         {!isPremium ? (
-          <Card>
-            <CardContent className="p-4 space-y-3">
-              <div className="text-lg font-medium">{t("premium.title")}</div>
-              <p className="text-sm text-muted-foreground">
-                {t("premium.analyzeDesc")}
-              </p>
-              <Button
-                onClick={() => router.push("/premium")}
-                className="w-full"
-                style={{ backgroundColor: "#228B22" }}
-              >
-                {t("premium.upgrade")}
-              </Button>
-            </CardContent>
-          </Card>
+          <PremiumRequiredCard />
         ) : (
           <>
             <Card>

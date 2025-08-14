@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { usePremium } from "@/hooks/use-premium";
 import { formatDateTime } from "@/lib/format";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -53,6 +54,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn, formatDateObjectWithLocale } from "@/lib/utils";
+import { Brain } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -104,6 +106,7 @@ export default function StrainsPage() {
   const [editEndTime, setEditEndTime] = useState("");
   const [editPhotos, setEditPhotos] = useState<string[]>([]);
   const { roles } = useUserRoles();
+  const { isPremium } = usePremium();
   const [favoriteStrains, setFavoriteStrains] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
@@ -307,6 +310,16 @@ export default function StrainsPage() {
           <p className="text-muted-foreground mt-1">
             {t("strains.description")}
           </p>
+          {isPremium ? (
+            <div className="mt-3">
+              <Button
+                onClick={() => router.push("/ai-consumer")}
+                className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
+              >
+                <Brain className="mr-2 h-4 w-4" /> AI Chat
+              </Button>
+            </div>
+          ) : null}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
