@@ -9,9 +9,11 @@ import { LanguageProvider } from "@/components/providers/language-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Cannafriend - Plant Growth Tracker",
+  title: "Cannafriend - Plant Growth Tracker & Journal",
   description:
-    "Track your plant growth and maintenance with detailed logging and environmental monitoring",
+    "Track your plant growth and maintenance with detailed logging, environmental monitoring, and journal features. Professional plant cultivation tracking app.",
+  keywords:
+    "plant growth, plant tracker, cultivation journal, plant care, growth monitoring, plant management",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -25,7 +27,10 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
   },
-    generator: 'v0.app'
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
@@ -47,6 +52,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Cannafriend" />
+        <meta name="author" content="Cannafriend Team" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <link
           rel="icon"
@@ -59,6 +66,11 @@ export default function RootLayout({
           type="image/png"
           sizes="32x32"
           href="/favicon-32x32.png"
+        />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
+          crossOrigin="anonymous"
         />
         <script
           dangerouslySetInnerHTML={{

@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import {
+  ROUTE_LOGIN,
+  ROUTE_ONBOARDING,
+  ROUTE_DASHBOARD,
+  ROUTE_PRIVACY,
+  ROUTE_TERMS,
+  resolveHomePathForRoles,
+} from "@/lib/routes";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { Button } from "@/components/ui/button";
@@ -49,14 +57,14 @@ export default function Home() {
     try {
       const snap = await getDoc(userDoc(user.uid));
       if (!snap.exists()) {
-        router.push("/onboarding");
+        router.push(ROUTE_ONBOARDING);
         return;
       }
       const data = snap.data() as any;
       const roles = data?.roles || { grower: true, consumer: false };
       router.push(resolveHomePathForRoles(roles));
     } catch {
-      router.push("/dashboard");
+      router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
     }
   };
 
@@ -82,6 +90,25 @@ export default function Home() {
 
           {/* Features Grid */}
           <FeaturesSection className="mb-8" />
+
+          {/* Mobile Footer */}
+          <footer className="border-t border-border/50 pt-6 mt-8">
+            <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
+              <Link
+                href={ROUTE_PRIVACY}
+                className="hover:text-primary transition-colors"
+              >
+                {t("privacy.title")}
+              </Link>
+              <span>•</span>
+              <Link
+                href={ROUTE_TERMS}
+                className="hover:text-primary transition-colors"
+              >
+                {t("terms.title")}
+              </Link>
+            </div>
+          </footer>
 
           {/* Login Modal trigger handled by header button */}
         </div>
@@ -124,6 +151,25 @@ export default function Home() {
             <FeaturesSection className="grid-cols-2" />
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="border-t border-border/50 p-8">
+          <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
+            <Link
+              href="/privacy"
+              className="hover:text-primary transition-colors"
+            >
+              {t("privacy.title")}
+            </Link>
+            <span>•</span>
+            <Link
+              href="/terms"
+              className="hover:text-primary transition-colors"
+            >
+              {t("terms.title")}
+            </Link>
+          </div>
+        </footer>
       </div>
       {/* Desktop modal as well */}
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />

@@ -17,6 +17,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ROUTE_STRAINS,
+  ROUTE_DASHBOARD,
+  ROUTE_JOURNAL,
+  ROUTE_SETTINGS,
+  ROUTE_AI_CONSUMER,
+  ROUTE_STASH,
+} from "@/lib/routes";
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
@@ -26,8 +34,8 @@ export function MobileBottomNav(): React.ReactElement {
   // no home chooser; home goes directly
 
   const isActive = (path: string): boolean => {
-    if (path === "/dashboard")
-      return pathname === "/dashboard" || pathname === "/";
+    if (path === ROUTE_DASHBOARD)
+      return pathname === ROUTE_DASHBOARD || pathname === "/";
     return pathname?.startsWith(path) ?? false;
   };
 
@@ -58,10 +66,10 @@ export function MobileBottomNav(): React.ReactElement {
             {/* Home */}
             {roles.consumer && !roles.grower ? (
               <Link
-                href="/strains"
+                href={ROUTE_STRAINS}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/strains")
+                  isActive(ROUTE_STRAINS)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -71,10 +79,10 @@ export function MobileBottomNav(): React.ReactElement {
               </Link>
             ) : roles.grower && roles.consumer ? (
               <Link
-                href="/dashboard"
+                href={ROUTE_DASHBOARD}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/dashboard")
+                  isActive(ROUTE_DASHBOARD)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -84,10 +92,10 @@ export function MobileBottomNav(): React.ReactElement {
               </Link>
             ) : (
               <Link
-                href="/dashboard"
+                href={ROUTE_DASHBOARD}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/dashboard")
+                  isActive(ROUTE_DASHBOARD)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -100,10 +108,10 @@ export function MobileBottomNav(): React.ReactElement {
             {/* Slot 2: consumer-only = Stash, grower = Journal */}
             {roles.consumer && !roles.grower ? (
               <Link
-                href="/stash"
+                href={ROUTE_STASH}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/stash")
+                  isActive(ROUTE_STASH)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -113,10 +121,10 @@ export function MobileBottomNav(): React.ReactElement {
               </Link>
             ) : roles.grower ? (
               <Link
-                href="/journal"
+                href={ROUTE_JOURNAL}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/journal")
+                  isActive(ROUTE_JOURNAL)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -151,10 +159,10 @@ export function MobileBottomNav(): React.ReactElement {
             {/* Slot 4: grower = Reminders, consumer-only = AI Chat when premium */}
             {roles.grower ? (
               <Link
-                href="/stash"
+                href={ROUTE_STASH}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/stash")
+                  isActive(ROUTE_STASH)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -164,10 +172,10 @@ export function MobileBottomNav(): React.ReactElement {
               </Link>
             ) : roles.consumer ? (
               <Link
-                href="/ai-consumer"
+                href={ROUTE_AI_CONSUMER}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive("/ai-consumer")
+                  isActive(ROUTE_AI_CONSUMER)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
@@ -179,10 +187,10 @@ export function MobileBottomNav(): React.ReactElement {
 
             {/* Settings */}
             <Link
-              href="/settings"
+              href={ROUTE_SETTINGS}
               className={cn(
                 "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                isActive("/settings")
+                isActive(ROUTE_SETTINGS)
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}

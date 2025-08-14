@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
 import { useAuthUser } from "@/hooks/use-auth-user";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { auth } from "@/lib/firebase";
 import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +22,7 @@ const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
 
 export default function AdminPage() {
   const { user, isLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const router = useRouter();
   const [users, setUsers] = useState<ListedUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,11 +34,11 @@ export default function AdminPage() {
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.replace("/login");
+        router.replace(ROUTE_LOGIN);
         return;
       }
       if (!isAdmin) {
-        router.replace("/dashboard");
+        router.replace(resolveHomePathForRoles(roles));
         return;
       }
     }

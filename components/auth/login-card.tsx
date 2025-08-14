@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "@/hooks/use-translation";
 import { AuthTabs } from "./auth-tabs";
 import Link from "next/link";
+import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import { Logo } from "@/components/common/logo";
 
 interface LoginCardProps {
@@ -27,14 +28,14 @@ export function LoginCard({ className = "" }: LoginCardProps) {
         <>
           By continuing, you agree to our{" "}
           <Link
-            href="/terms"
+            href={ROUTE_TERMS}
             className="text-green-600 dark:text-green-400 hover:underline"
           >
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
-            href="/privacy"
+            href={ROUTE_PRIVACY}
             className="text-green-600 dark:text-green-400 hover:underline"
           >
             Privacy Policy
@@ -46,14 +47,14 @@ export function LoginCard({ className = "" }: LoginCardProps) {
         <>
           Al continuar, aceptas nuestros{" "}
           <Link
-            href="/terms"
+            href={ROUTE_TERMS}
             className="text-green-600 dark:text-green-400 hover:underline"
           >
             Términos de Servicio
           </Link>{" "}
           y{" "}
           <Link
-            href="/privacy"
+            href={ROUTE_PRIVACY}
             className="text-green-600 dark:text-green-400 hover:underline"
           >
             Política de Privacidad

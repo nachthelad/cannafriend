@@ -5,6 +5,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { ROUTE_LOGIN } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -91,7 +92,7 @@ export default function NewPlantPage() {
       if (user) {
         setUserId(user.uid);
       } else {
-        router.push("/login");
+        router.push(ROUTE_LOGIN);
       }
     });
 

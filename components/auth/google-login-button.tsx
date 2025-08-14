@@ -10,6 +10,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { useRouter } from "next/navigation";
+import { ROUTE_ONBOARDING } from "@/lib/routes";
 import { useToast } from "@/hooks/use-toast";
 
 interface GoogleLoginButtonProps {
@@ -43,7 +44,7 @@ export function GoogleLoginButton({
       const userSnap = await getDoc(userRef);
 
       if (!userSnap.exists()) {
-        router.push("/onboarding");
+        router.push(ROUTE_ONBOARDING);
       } else {
         const data = userSnap.data() as any;
         const roles = data?.roles || { grower: true, consumer: false };

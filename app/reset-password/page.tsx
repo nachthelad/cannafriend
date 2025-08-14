@@ -19,6 +19,7 @@ import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { ROUTE_LOGIN } from "@/lib/routes";
 
 interface ResetPasswordFormData {
   password: string;
@@ -57,7 +58,7 @@ function ResetPasswordContent() {
   useEffect(() => {
     if (passwordReset) {
       const timer = setTimeout(() => {
-        router.push("/login");
+        router.push(ROUTE_LOGIN);
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -186,7 +187,7 @@ function ResetPasswordContent() {
               {t("resetPassword.redirectingMessage")}
             </p>
             <div className="flex flex-col space-y-2">
-              <Link href="/login">
+              <Link href={ROUTE_LOGIN}>
                 <Button className="w-full bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700">
                   {t("resetPassword.goToLogin")}
                 </Button>
@@ -311,7 +312,7 @@ function ResetPasswordContent() {
             </Button>
 
             <div className="text-center">
-              <Link href="/login">
+              <Link href={ROUTE_LOGIN}>
                 <Button
                   type="button"
                   variant="link"

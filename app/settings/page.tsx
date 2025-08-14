@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ROUTE_LOGIN, ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,7 +35,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { onAuthStateChanged, deleteUser, signOut } from "firebase/auth";
-import { ROUTE_LOGIN } from "@/lib/routes";
 import {
   userDoc,
   plantsCol,
@@ -359,7 +360,7 @@ export default function SettingsPage() {
         description: t("settings.accountDeletedDesc"),
       });
 
-      router.push("/login");
+      router.push(ROUTE_LOGIN);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -593,6 +594,25 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Footer with privacy/terms links */}
+        <footer className="mt-8 pt-6 border-t border-border">
+          <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
+            <Link
+              href={ROUTE_PRIVACY}
+              className="hover:text-primary transition-colors"
+            >
+              {t("privacy.title")}
+            </Link>
+            <span>•</span>
+            <Link
+              href={ROUTE_TERMS}
+              className="hover:text-primary transition-colors"
+            >
+              {t("terms.title")}
+            </Link>
+          </div>
+        </footer>
       </div>
     </Layout>
   );

@@ -4,6 +4,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { ROUTE_LOGIN } from "@/lib/routes";
 
 export default function TermsPage() {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ export default function TermsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/login">
+          <Link href={ROUTE_LOGIN}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t("common.back")}

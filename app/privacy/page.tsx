@@ -4,6 +4,7 @@ import { useTranslation } from "@/hooks/use-translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { ROUTE_HOME } from "@/lib/routes";
 
 export default function PrivacyPage() {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ export default function PrivacyPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/login">
+          <Link href={ROUTE_HOME}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t("common.back")}
@@ -81,6 +82,15 @@ export default function PrivacyPage() {
               </h2>
               <p className="text-gray-700 dark:text-gray-300">
                 {t("privacy.cookiesDesc")}
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-4">
+                {t("privacy.advertising")}
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">
+                {t("privacy.advertisingDesc")}
               </p>
             </section>
 
