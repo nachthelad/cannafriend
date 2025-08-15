@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
@@ -30,6 +31,7 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
+  const shouldLoadAds = !isLoggedIn && !loginOpen;
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -70,6 +72,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* Load AdSense only on public marketing view (no login modal) */}
+      {shouldLoadAds ? (
+        <Script
+          id="adsbygoogle-init"
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
+          crossOrigin="anonymous"
+        />
+      ) : null}
       {/* Mobile Layout */}
       <div className="block lg:hidden">
         <div className="p-4">
