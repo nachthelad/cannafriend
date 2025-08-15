@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
@@ -23,6 +24,7 @@ import { AppIntroduction } from "@/components/marketing/app-introduction";
 import { FeaturesSection } from "@/components/marketing/features-section";
 // Unify features into a single responsive component
 import { LoginModal } from "@/components/auth/login-modal";
+import { CookieConsent } from "@/components/common/cookie-consent";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -30,6 +32,8 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [hasConsent, setHasConsent] = useState<boolean | null>(null);
+  const shouldLoadAds = !isLoggedIn && !loginOpen && hasConsent === true;
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -46,6 +50,23 @@ export default function Home() {
     if (params.get("auth") === "1") {
       setLoginOpen(true);
     }
+  }, []);
+
+  // Handle cookie consent state
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const consent = localStorage.getItem("cookie-consent");
+    if (consent === "accepted") setHasConsent(true);
+    else if (consent === "declined") setHasConsent(false);
+    else setHasConsent(null);
+
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      setHasConsent(detail === "accepted");
+    };
+    window.addEventListener("cookie-consent-changed", onChange as any);
+    return () =>
+      window.removeEventListener("cookie-consent-changed", onChange as any);
   }, []);
 
   const handleDesktopLoginClick = async () => {
@@ -70,6 +91,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* Load AdSense only on public marketing view (no login modal) */}
+      {shouldLoadAds ? (
+        <Script
+          id="adsbygoogle-init"
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
+          crossOrigin="anonymous"
+        />
+      ) : null}
       {/* Mobile Layout */}
       <div className="block lg:hidden">
         <div className="p-4">
@@ -173,6 +203,8 @@ export default function Home() {
       </div>
       {/* Desktop modal as well */}
       <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+      {/* Cookie consent banner for public page */}
+      <CookieConsent />
     </div>
   );
 }

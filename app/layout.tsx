@@ -68,11 +68,6 @@ export default function RootLayout({
           href="/favicon-32x32.png"
         />
         <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
-          crossOrigin="anonymous"
-        />
-        <script
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator) {

@@ -22,11 +22,21 @@ export function CookieConsent() {
 
   const handleAccept = () => {
     localStorage.setItem("cookie-consent", "accepted");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("cookie-consent-changed", { detail: "accepted" })
+      );
+    }
     setShowBanner(false);
   };
 
   const handleDecline = () => {
     localStorage.setItem("cookie-consent", "declined");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("cookie-consent-changed", { detail: "declined" })
+      );
+    }
     setShowBanner(false);
   };
 
