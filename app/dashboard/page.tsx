@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ROUTE_STRAINS,
   ROUTE_REMINDERS,
   ROUTE_ANALYZE_PLANT,
+  ROUTE_PLANTS,
+  ROUTE_JOURNAL,
+  ROUTE_NUTRIENTS,
   resolveHomePathForRoles,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
@@ -25,7 +29,7 @@ import { query, getDocs, orderBy } from "firebase/firestore";
 import { Layout } from "@/components/layout";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
-import { Search } from "@/components/common/search";
+import { JournalEntries } from "@/components/journal/journal-entries";
 import {
   Plus,
   Loader2,
@@ -43,6 +47,9 @@ import {
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
+import { db } from "@/lib/firebase";
+import { collection } from "firebase/firestore";
+import { buildNutrientMixesPath } from "@/lib/firebase-config";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -65,6 +72,8 @@ export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
   const [hasOverdue, setHasOverdue] = useState(false);
+  const [recentLogs, setRecentLogs] = useState<LogEntry[]>([]);
+  const [nutrientMixesCount, setNutrientMixesCount] = useState<number>(0);
 
   useEffect(() => {
     if (authLoading) return;
@@ -83,6 +92,7 @@ export default function DashboardPage() {
         const wateringsData: Record<string, LogEntry> = {};
         const feedingsData: Record<string, LogEntry> = {};
         const trainingsData: Record<string, LogEntry> = {};
+        const allLogs: LogEntry[] = [];
 
         // Fetch plants and their last logs
         for (const doc of querySnapshot.docs) {
@@ -96,17 +106,19 @@ export default function DashboardPage() {
               orderBy("date", "desc")
             );
             const allLogsSnap = await getDocs(allLogsQuery);
-            const allLogs = allLogsSnap.docs.map((doc) => ({
+            const logsForPlant = allLogsSnap.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
             })) as LogEntry[];
 
             // Filter logs by type in the client
-            const wateringLogs = allLogs.filter(
+            const wateringLogs = logsForPlant.filter(
               (log) => log.type === "watering"
             );
-            const feedingLogs = allLogs.filter((log) => log.type === "feeding");
-            const trainingLogs = allLogs.filter(
+            const feedingLogs = logsForPlant.filter(
+              (log) => log.type === "feeding"
+            );
+            const trainingLogs = logsForPlant.filter(
               (log) => log.type === "training"
             );
 
@@ -120,6 +132,15 @@ export default function DashboardPage() {
             if (trainingLogs.length > 0) {
               trainingsData[doc.id] = trainingLogs[0];
             }
+
+            // Accumulate for recent logs widget (attach plantId/name)
+            logsForPlant.forEach((l) =>
+              allLogs.push({
+                ...l,
+                plantId: plantData.id,
+                plantName: plantData.name,
+              })
+            );
           } catch (error) {
             console.error(`Error fetching logs for plant ${doc.id}:`, error);
           }
@@ -130,6 +151,14 @@ export default function DashboardPage() {
         setLastWaterings(wateringsData);
         setLastFeedings(feedingsData);
         setLastTrainings(trainingsData);
+
+        // Compute recent logs (newest first, limit 5)
+        allLogs.sort(
+          (a, b) =>
+            new Date(b.date as string).getTime() -
+            new Date(a.date as string).getTime()
+        );
+        setRecentLogs(allLogs.slice(0, 5));
 
         // Compute overdue reminders for dashboard badge
         try {
@@ -151,6 +180,13 @@ export default function DashboardPage() {
         } catch {
           // ignore reminder fetch errors on dashboard
         }
+        // Nutrient mixes count
+        try {
+          const mixesSnap = await getDocs(
+            query(collection(db, buildNutrientMixesPath(userId)))
+          );
+          setNutrientMixesCount(mixesSnap.size);
+        } catch {}
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -167,16 +203,8 @@ export default function DashboardPage() {
     }
   }, [userId, toast, t]);
 
-  const handleSearch = (query: string) => {
-    const filtered = plants.filter((plant) =>
-      plant.name.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredPlants(filtered);
-  };
-
-  const handleClearSearch = () => {
-    setFilteredPlants(plants);
-  };
+  // Widgets data
+  const topPlants = plants.slice(0, 3);
 
   return (
     <Layout>
@@ -233,77 +261,99 @@ export default function DashboardPage() {
             <ReminderSystem plants={plants} showOnlyOverdue />
           </div>
 
-          {/* Plants Section */}
-          <div>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold">
-                {t("dashboard.yourPlants")}
-              </h2>
-              <div className="mt-2 md:hidden flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => router.push(ROUTE_REMINDERS)}
-                  className="inline-flex items-center gap-2"
-                >
-                  <Bell className="h-4 w-4" /> {t("dashboard.reminders")}
+          {/* Widgets grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Plants Widget */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
+                  <CardDescription>{plants.length} total</CardDescription>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={ROUTE_PLANTS}>{t("common.view")}</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {plants.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {topPlants.map((plant) => (
+                      <PlantCard key={plant.id} plant={plant} compact />
+                    ))}
+                  </div>
+                ) : (
+                  <Button onClick={() => router.push("/plants/new")}>
+                    <Plus className="mr-2 h-4 w-4" /> {t("dashboard.addPlant")}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Journal Widget */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle>{t("journal.recentLogs")}</CardTitle>
+                  <CardDescription>
+                    {recentLogs.length} {t("journal.logsFound")}
+                  </CardDescription>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={ROUTE_JOURNAL}>{t("common.view")}</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <JournalEntries logs={recentLogs} showPlantName={true} />
+              </CardContent>
+            </Card>
+
+            {/* Nutrients Widget */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <div>
+                  <CardTitle>{t("nutrients.title")}</CardTitle>
+                  <CardDescription>{nutrientMixesCount} mixes</CardDescription>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={ROUTE_NUTRIENTS}>{t("common.view")}</Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Guarda tus recetas (NPK, notas) y regístralas en los logs.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Acciones rápidas</CardTitle>
+                <CardDescription>Atajos a funciones frecuentes</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                <Button asChild>
+                  <Link href="/plants/new">{t("nav.addPlant")}</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={ROUTE_REMINDERS}>{t("dashboard.reminders")}</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={ROUTE_JOURNAL}>{t("nav.journal")}</Link>
                 </Button>
                 {isPremium && (
                   <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => router.push(ROUTE_ANALYZE_PLANT)}
-                    className="inline-flex items-center gap-2 text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600 shadow-sm"
+                    asChild
+                    className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
                   >
-                    <Brain className="h-4 w-4" /> {t("analyzePlant.title")}
+                    <Link href={ROUTE_ANALYZE_PLANT}>
+                      <Brain className="h-4 w-4 mr-1" />{" "}
+                      {t("analyzePlant.title")}
+                    </Link>
                   </Button>
                 )}
-              </div>
-              {plants.length > 0 && (
-                <div className="mt-2">
-                  <Search
-                    placeholder={t("search.placeholder")}
-                    onSearch={handleSearch}
-                    onClear={handleClearSearch}
-                    className="w-full"
-                  />
-                </div>
-              )}
-            </div>
-            {plants.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredPlants.map((plant) => {
-                  const watering = lastWaterings[plant.id];
-                  const feeding = lastFeedings[plant.id];
-                  const training = lastTrainings[plant.id];
-
-                  return (
-                    <PlantCard
-                      key={plant.id}
-                      plant={plant}
-                      lastWatering={watering}
-                      lastFeeding={feeding}
-                      lastTraining={training}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.noPlants")}</CardTitle>
-                  <CardDescription>
-                    {t("dashboard.noPlantDesc")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <Button onClick={() => router.push("/plants/new")}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t("dashboard.addPlant")}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}

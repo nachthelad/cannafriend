@@ -34,6 +34,7 @@ import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { AddLogForm } from "@/components/journal/add-log-form";
+import { EnvironmentChart } from "@/components/plant/environment-chart";
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import { Loader2, Trash2, Plus, Star } from "lucide-react";
@@ -534,6 +535,17 @@ export default function PlantPage({
               setPlant((prev) => (prev ? { ...prev, ...patch } : prev))
             }
           />
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("plantPage.environmentData")}</CardTitle>
+              <CardDescription>
+                {t("plantPage.environmentDataDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <EnvironmentChart data={environmentData} />
+            </CardContent>
+          </Card>
         </div>
       </div>
 

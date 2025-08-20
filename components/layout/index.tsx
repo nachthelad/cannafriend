@@ -20,6 +20,8 @@ import {
   Bell,
   Plus,
   Package,
+  Leaf,
+  FlaskConical,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
@@ -38,6 +40,7 @@ import {
   ROUTE_REMINDERS,
   ROUTE_SETTINGS,
   ROUTE_STASH,
+  ROUTE_NUTRIENTS,
   resolveHomePathForRoles,
 } from "@/lib/routes";
 import { CookieConsent } from "@/components/common/cookie-consent";
@@ -91,6 +94,11 @@ export function Layout({ children }: LayoutProps) {
       icon: Home,
     },
     {
+      href: ROUTE_PLANTS,
+      label: t("dashboard.yourPlants"),
+      icon: Leaf,
+    },
+    {
       href: ROUTE_PLANTS_NEW,
       label: t("nav.addPlant"),
       icon: Plus,
@@ -104,6 +112,11 @@ export function Layout({ children }: LayoutProps) {
       href: ROUTE_STASH,
       label: t("stash.title"),
       icon: Package,
+    },
+    {
+      href: ROUTE_NUTRIENTS,
+      label: "Nutrientes",
+      icon: FlaskConical,
     },
     {
       href: ROUTE_JOURNAL,

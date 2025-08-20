@@ -15,6 +15,7 @@ interface PlantCardProps {
   lastWatering?: LogEntry;
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
+  compact?: boolean;
 }
 
 export function PlantCard({
@@ -22,6 +23,7 @@ export function PlantCard({
   lastWatering,
   lastFeeding,
   lastTraining,
+  compact = false,
 }: PlantCardProps) {
   const { t, language } = useTranslation();
   const router = useRouter();
@@ -74,60 +76,64 @@ export function PlantCard({
           </Badge>
         </div>
       </div>
-      <CardContent className="pb-2">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Badge variant="outline" className="mr-2">
-            {plant.growType === "indoor"
-              ? t("newPlant.indoor")
-              : t("newPlant.outdoor")}
-          </Badge>
-          {plant.growType === "indoor" && plant.lightSchedule && (
-            <Badge variant="outline">{plant.lightSchedule}</Badge>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="pt-0 text-xs text-muted-foreground">
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <Calendar className="h-3 w-3 mr-1" />
-            {plant.plantingDate &&
-              formatDateWithLocale(plant.plantingDate, "PPP", language)}
-          </div>
-          <div className="flex items-center">
-            <Droplet className="h-3 w-3 mr-1" />
-            {lastWatering ? (
-              <span>
-                {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
-                {t(`watering.${lastWatering.method}`)})
-              </span>
-            ) : (
-              <span>{t("plantCard.noWateringRecords")}</span>
-            )}
-          </div>
-          <div className="flex items-center">
-            <Zap className="h-3 w-3 mr-1" />
-            {lastFeeding ? (
-              <span>
-                {t("plantCard.lastFeeding")}: {lastFeeding.npk} (
-                {lastFeeding.amount}ml/L)
-              </span>
-            ) : (
-              <span>{t("plantCard.noFeedingRecords")}</span>
-            )}
-          </div>
-          <div className="flex items-center">
-            <Scissors className="h-3 w-3 mr-1" />
-            {lastTraining ? (
-              <span>
-                {t("plantCard.lastTraining")}:{" "}
-                {t(`training.${lastTraining.method}`)}
-              </span>
-            ) : (
-              <span>{t("plantCard.noTrainingRecords")}</span>
-            )}
-          </div>
-        </div>
-      </CardFooter>
+      {!compact && (
+        <>
+          <CardContent className="pb-2">
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Badge variant="outline" className="mr-2">
+                {plant.growType === "indoor"
+                  ? t("newPlant.indoor")
+                  : t("newPlant.outdoor")}
+              </Badge>
+              {plant.growType === "indoor" && plant.lightSchedule && (
+                <Badge variant="outline">{plant.lightSchedule}</Badge>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="pt-0 text-xs text-muted-foreground">
+            <div className="space-y-1">
+              <div className="flex items-center">
+                <Calendar className="h-3 w-3 mr-1" />
+                {plant.plantingDate &&
+                  formatDateWithLocale(plant.plantingDate, "PPP", language)}
+              </div>
+              <div className="flex items-center">
+                <Droplet className="h-3 w-3 mr-1" />
+                {lastWatering ? (
+                  <span>
+                    {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
+                    {t(`watering.${lastWatering.method}`)})
+                  </span>
+                ) : (
+                  <span>{t("plantCard.noWateringRecords")}</span>
+                )}
+              </div>
+              <div className="flex items-center">
+                <Zap className="h-3 w-3 mr-1" />
+                {lastFeeding ? (
+                  <span>
+                    {t("plantCard.lastFeeding")}: {lastFeeding.npk} (
+                    {lastFeeding.amount}ml/L)
+                  </span>
+                ) : (
+                  <span>{t("plantCard.noFeedingRecords")}</span>
+                )}
+              </div>
+              <div className="flex items-center">
+                <Scissors className="h-3 w-3 mr-1" />
+                {lastTraining ? (
+                  <span>
+                    {t("plantCard.lastTraining")}:{" "}
+                    {t(`training.${lastTraining.method}`)}
+                  </span>
+                ) : (
+                  <span>{t("plantCard.noTrainingRecords")}</span>
+                )}
+              </div>
+            </div>
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 }
