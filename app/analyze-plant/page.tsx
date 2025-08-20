@@ -153,13 +153,21 @@ export default function AnalyzePlantPage() {
     setIsAnalyzing(true);
     setResponse("");
     try {
+      // Ensure authenticated and attach ID token
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) {
+        throw new Error("missing_auth");
+      }
       const base64 = selectedImage ? extractBase64(selectedImage) : undefined;
       const imgType = selectedImageType || "image/jpeg";
       const q = (question || defaultPrompt).trim();
 
       const res = await fetch("/api/analyze-plant", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           question: q,
           imageBase64: base64,
