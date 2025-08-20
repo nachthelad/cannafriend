@@ -1,0 +1,147 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Layout } from "@/components/layout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/hooks/use-translation";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { ROUTE_LOGIN, ROUTE_PLANTS_NEW } from "@/lib/routes";
+import { plantsCol, logsCol } from "@/lib/paths";
+import { query, getDocs, orderBy } from "firebase/firestore";
+import { Loader2, Plus } from "lucide-react";
+import type { Plant, LogEntry } from "@/types";
+import { PlantCard } from "@/components/plant/plant-card";
+
+export default function PlantsListPage() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuthUser();
+  const userId = user?.uid ?? null;
+  const [isLoading, setIsLoading] = useState(true);
+  const [plants, setPlants] = useState<Plant[]>([]);
+  const [lastWaterings, setLastWaterings] = useState<Record<string, LogEntry>>(
+    {}
+  );
+  const [lastFeedings, setLastFeedings] = useState<Record<string, LogEntry>>(
+    {}
+  );
+  const [lastTrainings, setLastTrainings] = useState<Record<string, LogEntry>>(
+    {}
+  );
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
+  }, [authLoading, user, router]);
+
+  useEffect(() => {
+    const fetchPlants = async () => {
+      if (!userId) return;
+      try {
+        const q = query(plantsCol(userId));
+        const snap = await getDocs(q);
+        const list: Plant[] = [];
+        for (const d of snap.docs) {
+          const p = { id: d.id, ...d.data() } as Plant;
+          list.push(p);
+          try {
+            const lq = query(logsCol(userId, d.id), orderBy("date", "desc"));
+            const ls = await getDocs(lq);
+            const all = ls.docs.map((x) => ({
+              id: x.id,
+              ...x.data(),
+            })) as LogEntry[];
+            const w = all.find((l) => l.type === "watering");
+            const f = all.find((l) => l.type === "feeding");
+            const tr = all.find((l) => l.type === "training");
+            if (w) setLastWaterings((prev) => ({ ...prev, [d.id]: w }));
+            if (f) setLastFeedings((prev) => ({ ...prev, [d.id]: f }));
+            if (tr) setLastTrainings((prev) => ({ ...prev, [d.id]: tr }));
+          } catch {
+            // ignore per-plant logs errors
+          }
+        }
+        setPlants(list);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (userId) void fetchPlants();
+  }, [userId]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return plants;
+    const q = search.toLowerCase();
+    return plants.filter((p) => p.name.toLowerCase().includes(q));
+  }, [plants, search]);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">{t("dashboard.yourPlants")}</h1>
+          <p className="text-muted-foreground">
+            {t("features.management.desc")}
+          </p>
+        </div>
+        <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+          <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+        </Button>
+      </div>
+
+      <div className="mb-4">
+        <Input
+          placeholder={t("search.placeholder")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {filtered.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((plant) => (
+            <PlantCard
+              key={plant.id}
+              plant={plant}
+              lastWatering={lastWaterings[plant.id]}
+              lastFeeding={lastFeedings[plant.id]}
+              lastTraining={lastTrainings[plant.id]}
+            />
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("dashboard.noPlants")}</CardTitle>
+            <CardDescription>{t("dashboard.noPlantDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+              <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </Layout>
+  );
+}

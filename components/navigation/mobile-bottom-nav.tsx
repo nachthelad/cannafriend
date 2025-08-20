@@ -5,7 +5,15 @@ import type React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Home, Calendar, Plus, Settings, Package, Brain } from "lucide-react";
+import {
+  Home,
+  Calendar,
+  Plus,
+  Settings,
+  Package,
+  Brain,
+  FlaskConical,
+} from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { cn } from "@/lib/utils";
 import {
@@ -24,6 +32,7 @@ import {
   ROUTE_SETTINGS,
   ROUTE_AI_CONSUMER,
   ROUTE_STASH,
+  ROUTE_NUTRIENTS,
 } from "@/lib/routes";
 
 export function MobileBottomNav(): React.ReactElement {
@@ -156,19 +165,19 @@ export function MobileBottomNav(): React.ReactElement {
               )}
             </div>
 
-            {/* Slot 4: grower = Reminders, consumer-only = AI Chat when premium */}
+            {/* Slot 4: grower = Nutrients, consumer-only = AI Chat when premium */}
             {roles.grower ? (
               <Link
-                href={ROUTE_STASH}
+                href={ROUTE_NUTRIENTS}
                 className={cn(
                   "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_STASH)
+                  isActive(ROUTE_NUTRIENTS)
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                aria-label="Stash"
+                aria-label="Nutrients"
               >
-                <Package className="h-5 w-5" />
+                <FlaskConical className="h-5 w-5" />
               </Link>
             ) : roles.consumer ? (
               <Link

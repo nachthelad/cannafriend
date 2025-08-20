@@ -45,6 +45,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isProd = process.env.NODE_ENV === "production";
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -67,23 +68,37 @@ export default function RootLayout({
           sizes="32x32"
           href="/favicon-32x32.png"
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
+        {isProd ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function () {
+                    navigator.serviceWorker.register('/sw.js').catch(function (err) {
+                      console.log('SW registration failed:', err);
                     });
-                });
-              }
-            `,
-          }}
-        />
+                  });
+                }
+              `,
+            }}
+          />
+        ) : (
+          <script
+            // In development, ensure no SW/caches interfere with HMR
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(regs){
+                    regs.forEach(function(reg){ reg.unregister(); });
+                  });
+                }
+                if (window.caches) {
+                  caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); });
+                }
+              `,
+            }}
+          />
+        )}
       </head>
       <body className={inter.className}>
         <LanguageProvider>

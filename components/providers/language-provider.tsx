@@ -702,6 +702,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "search.noResults": "No se encontraron resultados",
         "search.searching": "Buscando...",
 
+        // Nutrients
+        "nutrients.title": "Nutrientes",
+        "nutrients.description": "Mezclas guardadas (NPK y notas).",
+        "nutrients.empty": "Sin mezclas",
+        "nutrients.emptyDesc": "Agrega tu primera mezcla para empezar",
+
         // Plant Card
         "plantCard.lastWatering": "Último riego",
         "plantCard.noWateringRecords": "No hay registros de riego",
@@ -1432,6 +1438,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "search.placeholder": "Search plants, logs...",
         "search.noResults": "No results found",
         "search.searching": "Searching...",
+
+        // Nutrients
+        "nutrients.title": "Nutrients",
+        "nutrients.description": "Saved mixes (NPK and notes).",
+        "nutrients.empty": "No mixes",
+        "nutrients.emptyDesc": "Add your first mix to get started",
 
         // Plant Card
         "plantCard.lastWatering": "Last watering",

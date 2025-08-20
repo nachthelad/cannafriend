@@ -8,6 +8,7 @@ export const COLLECTIONS = {
   LOGS: "logs",
   ENVIRONMENT: "environment",
   REMINDERS: "reminders",
+  NUTRIENT_MIXES: "nutrientMixes",
 } as const;
 
 // Storage paths
@@ -56,6 +57,17 @@ export const buildReminderPath = (
   reminderId: string
 ): string => {
   return `${COLLECTIONS.USERS}/${userId}/${COLLECTIONS.REMINDERS}/${reminderId}`;
+};
+
+export const buildNutrientMixesPath = (userId: string): string => {
+  return `${COLLECTIONS.USERS}/${userId}/${COLLECTIONS.NUTRIENT_MIXES}`;
+};
+
+export const buildNutrientMixPath = (
+  userId: string,
+  mixId: string
+): string => {
+  return `${COLLECTIONS.USERS}/${userId}/${COLLECTIONS.NUTRIENT_MIXES}/${mixId}`;
 };
 
 // Storage path builders
