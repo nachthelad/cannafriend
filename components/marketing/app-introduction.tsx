@@ -16,7 +16,7 @@ export function AppIntroduction({ className = "" }: AppIntroductionProps) {
         {t("app.name")}
       </h1>
       <p className="text-lg text-gray-600 dark:text-gray-200 mb-6">
-        Tu compañero perfecto para el cultivo de plantas
+        {t("landing.hero")}
       </p>
     </div>
   );

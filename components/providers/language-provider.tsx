@@ -85,6 +85,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.view": "Ver",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
+        "app.installPWA": "Instalar App",
+        "app.installPWADesc":
+          "Instala CannaFriend en tu dispositivo para acceder rápidamente",
         "landing.hero":
           "Tu compañero perfecto para el cultivo de plantas. Registra, monitorea y optimiza el crecimiento de tus plantas de manera profesional.",
 
@@ -111,7 +114,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.search.desc":
           "Encuentra rápidamente plantas, registros y actividades específicas",
         "features.section.grower": "Modo Cultivador",
+        "features.section.growerDesc":
+          "Herramientas completas para documentar y optimizar cada etapa de tu cultivo, desde la germinación hasta la cosecha.",
         "features.section.consumer": "Modo Fumador",
+        "features.section.consumerDesc":
+          "Registra y analiza tu consumo de cannabis para tomar decisiones más informadas y disfrutar experiencias más consistentes.",
         "features.consumer.sessions.title": "Sesiones",
         "features.consumer.sessions.desc":
           "Carga sesiones con variedad, método (pipe, vaper, joint, etc.), cantidad, fecha/horario y notas",
@@ -124,6 +131,157 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.consumer.photos.title": "Fotos",
         "features.consumer.photos.desc":
           "Adjunta imágenes a tus sesiones para documentar",
+
+        // Landing page specific feature aliases
+        "features.plantManagement.title": "Gestión de Plantas",
+        "features.plantManagement.desc":
+          "Organiza múltiples cultivos con información detallada de cada planta: variedad, banco de semillas, fechas y ciclo de luz.",
+        "features.growJournal.title": "Diario de Cultivo",
+        "features.growJournal.desc":
+          "Registra riegos, fertilizaciones, entrenamientos y cambios de fase. Mantén un historial completo de cada actividad.",
+        "features.photoGallery.title": "Galería de Fotos",
+        "features.photoGallery.desc":
+          "Documenta el progreso visual de tus plantas con fotos organizadas por fecha. Perfecta para comparar el crecimiento.",
+        "features.environmentControl.title": "Control Ambiental",
+        "features.environmentControl.desc":
+          "Registra temperatura, humedad, pH y horas de luz para mantener las condiciones óptimas de cultivo.",
+        "features.nutrientMixes.title": "Mezclas de Nutrientes",
+        "features.nutrientMixes.desc":
+          "Guarda tus recetas de fertilización con proporciones NPK y notas personalizadas para replicar exitosamente.",
+        "features.sessionTracking.title": "Registro de Sesiones",
+        "features.sessionTracking.desc":
+          "Documenta tus experiencias: variedad consumida, método (porro, pipa, vaporizador), cantidad y efectos percibidos.",
+        "features.consumptionHistory.title": "Historial Completo",
+        "features.consumptionHistory.desc":
+          "Consulta tu historial de consumo, identifica patrones y descubre qué variedades y métodos te funcionan mejor.",
+        "features.favoriteStrains.title": "Variedades Favoritas",
+        "features.favoriteStrains.desc":
+          "Marca tus cepas preferidas, anota efectos y sabores para recordar cuáles repetir en el futuro.",
+        "features.personalInventory.title": "Inventario Personal",
+        "features.personalInventory.desc":
+          "Lleva control de tu stash: flores, extractos y comestibles con información de THC, CBD y fechas de compra.",
+
+        // Navigation
+        "nav.features": "Características",
+        "nav.functions": "Funciones",
+        "nav.ai": "IA",
+        "nav.goToApp": "Ir a la App",
+        "nav.dashboard": "Panel de Control",
+        "nav.addPlant": "Agregar Planta",
+        "nav.journal": "Diario",
+        "nav.settings": "Configuración",
+        "nav.signOut": "Cerrar Sesión",
+        "nav.menu": "Menú de Navegación",
+
+        // Stats section
+        "stats.free": "Gratis",
+        "stats.mobileApp": "App Móvil",
+        "stats.aiComingSoon": "IA Próximamente",
+        "stats.worksOffline": "Funciona Offline",
+
+        // Landing page sections
+        "landing.whyChoose": "¿Por qué elegir CannaFriend?",
+        "landing.whyChooseDesc":
+          "Una solución completa que se adapta a tu estilo de vida cannábico con herramientas profesionales y fáciles de usar.",
+
+        // Benefits
+        "benefits.cannabisSpecific": "Específico para Cannabis",
+        "benefits.cannabisSpecificDesc":
+          "Diseñado específicamente para las necesidades úniques del cultivo y consumo de cannabis.",
+        "benefits.easyToUse": "Fácil de Usar",
+        "benefits.easyToUseDesc":
+          "Interfaz intuitiva que hace que documentar tu cultivo y sesiones sea simple y rápido.",
+        "benefits.alwaysAvailable": "Siempre Disponible",
+        "benefits.alwaysAvailableDesc":
+          "Accede a tus datos desde cualquier dispositivo, en cualquier momento, incluso sin conexión.",
+        "benefits.completelyPrivate": "Completamente Privado",
+        "benefits.completelyPrivateDesc":
+          "Tus datos están seguros y privados. Solo tú tienes acceso a tu información personal.",
+        "benefits.continuousImprovement": "Mejora Continua",
+        "benefits.continuousImprovementDesc":
+          "Actualizaciones regulares con nuevas funciones basadas en feedback de la comunidad.",
+        "benefits.betterResults": "Mejores Resultados",
+        "benefits.betterResultsDesc":
+          "Optimiza tu cultivo y experiencia con datos organizados y análisis inteligente.",
+
+        // Hero section
+        "hero.subtitle":
+          "Tu compañero digital para el cultivo y consumo consciente de cannabis",
+        "hero.description":
+          "Documenta tu cultivo, registra tus sesiones y optimiza tu experiencia cannábica con herramientas profesionales y fáciles de usar.",
+        "hero.startFree": "Comenzar Gratis",
+        "hero.professionalGrowing": "Cultivo Profesional",
+        "hero.professionalGrowingDesc":
+          "Registra riegos, fertilizaciones y el crecimiento de tus plantas como un experto",
+        "hero.documentEverything": "Documenta Todo",
+        "hero.documentEverythingDesc":
+          "Galería de fotos, diario de actividades y seguimiento de sesiones en un solo lugar",
+        "hero.aiComingSoon": "IA Próximamente",
+        "hero.aiComingSoonDesc":
+          "Análisis inteligente de plantas y recomendaciones personalizadas (Premium)",
+
+        // CTA section
+        "cta.title": "Comienza tu viaje cannábico digital hoy",
+        "cta.description":
+          "Únete a la comunidad de cultivadores y consumidores que ya utilizan CannaFriend para documentar, optimizar y disfrutar su experiencia con el cannabis.",
+        "cta.startFreeNow": "Comenzar Gratis Ahora",
+        "cta.installApp": "Instalar App",
+        "cta.completelyFree": "Completamente Gratuito",
+        "cta.completelyFreeDesc":
+          "Accede a todas las funciones básicas sin costo. Nunca te cobraremos por las herramientas esenciales.",
+        "cta.totalPrivacy": "Privacidad Total",
+        "cta.totalPrivacyDesc":
+          "Tus datos de cultivo y consumo son completamente privados. Solo tú tienes acceso a tu información personal.",
+        "cta.instantAccess": "Acceso Instantáneo",
+        "cta.instantAccessDesc":
+          "Instalable como app en tu teléfono. Funciona sin conexión para que nunca pierdas tus registros.",
+        "cta.mobileTitle": "Perfecta para usar en tu teléfono",
+        "cta.mobileDesc":
+          "CannaFriend está optimizada para móviles y se puede instalar como una app nativa. Lleva tu diario de cultivo y sesiones siempre contigo, incluso sin internet.",
+        "cta.installAsApp": "📱 Instala como app",
+        "cta.worksOffline": "🔄 Funciona sin internet",
+        "cta.loadsInstantly": "⚡ Carga al instante",
+        "cta.pushNotifications": "🔔 Recordatorios push",
+
+        // App Showcase section
+        "showcase.title": "Diseñado para cultivadores y consumidores",
+        "showcase.description":
+          "CannaFriend adapta sus funciones a tu estilo de vida cannábico, ya seas cultivador, consumidor, o ambos.",
+        "showcase.growerMode": "Modo Cultivador",
+        "showcase.growerModeDesc":
+          "Herramientas completas para documentar y optimizar cada etapa de tu cultivo, desde la germinación hasta la cosecha.",
+        "showcase.consumerMode": "Modo Consumidor",
+        "showcase.consumerModeDesc":
+          "Registra y analiza tu consumo de cannabis para tomar decisiones más informadas y disfrutar experiencias más consistentes.",
+        "showcase.aiTitle": "Análisis con Inteligencia Artificial",
+        "showcase.aiDesc":
+          "Muy pronto podrás subir fotos de tus plantas y recibir análisis detallados con recomendaciones específicas. Esta función estará disponible como parte de nuestro plan Premium.",
+        "showcase.comingSoon": "PRÓXIMAMENTE",
+        "showcase.autoDetection": "🔍 Detección Automática:",
+        "showcase.nutrientDeficiencies":
+          "• Deficiencias de nutrientes (N, P, K, Mg, Ca)",
+        "showcase.commonPests": "• Plagas comunes (ácaros, trips, pulgones)",
+        "showcase.fungalDiseases": "• Enfermedades fúngicas",
+        "showcase.phProblems": "• Problemas de pH y sobrefertilización",
+        "showcase.intelligentRecommendations":
+          "💡 Recomendaciones Inteligentes:",
+        "showcase.fertilizationAdjustments":
+          "• Ajustes específicos de fertilización",
+        "showcase.organicTreatments": "• Tratamientos orgánicos recomendados",
+        "showcase.wateringChanges": "• Cambios en el programa de riego",
+        "showcase.environmentOptimization":
+          "• Optimización del ambiente de cultivo",
+        "showcase.whenAvailable": "¿Cuándo estará disponible?",
+        "showcase.whenAvailableDesc":
+          "Estamos trabajando para lanzar esta función a principios de 2025. Los usuarios actuales recibirán acceso anticipado y descuentos especiales en el plan Premium.",
+
+        // Footer
+        "footer.features": "Características",
+        "footer.support": "Soporte",
+        "footer.contact": "Contacto/Reportar Bug",
+        "footer.copyright":
+          "© 2024 Cannafriend. Todos los derechos reservados.",
+        "footer.version": "v0.1.0",
 
         // Login/Signup
         "login.title": "Iniciar Sesión",
@@ -424,15 +582,6 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "settings.reauthRequired":
           "Por seguridad, vuelve a iniciar sesión y reintenta.",
 
-        // Navigation
-        "nav.dashboard": "Panel de Control",
-        "nav.addPlant": "Agregar Planta",
-        "nav.journal": "Diario",
-        "nav.settings": "Configuración",
-        "nav.signOut": "Cerrar Sesión",
-        "nav.menu": "Menú de Navegación",
-        "nav.goToApp": "Ir a la app",
-
         // Journal
         "journal.title": "Diario de Cultivo",
         "journal.description":
@@ -528,6 +677,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         // Auth Errors
         "auth.error": "Error de autenticación",
+        "auth.checking": "Verificando sesión...",
+        "auth.redirecting": "Redirigiendo...",
         "auth.userNotFound": "Usuario no encontrado",
         "auth.wrongPassword": "Contraseña incorrecta",
         "auth.emailAlreadyInUse": "El correo electrónico ya está en uso",
@@ -834,6 +985,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.view": "View",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
+        "app.installPWA": "Install App",
+        "app.installPWADesc":
+          "Install CannaFriend on your device for quick access",
         "landing.hero":
           "Your perfect companion for plant growing. Record, monitor, and optimize your plants' growth like a pro.",
 
@@ -860,7 +1014,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.search.desc":
           "Quickly find plants, logs and specific activities",
         "features.section.grower": "Grower mode",
+        "features.section.growerDesc":
+          "Complete tools to document and optimize every stage of your grow, from germination to harvest.",
         "features.section.consumer": "Consumer mode",
+        "features.section.consumerDesc":
+          "Track and analyze your cannabis consumption to make more informed decisions and enjoy more consistent experiences.",
         "features.consumer.sessions.title": "Sessions",
         "features.consumer.sessions.desc":
           "Log sessions with strain, method (pipe, vape, joint, etc.), amount, date/time and notes",
@@ -872,6 +1030,159 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "features.consumer.photos.title": "Photos",
         "features.consumer.photos.desc":
           "Attach images to your sessions to document",
+
+        // Landing page specific feature aliases
+        "features.plantManagement.title": "Plant Management",
+        "features.plantManagement.desc":
+          "Organize multiple grows with detailed information for each plant: variety, seed bank, dates, and light cycle.",
+        "features.growJournal.title": "Grow Journal",
+        "features.growJournal.desc":
+          "Record watering, feeding, training, and phase changes. Keep a complete history of every activity.",
+        "features.photoGallery.title": "Photo Gallery",
+        "features.photoGallery.desc":
+          "Document your plants' visual progress with date-organized photos. Perfect for comparing growth.",
+        "features.environmentControl.title": "Environmental Control",
+        "features.environmentControl.desc":
+          "Record temperature, humidity, pH, and light hours to maintain optimal growing conditions.",
+        "features.nutrientMixes.title": "Nutrient Mixes",
+        "features.nutrientMixes.desc":
+          "Save your fertilization recipes with NPK ratios and personalized notes for successful replication.",
+        "features.sessionTracking.title": "Session Tracking",
+        "features.sessionTracking.desc":
+          "Document your experiences: strain consumed, method (joint, pipe, vaporizer), amount, and perceived effects.",
+        "features.consumptionHistory.title": "Complete History",
+        "features.consumptionHistory.desc":
+          "Review your consumption history, identify patterns, and discover which strains and methods work best for you.",
+        "features.favoriteStrains.title": "Favorite Strains",
+        "features.favoriteStrains.desc":
+          "Mark your preferred strains, note effects and flavors to remember which ones to repeat in the future.",
+        "features.personalInventory.title": "Personal Inventory",
+        "features.personalInventory.desc":
+          "Keep track of your stash: flowers, extracts, and edibles with THC, CBD info and purchase dates.",
+
+        // Stats section
+        "stats.free": "Free",
+        "stats.mobileApp": "Mobile App",
+        "stats.aiComingSoon": "AI Coming Soon",
+        "stats.worksOffline": "Works Offline",
+
+        // Landing page sections
+        "landing.whyChoose": "Why Choose CannaFriend?",
+        "landing.whyChooseDesc":
+          "A complete solution that adapts to your cannabis lifestyle with professional and easy-to-use tools.",
+
+        // Benefits
+        "benefits.cannabisSpecific": "Cannabis Specific",
+        "benefits.cannabisSpecificDesc":
+          "Designed specifically for the unique needs of cannabis cultivation and consumption.",
+        "benefits.easyToUse": "Easy to Use",
+        "benefits.easyToUseDesc":
+          "Intuitive interface that makes documenting your grows and sessions simple and fast.",
+        "benefits.alwaysAvailable": "Always Available",
+        "benefits.alwaysAvailableDesc":
+          "Access your data from any device, anytime, even without an internet connection.",
+        "benefits.completelyPrivate": "Completely Private",
+        "benefits.completelyPrivateDesc":
+          "Your data is secure and private. Only you have access to your personal information.",
+        "benefits.continuousImprovement": "Continuous Improvement",
+        "benefits.continuousImprovementDesc":
+          "Regular updates with new features based on community feedback.",
+        "benefits.betterResults": "Better Results",
+        "benefits.betterResultsDesc":
+          "Optimize your growing and experience with organized data and intelligent analysis.",
+        "benefits.professionalCultivation": "Professional Cultivation",
+        "benefits.professionalCultivationDesc":
+          "Record watering, fertilization, and plant growth like an expert",
+        "benefits.documentEverything": "Document Everything",
+        "benefits.documentEverythingDesc":
+          "Photo gallery, activity diary, and session tracking all in one place",
+        "benefits.aiComingSoon": "AI Coming Soon",
+        "benefits.aiComingSoonDesc":
+          "Intelligent plant analysis and personalized recommendations (Premium)",
+        "benefits.completelyFree": "Completely Free",
+        "benefits.completelyFreeDesc":
+          "Access all basic features at no cost. We'll never charge you for essential tools.",
+        "benefits.totalPrivacy": "Total Privacy",
+        "benefits.totalPrivacyDesc":
+          "Your cultivation and consumption data is completely private. Only you have access to your personal information.",
+
+        // Hero section
+        "hero.subtitle":
+          "Your digital companion for conscious cannabis cultivation and consumption",
+        "hero.description":
+          "Document your grow, record your sessions, and optimize your cannabis experience with professional and easy-to-use tools.",
+        "hero.startFree": "Start Free",
+        "hero.professionalGrowing": "Professional Growing",
+        "hero.professionalGrowingDesc":
+          "Record watering, feeding, and plant growth like an expert",
+        "hero.documentEverything": "Document Everything",
+        "hero.documentEverythingDesc":
+          "Photo gallery, activity journal, and session tracking all in one place",
+        "hero.aiComingSoon": "AI Coming Soon",
+        "hero.aiComingSoonDesc":
+          "Intelligent plant analysis and personalized recommendations (Premium)",
+
+        // CTA section
+        "cta.title": "Start your digital cannabis journey today",
+        "cta.description":
+          "Join the community of growers and consumers already using CannaFriend to document, optimize, and enjoy their cannabis experience.",
+        "cta.startFreeNow": "Start Free Now",
+        "cta.installApp": "Install App",
+        "cta.completelyFree": "Completely Free",
+        "cta.completelyFreeDesc":
+          "Access all basic features at no cost. We'll never charge you for essential tools.",
+        "cta.totalPrivacy": "Total Privacy",
+        "cta.totalPrivacyDesc":
+          "Your growing and consumption data is completely private. Only you have access to your personal information.",
+        "cta.instantAccess": "Instant Access",
+        "cta.instantAccessDesc":
+          "Installable as an app on your phone. Works offline so you never lose your records.",
+        "cta.mobileTitle": "Perfect for use on your phone",
+        "cta.mobileDesc":
+          "CannaFriend is optimized for mobile and can be installed as a native app. Take your grow journal and sessions with you everywhere, even without internet.",
+        "cta.installAsApp": "📱 Install as app",
+        "cta.worksOffline": "🔄 Works offline",
+        "cta.loadsInstantly": "⚡ Loads instantly",
+        "cta.pushNotifications": "🔔 Push reminders",
+
+        // App Showcase section
+        "showcase.title": "Designed for growers and consumers",
+        "showcase.description":
+          "CannaFriend adapts its features to your cannabis lifestyle, whether you're a grower, consumer, or both.",
+        "showcase.growerMode": "Grower Mode",
+        "showcase.growerModeDesc":
+          "Complete tools to document and optimize every stage of your grow, from germination to harvest.",
+        "showcase.consumerMode": "Consumer Mode",
+        "showcase.consumerModeDesc":
+          "Track and analyze your cannabis consumption to make more informed decisions and enjoy more consistent experiences.",
+        "showcase.aiTitle": "Artificial Intelligence Analysis",
+        "showcase.aiDesc":
+          "Soon you'll be able to upload photos of your plants and receive detailed analysis with specific recommendations. This feature will be available as part of our Premium plan.",
+        "showcase.comingSoon": "COMING SOON",
+        "showcase.autoDetection": "🔍 Automatic Detection:",
+        "showcase.nutrientDeficiencies":
+          "• Nutrient deficiencies (N, P, K, Mg, Ca)",
+        "showcase.commonPests": "• Common pests (mites, thrips, aphids)",
+        "showcase.fungalDiseases": "• Fungal diseases",
+        "showcase.phProblems": "• pH problems and over-fertilization",
+        "showcase.intelligentRecommendations":
+          "💡 Intelligent Recommendations:",
+        "showcase.fertilizationAdjustments":
+          "• Specific fertilization adjustments",
+        "showcase.organicTreatments": "• Recommended organic treatments",
+        "showcase.wateringChanges": "• Watering schedule changes",
+        "showcase.environmentOptimization":
+          "• Growing environment optimization",
+        "showcase.whenAvailable": "When will it be available?",
+        "showcase.whenAvailableDesc":
+          "We're working to launch this feature in early 2025. Current users will receive early access and special discounts on the Premium plan.",
+
+        // Footer
+        "footer.features": "Features",
+        "footer.support": "Support",
+        "footer.contact": "Contact/Report Bug",
+        "footer.copyright": "© 2024 Cannafriend. All rights reserved.",
+        "footer.version": "v0.1.0",
 
         // Login/Signup
         "login.title": "Login",
@@ -1172,7 +1483,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "nav.settings": "Settings",
         "nav.signOut": "Sign Out",
         "nav.menu": "Navigation Menu",
-        "nav.goToApp": "Go to app",
+        "nav.features": "Features",
+        "nav.functions": "Functions",
+        "nav.ai": "AI",
+        "nav.goToApp": "Go to App",
 
         // Journal
         "journal.title": "Grow Journal",
@@ -1267,6 +1581,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         // Auth Errors
         "auth.error": "Authentication error",
+        "auth.checking": "Checking session...",
+        "auth.redirecting": "Redirecting...",
         "auth.userNotFound": "User not found",
         "auth.wrongPassword": "Wrong password",
         "auth.emailAlreadyInUse": "Email already in use",
