@@ -3,47 +3,70 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import Link from "next/link";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
-import {
-  ROUTE_LOGIN,
-  ROUTE_ONBOARDING,
-  ROUTE_DASHBOARD,
-  ROUTE_PRIVACY,
-  ROUTE_TERMS,
-  resolveHomePathForRoles,
-} from "@/lib/routes";
+import { auth } from "@/lib/firebase";
+import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
-import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
-import Logo from "@/components/common/logo";
-import { MobileHeader } from "@/components/marketing/mobile-header";
-import { AppIntroduction } from "@/components/marketing/app-introduction";
-import { FeaturesSection } from "@/components/marketing/features-section";
-// Unify features into a single responsive component
-import { LoginModal } from "@/components/auth/login-modal";
 import { CookieConsent } from "@/components/common/cookie-consent";
+import { AuthLoadingView } from "@/components/marketing/auth-loading-view";
+import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
+import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
 
 export default function Home() {
-  const { t } = useTranslation();
   const router = useRouter();
+  
+  // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  
+  // UI state
   const [loginOpen, setLoginOpen] = useState(false);
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  
+  // AdSense should only load on desktop public marketing view
   const shouldLoadAds = !isLoggedIn && !loginOpen && hasConsent === true;
 
+  // Authentication state management
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is logged in, redirect to appropriate home page
+        try {
+          const snap = await getDoc(userDoc(user.uid));
+          if (!snap.exists()) {
+            router.push(ROUTE_ONBOARDING);
+            return;
+          }
+          const data = snap.data() as any;
+          const roles = data?.roles || { grower: true, consumer: false };
+          router.push(resolveHomePathForRoles(roles));
+          return;
+        } catch {
+          router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
+          return;
+        }
+      }
       setIsLoggedIn(Boolean(user));
       setCheckingAuth(false);
     });
     return () => unsub();
+  }, [router]);
+
+  // PWA Install prompt handling
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    return () =>
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  // Open modal if query param auth=1 is present
+  // Handle login modal query parameter
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -52,7 +75,7 @@ export default function Home() {
     }
   }, []);
 
-  // Handle cookie consent state
+  // Cookie consent state management
   useEffect(() => {
     if (typeof window === "undefined") return;
     const consent = localStorage.getItem("cookie-consent");
@@ -69,10 +92,11 @@ export default function Home() {
       window.removeEventListener("cookie-consent-changed", onChange as any);
   }, []);
 
+  // Handlers
   const handleDesktopLoginClick = async () => {
     const user = auth.currentUser;
     if (!user) {
-      router.push(ROUTE_LOGIN);
+      setLoginOpen(true);
       return;
     }
     try {
@@ -89,121 +113,52 @@ export default function Home() {
     }
   };
 
+  const handleInstallPWA = async () => {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === "accepted") {
+      setDeferredPrompt(null);
+    }
+  };
+
+  // Show loading view while checking authentication
+  if (checkingAuth) {
+    return <AuthLoadingView />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-      {/* Load AdSense only on public marketing view (no login modal) */}
-      {shouldLoadAds ? (
+      {/* Load AdSense only on desktop public marketing view */}
+      {shouldLoadAds && (
         <Script
           id="adsbygoogle-init"
           strategy="afterInteractive"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
           crossOrigin="anonymous"
         />
-      ) : null}
-      {/* Mobile Layout */}
+      )}
+
+      {/* Mobile Layout - Direct Login Screen */}
       <div className="block lg:hidden">
-        <div className="p-4">
-          {/* Header with login/go-to-app depending on auth */}
-          <MobileHeader
-            isLoggedIn={isLoggedIn}
-            onPrimaryClick={() => {
-              if (isLoggedIn) {
-                void handleDesktopLoginClick();
-              } else {
-                setLoginOpen(true);
-              }
-            }}
-          />
-
-          {/* App Introduction */}
-          <AppIntroduction />
-
-          {/* Features Grid */}
-          <FeaturesSection className="mb-8" />
-
-          {/* Mobile Footer */}
-          <footer className="border-t border-border/50 pt-6 mt-8">
-            <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
-              <Link
-                href={ROUTE_PRIVACY}
-                className="hover:text-primary transition-colors"
-              >
-                {t("privacy.title")}
-              </Link>
-              <span>•</span>
-              <Link
-                href={ROUTE_TERMS}
-                className="hover:text-primary transition-colors"
-              >
-                {t("terms.title")}
-              </Link>
-            </div>
-          </footer>
-
-          {/* Login Modal trigger handled by header button */}
-        </div>
-        <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
+        <MobileLandingView />
       </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex min-h-screen flex-col">
-        {/* Top bar with login button */}
-        <div className="h-16 flex items-center justify-end px-8">
-          <Button
-            onClick={() => {
-              if (isLoggedIn) {
-                void handleDesktopLoginClick();
-              } else {
-                setLoginOpen(true);
-              }
-            }}
-            disabled={checkingAuth}
-          >
-            {isLoggedIn ? t("nav.goToApp" as any) : t("login.title")}
-          </Button>
-        </div>
-
-        {/* Hero */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center max-w-3xl">
-            <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              <Logo size={36} className="text-primary" /> {t("app.name")}
-            </h1>
-            <p className="text-xl text-gray-700 dark:text-gray-200">
-              {t("landing.hero")}
-            </p>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="flex-1 flex justify-center p-8 pt-0">
-          <div className="w-full max-w-6xl">
-            <FeaturesSection className="grid-cols-2" />
-          </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="border-t border-border/50 p-8">
-          <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
-            <Link
-              href="/privacy"
-              className="hover:text-primary transition-colors"
-            >
-              {t("privacy.title")}
-            </Link>
-            <span>•</span>
-            <Link
-              href="/terms"
-              className="hover:text-primary transition-colors"
-            >
-              {t("terms.title")}
-            </Link>
-          </div>
-        </footer>
+      {/* Desktop Layout - Marketing Page */}
+      <div className="hidden lg:block">
+        <DesktopLandingView
+          isLoggedIn={isLoggedIn}
+          loginOpen={loginOpen}
+          onLoginOpenChange={setLoginOpen}
+          onLoginClick={handleDesktopLoginClick}
+          deferredPrompt={deferredPrompt}
+          onInstallPWA={handleInstallPWA}
+        />
       </div>
-      {/* Desktop modal as well */}
-      <LoginModal open={loginOpen} onOpenChange={setLoginOpen} />
-      {/* Cookie consent banner for public page */}
+
+      {/* Cookie consent banner */}
       <CookieConsent />
     </div>
   );
