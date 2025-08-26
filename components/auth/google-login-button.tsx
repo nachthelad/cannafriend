@@ -18,6 +18,7 @@ interface GoogleLoginButtonProps {
   className?: string;
   size?: "default" | "sm" | "lg" | "icon";
   onSuccess?: () => void;
+  onAuthStart?: () => void;
 }
 
 export function GoogleLoginButton({
@@ -25,6 +26,7 @@ export function GoogleLoginButton({
   className = "",
   size = "default",
   onSuccess,
+  onAuthStart,
 }: GoogleLoginButtonProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -36,28 +38,9 @@ export function GoogleLoginButton({
     setIsLoading(true);
 
     try {
-      // Clear any existing auth state first to prevent internal-error
-      if (auth.currentUser) {
-        await signOut(auth);
-      }
-
-      // Clear any cached auth state
-      if (typeof window !== 'undefined') {
-        // Clear localStorage auth persistence
-        const authKeys = Object.keys(localStorage).filter(key => 
-          key.startsWith('firebase:authUser') || 
-          key.startsWith('firebase:persistence')
-        );
-        authKeys.forEach(key => localStorage.removeItem(key));
-        
-        // Clear sessionStorage as well
-        const authSessionKeys = Object.keys(sessionStorage).filter(key => 
-          key.startsWith('firebase:authUser') || 
-          key.startsWith('firebase:persistence')
-        );
-        authSessionKeys.forEach(key => sessionStorage.removeItem(key));
-      }
-
+      // Notify that auth process is starting
+      onAuthStart?.();
+      
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
