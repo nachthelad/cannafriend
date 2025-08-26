@@ -12,7 +12,7 @@ import { auth } from "@/lib/firebase";
 import { getDocs, orderBy, query, onSnapshot } from "firebase/firestore";
 import { consumerChatsCol } from "@/lib/paths";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { Loader2 } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useTranslation } from "@/hooks/use-translation";
 import { consumerChatDetailPath } from "@/lib/routes";
 import { usePremium } from "@/hooks/use-premium";
@@ -76,7 +76,7 @@ export default function ConsumerChatListPage() {
             <CardContent className="p-4 space-y-2">
               {loading ? (
                 <div className="flex justify-center items-center py-8 text-muted-foreground">
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <AnimatedLogo size={20} className="text-primary" duration={1.5} />
                 </div>
               ) : items.length === 0 ? (
                 <div className="text-sm text-muted-foreground">

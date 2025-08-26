@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Plus,
-  Loader2,
   Pencil,
   Trash2,
   ChevronDown,
@@ -24,6 +23,7 @@ import {
   Clock,
   Heart,
 } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -360,7 +360,7 @@ export default function StrainsPage() {
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       ) : sessions.length === 0 ? (
         <Card>

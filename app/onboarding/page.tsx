@@ -30,7 +30,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
-import { Loader2 } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 
 export default function OnboardingPage() {
@@ -211,7 +211,7 @@ export default function OnboardingPage() {
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
                   {t("onboarding.loading")}
                 </>
               ) : (

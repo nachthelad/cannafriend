@@ -32,12 +32,12 @@ import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import {
   Plus,
-  Loader2,
   AlertTriangle,
   ChevronDown,
   Bell,
   Brain,
 } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -250,7 +250,7 @@ export default function DashboardPage() {
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       ) : (
         <div className="space-y-6">

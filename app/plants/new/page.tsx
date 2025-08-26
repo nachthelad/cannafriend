@@ -25,7 +25,8 @@ import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { Loader2, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -332,7 +333,7 @@ export default function NewPlantPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
                     {t("newPlant.loading")}
                   </>
                 ) : (

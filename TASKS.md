@@ -37,8 +37,9 @@ This document outlines prioritized tasks to improve page loading, UI quality, an
 
 ### Loading States & Skeletons
 
-- [ ] **Add loading skeletons** - Create skeleton components for dashboard, plant lists, journal
-- [ ] **Improve loading indicators** - Replace basic spinners with branded loading animations
+- [x] **Add loading skeletons** - Create skeleton components for dashboard, plant lists, journal ✅
+- [x] **Improve loading indicators** - Replace basic spinners with branded loading animations ✅
+- [x] **Replace all Loader2 spinners** - Replaced all generic spinners with AnimatedLogo throughout app ✅
 - [ ] **Add progressive loading** - Load critical UI first, then progressive enhancement
 - [ ] **Optimize layout shift** - Prevent CLS by defining dimensions for dynamic content
 

@@ -45,7 +45,8 @@ import {
 import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
-import { Loader2, Trash2, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -434,7 +435,7 @@ export default function SettingsPage() {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       </Layout>
     );
@@ -628,7 +629,7 @@ export default function SettingsPage() {
                     >
                       {isDeletingAccount ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
                           {t("settings.deleting")}
                         </>
                       ) : (

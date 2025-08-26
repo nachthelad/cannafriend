@@ -17,7 +17,8 @@ import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 import { ImageUpload } from "@/components/common/image-upload";
-import { Loader2, Calendar, Clock } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Popover,

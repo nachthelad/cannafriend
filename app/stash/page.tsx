@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
@@ -274,7 +275,9 @@ export default function StashPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">Cargando...</div>
+        <div className="flex justify-center items-center h-64">
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        </div>
       ) : items.length === 0 ? (
         <Card>
           <CardHeader>

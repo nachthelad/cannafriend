@@ -37,12 +37,13 @@ import { AddLogForm } from "@/components/journal/add-log-form";
 import dynamic from "next/dynamic";
 
 const EnvironmentChart = dynamic(() => import("@/components/plant/environment-chart").then(mod => ({ default: mod.EnvironmentChart })), {
-  loading: () => <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>,
+  loading: () => <div className="flex justify-center py-8"><AnimatedLogo size={24} className="text-primary" duration={1.5} /></div>,
   ssr: false
 });
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
-import { Loader2, Trash2, Plus, Star } from "lucide-react";
+import { Trash2, Plus, Star } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -184,7 +185,7 @@ export default function PlantPage({
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       </Layout>
     );
