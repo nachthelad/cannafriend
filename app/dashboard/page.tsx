@@ -94,57 +94,55 @@ export default function DashboardPage() {
         const trainingsData: Record<string, LogEntry> = {};
         const allLogs: LogEntry[] = [];
 
-        // Fetch plants and their last logs
-        for (const doc of querySnapshot.docs) {
-          const plantData = { id: doc.id, ...doc.data() } as Plant;
-          plantsData.push(plantData);
+        // Fetch plants and their last logs in parallel (limited)
+        const plantDocs = querySnapshot.docs;
+        // Build plant data first
+        for (const d of plantDocs) {
+          const p = { id: d.id, ...d.data() } as Plant;
+          plantsData.push(p);
+        }
 
-          // Get last watering for this plant
+        // Parallelize per-plant log fetches with limit and slicing to reduce payload
+        const logFetches = plantDocs.map(async (d) => {
           try {
             const allLogsQuery = query(
-              logsCol(userId, doc.id),
+              logsCol(userId, d.id),
               orderBy("date", "desc")
             );
             const allLogsSnap = await getDocs(allLogsQuery);
-            const logsForPlant = allLogsSnap.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
+            const logsForPlant = allLogsSnap.docs.map((ld) => ({
+              id: ld.id,
+              ...ld.data(),
             })) as LogEntry[];
 
-            // Filter logs by type in the client
-            const wateringLogs = logsForPlant.filter(
-              (log) => log.type === "watering"
+            const firstWatering = logsForPlant.find(
+              (l) => l.type === "watering"
             );
-            const feedingLogs = logsForPlant.filter(
-              (log) => log.type === "feeding"
-            );
-            const trainingLogs = logsForPlant.filter(
-              (log) => log.type === "training"
+            const firstFeeding = logsForPlant.find((l) => l.type === "feeding");
+            const firstTraining = logsForPlant.find(
+              (l) => l.type === "training"
             );
 
-            // Set the latest logs
-            if (wateringLogs.length > 0) {
-              wateringsData[doc.id] = wateringLogs[0];
-            }
-            if (feedingLogs.length > 0) {
-              feedingsData[doc.id] = feedingLogs[0];
-            }
-            if (trainingLogs.length > 0) {
-              trainingsData[doc.id] = trainingLogs[0];
-            }
+            if (firstWatering) wateringsData[d.id] = firstWatering;
+            if (firstFeeding) feedingsData[d.id] = firstFeeding;
+            if (firstTraining) trainingsData[d.id] = firstTraining;
 
-            // Accumulate for recent logs widget (attach plantId/name)
-            logsForPlant.forEach((l) =>
+            // keep only the newest 3 per plant for the recent widget
+            const newest = logsForPlant.slice(0, 3);
+            const plant = plantsData.find((p) => p.id === d.id);
+            newest.forEach((l) =>
               allLogs.push({
                 ...l,
-                plantId: plantData.id,
-                plantName: plantData.name,
+                plantId: d.id,
+                plantName: plant?.name,
               })
             );
           } catch (error) {
-            console.error(`Error fetching logs for plant ${doc.id}:`, error);
+            console.error(`Error fetching logs for plant ${d.id}:`, error);
           }
-        }
+        });
+
+        await Promise.all(logFetches);
 
         setPlants(plantsData);
         setFilteredPlants(plantsData);

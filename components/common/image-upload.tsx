@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { storage, auth } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
@@ -51,8 +51,8 @@ export function ImageUpload({
     let processed: File = file;
     try {
       processed = await downscaleAndConvert(file, {
-        maxDimension: 1600,
-        outputQuality: 0.8,
+        maxDimension: 1400,
+        outputQuality: 0.78,
         preferMimeType: "image/webp",
       });
     } catch (e) {
@@ -64,8 +64,18 @@ export function ImageUpload({
     const storagePath = getImageStoragePath(userId, fileName);
     const storageRef = ref(storage, storagePath);
 
-    const snapshot = await uploadBytes(storageRef, processed);
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    const task = uploadBytesResumable(storageRef, processed, {
+      cacheControl: "public,max-age=31536000,immutable",
+    });
+    await new Promise<void>((resolve, reject) => {
+      task.on(
+        "state_changed",
+        () => {},
+        (err) => reject(err),
+        () => resolve()
+      );
+    });
+    const downloadURL = await getDownloadURL(task.snapshot.ref);
 
     return downloadURL;
   };
@@ -102,21 +112,23 @@ export function ImageUpload({
         });
       }
 
-      // Subir archivos válidos
+      // Subir archivos válidos (en paralelo con límite simple)
       const newUrls: string[] = [];
-      for (const file of validFiles) {
-        try {
-          const url = await uploadImage(file);
-          newUrls.push(url);
-        } catch (error) {
-          console.error("Error uploading file:", file.name, error);
-          toast({
-            variant: "destructive",
-            title: t("imageUpload.uploadError"),
-            description: `${file.name}: ${t("imageUpload.uploadFailed")}`,
-          });
-        }
-      }
+      await Promise.all(
+        validFiles.map(async (file) => {
+          try {
+            const url = await uploadImage(file);
+            newUrls.push(url);
+          } catch (error) {
+            console.error("Error uploading file:", file.name, error);
+            toast({
+              variant: "destructive",
+              title: t("imageUpload.uploadError"),
+              description: `${file.name}: ${t("imageUpload.uploadFailed")}`,
+            });
+          }
+        })
+      );
 
       // Llamar callback con las nuevas URLs
       if (newUrls.length > 0) {

@@ -24,6 +24,14 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { plantsCol, logsCol } from "@/lib/paths";
 import {
+  collectionGroup,
+  where,
+  limit,
+  startAfter,
+  type QueryDocumentSnapshot,
+  type DocumentData,
+} from "firebase/firestore";
+import {
   collection,
   query,
   getDocs,
@@ -60,6 +68,11 @@ export default function JournalPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
+  const [lastLogDoc, setLastLogDoc] =
+    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMoreLogs, setHasMoreLogs] = useState(false);
+  const [loadingMoreLogs, setLoadingMoreLogs] = useState(false);
+  const LOGS_PAGE_SIZE = 25;
 
   useEffect(() => {
     if (authLoading) return;
@@ -71,9 +84,9 @@ export default function JournalPage() {
       if (!userId) return;
 
       try {
-        // Fetch plants
-        const plantsQuery = query(plantsCol(userId));
-        const plantsSnap = await getDocs(plantsQuery);
+        // Fetch plants (for selectors and name mapping)
+        const plantsQueryRef = query(plantsCol(userId));
+        const plantsSnap = await getDocs(plantsQueryRef);
 
         const plantsData: Plant[] = [];
         plantsSnap.forEach((docSnap) => {
@@ -81,23 +94,57 @@ export default function JournalPage() {
         });
         setPlants(plantsData);
 
-        // Fetch all logs from all plants
-        const allLogs: LogEntry[] = [];
-        for (const plant of plantsData) {
-          const logsQuery = query(
-            logsCol(userId, plant.id),
-            orderBy("date", "desc")
+        // Try collectionGroup for logs (requires plantId/userId fields saved)
+        const logsGroup = collectionGroup(db, "logs");
+        const cgQuery = query(
+          logsGroup,
+          where("userId", "==", userId),
+          orderBy("date", "desc"),
+          limit(LOGS_PAGE_SIZE)
+        );
+        let cgSnap;
+        try {
+          cgSnap = await getDocs(cgQuery);
+        } catch (e: any) {
+          // Fallback: if rules deny collection group, fetch per-plant
+          const allLogs: LogEntry[] = [];
+          for (const plant of plantsData) {
+            const lq = query(
+              logsCol(userId, plant.id),
+              orderBy("date", "desc"),
+              limit(LOGS_PAGE_SIZE)
+            );
+            const ls = await getDocs(lq);
+            ls.forEach((docSnap) => {
+              allLogs.push({
+                id: docSnap.id,
+                ...(docSnap.data() as any),
+                plantId: plant.id,
+                plantName: plant.name,
+              } as LogEntry);
+            });
+          }
+          // Sort and set minimal paging state
+          allLogs.sort(
+            (a, b) =>
+              new Date(b.date as string).getTime() -
+              new Date(a.date as string).getTime()
           );
-          const logsSnap = await getDocs(logsQuery);
-          logsSnap.forEach((docSnap) => {
-            allLogs.push({
-              id: docSnap.id,
-              ...docSnap.data(),
-              plantId: plant.id,
-              plantName: plant.name,
-            } as LogEntry);
-          });
+          setLogs(allLogs);
+          setIsLoading(false);
+          return;
         }
+
+        const allLogs: LogEntry[] = [];
+        cgSnap.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          const plantName = plantsData.find((p) => p.id === data.plantId)?.name;
+          allLogs.push({ id: docSnap.id, ...data, plantName } as LogEntry);
+        });
+        setLastLogDoc(
+          cgSnap.docs.length > 0 ? cgSnap.docs[cgSnap.docs.length - 1] : null
+        );
+        setHasMoreLogs(cgSnap.docs.length === LOGS_PAGE_SIZE);
 
         // Sort by date (newest first)
         allLogs.sort(
@@ -119,6 +166,34 @@ export default function JournalPage() {
 
     if (userId) void fetchData();
   }, [userId, toast, t]);
+
+  const loadMoreLogs = async () => {
+    if (!userId || !lastLogDoc) return;
+    setLoadingMoreLogs(true);
+    try {
+      const logsGroup = collectionGroup(db, "logs");
+      const nextQuery = query(
+        logsGroup,
+        where("userId", "==", userId),
+        orderBy("date", "desc"),
+        startAfter(lastLogDoc),
+        limit(LOGS_PAGE_SIZE)
+      );
+      const snap = await getDocs(nextQuery);
+      const more: LogEntry[] = snap.docs.map((d) => {
+        const data = d.data() as any;
+        const plantName = plants.find((p) => p.id === data.plantId)?.name;
+        return { id: d.id, ...data, plantName } as LogEntry;
+      });
+      setLogs((prev) => [...prev, ...more]);
+      setLastLogDoc(
+        snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : lastLogDoc
+      );
+      setHasMoreLogs(snap.docs.length === LOGS_PAGE_SIZE);
+    } finally {
+      setLoadingMoreLogs(false);
+    }
+  };
 
   const filteredLogs = logs.filter((log) => {
     if (selectedPlant !== "all" && (log as any).plantId !== selectedPlant)
@@ -365,6 +440,24 @@ export default function JournalPage() {
               showPlantName={true}
               onDelete={handleDeleteLog}
             />
+            {hasMoreLogs && (
+              <div className="flex justify-center mt-4">
+                <Button
+                  variant="outline"
+                  onClick={loadMoreLogs}
+                  disabled={loadingMoreLogs}
+                >
+                  {loadingMoreLogs ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                      {t("common.loading")}
+                    </>
+                  ) : (
+                    t("common.loadMore")
+                  )}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

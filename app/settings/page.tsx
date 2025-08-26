@@ -97,6 +97,19 @@ export default function SettingsPage() {
       if (!userId) return;
 
       try {
+        // Try local cache first
+        const cacheKey = `cf:userSettings:${userId}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            setUserSettings(parsed);
+            // sync theme with cached
+            if (parsed.darkMode && theme !== "dark") setTheme("dark");
+            if (!parsed.darkMode && theme !== "light") setTheme("light");
+          } catch {}
+        }
+
         const userRef = userDoc(userId);
         const userSnap = await getDoc(userRef);
 
@@ -115,6 +128,24 @@ export default function SettingsPage() {
               consumer: Boolean(userData.roles?.consumer ?? false),
             },
           });
+
+          // Save to cache
+          try {
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({
+                timezone: userData.timezone || "",
+                darkMode,
+                email: auth.currentUser?.email || "",
+                providerId:
+                  auth.currentUser?.providerData?.[0]?.providerId || "",
+                roles: {
+                  grower: Boolean(userData.roles?.grower ?? true),
+                  consumer: Boolean(userData.roles?.consumer ?? false),
+                },
+              })
+            );
+          } catch {}
 
           // Sync with theme context
           if (darkMode && theme !== "dark") {
@@ -148,10 +179,11 @@ export default function SettingsPage() {
         timezone: value,
       });
 
-      setUserSettings({
-        ...userSettings,
-        timezone: value,
-      });
+      const next = { ...userSettings, timezone: value };
+      setUserSettings(next);
+      try {
+        localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
+      } catch {}
 
       toast({
         title: t("settings.timezoneUpdated"),
@@ -175,10 +207,11 @@ export default function SettingsPage() {
         darkMode: checked,
       });
 
-      setUserSettings({
-        ...userSettings,
-        darkMode: checked,
-      });
+      const next = { ...userSettings, darkMode: checked };
+      setUserSettings(next);
+      try {
+        localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
+      } catch {}
 
       // Update theme context immediately
       setTheme(checked ? "dark" : "light");
@@ -513,7 +546,14 @@ export default function SettingsPage() {
                         await updateDoc(doc(db, "users", userId), {
                           roles: newRoles,
                         });
-                        setUserSettings({ ...userSettings, roles: newRoles });
+                        const next = { ...userSettings, roles: newRoles };
+                        setUserSettings(next);
+                        try {
+                          localStorage.setItem(
+                            `cf:userSettings:${userId}`,
+                            JSON.stringify(next)
+                          );
+                        } catch {}
                         toast({ title: t("settings.updated") });
                       }}
                     />
@@ -534,7 +574,14 @@ export default function SettingsPage() {
                         await updateDoc(doc(db, "users", userId), {
                           roles: newRoles,
                         });
-                        setUserSettings({ ...userSettings, roles: newRoles });
+                        const next = { ...userSettings, roles: newRoles };
+                        setUserSettings(next);
+                        try {
+                          localStorage.setItem(
+                            `cf:userSettings:${userId}`,
+                            JSON.stringify(next)
+                          );
+                        } catch {}
                         toast({ title: t("settings.updated") });
                       }}
                     />
