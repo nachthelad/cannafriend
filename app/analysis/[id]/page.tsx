@@ -119,6 +119,7 @@ export default function AnalysisDetailsPage({
                     src={(entry as any).imageUrl}
                     alt="Analyzed"
                     className="w-full rounded"
+                    loading="lazy"
                   />
                 )}
                 <div className="text-sm">

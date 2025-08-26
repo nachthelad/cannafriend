@@ -20,7 +20,11 @@ import {
   DEFAULT_MAX_SIZE_MB,
   getImageAltText,
 } from "@/lib/image-config";
-import { ImageGalleryModal } from "@/components/plant/photos/image-gallery-modal";
+import dynamic from "next/dynamic";
+
+const ImageGalleryModal = dynamic(() => import("@/components/plant/photos/image-gallery-modal").then(mod => ({ default: mod.ImageGalleryModal })), {
+  ssr: false
+});
 
 interface PhotoGalleryProps {
   photos: string[];
