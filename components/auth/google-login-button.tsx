@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, googleProvider, db } from "@/lib/firebase";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
@@ -36,6 +36,28 @@ export function GoogleLoginButton({
     setIsLoading(true);
 
     try {
+      // Clear any existing auth state first to prevent internal-error
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+
+      // Clear any cached auth state
+      if (typeof window !== 'undefined') {
+        // Clear localStorage auth persistence
+        const authKeys = Object.keys(localStorage).filter(key => 
+          key.startsWith('firebase:authUser') || 
+          key.startsWith('firebase:persistence')
+        );
+        authKeys.forEach(key => localStorage.removeItem(key));
+        
+        // Clear sessionStorage as well
+        const authSessionKeys = Object.keys(sessionStorage).filter(key => 
+          key.startsWith('firebase:authUser') || 
+          key.startsWith('firebase:persistence')
+        );
+        authSessionKeys.forEach(key => sessionStorage.removeItem(key));
+      }
+
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
@@ -53,6 +75,21 @@ export function GoogleLoginButton({
 
       onSuccess?.();
     } catch (error: any) {
+      // Handle specific internal-error case
+      if (error.code === 'auth/internal-error') {
+        toast({
+          variant: "destructive",
+          title: t("login.error"),
+          description: t("login.internalError") || "Error interno. Por favor recarga la página e intenta de nuevo.",
+        });
+        
+        // Force a page reload to clear all auth state
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
+        return;
+      }
+      
       handleFirebaseError(error, "google login");
     } finally {
       setIsLoading(false);

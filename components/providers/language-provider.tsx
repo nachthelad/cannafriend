@@ -290,8 +290,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.submit": "Iniciar Sesión",
         "login.loading": "Iniciando sesión...",
         "login.error": "Error al iniciar sesión",
-        "login.or": "o continuar con",
-        "login.google": "Continuar con Google",
+        "login.or": "o",
+        "login.google": "Iniciar sesión con Google",
         "login.terms":
           "Al continuar, aceptas nuestros Términos de Servicio y Política de Privacidad",
         "terms.title": "Términos de Servicio",
@@ -1191,8 +1191,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "login.submit": "Sign In",
         "login.loading": "Signing in...",
         "login.error": "Login error",
-        "login.or": "or continue with",
-        "login.google": "Continue with Google",
+        "login.or": "or",
+        "login.google": "Login with Google",
         "login.terms":
           "By continuing, you agree to our Terms of Service and Privacy Policy",
         "terms.title": "Terms of Service",

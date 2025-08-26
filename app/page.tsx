@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { recoverAuthState } from "@/lib/auth-utils";
 import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
@@ -30,6 +31,9 @@ export default function Home() {
 
   // Authentication state management
   useEffect(() => {
+    // Recover any corrupted auth state first
+    recoverAuthState();
+    
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is logged in, redirect to appropriate home page
@@ -43,7 +47,11 @@ export default function Home() {
           const roles = data?.roles || { grower: true, consumer: false };
           router.push(resolveHomePathForRoles(roles));
           return;
-        } catch {
+        } catch (error: any) {
+          // If token is invalid, clear auth state
+          if (error.code === 'auth/user-token-expired') {
+            await recoverAuthState();
+          }
           router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
           return;
         }
