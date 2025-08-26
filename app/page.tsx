@@ -31,15 +31,89 @@ export default function Home() {
 
   // Authentication state management
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let unsubscribed = false;
+    let authResolved = false;
+    
+    const handleAuthComplete = () => {
+      if (!authResolved && !unsubscribed) {
+        authResolved = true;
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      }
+    };
+    
     // Recover any corrupted auth state first
     recoverAuthState();
     
+    // Set a shorter timeout to prevent hanging indefinitely
+    timeoutId = setTimeout(() => {
+      if (!unsubscribed && !authResolved) {
+        console.warn('⚠️ Auth state check timed out, proceeding without user');
+        setIsLoggedIn(false);
+        setCheckingAuth(false);
+        authResolved = true;
+      }
+    }, 5000); // 5 second timeout
+    
+    // Also try to get current user immediately (sometimes onAuthStateChanged doesn't fire)
+    const checkCurrentUser = async () => {
+      if (authResolved || unsubscribed) return;
+      
+      try {
+        await auth.authStateReady();
+        const currentUser = auth.currentUser;
+        
+        if (currentUser && !authResolved && !unsubscribed) {
+          handleAuthComplete();
+          setLoginOpen(false);
+          
+          try {
+            const snap = await getDoc(userDoc(currentUser.uid));
+            if (!snap.exists()) {
+              router.push(ROUTE_ONBOARDING);
+              return;
+            }
+            const data = snap.data() as any;
+            const roles = data?.roles || { grower: true, consumer: false };
+            router.push(resolveHomePathForRoles(roles));
+            return;
+          } catch (error: any) {
+            if (error.code === 'auth/user-token-expired') {
+              await recoverAuthState();
+            }
+            router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
+            return;
+          }
+        }
+        
+        if (!authResolved && !unsubscribed) {
+          handleAuthComplete();
+          setIsLoggedIn(Boolean(currentUser));
+          setCheckingAuth(false);
+        }
+      } catch (error) {
+        console.warn('Error checking current user:', error);
+        if (!authResolved && !unsubscribed) {
+          handleAuthComplete();
+          setIsLoggedIn(false);
+          setCheckingAuth(false);
+        }
+      }
+    };
+    
+    // Try immediate check
+    checkCurrentUser();
+    
     const unsub = onAuthStateChanged(auth, async (user) => {
+      if (unsubscribed || authResolved) return;
+      
+      handleAuthComplete();
+      
       if (user) {
-        // Close login modal if it's open
         setLoginOpen(false);
         
-        // User is logged in, redirect to appropriate home page
         try {
           const snap = await getDoc(userDoc(user.uid));
           if (!snap.exists()) {
@@ -51,7 +125,6 @@ export default function Home() {
           router.push(resolveHomePathForRoles(roles));
           return;
         } catch (error: any) {
-          // If token is invalid, clear auth state
           if (error.code === 'auth/user-token-expired') {
             await recoverAuthState();
           }
@@ -62,7 +135,14 @@ export default function Home() {
       setIsLoggedIn(Boolean(user));
       setCheckingAuth(false);
     });
-    return () => unsub();
+    
+    return () => {
+      unsubscribed = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      unsub();
+    };
   }, [router]);
 
   // PWA Install prompt handling
