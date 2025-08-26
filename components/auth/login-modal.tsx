@@ -30,7 +30,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             {t("login.title")}
           </DialogTitle>
         </DialogHeader>
-        <AuthTabs />
+        <AuthTabs onLoginSuccess={() => onOpenChange(false)} />
       </DialogContent>
     </Dialog>
   );
