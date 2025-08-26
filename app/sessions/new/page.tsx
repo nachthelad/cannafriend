@@ -345,6 +345,7 @@ export default function NewSessionPage() {
                           src={url}
                           alt={`photo ${idx + 1}`}
                           className="h-full w-full object-cover"
+                          loading="lazy"
                         />
                       </div>
                     ))}

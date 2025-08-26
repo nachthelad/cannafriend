@@ -34,7 +34,12 @@ import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { AddLogForm } from "@/components/journal/add-log-form";
-import { EnvironmentChart } from "@/components/plant/environment-chart";
+import dynamic from "next/dynamic";
+
+const EnvironmentChart = dynamic(() => import("@/components/plant/environment-chart").then(mod => ({ default: mod.EnvironmentChart })), {
+  loading: () => <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>,
+  ssr: false
+});
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import { Loader2, Trash2, Plus, Star } from "lucide-react";

@@ -12,7 +12,12 @@ import { Brain, Loader2, Trash2, History } from "lucide-react";
 import { usePremium } from "@/hooks/use-premium";
 import { useTranslation } from "@/hooks/use-translation";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import ReactMarkdown from "react-markdown";
+import dynamic from "next/dynamic";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  loading: () => <div className="animate-pulse h-20 bg-muted rounded" />,
+  ssr: false
+});
 import { ImageUpload } from "@/components/common/image-upload";
 import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { auth } from "@/lib/firebase";
@@ -260,6 +265,7 @@ export default function AnalyzePlantPage() {
                         src={selectedImageUrl}
                         alt="Preview"
                         className="w-full h-auto"
+                        loading="lazy"
                       />
                     </div>
                   )}

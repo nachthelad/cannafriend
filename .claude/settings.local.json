@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm run build:*)",
+      "Bash(for comp in collapsible context-menu hover-card menubar navigation-menu progress scroll-area separator slider toggle toggle-group tooltip)",
+      "Bash(grep:*)",
+      "Bash(/dev/null)",
+      "Bash(done)",
+      "Bash(pnpm remove:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

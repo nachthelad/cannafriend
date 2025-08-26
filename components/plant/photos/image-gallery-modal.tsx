@@ -61,6 +61,7 @@ export function ImageGalleryModal({
               src={images[currentIndex]}
               alt={getImageAltText(currentIndex, t("gallery.image"))}
               className="max-w-full max-h-full object-contain"
+              loading="lazy"
               onKeyDown={handleKeyDown}
               tabIndex={0}
             />
@@ -113,6 +114,7 @@ export function ImageGalleryModal({
                     src={image}
                     alt={getImageAltText(index, t("gallery.thumbnail"))}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </button>
               ))}
