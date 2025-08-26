@@ -9,7 +9,6 @@ import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
-import { AuthLoadingView } from "@/components/marketing/auth-loading-view";
 import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
 import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
 import { AuthLoadingModal } from "@/components/auth/auth-loading-modal";
@@ -132,10 +131,8 @@ export default function Home() {
     }
   };
 
-  // Show loading view while checking authentication
-  if (checkingAuth) {
-    return <AuthLoadingView />;
-  }
+  // Show loading modal instead of full screen loading during auth check
+  // The auth loading modal will handle the loading state
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
