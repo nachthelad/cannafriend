@@ -9,15 +9,16 @@ import { GoogleLoginButton } from "./google-login-button";
 interface AuthTabsProps {
   className?: string;
   onLoginSuccess?: () => void;
+  onAuthStart?: () => void;
 }
 
-export function AuthTabs({ className = "", onLoginSuccess }: AuthTabsProps) {
+export function AuthTabs({ className = "", onLoginSuccess, onAuthStart }: AuthTabsProps) {
   const { t } = useTranslation();
 
   return (
     <div className={`w-full ${className}`}>
       <div className="space-y-4 mb-4">
-        <GoogleLoginButton onSuccess={onLoginSuccess} />
+        <GoogleLoginButton onSuccess={onLoginSuccess} onAuthStart={onAuthStart} />
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-gray-200 dark:border-gray-700" />

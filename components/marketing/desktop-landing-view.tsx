@@ -16,6 +16,7 @@ interface DesktopLandingViewProps {
   loginOpen: boolean;
   onLoginOpenChange: (open: boolean) => void;
   onLoginClick: () => void;
+  onAuthStart?: () => void;
   deferredPrompt: any;
   onInstallPWA: () => void;
 }
@@ -25,6 +26,7 @@ export function DesktopLandingView({
   loginOpen,
   onLoginOpenChange,
   onLoginClick,
+  onAuthStart,
   deferredPrompt,
   onInstallPWA,
 }: DesktopLandingViewProps) {
@@ -223,7 +225,7 @@ export function DesktopLandingView({
       <LandingFooter />
 
       {/* Login Modal */}
-      <LoginModal open={loginOpen} onOpenChange={onLoginOpenChange} />
+      <LoginModal open={loginOpen} onOpenChange={onLoginOpenChange} onAuthStart={onAuthStart} />
     </div>
   );
 }

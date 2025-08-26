@@ -72,15 +72,14 @@ export default function RootLayout({
           <script
             dangerouslySetInnerHTML={{
               __html: `
+                // Temporarily disable SW for auth debugging
                 if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function () {
-                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                      // Force update to get new SW version that fixes Google Auth
-                      registration.update();
-                    }).catch(function (err) {
-                      console.log('SW registration failed:', err);
-                    });
+                  navigator.serviceWorker.getRegistrations().then(function(regs){
+                    regs.forEach(function(reg){ reg.unregister(); });
                   });
+                }
+                if (window.caches) {
+                  caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); });
                 }
               `,
             }}

@@ -13,9 +13,10 @@ import { useTranslation } from "@/hooks/use-translation";
 interface LoginModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAuthStart?: () => void;
 }
 
-export function LoginModal({ open, onOpenChange }: LoginModalProps) {
+export function LoginModal({ open, onOpenChange, onAuthStart }: LoginModalProps) {
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
             {t("login.title")}
           </DialogTitle>
         </DialogHeader>
-        <AuthTabs onLoginSuccess={() => onOpenChange(false)} />
+        <AuthTabs onLoginSuccess={() => onOpenChange(false)} onAuthStart={onAuthStart} />
       </DialogContent>
     </Dialog>
   );
