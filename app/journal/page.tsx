@@ -44,7 +44,8 @@ import { Layout } from "@/components/layout";
 import { AddLogForm } from "@/components/journal/add-log-form";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
-import { Filter, Plus, Loader2 } from "lucide-react";
+import { Filter, Plus } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { parseISO, isSameDay } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
@@ -307,7 +308,7 @@ export default function JournalPage() {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       </Layout>
     );
@@ -449,7 +450,7 @@ export default function JournalPage() {
                 >
                   {loadingMoreLogs ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                      <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />{" "}
                       {t("common.loading")}
                     </>
                   ) : (

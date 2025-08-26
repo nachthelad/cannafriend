@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useTranslation } from "@/hooks/use-translation";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth } from "@/lib/firebase";
@@ -219,7 +220,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
             {loadingStep}
           </>
         ) : (

@@ -39,7 +39,8 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { Loader2, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 
 interface NutrientMix {
   id: string;
@@ -151,7 +152,7 @@ export default function NutrientsPage() {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       </Layout>
     );
@@ -209,7 +210,7 @@ export default function NutrientsPage() {
                 </Button>
                 <Button onClick={handleSave} disabled={!name.trim() || saving}>
                   {saving ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
                   ) : null}
                   {editing ? t("common.save") : t("common.add")}
                 </Button>

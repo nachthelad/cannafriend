@@ -9,7 +9,8 @@
       "Bash(grep:*)",
       "Bash(/dev/null)",
       "Bash(done)",
-      "Bash(pnpm remove:*)"
+      "Bash(pnpm remove:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

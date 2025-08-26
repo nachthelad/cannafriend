@@ -12,7 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth } from "@/lib/firebase";
@@ -153,7 +154,7 @@ function ResetPasswordContent() {
         <Card className="w-full max-w-md border-0 shadow-2xl dark:shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
           <CardContent className="flex items-center justify-center p-8">
             <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600 dark:text-green-400" />
+              <AnimatedLogo size={32} className="mx-auto mb-4 text-green-600 dark:text-green-400" duration={1.5} />
               <p className="text-gray-600 dark:text-gray-400">
                 {t("resetPassword.verifying")}
               </p>
@@ -300,7 +301,7 @@ function ResetPasswordContent() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
                   {loadingStep}
                 </>
               ) : (
@@ -338,7 +339,7 @@ export default function ResetPasswordPage() {
           <Card className="w-full max-w-md border-0 shadow-2xl dark:shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
             <CardContent className="flex items-center justify-center p-8">
               <div className="text-center">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-green-600 dark:text-green-400" />
+                <AnimatedLogo size={32} className="mx-auto mb-4 text-green-600 dark:text-green-400" duration={1.5} />
                 <p className="text-gray-600 dark:text-gray-400">Cargando...</p>
               </div>
             </CardContent>

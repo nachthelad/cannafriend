@@ -5,7 +5,8 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { usePremium } from "@/hooks/use-premium";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useRouter } from "next/navigation";
@@ -141,7 +142,7 @@ export default function AIConsumerPage() {
                 />
                 <Button onClick={send} disabled={loading} className="h-12">
                   {loading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <AnimatedLogo size={20} className="text-primary" duration={1.2} />
                   ) : (
                     t("aiConsumer.send")
                   )}

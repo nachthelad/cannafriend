@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/layout";
-import { Brain, Loader2, Trash2, History } from "lucide-react";
+import { Brain, Trash2, History } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import { usePremium } from "@/hooks/use-premium";
 import { useTranslation } from "@/hooks/use-translation";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -291,7 +292,7 @@ export default function AnalyzePlantPage() {
                     style={{ backgroundColor: "#228B22" }}
                   >
                     {isAnalyzing ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <AnimatedLogo size={20} className="text-primary" duration={1.2} />
                     ) : (
                       <Brain className="h-5 w-5" />
                     )}

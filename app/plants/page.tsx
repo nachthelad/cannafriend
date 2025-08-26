@@ -25,7 +25,8 @@ import {
   type QueryDocumentSnapshot,
   type DocumentData,
 } from "firebase/firestore";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { AnimatedLogo } from "@/components/common/animated-logo";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
 
@@ -163,7 +164,7 @@ export default function PlantsListPage() {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
       </Layout>
     );
@@ -222,7 +223,7 @@ export default function PlantsListPage() {
           <Button variant="outline" onClick={loadMore} disabled={isLoadingMore}>
             {isLoadingMore ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />{" "}
                 {t("common.loading")}
               </>
             ) : (
