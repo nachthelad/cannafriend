@@ -124,8 +124,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         timezone: null, // Se configurará en onboarding
       });
 
-      router.push(ROUTE_ONBOARDING);
+      // Close the modal immediately after successful signup
       onSuccess?.();
+      
+      // Let the auth state change handler in Home component handle navigation
+      // to avoid race conditions with competing redirects
     } catch (error: any) {
       handleFirebaseError(error, "signup");
     } finally {

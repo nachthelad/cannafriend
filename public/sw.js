@@ -1,5 +1,5 @@
 // Service Worker for Cannafriend PWA
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const STATIC_CACHE = `cannafriend-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `cannafriend-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `cannafriend-images-${CACHE_VERSION}`;
@@ -109,8 +109,16 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = request.url;
 
-  // Skip non-GET requests and chrome-extension requests
-  if (request.method !== "GET" || url.startsWith("chrome-extension://")) {
+  // Skip non-GET requests, chrome-extension requests, and auth-related requests
+  if (request.method !== "GET" || 
+      url.startsWith("chrome-extension://") ||
+      url.includes("apis.google.com") ||
+      url.includes("accounts.google.com") ||
+      url.includes("oauth2.googleapis.com") ||
+      url.includes("securetoken.googleapis.com") ||
+      url.includes("identitytoolkit.googleapis.com") ||
+      url.includes("firebase-analytics.com") ||
+      url.includes("google-analytics.com")) {
     return;
   }
 

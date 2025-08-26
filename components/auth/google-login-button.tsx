@@ -61,19 +61,11 @@ export function GoogleLoginButton({
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Check if user is new by looking for their user document
-      const userRef = userDoc(user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        router.push(ROUTE_ONBOARDING);
-      } else {
-        const data = userSnap.data() as any;
-        const roles = data?.roles || { grower: true, consumer: false };
-        router.push(resolveHomePathForRoles(roles));
-      }
-
+      // Close the modal immediately after successful authentication
       onSuccess?.();
+
+      // Let the auth state change handler in Home component handle navigation
+      // to avoid race conditions with competing redirects
     } catch (error: any) {
       // Handle specific internal-error case
       if (error.code === 'auth/internal-error') {

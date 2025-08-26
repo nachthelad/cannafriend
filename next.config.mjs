@@ -57,7 +57,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com; img-src 'self' data: https://pagead2.googlesyndication.com;",
+              "default-src 'self'; script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://apis.google.com https://accounts.google.com; connect-src 'self' https://pagead2.googlesyndication.com https://apis.google.com https://accounts.google.com https://oauth2.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://firebaseapp.com https://firebase-analytics.com; img-src 'self' data: https://pagead2.googlesyndication.com https://lh3.googleusercontent.com; frame-src https://accounts.google.com;",
           },
         ],
       },

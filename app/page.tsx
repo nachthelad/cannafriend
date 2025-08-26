@@ -36,6 +36,9 @@ export default function Home() {
     
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // Close login modal if it's open
+        setLoginOpen(false);
+        
         // User is logged in, redirect to appropriate home page
         try {
           const snap = await getDoc(userDoc(user.uid));

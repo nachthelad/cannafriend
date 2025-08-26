@@ -63,20 +63,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       );
       const user = result.user;
 
-      setLoadingStep(t("login.verifyingConfig"));
-      // Check if user is new by looking for their user document
-      const userRef = userDoc(user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        router.push(ROUTE_ONBOARDING);
-      } else {
-        const data = userSnap.data() as any;
-        const roles = data?.roles || { grower: true, consumer: false };
-        router.push(resolveHomePathForRoles(roles));
-      }
-
+      // Close the modal immediately after successful authentication
       onSuccess?.();
+      
+      // Let the auth state change handler in Home component handle navigation
+      // to avoid race conditions with competing redirects
     } catch (error: any) {
       if (error?.code) {
         switch (error.code) {
