@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { LanguageProvider } from "@/components/providers/language-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
 export const metadata: Metadata = {
   title: "Cannafriend - Plant Growth Tracker & Journal",

@@ -16,7 +16,15 @@ import { useTranslation } from "@/hooks/use-translation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN, ROUTE_PLANTS_NEW } from "@/lib/routes";
 import { plantsCol, logsCol } from "@/lib/paths";
-import { query, getDocs, orderBy } from "firebase/firestore";
+import {
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  startAfter,
+  type QueryDocumentSnapshot,
+  type DocumentData,
+} from "firebase/firestore";
 import { Loader2, Plus } from "lucide-react";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
@@ -38,6 +46,11 @@ export default function PlantsListPage() {
     {}
   );
   const [search, setSearch] = useState("");
+  const [lastDoc, setLastDoc] =
+    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const PAGE_SIZE = 12;
 
   useEffect(() => {
     if (authLoading) return;
@@ -48,12 +61,70 @@ export default function PlantsListPage() {
     const fetchPlants = async () => {
       if (!userId) return;
       try {
-        const q = query(plantsCol(userId));
+        const q = query(
+          plantsCol(userId),
+          orderBy("createdAt", "desc"),
+          limit(PAGE_SIZE)
+        );
         const snap = await getDocs(q);
         const list: Plant[] = [];
         for (const d of snap.docs) {
           const p = { id: d.id, ...d.data() } as Plant;
           list.push(p);
+        }
+
+        // fetch last logs for all plants in parallel
+        await Promise.all(
+          snap.docs.map(async (d) => {
+            try {
+              const lq = query(logsCol(userId, d.id), orderBy("date", "desc"));
+              const ls = await getDocs(lq);
+              const all = ls.docs.map((x) => ({
+                id: x.id,
+                ...x.data(),
+              })) as LogEntry[];
+              const w = all.find((l) => l.type === "watering");
+              const f = all.find((l) => l.type === "feeding");
+              const tr = all.find((l) => l.type === "training");
+              if (w) setLastWaterings((prev) => ({ ...prev, [d.id]: w }));
+              if (f) setLastFeedings((prev) => ({ ...prev, [d.id]: f }));
+              if (tr) setLastTrainings((prev) => ({ ...prev, [d.id]: tr }));
+            } catch {
+              // ignore per-plant logs errors
+            }
+          })
+        );
+
+        setPlants(list);
+        setLastDoc(
+          snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null
+        );
+        setHasMore(snap.docs.length === PAGE_SIZE);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (userId) void fetchPlants();
+  }, [userId]);
+
+  const loadMore = async () => {
+    if (!userId || !lastDoc) return;
+    setIsLoadingMore(true);
+    try {
+      const q = query(
+        plantsCol(userId),
+        orderBy("createdAt", "desc"),
+        startAfter(lastDoc),
+        limit(PAGE_SIZE)
+      );
+      const snap = await getDocs(q);
+      const newPlants: Plant[] = snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Plant)
+      );
+      setPlants((prev) => [...prev, ...newPlants]);
+
+      await Promise.all(
+        snap.docs.map(async (d) => {
           try {
             const lq = query(logsCol(userId, d.id), orderBy("date", "desc"));
             const ls = await getDocs(lq);
@@ -70,14 +141,17 @@ export default function PlantsListPage() {
           } catch {
             // ignore per-plant logs errors
           }
-        }
-        setPlants(list);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    if (userId) void fetchPlants();
-  }, [userId]);
+        })
+      );
+
+      setLastDoc(
+        snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : lastDoc
+      );
+      setHasMore(snap.docs.length === PAGE_SIZE);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!search.trim()) return plants;
@@ -141,6 +215,21 @@ export default function PlantsListPage() {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {hasMore && (
+        <div className="flex justify-center mt-6">
+          <Button variant="outline" onClick={loadMore} disabled={isLoadingMore}>
+            {isLoadingMore ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
+                {t("common.loading")}
+              </>
+            ) : (
+              t("common.loadMore")
+            )}
+          </Button>
+        </div>
       )}
     </Layout>
   );

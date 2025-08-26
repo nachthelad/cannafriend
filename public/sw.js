@@ -5,44 +5,93 @@ const DYNAMIC_CACHE = `cannafriend-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `cannafriend-images-${CACHE_VERSION}`;
 const API_CACHE = `cannafriend-api-${CACHE_VERSION}`;
 
-// Resources to precache - core functionality only
+// Resources to precache - essential static assets only
 const urlsToCache = [
-  "/",
-  "/login",
-  "/dashboard", 
-  "/plants",
-  "/journal",
   "/offline.html",
   "/manifest.json",
-  "/icon-192x192.png", 
+  "/icon-192x192.png",
   "/icon-512x512.png",
   "/favicon-16x16.png",
-  "/favicon-32x32.png"
+  "/favicon-32x32.png",
+  "/placeholder.jpg",
+  "/placeholder.svg",
+  "/placeholder-logo.svg",
+  "/placeholder-user.jpg",
 ];
 
 // API endpoints to cache with short TTL
 const API_CACHE_PATTERNS = [
-  /\/api\/(?!ai-consumer|analyze-plant)/,  // Cache most APIs except AI endpoints
+  /\/api\/(?!ai-consumer|analyze-plant)/, // Cache most APIs except AI endpoints
 ];
 
-// Image patterns to cache with long TTL  
+// Image patterns to cache with long TTL
 const IMAGE_PATTERNS = [
   /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i,
   /firebasestorage\.googleapis\.com/,
 ];
 
+// Cache controls
+const IMAGE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const API_TTL_MS = 60 * 1000; // 60 seconds
+const MAX_IMAGE_ENTRIES = 150;
+const MAX_API_ENTRIES = 200;
+
 // Helper functions
 const isApiRequest = (url) => {
-  return API_CACHE_PATTERNS.some(pattern => pattern.test(url));
+  return API_CACHE_PATTERNS.some((pattern) => pattern.test(url));
 };
 
 const isImageRequest = (url) => {
-  return IMAGE_PATTERNS.some(pattern => pattern.test(url));
+  return IMAGE_PATTERNS.some((pattern) => pattern.test(url));
 };
 
 const isStaleWhileRevalidate = (request) => {
   return isApiRequest(request.url) || isImageRequest(request.url);
 };
+
+const getCacheTimestamp = (response) => {
+  try {
+    const ts = response.headers.get("X-Cache-Timestamp");
+    return ts ? parseInt(ts, 10) : undefined;
+  } catch (_e) {
+    return undefined;
+  }
+};
+
+const isExpired = (response, ttlMs) => {
+  if (!ttlMs) return false;
+  const ts = getCacheTimestamp(response);
+  if (!ts) return true;
+  return Date.now() - ts > ttlMs;
+};
+
+const withCacheTimestamp = async (response) => {
+  try {
+    const headers = new Headers(response.headers);
+    headers.set("X-Cache-Timestamp", String(Date.now()));
+    return new Response(await response.clone().arrayBuffer(), {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+  } catch (_e) {
+    return response;
+  }
+};
+
+async function limitCacheSize(cacheName, maxEntries) {
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    if (keys.length <= maxEntries) return;
+    const deletions = keys
+      .slice(0, Math.max(0, keys.length - maxEntries))
+      .map((request) => cache.delete(request));
+    await Promise.all(deletions);
+  } catch (_e) {
+    // No-op if cache operations fail
+  }
+}
 
 // Install event - cache resources
 self.addEventListener("install", (event) => {
@@ -61,81 +110,126 @@ self.addEventListener("fetch", (event) => {
   const url = request.url;
 
   // Skip non-GET requests and chrome-extension requests
-  if (request.method !== 'GET' || url.startsWith('chrome-extension://')) {
+  if (request.method !== "GET" || url.startsWith("chrome-extension://")) {
     return;
   }
 
-  event.respondWith(handleFetch(request));
+  event.respondWith(handleFetch(event));
 });
 
-async function handleFetch(request) {
+async function handleFetch(event) {
+  const { request } = event;
   const url = request.url;
 
   try {
     // Strategy 1: Images - Cache First with long TTL
     if (isImageRequest(url)) {
-      return await cacheFirst(request, IMAGE_CACHE);
+      return await cacheFirst(request, IMAGE_CACHE, IMAGE_TTL_MS);
     }
 
-    // Strategy 2: API requests - Stale While Revalidate with short TTL  
+    // Strategy 2: API requests - Stale While Revalidate with short TTL
     if (isApiRequest(url)) {
-      return await staleWhileRevalidate(request, API_CACHE);
+      return await staleWhileRevalidate(request, API_CACHE, API_TTL_MS);
     }
 
     // Strategy 3: Static assets - Cache First
-    if (url.includes('/_next/static/')) {
+    if (url.includes("/_next/static/")) {
       return await cacheFirst(request, STATIC_CACHE);
     }
 
-    // Strategy 4: Navigation requests - Network First with cache fallback
-    if (request.mode === 'navigate') {
+    // Strategy 4: Navigation requests - Try preload, then Network First with cache fallback
+    if (request.mode === "navigate") {
+      try {
+        const preload = self.registration.navigationPreload
+          ? await event.preloadResponse
+          : null;
+        if (preload) return preload;
+      } catch (_e) {}
       return await networkFirstWithOfflineFallback(request);
     }
 
     // Strategy 5: Everything else - Network First with cache fallback
     return await networkFirst(request, DYNAMIC_CACHE);
-
   } catch (error) {
-    console.log('SW: Fetch failed:', error);
-    
+    console.log("SW: Fetch failed:", error);
+
     // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      return caches.match('/offline.html');
+    if (request.mode === "navigate") {
+      return caches.match("/offline.html");
     }
-    
+
     // Return cached version if available
-    return caches.match(request);
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    // If it's an image, try a placeholder
+    if (isImageRequest(url)) {
+      const placeholder =
+        (await caches.match("/placeholder.jpg")) ||
+        (await caches.match("/placeholder.svg"));
+      if (placeholder) return placeholder;
+    }
+    return cached;
   }
 }
 
 // Cache strategies
-async function cacheFirst(request, cacheName) {
+async function cacheFirst(request, cacheName, ttlMs) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
-  
-  if (cached) {
+
+  if (cached && !isExpired(cached, ttlMs)) {
     return cached;
   }
 
-  const response = await fetch(request);
-  if (response.status === 200) {
-    cache.put(request, response.clone());
+  try {
+    const response = await fetch(request);
+    if (response.status === 200) {
+      const stamped = await withCacheTimestamp(response.clone());
+      cache.put(request, stamped.clone());
+      if (cacheName === IMAGE_CACHE) {
+        await limitCacheSize(IMAGE_CACHE, MAX_IMAGE_ENTRIES);
+      }
+    }
+    return response;
+  } catch (_e) {
+    // On failure, return cached or placeholder for images
+    if (cached) return cached;
+    if (isImageRequest(request.url)) {
+      const placeholder =
+        (await caches.match("/placeholder.jpg")) ||
+        (await caches.match("/placeholder.svg"));
+      if (placeholder) return placeholder;
+    }
+    throw _e;
   }
-  return response;
 }
 
-async function staleWhileRevalidate(request, cacheName) {
+async function staleWhileRevalidate(request, cacheName, ttlMs) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
-  
-  const fetchPromise = fetch(request).then(response => {
+
+  const fetchPromise = fetch(request).then(async (response) => {
     if (response.status === 200) {
-      cache.put(request, response.clone());
+      const stamped = await withCacheTimestamp(response.clone());
+      await cache.put(request, stamped.clone());
+      if (cacheName === API_CACHE) {
+        await limitCacheSize(API_CACHE, MAX_API_ENTRIES);
+      }
     }
     return response;
   });
 
-  return cached || fetchPromise;
+  if (cached) {
+    if (!isExpired(cached, ttlMs)) {
+      return cached;
+    }
+    try {
+      return await fetchPromise;
+    } catch (_e) {
+      return cached;
+    }
+  }
+  return fetchPromise;
 }
 
 async function networkFirst(request, cacheName) {
@@ -161,14 +255,14 @@ async function networkFirstWithOfflineFallback(request) {
     return response;
   } catch (error) {
     const cached = await caches.match(request);
-    return cached || caches.match('/offline.html');
+    return cached || caches.match("/offline.html");
   }
 }
 
 // Activate event - clean up old caches and claim clients
 self.addEventListener("activate", (event) => {
   const currentCaches = [STATIC_CACHE, DYNAMIC_CACHE, IMAGE_CACHE, API_CACHE];
-  
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all([
@@ -180,20 +274,20 @@ self.addEventListener("activate", (event) => {
           }
         }),
         // Claim all clients
-        self.clients.claim()
+        self.clients.claim(),
       ]);
     })
   );
 });
 
 // Background sync for offline actions (when supported)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'background-sync') {
+self.addEventListener("sync", (event) => {
+  if (event.tag === "background-sync") {
     event.waitUntil(syncOfflineActions());
   }
 });
 
 async function syncOfflineActions() {
   // Get offline actions from IndexedDB/localStorage when implemented
-  console.log('SW: Background sync triggered');
+  console.log("SW: Background sync triggered");
 }

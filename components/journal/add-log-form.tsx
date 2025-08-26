@@ -128,6 +128,8 @@ export function AddLogForm({
         date: data.date.toISOString(),
         notes: data.notes,
         createdAt: new Date().toISOString(),
+        userId: auth.currentUser!.uid,
+        plantId: currentPlantId,
       };
 
       // Add type-specific fields
