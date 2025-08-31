@@ -44,6 +44,7 @@ import { Layout } from "@/components/layout";
 import { AddLogForm } from "@/components/journal/add-log-form";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
+import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Filter, Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { parseISO, isSameDay } from "date-fns";
@@ -316,10 +317,27 @@ export default function JournalPage() {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">{t("journal.title")}</h1>
-        <p className="text-muted-foreground">{t("journal.description")}</p>
+      {/* Mobile Journal */}
+      <div className="md:hidden">
+        <MobileJournal
+          logs={logs}
+          plants={plants}
+          isLoading={isLoading}
+          hasMoreLogs={hasMoreLogs}
+          loadingMoreLogs={loadingMoreLogs}
+          onLoadMore={loadMoreLogs}
+          onDeleteLog={handleDeleteLog}
+          onLogSuccess={handleLogSuccess}
+          language={language}
+        />
       </div>
+
+      {/* Desktop Journal */}
+      <div className="hidden md:block">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">{t("journal.title")}</h1>
+          <p className="text-muted-foreground">{t("journal.description")}</p>
+        </div>
 
       <div className="grid gap-6 md:grid-cols-[320px_1fr]">
         {/* Left column: Filters + calendar */}
@@ -462,8 +480,7 @@ export default function JournalPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* removed */}
+      </div>
     </Layout>
   );
 }

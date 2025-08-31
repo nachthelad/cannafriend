@@ -46,7 +46,7 @@ export function InlineEdit({
     return (
       <button
         type="button"
-        className={`inline-flex items-center gap-2 text-left hover:bg-muted/40 rounded px-1 py-0.5 group ${className}`}
+        className={`inline-flex items-center gap-2 text-left hover:bg-muted/40 rounded py-0.5 group ${className}`}
         onClick={() => setEditing(true)}
         aria-label="Edit"
       >
@@ -74,7 +74,7 @@ export function InlineEdit({
           if (e.key === "Enter") void commit();
           if (e.key === "Escape") setEditing(false);
         }}
-        className={`h-8 rounded border px-2 bg-background ${inputClassName}`}
+        className={`h-8 rounded border px-2 ${inputClassName}`}
         placeholder={placeholder}
       />
       <Button

@@ -30,6 +30,7 @@ import { Layout } from "@/components/layout";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
+import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import {
   Plus,
   AlertTriangle,
@@ -206,36 +207,30 @@ export default function DashboardPage() {
 
   return (
     <Layout>
-      <div className="mb-6 flex items-center gap-3">
+      {/* Mobile header - only show on mobile */}
+      <div className="md:hidden mb-6 flex items-center gap-3">
         <div className="flex items-center">
-          {/* Desktop title */}
-          <h1 className="hidden md:block text-3xl font-bold">
-            {t("dashboard.title")}
-          </h1>
-          {/* Mobile: title acts as trigger when both roles; otherwise just title */}
           {roles?.grower && roles?.consumer ? (
-            <div className="md:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button aria-label="switch" className="flex items-center p-0">
-                    <h1 className="text-3xl font-bold">
-                      {t("dashboard.title")}
-                    </h1>
-                    <ChevronDown className="h-5 w-5 ml-1" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" sideOffset={2}>
-                  <DropdownMenuItem
-                    className="text-base py-2"
-                    onClick={() => router.push(ROUTE_STRAINS)}
-                  >
-                    {t("strains.title")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button aria-label="switch" className="flex items-center p-0">
+                  <h1 className="text-3xl font-bold">
+                    {t("dashboard.title")}
+                  </h1>
+                  <ChevronDown className="h-5 w-5 ml-1" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" sideOffset={2}>
+                <DropdownMenuItem
+                  className="text-base py-2"
+                  onClick={() => router.push(ROUTE_STRAINS)}
+                >
+                  {t("strains.title")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <h1 className="md:hidden text-3xl font-bold">
+            <h1 className="text-3xl font-bold">
               {t("dashboard.title")}
             </h1>
           )}
@@ -248,113 +243,142 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      {/* Desktop header - only show on desktop */}
+      <div className="hidden md:flex mb-6 items-center gap-3">
+        <div className="flex items-center">
+          <h1 className="text-3xl font-bold">
+            {t("dashboard.title")}
+          </h1>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Overdue Reminders only (Top) */}
-          <div>
-            <ReminderSystem plants={plants} showOnlyOverdue />
-          </div>
+        {hasOverdue && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-xs">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            {t("reminders.overdue")}
+          </span>
+        )}
+      </div>
 
-          {/* Widgets grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Plants Widget */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
-                  <CardDescription>{plants.length} total</CardDescription>
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={ROUTE_PLANTS}>{t("common.view")}</Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {plants.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {topPlants.map((plant) => (
-                      <PlantCard key={plant.id} plant={plant} compact />
-                    ))}
+      {/* Mobile Dashboard - only show on mobile */}
+      <div className="md:hidden">
+        <MobileDashboard
+          plants={plants}
+          recentLogs={recentLogs}
+          nutrientMixesCount={nutrientMixesCount}
+          hasOverdue={hasOverdue}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* Desktop Dashboard - only show on desktop */}
+      <div className="hidden md:block">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Overdue Reminders only (Top) */}
+            <div>
+              <ReminderSystem plants={plants} showOnlyOverdue />
+            </div>
+
+            {/* Widgets grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Plants Widget */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
+                    <CardDescription>{plants.length} total</CardDescription>
                   </div>
-                ) : (
-                  <Button onClick={() => router.push("/plants/new")}>
-                    <Plus className="mr-2 h-4 w-4" /> {t("dashboard.addPlant")}
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={ROUTE_PLANTS}>{t("common.view")}</Link>
                   </Button>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  {plants.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {topPlants.map((plant) => (
+                        <PlantCard key={plant.id} plant={plant} compact />
+                      ))}
+                    </div>
+                  ) : (
+                    <Button onClick={() => router.push("/plants/new")}>
+                      <Plus className="mr-2 h-4 w-4" /> {t("dashboard.addPlant")}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
 
-            {/* Journal Widget */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>{t("journal.recentLogs")}</CardTitle>
-                  <CardDescription>
-                    {recentLogs.length} {t("journal.logsFound")}
-                  </CardDescription>
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={ROUTE_JOURNAL}>{t("common.view")}</Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <JournalEntries logs={recentLogs} showPlantName={true} />
-              </CardContent>
-            </Card>
-
-            {/* Nutrients Widget */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>{t("nutrients.title")}</CardTitle>
-                  <CardDescription>{nutrientMixesCount} mixes</CardDescription>
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={ROUTE_NUTRIENTS}>{t("common.view")}</Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Guarda tus recetas (NPK, notas) y regístralas en los logs.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Acciones rápidas</CardTitle>
-                <CardDescription>Atajos a funciones frecuentes</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                <Button asChild>
-                  <Link href="/plants/new">{t("nav.addPlant")}</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href={ROUTE_REMINDERS}>{t("dashboard.reminders")}</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href={ROUTE_JOURNAL}>{t("nav.journal")}</Link>
-                </Button>
-                {isPremium && (
-                  <Button
-                    asChild
-                    className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
-                  >
-                    <Link href={ROUTE_ANALYZE_PLANT}>
-                      <Brain className="h-4 w-4 mr-1" />{" "}
-                      {t("analyzePlant.title")}
-                    </Link>
+              {/* Journal Widget */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t("journal.recentLogs")}</CardTitle>
+                    <CardDescription>
+                      {recentLogs.length} {t("journal.logsFound")}
+                    </CardDescription>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={ROUTE_JOURNAL}>{t("common.view")}</Link>
                   </Button>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  <JournalEntries logs={recentLogs} showPlantName={true} />
+                </CardContent>
+              </Card>
+
+              {/* Nutrients Widget */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <div>
+                    <CardTitle>{t("nutrients.title")}</CardTitle>
+                    <CardDescription>{nutrientMixesCount} mixes</CardDescription>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={ROUTE_NUTRIENTS}>{t("common.view")}</Link>
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Guarda tus recetas (NPK, notas) y regístralas en los logs.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Acciones rápidas</CardTitle>
+                  <CardDescription>Atajos a funciones frecuentes</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  <Button asChild>
+                    <Link href="/plants/new">{t("nav.addPlant")}</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href={ROUTE_REMINDERS}>{t("dashboard.reminders")}</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href={ROUTE_JOURNAL}>{t("nav.journal")}</Link>
+                  </Button>
+                  {isPremium && (
+                    <Button
+                      asChild
+                      className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
+                    >
+                      <Link href={ROUTE_ANALYZE_PLANT}>
+                        <Brain className="h-4 w-4 mr-1" />{" "}
+                        {t("analyzePlant.title")}
+                      </Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Layout>
   );
 }

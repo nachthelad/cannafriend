@@ -10,7 +10,9 @@
       "Bash(/dev/null)",
       "Bash(done)",
       "Bash(pnpm remove:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
