@@ -83,6 +83,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.clear": "Limpiar",
         "common.tapToView": "Ver",
         "common.view": "Ver",
+        "common.viewAll": "Ver todo",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
         "app.installPWA": "Instalar App",
@@ -476,6 +477,15 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "dashboard.error": "Error al cargar las plantas",
         "dashboard.reminders": "Recordatorios",
         "dashboard.yourPlants": "Tus Plantas",
+        "dashboard.growth": "Crecimiento",
+        "dashboard.active": "Activo",
+        "dashboard.quickActions": "Acciones Rápidas",
+        "dashboard.quickActionsDesc": "Funciones frecuentes",
+        "dashboard.overdueRemindersDesc": "Tienes recordatorios vencidos",
+        "dashboard.plantsGrowing": "plantas creciendo",
+        "dashboard.latestActivity": "Última actividad",
+        "dashboard.startGrowingJourney":
+          "Comienza tu aventura de cultivo agregando tu primera planta",
 
         // New Plant
         "newPlant.title": "Agregar Nueva Planta",
@@ -503,6 +513,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.seedBank": "Banco de Semillas",
         "newPlant.seedBankPlaceholder":
           "Ej: Dutch Passion, Barney's Farm, etc.",
+        "newPlant.seedTypePlaceholder": "Autofloreciente o Fotoperiódica",
+        "newPlant.growTypePlaceholder": "Interior o Exterior",
         "newPlant.photos": "Fotos",
 
         // Plant Page
@@ -517,7 +529,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "plantPage.error": "Error al cargar la planta",
         "plantPage.addLog": "Agregar Registro",
         "plantPage.addLogDesc": "Registra una actividad o medición",
-        "plantPage.recentLogs": "Registros Recientes",
+        "plantPage.recentLogs": "Reg. Recientes",
         "plantPage.recentLogsDesc": "Últimas actividades registradas",
         "plantPage.environmentData": "Datos Ambientales",
         "plantPage.environmentDataDesc": "Temperatura, humedad y pH",
@@ -605,10 +617,24 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.clearDate": "Limpiar fecha",
         "journal.addLog": "Agregar Registro",
         "journal.addLogDesc": "Registra una nueva actividad",
-        "journal.recentLogs": "Registros Recientes",
+        "journal.recentLogs": "Reg. Recientes",
         "journal.logsFound": "registros encontrados",
         "journal.calendarDesc": "Visualiza tus registros en un calendario",
         "journal.logsFor": "Registros para",
+        "journal.noLogs": "Sin registros",
+        "journal.noFilteredLogs": "Sin registros con esos filtros",
+        "journal.tryDifferentFilters": "Intenta con filtros diferentes",
+        "journal.addFirstLog": "Agrega tu primer registro",
+        "journal.selectDate": "Seleccionar Fecha",
+        "journal.deleteLog": "Eliminar Registro",
+        "journal.deleteLogConfirm":
+          "¿Estás seguro de que quieres eliminar este registro?",
+        "journal.deleted": "Registro eliminado",
+        "journal.deletedDesc": "El registro ha sido eliminado exitosamente",
+        "journal.logAdded": "Registro agregado",
+        "journal.logAddedDesc": "El registro ha sido agregado exitosamente",
+        "journal.addLogFor": "Agregar registro para",
+        "journal.viewLogs": "Ver registros",
 
         // Log Types
         "logType.watering": "Riego",
@@ -852,8 +878,44 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         // Search
         "search.placeholder": "Buscar plantas, registros...",
+        "search.plants": "Buscar plantas...",
         "search.noResults": "No se encontraron resultados",
         "search.searching": "Buscando...",
+        "search.journal": "Buscar en diario...",
+
+        // Plants
+        "plants.total": "total",
+        "plants.noResults": "No se encontraron plantas",
+        "plants.tryDifferentSearch":
+          "Prueba con una búsqueda diferente o quita los filtros",
+        "plants.deletePlant": "Eliminar Planta",
+        "plants.deletePlantConfirm":
+          "¿Estás seguro de que quieres eliminar {{name}}? Esta acción no se puede deshacer.",
+        "plants.plantDetails": "Detalles de la Planta",
+
+        // Sort
+        "sort.byDate": "Por fecha",
+        "sort.byName": "Por nombre",
+        "sort.bySeedType": "Por tipo de semilla",
+        "sort.byGrowType": "Por tipo de cultivo",
+        "sort.ascending": "Ascendente",
+        "sort.descending": "Descendente",
+
+        // Filters
+        "filters.title": "Filtros",
+        "filters.active": "Filtros activos",
+        "filters.all": "Todos",
+        "filters.clear": "Limpiar filtros",
+        "filters.seedType": "Tipo de Semilla",
+        "filters.growType": "Tipo de Cultivo",
+
+        // Seed Types
+        "seedType.autoflowering": "Autofloreciente",
+        "seedType.photoperiodic": "Fotoperiódica",
+
+        // Grow Types
+        "growType.indoor": "Interior",
+        "growType.outdoor": "Exterior",
 
         // Nutrients
         "nutrients.title": "Nutrientes",
@@ -895,6 +957,22 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "photos.coverPhotoError": "Error al establecer foto de portada",
         "photos.coverSet": "¡Portada actualizada!",
         "plantCard.coverPhoto": "Foto de portada",
+        "plantCard.day": "Día",
+        "plantCard.status": "ESTADO DE LA PLANTA",
+        "plantCard.watered": "Regado",
+        "plantCard.daysAgo": "días",
+        "plantPage.day": "DÍA",
+        "plantPage.plantStatus": "ESTADO DE LA PLANTA",
+        "plantPage.watered": "Último riego",
+        "plantPage.dayAgo": "día(s)",
+        "plantPage.lighting": "ILUMINACIÓN",
+        "plantPage.nutrients": "NUTRIENTES",
+        "plantPage.npk": "N-P-K",
+        "plantPage.ph": "pH",
+        "plantPage.schedule": "Horario",
+        "plantPage.seedType": "Tipo de semilla",
+        "plantPage.growType": "Tipo de cultivo",
+        "plantPage.seedBank": "Banco de semillas",
         "photos.setCoverConfirmTitle": "Establecer como portada",
         "photos.setCoverConfirmDesc":
           "¿Querés establecer esta foto como portada de la planta?",
@@ -985,6 +1063,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.clear": "Clear",
         "common.tapToView": "Tap to view",
         "common.view": "View",
+        "common.viewAll": "View all",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
         "app.installPWA": "Install App",
@@ -1371,6 +1450,15 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "dashboard.error": "Error loading plants",
         "dashboard.reminders": "Reminders",
         "dashboard.yourPlants": "Your Plants",
+        "dashboard.growth": "Growth",
+        "dashboard.active": "Active",
+        "dashboard.quickActions": "Quick Actions",
+        "dashboard.quickActionsDesc": "Frequently used features",
+        "dashboard.overdueRemindersDesc": "You have overdue reminders",
+        "dashboard.plantsGrowing": "plants growing",
+        "dashboard.latestActivity": "Latest activity",
+        "dashboard.startGrowingJourney":
+          "Start your growing journey by adding your first plant",
 
         // New Plant
         "newPlant.title": "Add New Plant",
@@ -1398,6 +1486,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "newPlant.seedBank": "Seed Bank",
         "newPlant.seedBankPlaceholder":
           "e.g. Dutch Passion, Barney's Farm, etc.",
+        "newPlant.seedTypePlaceholder": "Autoflowering or Photoperiodic",
+        "newPlant.growTypePlaceholder": "Indoor or Outdoor",
         "newPlant.photos": "Photos",
 
         // Plant Page
@@ -1511,10 +1601,23 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.clearDate": "Clear date",
         "journal.addLog": "Add Log",
         "journal.addLogDesc": "Record a new activity",
+        "journal.addLogFor": "Add log for",
+        "journal.logAdded": "Log added",
+        "journal.logAddedDesc": "Log entry has been added successfully",
+        "journal.viewLogs": "View Logs",
         "journal.recentLogs": "Recent Logs",
         "journal.logsFound": "logs found",
         "journal.calendarDesc": "View your logs in a calendar",
         "journal.logsFor": "Logs for",
+        "journal.noLogs": "No logs",
+        "journal.noFilteredLogs": "No logs match filters",
+        "journal.tryDifferentFilters": "Try different filters",
+        "journal.addFirstLog": "Add your first log",
+        "journal.selectDate": "Select Date",
+        "journal.deleteLog": "Delete Log",
+        "journal.deleteLogConfirm": "Are you sure you want to delete this log?",
+        "journal.deleted": "Log deleted",
+        "journal.deletedDesc": "The log has been deleted successfully",
 
         // Log Types
         "logType.watering": "Watering",
@@ -1756,8 +1859,43 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
         // Search
         "search.placeholder": "Search plants, logs...",
+        "search.plants": "Search plants...",
         "search.noResults": "No results found",
         "search.searching": "Searching...",
+        "search.journal": "Search journal...",
+
+        // Plants
+        "plants.total": "total",
+        "plants.noResults": "No plants found",
+        "plants.tryDifferentSearch": "Try a different search or remove filters",
+        "plants.deletePlant": "Delete Plant",
+        "plants.deletePlantConfirm":
+          "Are you sure you want to delete {{name}}? This action cannot be undone.",
+        "plants.plantDetails": "Plant Details",
+
+        // Sort
+        "sort.byDate": "By date",
+        "sort.byName": "By name",
+        "sort.bySeedType": "By seed type",
+        "sort.byGrowType": "By grow type",
+        "sort.ascending": "Ascending",
+        "sort.descending": "Descending",
+
+        // Filters
+        "filters.title": "Filters",
+        "filters.active": "Active filters",
+        "filters.all": "All",
+        "filters.clear": "Clear filters",
+        "filters.seedType": "Seed Type",
+        "filters.growType": "Grow Type",
+
+        // Seed Types
+        "seedType.autoflowering": "Autoflowering",
+        "seedType.photoperiodic": "Photoperiodic",
+
+        // Grow Types
+        "growType.indoor": "Indoor",
+        "growType.outdoor": "Outdoor",
 
         // Nutrients
         "nutrients.title": "Nutrients",
@@ -1798,6 +1936,22 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "photos.coverPhotoError": "Error setting cover photo",
         "photos.coverSet": "Cover set!",
         "plantCard.coverPhoto": "Cover photo",
+        "plantCard.day": "Day",
+        "plantCard.status": "PLANT STATUS",
+        "plantCard.watered": "Watered",
+        "plantCard.daysAgo": "days ago",
+        "plantPage.day": "DAY",
+        "plantPage.plantStatus": "PLANT STATUS",
+        "plantPage.watered": "WATERED",
+        "plantPage.dayAgo": "day(s) ago",
+        "plantPage.lighting": "LIGHTING",
+        "plantPage.nutrients": "NUTRIENTS",
+        "plantPage.npk": "N-P-K",
+        "plantPage.ph": "pH",
+        "plantPage.schedule": "Schedule",
+        "plantPage.seedType": "Seed type",
+        "plantPage.growType": "Grow type",
+        "plantPage.seedBank": "Seed bank",
         "photos.setCoverConfirmTitle": "Set as cover",
         "photos.setCoverConfirmDesc":
           "Do you want to set this photo as the plant's cover?",

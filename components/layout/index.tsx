@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { ThemeToggle } from "@/components/common/theme-toggle";
-import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { cn } from "@/lib/utils";
 import {
   Home,
@@ -257,26 +255,6 @@ export function Layout({ children }: LayoutProps) {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col">
-        {/* Mobile header (no sidebar) */}
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
-          <Link
-            href={homeHref}
-            className="flex items-center gap-2 font-semibold"
-          >
-            <Logo size={20} className="text-primary" />
-            <span className="text-xl">{t("app.name")}</span>
-            {isPremium && (
-              <span className="text-xs font-medium text-primary opacity-70 ml-1">
-                Premium
-              </span>
-            )}
-          </Link>
-          <div className="ml-auto flex items-center gap-2">
-            <ThemeToggle />
-            <LanguageSwitcher />
-          </div>
-        </header>
-
         {/* Page content */}
         <main className="flex-1 overflow-auto p-4 pb-24 md:pb-6 md:p-6">
           <div className="mx-auto max-w-7xl">{children}</div>
