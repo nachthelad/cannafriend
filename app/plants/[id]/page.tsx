@@ -34,6 +34,7 @@ import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { AddLogForm } from "@/components/journal/add-log-form";
+import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
 import dynamic from "next/dynamic";
 
 const EnvironmentChart = dynamic(() => import("@/components/plant/environment-chart").then(mod => ({ default: mod.EnvironmentChart })), {
@@ -71,13 +72,23 @@ export default function PlantPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [plant, setPlant] = useState<Plant | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [environmentData, setEnvironmentData] = useState<EnvironmentData[]>([]);
+  
+  // Get latest environment data as a LogEntry-like object for mobile components
+  const lastEnvironment = environmentData.length > 0 
+    ? {
+        temperature: environmentData[0].temperature,
+        humidity: environmentData[0].humidity,
+        ph: environmentData[0].ph,
+        date: environmentData[0].date,
+      } as LogEntry
+    : undefined;
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
@@ -314,9 +325,36 @@ export default function PlantPage({
     }
   };
 
+  if (!plant) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      <div className="mb-6 flex items-start justify-between gap-4">
+      {/* Mobile Plant Page */}
+      <div className="md:hidden">
+        <MobilePlantPage
+          plant={plant}
+          userId={userId!}
+          lastWatering={lastWatering}
+          lastFeeding={lastFeeding}
+          lastTraining={lastTraining}
+          lastEnvironment={lastEnvironment}
+          onAddPhoto={() => setShowUpload(true)}
+          onUpdate={(patch) => setPlant(prev => prev ? { ...prev, ...patch } : null)}
+          language={language}
+        />
+      </div>
+
+      {/* Desktop Plant Page */}
+      <div className="hidden md:block">
+        <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex items-start justify-between w-full">
           <div>
             <div className="flex items-center gap-2">
@@ -601,6 +639,7 @@ export default function PlantPage({
           />
         </DialogContent>
       </Dialog>
+      </div>
     </Layout>
   );
 }

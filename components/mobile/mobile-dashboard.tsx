@@ -76,13 +76,13 @@ export function MobileDashboard({
   }
 
   // Mobile-optimized stats cards
-  const StatCard = ({ 
-    icon: Icon, 
-    label, 
-    value, 
-    href, 
+  const StatCard = ({
+    icon: Icon,
+    label,
+    value,
+    href,
     color = "text-muted-foreground",
-    bgColor = "bg-muted/20"
+    bgColor = "bg-muted/20",
   }: {
     icon: any;
     label: string;
@@ -92,7 +92,9 @@ export function MobileDashboard({
     bgColor?: string;
   }) => {
     const content = (
-      <div className={`rounded-xl p-4 ${bgColor} transition-all active:scale-95`}>
+      <div
+        className={`rounded-xl p-4 ${bgColor} transition-all active:scale-95`}
+      >
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -104,7 +106,7 @@ export function MobileDashboard({
         </div>
         {href && (
           <div className="flex items-center mt-2 text-xs text-primary">
-            View all <ArrowRight className="h-3 w-3 ml-1" />
+            {t("common.view")} <ArrowRight className="h-3 w-3 ml-1" />
           </div>
         )}
       </div>
@@ -120,11 +122,11 @@ export function MobileDashboard({
   };
 
   // Quick action buttons for mobile
-  const QuickActionButton = ({ 
-    icon: Icon, 
-    label, 
-    href, 
-    isPremiumFeature = false 
+  const QuickActionButton = ({
+    icon: Icon,
+    label,
+    href,
+    isPremiumFeature = false,
   }: {
     icon: any;
     label: string;
@@ -160,7 +162,7 @@ export function MobileDashboard({
                   {t("reminders.overdue")}
                 </p>
                 <p className="text-sm text-orange-600 dark:text-orange-300">
-                  You have overdue reminders
+                  {t("dashboard.overdueRemindersDesc")}
                 </p>
               </div>
               <Button
@@ -169,7 +171,7 @@ export function MobileDashboard({
                 size="sm"
                 className="border-orange-200 text-orange-700 hover:bg-orange-100"
               >
-                <Link href={ROUTE_REMINDERS}>View</Link>
+                <Link href={ROUTE_REMINDERS}>{t("common.view")}</Link>
               </Button>
             </div>
           </CardContent>
@@ -188,7 +190,7 @@ export function MobileDashboard({
         />
         <StatCard
           icon={Calendar}
-          label="Recent Logs"
+          label={t("journal.recentLogs")}
           value={recentLogs.length}
           href={ROUTE_JOURNAL}
           color="text-blue-600"
@@ -206,8 +208,8 @@ export function MobileDashboard({
         )}
         <StatCard
           icon={TrendingUp}
-          label="Growth"
-          value="Active"
+          label={t("dashboard.growth")}
+          value={t("dashboard.active")}
           color="text-emerald-600"
           bgColor="bg-emerald-50 dark:bg-emerald-950/20"
         />
@@ -218,9 +220,9 @@ export function MobileDashboard({
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            Quick Actions
+            {t("dashboard.quickActions")}
           </CardTitle>
-          <CardDescription>Frequently used features</CardDescription>
+          <CardDescription>{t("dashboard.quickActionsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3">
@@ -269,12 +271,12 @@ export function MobileDashboard({
             <div>
               <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
               <CardDescription>
-                {plants.length} plants growing
+                {plants.length} {t("dashboard.plantsGrowing")}
               </CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
               <Link href={ROUTE_PLANTS}>
-                View all <ArrowRight className="h-4 w-4 ml-1" />
+                {t("common.view")} <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
           </CardHeader>
@@ -294,18 +296,19 @@ export function MobileDashboard({
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
               <CardTitle>{t("journal.recentLogs")}</CardTitle>
-              <CardDescription>
-                Latest activity from your plants
-              </CardDescription>
+              <CardDescription>{t("dashboard.latestActivity")}</CardDescription>
             </div>
             <Button asChild variant="ghost" size="sm">
               <Link href={ROUTE_JOURNAL}>
-                View all <ArrowRight className="h-4 w-4 ml-1" />
+                {t("common.view")} <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
-            <JournalEntries logs={recentLogs.slice(0, 3)} showPlantName={true} />
+            <JournalEntries
+              logs={recentLogs.slice(0, 3)}
+              showPlantName={true}
+            />
           </CardContent>
         </Card>
       )}
@@ -317,7 +320,7 @@ export function MobileDashboard({
             <Leaf className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="mb-2">{t("dashboard.noPlants")}</CardTitle>
             <CardDescription className="mb-6">
-              Start your growing journey by adding your first plant
+              {t("dashboard.startGrowingJourney")}
             </CardDescription>
             <Button asChild size="lg">
               <Link href="/plants/new">

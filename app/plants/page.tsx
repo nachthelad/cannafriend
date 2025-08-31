@@ -29,6 +29,8 @@ import { Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
+import { MobilePlantList } from "@/components/mobile/mobile-plant-list";
+import { MobilePlantListSkeleton } from "@/components/skeletons/mobile-plant-list-skeleton";
 
 export default function PlantsListPage() {
   const { t } = useTranslation();
@@ -160,78 +162,107 @@ export default function PlantsListPage() {
     return plants.filter((p) => p.name.toLowerCase().includes(q));
   }, [plants, search]);
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">{t("dashboard.yourPlants")}</h1>
-          <p className="text-muted-foreground">
-            {t("features.management.desc")}
-          </p>
-        </div>
-        <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-          <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
-        </Button>
+      {/* Mobile Plant List - only show on mobile */}
+      <div className="md:hidden">
+        {isLoading ? (
+          <MobilePlantListSkeleton />
+        ) : (
+          <MobilePlantList
+            plants={plants}
+            isLoading={isLoading}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={loadMore}
+            language={t("common.language") || "en"}
+          />
+        )}
       </div>
 
-      <div className="mb-4">
-        <Input
-          placeholder={t("search.placeholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      {/* Desktop Plant List - only show on desktop */}
+      <div className="hidden md:block">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <div>
+                <h1 className="text-3xl font-bold">
+                  {t("dashboard.yourPlants")}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t("features.management.desc")}
+                </p>
+              </div>
+              <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+                <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+              </Button>
+            </div>
 
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((plant) => (
-            <PlantCard
-              key={plant.id}
-              plant={plant}
-              lastWatering={lastWaterings[plant.id]}
-              lastFeeding={lastFeedings[plant.id]}
-              lastTraining={lastTrainings[plant.id]}
-            />
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.noPlants")}</CardTitle>
-            <CardDescription>{t("dashboard.noPlantDesc")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-              <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+            <div className="mb-4">
+              <Input
+                placeholder={t("search.placeholder")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
 
-      {hasMore && (
-        <div className="flex justify-center mt-6">
-          <Button variant="outline" onClick={loadMore} disabled={isLoadingMore}>
-            {isLoadingMore ? (
-              <>
-                <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />{" "}
-                {t("common.loading")}
-              </>
+            {filtered.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filtered.map((plant) => (
+                  <PlantCard
+                    key={plant.id}
+                    plant={plant}
+                    lastWatering={lastWaterings[plant.id]}
+                    lastFeeding={lastFeedings[plant.id]}
+                    lastTraining={lastTrainings[plant.id]}
+                  />
+                ))}
+              </div>
             ) : (
-              t("common.loadMore")
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("dashboard.noPlants")}</CardTitle>
+                  <CardDescription>
+                    {t("dashboard.noPlantDesc")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+                    <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+                  </Button>
+                </CardContent>
+              </Card>
             )}
-          </Button>
-        </div>
-      )}
+
+            {hasMore && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  variant="outline"
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <AnimatedLogo
+                        size={16}
+                        className="mr-2 text-primary"
+                        duration={1.2}
+                      />{" "}
+                      {t("common.loading")}
+                    </>
+                  ) : (
+                    t("common.loadMore")
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </Layout>
   );
 }
