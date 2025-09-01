@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
+import { adminAuth, ensureAdminApp } from "@/lib/firebase-admin";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
+import { getFirestore } from "firebase-admin/firestore";
 
 export const runtime = "nodejs";
 
@@ -134,7 +135,41 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content ?? "";
 
-    return NextResponse.json({ response: content });
+    // Save chat session to Firebase
+    let newSessionId = sessionId;
+    if (!sessionId) {
+      newSessionId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    try {
+      ensureAdminApp();
+      const db = getFirestore();
+      const chatRef = db.collection("users").doc(decoded.uid).collection("aiChats").doc(newSessionId);
+
+      const assistantMessage = {
+        role: "assistant" as const,
+        content,
+        timestamp: new Date().toISOString(),
+      };
+
+      const chatData = {
+        messages: [...messages, assistantMessage],
+        chatType,
+        lastUpdated: new Date().toISOString(),
+        title: messages[0]?.content.slice(0, 50) + (messages[0]?.content.length > 50 ? "..." : "") || "New Chat",
+        createdAt: sessionId ? undefined : new Date(), // Only set createdAt for new chats
+      };
+
+      await chatRef.set(chatData, { merge: true });
+    } catch (error) {
+      // Database error shouldn't break the response
+      console.error("Error saving chat:", error);
+    }
+
+    return NextResponse.json({ 
+      response: content,
+      sessionId: newSessionId,
+    });
   } catch (e: any) {
     return NextResponse.json(
       { error: e?.message || "Unexpected error" },
