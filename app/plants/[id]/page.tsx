@@ -33,7 +33,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
-import { AddLogForm } from "@/components/journal/add-log-form";
 import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
 import dynamic from "next/dynamic";
 
@@ -600,22 +599,13 @@ export default function PlantPage({
             <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
             <CardDescription>{t("plantPage.recentLogsDesc")}</CardDescription>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="icon" aria-label="Add log">
-                <Plus className="h-5 w-5" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl">
-              <DialogHeader>
-                <DialogTitle>{t("plantPage.addLog")}</DialogTitle>
-              </DialogHeader>
-              <AddLogForm
-                plantId={id}
-                onSuccess={(newLog) => setLogs([newLog, ...logs])}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button 
+            size="icon" 
+            aria-label="Add log"
+            onClick={() => router.push(`/journal/new?plantId=${id}`)}
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
         </CardHeader>
         <CardContent>
           <JournalEntries
