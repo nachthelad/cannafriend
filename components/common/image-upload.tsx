@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
@@ -38,7 +38,24 @@ export function ImageUpload({
   const { t } = useTranslation();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Detect if user is on mobile device
+  useEffect(() => {
+    const checkIsMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice = /android|avantgo|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(userAgent);
+      const isSmallScreen = window.innerWidth < 768;
+      return isMobileDevice || isSmallScreen;
+    };
+    
+    setIsMobile(checkIsMobile());
+    
+    const handleResize = () => setIsMobile(checkIsMobile());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const uploadImage = async (file: File): Promise<string> => {
     const userId = auth.currentUser?.uid;
@@ -201,10 +218,16 @@ export function ImageUpload({
         <div className="space-y-2">
           <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
           <div>
-            <p className="text-sm font-medium">{t("imageUpload.dragDrop")}</p>
-            <p className="text-xs text-muted-foreground">
-              {t("imageUpload.orClick")}
-            </p>
+            {isMobile ? (
+              <p className="text-sm font-medium">{t("imageUpload.tapToSelect")}</p>
+            ) : (
+              <>
+                <p className="text-sm font-medium">{t("imageUpload.dragDrop")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("imageUpload.orClick")}
+                </p>
+              </>
+            )}
           </div>
           <Button
             type="button"

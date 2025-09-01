@@ -141,10 +141,10 @@ export function Layout({ children }: LayoutProps) {
 
   const routes = baseRoutes.filter((r) => {
     if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
-    
+
     // AI Assistant is only available for premium users
     if (r.href === ROUTE_AI_ASSISTANT && !isPremium) return false;
-    
+
     const growerPaths: string[] = [
       ROUTE_DASHBOARD,
       ROUTE_PLANTS_NEW,
@@ -230,7 +230,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Main content */}
       <div className="flex flex-1 flex-col">
         {/* Page content */}
-        <main className="flex-1 overflow-auto p-4 pb-24 md:pb-6 md:p-6">
+        <main className="flex-1 overflow-auto p-4 pb-41 md:pb-6 md:p-6">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
         {/* Mobile bottom navigation */}

@@ -18,7 +18,6 @@ import {
   Plus,
   Pencil,
   Trash2,
-  ChevronDown,
   Calendar,
   Clock,
   Heart,
@@ -39,12 +38,6 @@ import {
 import { arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { useTranslation } from "@/hooks/use-translation";
 import { useToast } from "@/hooks/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import { formatDateTime } from "@/lib/format";
@@ -277,39 +270,10 @@ export default function StrainsPage() {
             <h1 className="hidden md:block text-3xl font-bold">
               {t("strains.title")}
             </h1>
-            {/* Mobile: title acts as trigger when both roles; otherwise just title */}
-            {roles?.grower && roles?.consumer ? (
-              <div className="md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      aria-label="switch"
-                      className="flex items-center p-1"
-                    >
-                      <h1 className="text-3xl font-bold">
-                        {t("strains.title")}
-                      </h1>
-                      <ChevronDown className="h-5 w-5 ml-1" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" sideOffset={2}>
-                    <DropdownMenuItem
-                      className="text-base py-2"
-                      onClick={() => {
-                        const homePath = resolveHomePathForRoles(roles);
-                        router.push(homePath);
-                      }}
-                    >
-                      {t("dashboard.title")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <h1 className="md:hidden text-3xl font-bold">
-                {t("strains.title")}
-              </h1>
-            )}
+            {/* Mobile title */}
+            <h1 className="md:hidden text-3xl font-bold">
+              {t("strains.title")}
+            </h1>
           </div>
           <p className="text-muted-foreground mt-1">
             {t("strains.description")}
