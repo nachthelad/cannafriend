@@ -95,6 +95,21 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "landing.hero":
           "Tu compañero perfecto para el cultivo de plantas. Registra, monitorea y optimiza el crecimiento de tus plantas de manera profesional.",
 
+        // Image Upload
+        "imageUpload.dragDrop": "Arrastra y suelta imágenes aquí",
+        "imageUpload.orClick": "o haz clic para seleccionar",
+        "imageUpload.tapToSelect": "Toca para seleccionar imágenes",
+        "imageUpload.selectImages": "Seleccionar Imágenes",
+        "imageUpload.uploading": "Subiendo...",
+        "imageUpload.allowedTypes": "Tipos permitidos:",
+        "imageUpload.maxSize": "Tamaño máximo:",
+        "imageUpload.maxImages": "Máximo de imágenes:",
+        "imageUpload.validationErrors": "Errores de validación",
+        "imageUpload.uploadError": "Error de subida",
+        "imageUpload.uploadFailed": "Error al subir imagen",
+        "imageUpload.uploadSuccess": "Imágenes subidas",
+        "imageUpload.imagesUploaded": "Imágenes subidas:",
+
         // Features (landing)
         "features.management.title": "Gestión de Plantas",
         "features.management.desc":
@@ -170,7 +185,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "nav.functions": "Funciones",
         "nav.ai": "IA",
         "nav.goToApp": "Ir a la App",
-        "nav.dashboard": "Panel de Control",
+        "nav.dashboard": "Home",
         "nav.addPlant": "Agregar Planta",
         "nav.journal": "Diario",
         "nav.settings": "Configuración",
@@ -639,12 +654,18 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.addLogFor": "Agregar registro para",
         "journal.viewLogs": "Ver registros",
 
+        // Roles
+        "roles.grower": "Cultivador",
+        "roles.consumer": "Consumidor",
+
         // AI Assistant
         "ai.assistant": "Asistente IA",
         "ai.welcome": "¡Hola! Soy tu Asistente IA",
-        "ai.helpText": "Pregúntame sobre cannabis, cultivo, consumo o sube fotos para análisis.",
+        "ai.helpText":
+          "Pregúntame sobre cannabis, cultivo, consumo o sube fotos para análisis.",
         "ai.universalHelp": "Tu asistente inteligente para cannabis",
-        "ai.universalPlaceholder": "Pregúntame sobre cultivo, consumo o sube una foto...",
+        "ai.universalPlaceholder":
+          "Pregúntame sobre cultivo, consumo o sube una foto...",
         "ai.uploadPhoto": "Subir foto",
         "ai.error": "Error del asistente IA",
         "ai.chatHistory": "Historial de chats",
@@ -1090,6 +1111,21 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Install CannaFriend on your device for quick access",
         "landing.hero":
           "Your perfect companion for plant growing. Record, monitor, and optimize your plants' growth like a pro.",
+
+        // Image Upload
+        "imageUpload.dragDrop": "Drag and drop images here",
+        "imageUpload.orClick": "or click to select",
+        "imageUpload.tapToSelect": "Tap to select images",
+        "imageUpload.selectImages": "Select Images",
+        "imageUpload.uploading": "Uploading...",
+        "imageUpload.allowedTypes": "Allowed types:",
+        "imageUpload.maxSize": "Max size:",
+        "imageUpload.maxImages": "Max images:",
+        "imageUpload.validationErrors": "Validation errors",
+        "imageUpload.uploadError": "Upload error",
+        "imageUpload.uploadFailed": "Failed to upload image",
+        "imageUpload.uploadSuccess": "Images uploaded",
+        "imageUpload.imagesUploaded": "Images uploaded:",
 
         // Features (landing)
         "features.management.title": "Plant Management",
@@ -1625,12 +1661,18 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.logAddedDesc": "Log entry has been added successfully",
         "journal.viewLogs": "View Logs",
 
+        // Roles
+        "roles.grower": "Grower",
+        "roles.consumer": "Consumer",
+
         // AI Assistant
         "ai.assistant": "AI Assistant",
         "ai.welcome": "Hi! I'm your AI Assistant",
-        "ai.helpText": "Ask me about cannabis cultivation, consumption, or upload photos for analysis.",
+        "ai.helpText":
+          "Ask me about cannabis cultivation, consumption, or upload photos for analysis.",
         "ai.universalHelp": "Your intelligent cannabis assistant",
-        "ai.universalPlaceholder": "Ask me about growing, consumption, or upload a photo...",
+        "ai.universalPlaceholder":
+          "Ask me about growing, consumption, or upload a photo...",
         "ai.uploadPhoto": "Upload photo",
         "ai.error": "AI Assistant error",
         "ai.chatHistory": "Chat History",

@@ -57,21 +57,15 @@ export function AILayout({ children }: AILayoutProps) {
             <Settings className="h-4 w-4" />
             {t("settings.title")}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-          >
+          <Button variant="ghost" size="sm" onClick={handleSignOut}>
             {t("auth.signOut")}
           </Button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden pb-16 md:pb-0">
-        {children}
-      </div>
-      
+      <div className="flex-1 overflow-hidden pb-32 md:pb-0">{children}</div>
+
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
     </div>
