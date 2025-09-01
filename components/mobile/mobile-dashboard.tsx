@@ -216,15 +216,15 @@ export function MobileDashboard({
           <div className="grid grid-cols-2 gap-3">
             {roles?.grower && (
               <>
-                {/* <QuickActionButton
-                  icon={Plus}
-                  label={t("nav.addPlant")}
-                  href="/plants/new"
-                /> */}
                 <QuickActionButton
                   icon={Calendar}
                   label={t("nav.journal")}
                   href={ROUTE_JOURNAL}
+                />
+                <QuickActionButton
+                  icon={FlaskConical}
+                  label={t("nutrients.title")}
+                  href={ROUTE_NUTRIENTS}
                 />
                 <QuickActionButton
                   icon={Bell}

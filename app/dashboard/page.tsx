@@ -34,17 +34,10 @@ import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import {
   Plus,
   AlertTriangle,
-  ChevronDown,
   Bell,
   Brain,
 } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
@@ -210,30 +203,9 @@ export default function DashboardPage() {
       {/* Mobile header - only show on mobile */}
       <div className="md:hidden mb-6 flex items-center gap-3">
         <div className="flex items-center">
-          {roles?.grower && roles?.consumer ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button aria-label="switch" className="flex items-center p-0">
-                  <h1 className="text-3xl font-bold">
-                    {t("dashboard.title")}
-                  </h1>
-                  <ChevronDown className="h-5 w-5 ml-1" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" sideOffset={2}>
-                <DropdownMenuItem
-                  className="text-base py-2"
-                  onClick={() => router.push(ROUTE_STRAINS)}
-                >
-                  {t("strains.title")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <h1 className="text-3xl font-bold">
-              {t("dashboard.title")}
-            </h1>
-          )}
+          <h1 className="text-3xl font-bold">
+            {t("dashboard.title")}
+          </h1>
         </div>
         {hasOverdue && (
           <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-xs">

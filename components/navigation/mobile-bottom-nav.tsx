@@ -3,8 +3,8 @@
 import type React from "react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
 import {
   Home,
   Calendar,
@@ -13,18 +13,15 @@ import {
   Package,
   Brain,
   FlaskConical,
+  Sprout,
+  Leaf,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { cn } from "@/lib/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/hooks/use-translation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { triggerHaptic } from "@/lib/haptic";
 import {
   ROUTE_STRAINS,
   ROUTE_DASHBOARD,
@@ -37,191 +34,217 @@ import {
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
   const { roles, isLoading: rolesLoading } = useUserRoles();
   const { t } = useTranslation();
-  const [chooserOpen, setChooserOpen] = useState(false);
-  // no home chooser; home goes directly
+  const [currentViewMode, setCurrentViewMode] = useState<'grower' | 'consumer'>('grower');
+
+  // Load persisted role selection from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedViewMode = localStorage.getItem('cannafriend-view-mode') as 'grower' | 'consumer' | null;
+      if (savedViewMode && (savedViewMode === 'grower' || savedViewMode === 'consumer')) {
+        setCurrentViewMode(savedViewMode);
+      } else if (roles) {
+        // Default to grower if user has grower role, otherwise consumer
+        const defaultMode = roles.grower ? 'grower' : 'consumer';
+        setCurrentViewMode(defaultMode);
+        localStorage.setItem('cannafriend-view-mode', defaultMode);
+      }
+    }
+  }, [roles]);
 
   const isActive = (path: string): boolean => {
-    if (path === ROUTE_DASHBOARD)
+    // Handle home path based on current view mode for dual-role users
+    if (path === ROUTE_DASHBOARD) {
       return pathname === ROUTE_DASHBOARD || pathname === "/";
+    }
+    if (path === ROUTE_STRAINS) {
+      return pathname === ROUTE_STRAINS || (pathname === "/" && currentViewMode === 'consumer');
+    }
     return pathname?.startsWith(path) ?? false;
   };
+
+  const handleHapticClick = useCallback((pattern: 'light' | 'medium' | 'heavy' = 'light') => {
+    triggerHaptic(pattern);
+  }, []);
+
+  const handleRoleSwitch = useCallback((mode: 'grower' | 'consumer') => {
+    triggerHaptic('medium');
+    setCurrentViewMode(mode);
+    // Persist role selection
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cannafriend-view-mode', mode);
+    }
+    // Navigate to appropriate page for the selected role
+    if (mode === 'grower') {
+      router.push(ROUTE_DASHBOARD);
+    } else {
+      router.push(ROUTE_STRAINS);
+    }
+  }, [router]);
+
+  const handleFloatingActionClick = useCallback(() => {
+    triggerHaptic('medium');
+    // Navigate based on current view mode
+    if (currentViewMode === 'grower') {
+      router.push('/plants/new');
+    } else {
+      router.push('/sessions/new');
+    }
+  }, [currentViewMode, router]);
+
+  // Determine navigation items based on current view mode for dual-role users
+  const getNavigationItems = () => {
+    if (!roles) return [];
+    
+    if (roles.grower && roles.consumer) {
+      // Dual role - show based on current view mode (always 4 items for centered floating button)
+      return currentViewMode === 'grower' 
+        ? [
+            { href: ROUTE_DASHBOARD, icon: Home, label: t("nav.dashboard") },
+            { href: ROUTE_JOURNAL, icon: Calendar, label: t("nav.journal") },
+            { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
+            { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+          ]
+        : [
+            { href: ROUTE_STRAINS, icon: Home, label: t("strains.title") },
+            { href: ROUTE_STASH, icon: Package, label: t("stash.title") },
+            { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
+            { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+          ];
+    } else if (roles.grower) {
+      // Grower only (4 items for centered floating button) - always dashboard
+      return [
+        { href: ROUTE_DASHBOARD, icon: Home, label: t("nav.dashboard") },
+        { href: ROUTE_JOURNAL, icon: Calendar, label: t("nav.journal") },
+        { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
+        { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+      ];
+    } else {
+      // Consumer only (4 items for centered floating button) - always strains
+      return [
+        { href: ROUTE_STRAINS, icon: Home, label: t("strains.title") },
+        { href: ROUTE_STASH, icon: Package, label: t("stash.title") },
+        { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
+        { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+      ];
+    }
+  };
+
+  const navigationItems = getNavigationItems();
 
   return (
     <nav
       className={
         // fixed bottom bar, only on mobile
-        "md:hidden fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        "md:hidden fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 transition-transform duration-300 ease-in-out"
       }
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Primary"
     >
-      <div
-        className={cn(
-          "relative mx-auto grid max-w-7xl items-center px-4 py-2 grid-cols-5"
-        )}
-      >
+      {/* Role switching UI for dual-role users */}
+      {roles && roles.grower && roles.consumer && (
+        <div className="flex items-center justify-center py-1 px-4 border-b border-border/40">
+          <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1">
+            <button
+              onClick={() => handleRoleSwitch('grower')}
+              className={cn(
+                "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
+                currentViewMode === 'grower'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-label="Grower mode"
+            >
+              <Sprout className="h-3 w-3 mr-1.5" />
+              {t("roles.grower")}
+            </button>
+            <button
+              onClick={() => handleRoleSwitch('consumer')}
+              className={cn(
+                "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
+                currentViewMode === 'consumer'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-label="Consumer mode"
+            >
+              <Leaf className="h-3 w-3 mr-1.5" />
+              {t("roles.consumer")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="relative mx-auto grid max-w-7xl items-center px-4 py-3 grid-cols-5">
         {rolesLoading || !roles ? (
           <>
-            <Skeleton className="h-12" />
-            <Skeleton className="h-12" />
-            <Skeleton className="h-12" />
-            {!roles || roles.grower ? <Skeleton className="h-12" /> : null}
-            <Skeleton className="h-12" />
+            <Skeleton className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-xl" />
           </>
         ) : (
           <>
-            {/* Home */}
-            {roles.consumer && !roles.grower ? (
-              <Link
-                href={ROUTE_STRAINS}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_STRAINS)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Home"
-              >
-                <Home className="h-5 w-5" />
-              </Link>
-            ) : roles.grower && roles.consumer ? (
-              <Link
-                href={ROUTE_DASHBOARD}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_DASHBOARD)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Home"
-              >
-                <Home className="h-5 w-5" />
-              </Link>
-            ) : (
-              <Link
-                href={ROUTE_DASHBOARD}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_DASHBOARD)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Home"
-              >
-                <Home className="h-5 w-5" />
-              </Link>
-            )}
-
-            {/* Slot 2: consumer-only = Stash, grower = Journal */}
-            {roles.consumer && !roles.grower ? (
-              <Link
-                href={ROUTE_STASH}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_STASH)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Stash"
-              >
-                <Package className="h-5 w-5" />
-              </Link>
-            ) : roles.grower ? (
-              <Link
-                href={ROUTE_JOURNAL}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_JOURNAL)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Journal"
-              >
-                <Calendar className="h-5 w-5" />
-              </Link>
-            ) : null}
-
-            {/* Center Add button: new plant if grower, new session if consumer-only */}
-            <div className="flex items-center justify-center">
-              {roles.grower && roles.consumer ? (
-                <button
-                  type="button"
-                  onClick={() => setChooserOpen(true)}
-                  className="-translate-y-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
-                  aria-label="Add"
-                >
-                  <Plus className="h-7 w-7" />
-                </button>
-              ) : (
+            {/* First two navigation items */}
+            {navigationItems.slice(0, 2).map((item) => {
+              const IconComponent = item.icon;
+              return (
                 <Link
-                  href={roles.grower ? "/plants/new" : "/sessions/new"}
-                  className="-translate-y-3 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg"
-                  aria-label="Add"
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => handleHapticClick('light')}
+                  className={cn(
+                    "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
+                    isActive(item.href)
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  )}
+                  aria-label={item.label}
                 >
-                  <Plus className="h-7 w-7" />
+                  <IconComponent className="h-6 w-6" />
                 </Link>
-              )}
+              );
+            })}
+
+            {/* Center floating add button */}
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={handleFloatingActionClick}
+                className="relative -translate-y-2 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 active:scale-95 hover:shadow-xl hover:shadow-primary/30"
+                aria-label="Add"
+              >
+                <Plus className="h-7 w-7" />
+                <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity duration-200 hover:opacity-100" />
+              </button>
             </div>
 
-            {/* Slot 4: All users = AI Assistant */}
-            <Link
-              href={ROUTE_AI_ASSISTANT}
-              className={cn(
-                "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                isActive(ROUTE_AI_ASSISTANT)
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              aria-label={t("ai.assistant")}
-            >
-              <Brain className="h-5 w-5" />
-            </Link>
-
-            {/* Settings */}
-            <Link
-              href={ROUTE_SETTINGS}
-              className={cn(
-                "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                isActive(ROUTE_SETTINGS)
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              aria-label="Settings"
-            >
-              <Settings className="h-5 w-5" />
-            </Link>
+            {/* Last two navigation items */}
+            {navigationItems.slice(2, 4).map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => handleHapticClick('light')}
+                  className={cn(
+                    "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
+                    isActive(item.href)
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  )}
+                  aria-label={item.label}
+                >
+                  <IconComponent className="h-6 w-6" />
+                </Link>
+              );
+            })}
           </>
         )}
       </div>
-      {/* Chooser Modal for both roles */}
-      <Dialog open={chooserOpen} onOpenChange={setChooserOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("addChooser.title")}</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 gap-3">
-            <Button
-              asChild
-              className="w-full"
-              onClick={() => setChooserOpen(false)}
-            >
-              <Link href="/plants/new">{t("addChooser.plant")}</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="w-full"
-              onClick={() => setChooserOpen(false)}
-            >
-              <Link href="/sessions/new">{t("addChooser.session")}</Link>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* no home chooser */}
     </nav>
   );
 }
