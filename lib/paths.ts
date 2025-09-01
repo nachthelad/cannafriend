@@ -29,3 +29,10 @@ export const analysisDoc = (uid: string, analysisId: string) =>
 // AI Consumer Chats
 export const consumerChatsCol = (uid: string) =>
   collection(db, "users", uid, "consumerChats");
+
+// Unified AI Chats
+export const aiChatsCol = (uid: string) =>
+  collection(db, "users", uid, "aiChats");
+
+export const aiChatDoc = (uid: string, chatId: string) =>
+  doc(db, "users", uid, "aiChats", chatId);
