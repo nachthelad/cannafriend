@@ -255,7 +255,7 @@ function NewJournalPageContent() {
                 </SelectTrigger>
                 <SelectContent>
                   {plants.map((plant) => (
-                    <SelectItem key={plant.id} value={plant.id}>
+                    <SelectItem key={plant.id} value={plant.id} className="min-h-[44px]">
                       {plant.name}
                     </SelectItem>
                   ))}
@@ -275,7 +275,7 @@ function NewJournalPageContent() {
               </SelectTrigger>
               <SelectContent>
                 {LOG_TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem key={option.value} value={option.value} className="min-h-[44px]">
                     {t(option.label)}
                   </SelectItem>
                 ))}
@@ -327,6 +327,7 @@ function NewJournalPageContent() {
                 <Input
                   id="wateringAmount"
                   type="number"
+                  inputMode="decimal"
                   step="0.1"
                   placeholder="0.5"
                   className="min-h-[48px] text-base"
@@ -355,7 +356,7 @@ function NewJournalPageContent() {
                       />
                       <Label
                         htmlFor={option.value}
-                        className="text-base font-normal cursor-pointer flex-1 min-h-[48px] flex items-center"
+                        className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
                       >
                         {t(option.label)}
                       </Label>
@@ -390,6 +391,7 @@ function NewJournalPageContent() {
                 <Input
                   id="feedingAmount"
                   type="number"
+                  inputMode="decimal"
                   step="0.1"
                   placeholder="2.0"
                   className="min-h-[48px] text-base"
@@ -422,7 +424,7 @@ function NewJournalPageContent() {
                     />
                     <Label
                       htmlFor={option.value}
-                      className="text-base font-normal cursor-pointer flex-1 min-h-[48px] flex items-center"
+                      className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
                     >
                       {t(option.label)}
                     </Label>
@@ -445,6 +447,7 @@ function NewJournalPageContent() {
                   <Input
                     id="temperature"
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     placeholder="24.5"
                     className="min-h-[48px] text-base"
@@ -458,6 +461,7 @@ function NewJournalPageContent() {
                   <Input
                     id="humidity"
                     type="number"
+                    inputMode="numeric"
                     step="1"
                     placeholder="60"
                     className="min-h-[48px] text-base"
@@ -471,6 +475,7 @@ function NewJournalPageContent() {
                   <Input
                     id="ph"
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     placeholder="6.2"
                     className="min-h-[48px] text-base"
@@ -484,6 +489,7 @@ function NewJournalPageContent() {
                   <Input
                     id="light"
                     type="number"
+                    inputMode="numeric"
                     step="1"
                     placeholder="400"
                     className="min-h-[48px] text-base"
@@ -518,7 +524,7 @@ function NewJournalPageContent() {
               id="notes"
               placeholder={t("logForm.notesPlaceholder")}
               rows={4}
-              className="text-base resize-none"
+              className="text-base resize-none min-h-[120px]"
               onChange={(e) => setValue("notes", e.target.value)}
             />
           </div>

@@ -437,14 +437,25 @@
 
 ### 📋 Pending
 
-#### 7. Mobile-optimized forms with large touch targets and proper keyboards
+#### 7. Mobile-optimized forms with large touch targets and proper keyboards ✅
 
-- [ ] Redesign all forms with 44px+ touch targets
-- [ ] Implement proper input types for mobile keyboards
+- [x] Redesign all forms with 44px+ touch targets
+- [x] Implement proper input types for mobile keyboards
 - [ ] Add form validation with mobile-friendly error states
 - [ ] Create auto-advancing form fields
 - [ ] Add form progress indicators
 - [ ] Test accessibility and keyboard navigation
+
+**Implementation details:**
+
+- Updated journal new page form (`app/journal/new/page.tsx`) with mobile-optimized touch targets
+- Added `min-h-[44px]` to all SelectItem components for plant and log type dropdowns
+- Updated radio button labels to use proper 44px minimum touch targets
+- Added `min-h-[120px]` to notes textarea for better mobile interaction
+- Implemented proper `inputMode` attributes:
+  - `inputMode="decimal"` for decimal inputs (amounts, temperature, pH)
+  - `inputMode="numeric"` for integer inputs (humidity, light levels)
+- Mobile keyboards now show appropriate keypad based on input type
 
 ## Priority 3: Enhanced Features
 

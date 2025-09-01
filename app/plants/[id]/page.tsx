@@ -36,10 +36,20 @@ import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
 import dynamic from "next/dynamic";
 
-const EnvironmentChart = dynamic(() => import("@/components/plant/environment-chart").then(mod => ({ default: mod.EnvironmentChart })), {
-  loading: () => <div className="flex justify-center py-8"><AnimatedLogo size={24} className="text-primary" duration={1.5} /></div>,
-  ssr: false
-});
+const EnvironmentChart = dynamic(
+  () =>
+    import("@/components/plant/environment-chart").then((mod) => ({
+      default: mod.EnvironmentChart,
+    })),
+  {
+    loading: () => (
+      <div className="flex justify-center py-8">
+        <AnimatedLogo size={24} className="text-primary" duration={1.5} />
+      </div>
+    ),
+    ssr: false,
+  }
+);
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import { Trash2, Plus, Star } from "lucide-react";
@@ -60,7 +70,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
 import { addDoc, updateDoc } from "firebase/firestore";
@@ -78,16 +87,17 @@ export default function PlantPage({
   const [plant, setPlant] = useState<Plant | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [environmentData, setEnvironmentData] = useState<EnvironmentData[]>([]);
-  
+
   // Get latest environment data as a LogEntry-like object for mobile components
-  const lastEnvironment = environmentData.length > 0 
-    ? {
-        temperature: environmentData[0].temperature,
-        humidity: environmentData[0].humidity,
-        ph: environmentData[0].ph,
-        date: environmentData[0].date,
-      } as LogEntry
-    : undefined;
+  const lastEnvironment =
+    environmentData.length > 0
+      ? ({
+          temperature: environmentData[0].temperature,
+          humidity: environmentData[0].humidity,
+          ph: environmentData[0].ph,
+          date: environmentData[0].date,
+        } as LogEntry)
+      : undefined;
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
@@ -346,7 +356,9 @@ export default function PlantPage({
           lastTraining={lastTraining}
           lastEnvironment={lastEnvironment}
           onAddPhoto={() => setShowUpload(true)}
-          onUpdate={(patch) => setPlant(prev => prev ? { ...prev, ...patch } : null)}
+          onUpdate={(patch) =>
+            setPlant((prev) => (prev ? { ...prev, ...patch } : null))
+          }
           language={language}
         />
       </div>
@@ -354,140 +366,193 @@ export default function PlantPage({
       {/* Desktop Plant Page */}
       <div className="hidden md:block">
         <div className="mb-6 flex items-start justify-between gap-4">
-        <div className="flex items-start justify-between w-full">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-bold">{plant.name}</h1>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Delete plant"
-                    className="shrink-0 hover:bg-transparent"
-                  >
-                    <Trash2 className="h-5 w-5 text-red-600" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {t("plant.deleteTitle")}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t("plant.deleteDesc")}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>
-                      {t("common.cancel")}
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeletePlant}
-                      disabled={isDeleting}
+          <div className="flex items-start justify-between w-full">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold">{plant.name}</h1>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Delete plant"
+                      className="shrink-0 hover:bg-transparent"
                     >
-                      {t("plant.deleteConfirm")}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-            <div className="mt-1">
-              <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                  plant.seedType === "autoflowering"
-                    ? "bg-primary/10 text-primary"
-                    : "bg-muted text-foreground"
-                }`}
-              >
-                {plant.seedType === "autoflowering"
-                  ? t("newPlant.autoflowering")
-                  : t("newPlant.photoperiodic")}
-              </span>
+                      <Trash2 className="h-5 w-5 text-red-600" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {t("plant.deleteTitle")}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("plant.deleteDesc")}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDeleting}>
+                        {t("common.cancel")}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeletePlant}
+                        disabled={isDeleting}
+                      >
+                        {t("plant.deleteConfirm")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <div className="mt-1">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    plant.seedType === "autoflowering"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  {plant.seedType === "autoflowering"
+                    ? t("newPlant.autoflowering")
+                    : t("newPlant.photoperiodic")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Profile layout */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left: main image + thumbnails */}
-        <Card className="overflow-hidden">
-          <div className="relative aspect-[4/3] bg-muted">
-            <Image
-              src={
-                selectedPhoto || coverPhoto || photos[0] || "/placeholder.svg"
-              }
-              alt={plant.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
-          <div className="flex items-center justify-between px-3 pb-2">
-            <div className="text-sm text-muted-foreground">
-              {photos.length}{" "}
-              {photos.length === 1 ? t("photos.photo") : t("photos.photos")}
+        {/* Profile layout */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Left: main image + thumbnails */}
+          <Card className="overflow-hidden">
+            <div className="relative aspect-[4/3] bg-muted">
+              <Image
+                src={
+                  selectedPhoto || coverPhoto || photos[0] || "/placeholder.svg"
+                }
+                alt={plant.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                priority
+              />
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setShowUpload(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" /> {t("photos.addPhotos")}
-            </Button>
-          </div>
-          {photos.length > 1 && (
-            <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
-              {photos.map((p, idx) => (
-                <div
-                  key={idx}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedPhoto(p)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedPhoto(p);
-                    }
-                  }}
-                  className={`relative aspect-square overflow-hidden rounded-md border cursor-pointer ${
-                    (selectedPhoto || coverPhoto) === p
-                      ? "ring-2 ring-primary"
-                      : ""
-                  }`}
-                >
-                  <Image
-                    src={p}
-                    alt={`${plant.name} ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="100px"
-                    loading="lazy"
-                  />
+            <div className="flex items-center justify-between px-3 pb-2">
+              <div className="text-sm text-muted-foreground">
+                {photos.length}{" "}
+                {photos.length === 1 ? t("photos.photo") : t("photos.photos")}
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowUpload(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" /> {t("photos.addPhotos")}
+              </Button>
+            </div>
+            {photos.length > 1 && (
+              <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
+                {photos.map((p, idx) => (
+                  <div
+                    key={idx}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedPhoto(p)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedPhoto(p);
+                      }
+                    }}
+                    className={`relative aspect-square overflow-hidden rounded-md border cursor-pointer ${
+                      (selectedPhoto || coverPhoto) === p
+                        ? "ring-2 ring-primary"
+                        : ""
+                    }`}
+                  >
+                    <Image
+                      src={p}
+                      alt={`${plant.name} ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="100px"
+                      loading="lazy"
+                    />
 
-                  {/* Controls: Set cover + Delete photo */}
-                  {coverPhoto !== p && (
+                    {/* Controls: Set cover + Delete photo */}
+                    {coverPhoto !== p && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute left-1 bottom-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={t("photos.setAsCover")}
+                          >
+                            <Star className="h-3.5 w-3.5 text-yellow-500" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              {t("photos.setCoverConfirmTitle")}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t("photos.setCoverConfirmDesc")}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>
+                              {t("settings.cancel")}
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!userId) return;
+                                try {
+                                  await updateDoc(plantDocRef(userId, id), {
+                                    coverPhoto: p,
+                                  });
+                                  setCoverPhoto(p);
+                                  setSelectedPhoto(p);
+                                  toast({ title: t("photos.coverSet") });
+                                } catch (error: any) {
+                                  toast({
+                                    variant: "destructive",
+                                    title: t("common.error"),
+                                    description: error.message,
+                                  });
+                                }
+                              }}
+                            >
+                              {t("photos.setAsCover")}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+
+                    {/* Delete photo small button */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute left-1 bottom-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
                           onClick={(e) => e.stopPropagation()}
-                          aria-label={t("photos.setAsCover")}
+                          aria-label={t("photos.removeSuccess")}
                         >
-                          <Star className="h-3.5 w-3.5 text-yellow-500" />
+                          <Trash2 className="h-3 w-3 text-destructive" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            {t("photos.setCoverConfirmTitle")}
+                            {t("settings.confirmDelete")}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            {t("photos.setCoverConfirmDesc")}
+                            {t("settings.confirmDeleteDesc")}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -495,140 +560,87 @@ export default function PlantPage({
                             {t("settings.cancel")}
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={async (e) => {
+                            onClick={(e) => {
                               e.stopPropagation();
-                              if (!userId) return;
-                              try {
-                                await updateDoc(plantDocRef(userId, id), {
-                                  coverPhoto: p,
-                                });
-                                setCoverPhoto(p);
-                                setSelectedPhoto(p);
-                                toast({ title: t("photos.coverSet") });
-                              } catch (error: any) {
-                                toast({
-                                  variant: "destructive",
-                                  title: t("common.error"),
-                                  description: error.message,
-                                });
-                              }
+                              void handleRemovePhoto(idx);
                             }}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            {t("photos.setAsCover")}
+                            {t("strains.deleteConfirm")}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                  )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
 
-                  {/* Delete photo small button */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={t("photos.removeSuccess")}
-                      >
-                        <Trash2 className="h-3 w-3 text-destructive" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {t("settings.confirmDelete")}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t("settings.confirmDeleteDesc")}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          {t("settings.cancel")}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            void handleRemovePhoto(idx);
-                          }}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          {t("strains.deleteConfirm")}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              ))}
+          {/* Right: plant details + environment */}
+          <div className="space-y-6">
+            <PlantDetails
+              plant={plant}
+              userId={userId!}
+              lastWatering={lastWatering || undefined}
+              lastFeeding={lastFeeding || undefined}
+              lastTraining={lastTraining || undefined}
+              lastFlowering={lastFlowering || undefined}
+              onUpdate={(patch) =>
+                setPlant((prev) => (prev ? { ...prev, ...patch } : prev))
+              }
+            />
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("plantPage.environmentData")}</CardTitle>
+                <CardDescription>
+                  {t("plantPage.environmentDataDesc")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <EnvironmentChart data={environmentData} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Journal section */}
+        <Card className="mt-6">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
+              <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
+              <CardDescription>{t("plantPage.recentLogsDesc")}</CardDescription>
             </div>
-          )}
+            <Button
+              size="icon"
+              aria-label="Add log"
+              onClick={() => router.push(`/journal/new?plantId=${id}`)}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <JournalEntries
+              logs={logs}
+              onDelete={(log) => handleDeleteLog(log.id!)}
+            />
+          </CardContent>
         </Card>
 
-        {/* Right: plant details + environment */}
-        <div className="space-y-6">
-          <PlantDetails
-            plant={plant}
-            userId={userId!}
-            lastWatering={lastWatering || undefined}
-            lastFeeding={lastFeeding || undefined}
-            lastTraining={lastTraining || undefined}
-            lastFlowering={lastFlowering || undefined}
-            onUpdate={(patch) =>
-              setPlant((prev) => (prev ? { ...prev, ...patch } : prev))
-            }
-          />
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("plantPage.environmentData")}</CardTitle>
-              <CardDescription>
-                {t("plantPage.environmentDataDesc")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <EnvironmentChart data={environmentData} />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Journal section */}
-      <Card className="mt-6">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
-            <CardDescription>{t("plantPage.recentLogsDesc")}</CardDescription>
-          </div>
-          <Button 
-            size="icon" 
-            aria-label="Add log"
-            onClick={() => router.push(`/journal/new?plantId=${id}`)}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <JournalEntries
-            logs={logs}
-            onDelete={(log) => handleDeleteLog(log.id!)}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Upload photos modal */}
-      <Dialog open={showUpload} onOpenChange={setShowUpload}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{t("photos.uploadPhotos")}</DialogTitle>
-          </DialogHeader>
-          <ImageUpload
-            onImagesChange={handlePhotosChange}
-            maxImages={DEFAULT_MAX_IMAGES}
-            maxSizeMB={DEFAULT_MAX_SIZE_MB}
-            className="mt-4"
-          />
-        </DialogContent>
-      </Dialog>
+        {/* Upload photos modal */}
+        <Dialog open={showUpload} onOpenChange={setShowUpload}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>{t("photos.uploadPhotos")}</DialogTitle>
+            </DialogHeader>
+            <ImageUpload
+              onImagesChange={handlePhotosChange}
+              maxImages={DEFAULT_MAX_IMAGES}
+              maxSizeMB={DEFAULT_MAX_SIZE_MB}
+              className="mt-4"
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
