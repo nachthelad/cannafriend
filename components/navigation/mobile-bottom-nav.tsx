@@ -30,7 +30,7 @@ import {
   ROUTE_DASHBOARD,
   ROUTE_JOURNAL,
   ROUTE_SETTINGS,
-  ROUTE_AI_CONSUMER,
+  ROUTE_AI_ASSISTANT,
   ROUTE_STASH,
   ROUTE_NUTRIENTS,
 } from "@/lib/routes";
@@ -165,34 +165,19 @@ export function MobileBottomNav(): React.ReactElement {
               )}
             </div>
 
-            {/* Slot 4: grower = Nutrients, consumer-only = AI Chat when premium */}
-            {roles.grower ? (
-              <Link
-                href={ROUTE_NUTRIENTS}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_NUTRIENTS)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label="Nutrients"
-              >
-                <FlaskConical className="h-5 w-5" />
-              </Link>
-            ) : roles.consumer ? (
-              <Link
-                href={ROUTE_AI_CONSUMER}
-                className={cn(
-                  "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
-                  isActive(ROUTE_AI_CONSUMER)
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                aria-label={t("aiConsumer.title")}
-              >
-                <Brain className="h-5 w-5" />
-              </Link>
-            ) : null}
+            {/* Slot 4: All users = AI Assistant */}
+            <Link
+              href={ROUTE_AI_ASSISTANT}
+              className={cn(
+                "flex h-12 flex-col items-center justify-center gap-1 rounded-md text-xs",
+                isActive(ROUTE_AI_ASSISTANT)
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-label={t("ai.assistant")}
+            >
+              <Brain className="h-5 w-5" />
+            </Link>
 
             {/* Settings */}
             <Link

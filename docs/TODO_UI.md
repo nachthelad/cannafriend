@@ -279,6 +279,28 @@
 - `journal.viewLogs` (Spanish: "Ver registros", English: "View Logs")
 - Enhanced existing keys for better plant page integration
 
+#### ✅ Simplified Mobile Plant Cards and View Toggle
+
+**What we built:**
+- **New Simple Plant Cards**: Created `components/mobile/simple-plant-card.tsx` with clean minimal design
+- **Dual Layout Support**: Cards adapt to both grid (2 columns) and list (1 column) view modes
+- **Updated Plant List**: Simplified `components/mobile/mobile-plant-list.tsx` interface and props
+- **Matching Skeletons**: Updated `components/skeletons/mobile-plant-list-skeleton.tsx` to match new design
+
+**Key Features:**
+- **Grid View**: 2-column layout with square aspect ratio cards showing image overlay with name and seed type
+- **List View**: Single column with horizontal cards (80x80px image + text content)
+- **Simplified Content**: Shows only essential info - plant image, name, and seed type badge
+- **Clean Navigation**: One-tap navigation to plant detail page with touch-optimized interactions
+- **Consistent Theming**: Proper light/dark mode support with gradient overlays
+- **Performance**: Lighter components with fewer dependencies and props
+
+**Removed Complexity:**
+- Eliminated complex status displays (temperature, humidity, day counters, etc.)
+- Removed action buttons and dropdown menus from cards
+- Simplified interface by removing unused log entry props
+- Focused on core browsing experience rather than detailed plant management
+
 ### 📋 Pending
 
 #### 6. Mobile navigation system with floating action button and role switching
@@ -319,14 +341,85 @@
 - [ ] Add push notification integration
 - [ ] Test reminder timing and persistence
 
-#### 10. Mobile-first AI chat interface with conversation bubbles
+#### 10. Unified AI Chat Interface (Universal Cannabis Assistant) ✅
 
-- [ ] Create chat bubble component with proper sizing
-- [ ] Implement auto-scrolling conversation view
-- [ ] Add typing indicators and message states
-- [ ] Create mobile-optimized input with voice support
-- [ ] Add image sharing within chat
-- [ ] Test chat performance and real-time updates
+- [x] Research existing AI functionality (plant analysis + consumer chat)
+- [x] Design unified chat architecture supporting both text and image inputs
+- [x] Create mobile-first chat interface with conversation bubbles
+- [x] Implement image upload functionality within chat for all users
+- [x] Build unified API route consolidating both AI features
+- [x] Update navigation to use single AI Assistant entry point
+- [x] Remove role-based mode switching - create universal interface
+- [x] Delete old AI pages and clean up codebase
+- [x] Update desktop navigation with new AI Assistant
+- [x] Add universal translation keys for simplified interface
+- [x] Test unified chat performance and functionality
+
+**Implementation Details:**
+
+**Previous State:**
+- **Two Separate AI Systems**: `/api/analyze-plant` (grower image analysis) + `/api/ai-consumer` (consumer text chat)
+- **Role-based UI**: Different interfaces for growers vs consumers
+- **Complex Navigation**: Multiple AI entry points depending on user role
+- **Separate Data Models**: Different Firestore collections and message formats
+
+**New Universal System:**
+- **Single AI Assistant**: `/ai-assistant` page accessible to all users regardless of role
+- **Universal Image Upload**: All users can upload photos (plants or joints) for analysis
+- **Dynamic Context**: Chat type determined automatically based on image presence rather than user role
+- **Simplified Interface**: No mode switching or role-based toggles
+- **Single API Route**: `/api/unified-chat` supporting both text and vision capabilities
+- **Clean Navigation**: One AI Assistant entry point in both mobile and desktop navigation
+
+**✅ Full Implementation Complete:**
+
+**New Files Created:**
+- `app/api/unified-chat/route.ts` - Universal API route supporting both text and vision capabilities
+- `components/ai/unified-chat.tsx` - Universal chat interface with conversation bubbles
+- `app/ai-assistant/page.tsx` - AI Assistant page using unified chat component
+
+**Files Removed:**
+- `app/analyze-plant/page.tsx` - Old plant analysis page
+- `app/ai-consumer/page.tsx` - Old consumer chat page
+- `app/api/ai-consumer/route.ts` - Old consumer chat API
+
+**Files Updated:**
+- `lib/routes.ts` - Removed old AI routes, added `ROUTE_AI_ASSISTANT`
+- `components/layout/index.tsx` - Updated desktop navigation to use unified AI Assistant
+- `components/navigation/mobile-bottom-nav.tsx` - Updated mobile navigation
+- `app/dashboard/page.tsx` - Updated AI button to use new unified route
+- `app/strains/page.tsx` - Updated AI button to use new unified route
+- `components/mobile/mobile-dashboard.tsx` - Updated AI button routing
+- `app/robots.ts` - Updated to reference new AI assistant route
+- `public/sw.js` - Updated to exclude unified-chat from caching
+- `components/providers/language-provider.tsx` - Added universal translation keys
+
+**Key Features Implemented:**
+- **Universal Access**: All users (growers and consumers) use the same interface
+- **Smart Context**: Adapts behavior based on image presence rather than user roles
+- **Image Upload for All**: Everyone can upload photos for plant or joint analysis
+- **No Mode Switching**: Simplified interface without consumer/grower toggle
+- **Conversation Bubbles**: Proper sizing with user/assistant message distinction
+- **Session Management**: Persistent chat history with automatic title generation
+- **Mobile-First Design**: Touch-optimized with camera integration
+- **Rate Limiting**: 20 requests per minute with proper error handling
+- **Premium Gating**: Configurable premium requirement maintained
+- **Full Localization**: Universal Spanish/English translation support
+
+**Universal Translation Keys:**
+- `"ai.welcome": "Hi! I'm your AI Assistant"`
+- `"ai.helpText": "Ask me about cannabis cultivation, consumption, or upload photos for analysis."`
+- `"ai.universalHelp": "Your intelligent cannabis assistant"`
+- `"ai.universalPlaceholder": "Ask me about growing, consumption, or upload a photo..."`
+- `"ai.uploadPhoto": "Upload photo"`
+
+**Technical Architecture:**
+- **Context-Aware Processing**: Automatically determines if user is asking about plants or consumption based on images and message content
+- **Universal API**: Single endpoint intelligently routes to appropriate GPT model and prompts
+- **Firebase Integration**: Saves chat sessions to `/users/{uid}/aiChats` collection
+- **Clean Codebase**: Removed duplicate AI functionality and simplified navigation
+- **Error Handling**: Comprehensive error states with user-friendly messages
+- **Performance**: Lighter codebase with reduced complexity and duplicate code
 
 ## Priority 4: User Experience
 

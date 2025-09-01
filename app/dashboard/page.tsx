@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ROUTE_STRAINS,
   ROUTE_REMINDERS,
-  ROUTE_ANALYZE_PLANT,
+  ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
@@ -367,7 +367,7 @@ export default function DashboardPage() {
                       asChild
                       className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
                     >
-                      <Link href={ROUTE_ANALYZE_PLANT}>
+                      <Link href={ROUTE_AI_ASSISTANT}>
                         <Brain className="h-4 w-4 mr-1" />{" "}
                         {t("analyzePlant.title")}
                       </Link>
