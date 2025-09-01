@@ -7,11 +7,6 @@ service cloud.firestore {
       // User can read/write own user doc
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // Consumer chats
-      match /consumerChats/{chatId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-
       // Plants
       match /plants/{plantId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -34,7 +29,7 @@ service cloud.firestore {
       match /reminders/{reminderId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-
+      
       // Nutrient mixes
       match /nutrientMixes/{mixId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -45,10 +40,11 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
 
-      // AI analyses
-      match /analyses/{analysisId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
+      // AI chats (unified)
+               match /aiChats/{chatId} {
+                 allow read, write: if request.auth != null && request.auth.uid 
+        == userId;
+             }
     }
 
     // Archive
@@ -66,7 +62,6 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
-
     // Collection group access for logs (needed for collectionGroup queries)
     match /{path=**}/logs/{logId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
