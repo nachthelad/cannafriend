@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/hooks/use-translation";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
+import { useRouter } from "next/navigation";
 import {
   Filter,
   Plus,
@@ -41,7 +42,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { JournalEntries } from "@/components/journal/journal-entries";
-import { AddLogForm } from "@/components/journal/add-log-form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -72,11 +72,11 @@ export function MobileJournal({
   language,
 }: MobileJournalProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
-  const [showAddLog, setShowAddLog] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -170,10 +170,6 @@ export function MobileJournal({
     setSearchText("");
   };
 
-  const handleLogAddSuccess = (newLog: LogEntry) => {
-    onLogSuccess(newLog);
-    setShowAddLog(false);
-  };
 
   if (isLoading) {
     return (
@@ -196,7 +192,7 @@ export function MobileJournal({
           </div>
           <Button
             size="sm"
-            onClick={() => setShowAddLog(true)}
+            onClick={() => router.push("/journal/new")}
             className="shrink-0"
           >
             <Plus className="h-4 w-4" />
@@ -377,7 +373,7 @@ export function MobileJournal({
                 : t("journal.addFirstLog")}
             </CardDescription>
             {activeFiltersCount === 0 && (
-              <Button onClick={() => setShowAddLog(true)}>
+              <Button onClick={() => router.push("/journal/new")}>
                 <Plus className="h-4 w-4 mr-2" /> {t("journal.addLog")}
               </Button>
             )}
@@ -492,20 +488,6 @@ export function MobileJournal({
         </DialogContent>
       </Dialog>
 
-      {/* Add Log Modal */}
-      <Dialog open={showAddLog} onOpenChange={setShowAddLog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{t("journal.addLog")}</DialogTitle>
-          </DialogHeader>
-          <AddLogForm
-            plantId={plants.length > 0 ? plants[0].id : ""}
-            onSuccess={handleLogAddSuccess}
-            showPlantSelector={true}
-            plants={plants}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
