@@ -84,6 +84,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.tapToView": "Ver",
         "common.view": "Ver",
         "common.viewAll": "Ver todo",
+        "common.today": "Hoy",
+        "common.yesterday": "Ayer",
+        "common.daysAgo": "días",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
         "app.installPWA": "Instalar App",
@@ -644,6 +647,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "ai.universalPlaceholder": "Pregúntame sobre cultivo, consumo o sube una foto...",
         "ai.uploadPhoto": "Subir foto",
         "ai.error": "Error del asistente IA",
+        "ai.chatHistory": "Historial de chats",
+        "ai.newChat": "Nuevo chat",
+        "ai.noChats": "No hay chats aún",
 
         // Log Types
         "logType.watering": "Riego",
@@ -725,6 +731,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "auth.tooManyRequests": "Demasiados intentos. Intenta más tarde",
         "auth.networkError": "Error de conexión. Verifica tu internet",
         "auth.passwordTooShort": "La contraseña es muy corta",
+        "auth.signOut": "Cerrar sesión",
 
         // Firebase Errors
         "firebase.permissionDenied":
@@ -1073,6 +1080,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.tapToView": "Tap to view",
         "common.view": "View",
         "common.viewAll": "View all",
+        "common.today": "Today",
+        "common.yesterday": "Yesterday",
+        "common.daysAgo": "days ago",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
         "app.installPWA": "Install App",
@@ -1623,6 +1633,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "ai.universalPlaceholder": "Ask me about growing, consumption, or upload a photo...",
         "ai.uploadPhoto": "Upload photo",
         "ai.error": "AI Assistant error",
+        "ai.chatHistory": "Chat History",
+        "ai.newChat": "New Chat",
+        "ai.noChats": "No chats yet",
+
         "journal.recentLogs": "Recent Logs",
         "journal.logsFound": "logs found",
         "journal.calendarDesc": "View your logs in a calendar",
@@ -1717,6 +1731,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "auth.tooManyRequests": "Too many attempts. Try again later",
         "auth.networkError": "Connection error. Check your internet",
         "auth.passwordTooShort": "Password is too short",
+        "auth.signOut": "Sign Out",
 
         // Firebase Errors
         "firebase.permissionDenied":

@@ -19,9 +19,13 @@ import {
   Bot,
   Camera,
   X,
+  Menu,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { ChatSidebar } from "@/components/ai/chat-sidebar";
+import { collection, query, orderBy, getDocs, doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface UnifiedMessage {
   role: "user" | "assistant";
@@ -47,6 +51,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
     sessionId
   );
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Default to minimized on desktop
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -141,18 +146,69 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
     }
   };
 
+  const loadChatSession = async (sessionId: string) => {
+    if (!user?.uid) return;
+    
+    try {
+      const chatDoc = await getDoc(doc(db, "users", user.uid, "aiChats", sessionId));
+      if (chatDoc.exists()) {
+        const data = chatDoc.data();
+        setMessages(data.messages || []);
+        setCurrentSessionId(sessionId);
+        setSidebarOpen(false); // Close sidebar on mobile after selection
+      }
+    } catch (error) {
+      console.error("Error loading chat session:", error);
+      toast({
+        variant: "destructive",
+        title: t("ai.error"),
+        description: "Failed to load chat session",
+      });
+    }
+  };
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setCurrentSessionId(undefined);
+    setSidebarOpen(false);
+  };
+
   return (
-    <div className={cn("flex flex-col h-full max-w-4xl mx-auto", className)}>
-      {/* Header */}
-      <div className="border-b p-4">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Brain className="h-6 w-6 text-primary" />
-          {t("ai.assistant")}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {t("ai.universalHelp")}
-        </p>
-      </div>
+    <div className={cn("flex h-full", className)}>
+      {/* Chat Sidebar */}
+      <ChatSidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        currentSessionId={currentSessionId}
+        onSessionSelect={loadChatSession}
+        onNewChat={handleNewChat}
+        className="md:block"
+      />
+
+      {/* Main Chat */}
+      <div className="flex flex-col flex-1 h-full max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="border-b p-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold flex items-center gap-2">
+                <Brain className="h-6 w-6 text-primary" />
+                {t("ai.assistant")}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("ai.universalHelp")}
+              </p>
+            </div>
+          </div>
+        </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -191,23 +247,23 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
               className={cn(
                 "flex-1 rounded-lg p-4 prose prose-sm max-w-none",
                 message.role === "user"
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-gray-100 dark:bg-gray-800 text-foreground"
                   : "bg-muted"
               )}
             >
               {message.images && message.images.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="flex flex-wrap gap-1 mb-2">
                   {message.images.map((img, imgIndex) => (
                     <div
                       key={imgIndex}
-                      className="relative rounded-lg overflow-hidden"
+                      className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0"
                     >
                       <Image
                         src={img.url}
                         alt="Uploaded image"
-                        width={200}
-                        height={200}
-                        className="object-cover w-full h-32"
+                        fill
+                        className="object-cover"
+                        sizes="48px"
                       />
                     </div>
                   ))}
@@ -238,20 +294,22 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
           <div className="flex gap-2 overflow-x-auto">
             {images.map((img, index) => (
               <div key={index} className="relative flex-shrink-0">
-                <Image
-                  src={img.url}
-                  alt="Upload preview"
-                  width={80}
-                  height={80}
-                  className="rounded-lg object-cover"
-                />
+                <div className="relative w-12 h-12 rounded-md overflow-hidden">
+                  <Image
+                    src={img.url}
+                    alt="Upload preview"
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                  />
+                </div>
                 <Button
                   size="icon"
                   variant="destructive"
-                  className="absolute -top-2 -right-2 w-6 h-6"
+                  className="absolute -top-1 -right-1 w-4 h-4"
                   onClick={() => removeImage(index)}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-2 w-2" />
                 </Button>
               </div>
             ))}
@@ -316,6 +374,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
           </Card>
         </div>
       )}
+      </div>
     </div>
   );
 }
