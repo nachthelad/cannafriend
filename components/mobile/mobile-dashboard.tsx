@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ROUTE_STRAINS,
   ROUTE_REMINDERS,
@@ -19,14 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "@/hooks/use-translation";
-import { useAuthUser } from "@/hooks/use-auth-user";
-import { ROUTE_LOGIN } from "@/lib/routes";
-import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
-import { query, getDocs, orderBy } from "firebase/firestore";
 import { ReminderSystem } from "@/components/plant/reminder-system";
-import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import {
   Plus,
@@ -43,9 +35,6 @@ import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
-import { db } from "@/lib/firebase";
-import { collection } from "firebase/firestore";
-import { buildNutrientMixesPath } from "@/lib/firebase-config";
 
 interface MobileDashboardProps {
   plants: Plant[];
@@ -63,7 +52,6 @@ export function MobileDashboard({
   isLoading,
 }: MobileDashboardProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
 
@@ -228,11 +216,11 @@ export function MobileDashboard({
           <div className="grid grid-cols-2 gap-3">
             {roles?.grower && (
               <>
-                <QuickActionButton
+                {/* <QuickActionButton
                   icon={Plus}
                   label={t("nav.addPlant")}
                   href="/plants/new"
-                />
+                /> */}
                 <QuickActionButton
                   icon={Calendar}
                   label={t("nav.journal")}
@@ -264,34 +252,8 @@ export function MobileDashboard({
         </CardContent>
       </Card>
 
-      {/* Recent plants - mobile card layout */}
-      {plants.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <div>
-              <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
-              <CardDescription>
-                {plants.length} {t("dashboard.plantsGrowing")}
-              </CardDescription>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href={ROUTE_PLANTS}>
-                {t("common.view")} <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {plants.slice(0, 2).map((plant) => (
-              <div key={plant.id} className="border rounded-lg overflow-hidden">
-                <PlantCard plant={plant} compact />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
       {/* Recent journal entries - mobile optimized */}
-      {recentLogs.length > 0 && (
+      {/* {recentLogs.length > 0 && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <div>
@@ -311,7 +273,7 @@ export function MobileDashboard({
             />
           </CardContent>
         </Card>
-      )}
+      )} */}
 
       {/* Empty state for new users */}
       {plants.length === 0 && (
