@@ -28,8 +28,7 @@ import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ROUTE_ANALYZE_PLANT,
-  ROUTE_AI_CONSUMER,
+  ROUTE_AI_ASSISTANT,
   ROUTE_DASHBOARD,
   ROUTE_STRAINS,
   ROUTE_PLANTS_NEW,
@@ -127,6 +126,11 @@ export function Layout({ children }: LayoutProps) {
       icon: Bell,
     },
     {
+      href: ROUTE_AI_ASSISTANT,
+      label: t("ai.assistant"),
+      icon: Brain,
+    },
+    {
       href: ROUTE_SETTINGS,
       label: t("nav.settings"),
       icon: Settings,
@@ -135,39 +139,12 @@ export function Layout({ children }: LayoutProps) {
 
   const { isPremium } = usePremium();
 
-  // Insert AI entries above Settings for premium users
-  const withAnalyze = (() => {
-    const arr = baseRoutes.slice();
-    if (isPremium) {
-      const insertIdx = arr.findIndex((r) => r.href === ROUTE_SETTINGS);
-      const idx = insertIdx >= 0 ? insertIdx : arr.length;
-      if (roles) {
-        const items: Array<{ href: string; label: string; icon: any }> = [];
-        if (roles.grower) {
-          items.push({
-            href: ROUTE_ANALYZE_PLANT,
-            label: t("analyzePlant.title"),
-            icon: Brain,
-          });
-        }
-        if (roles.consumer) {
-          items.push({
-            href: ROUTE_AI_CONSUMER,
-            label: t("aiConsumer.title"),
-            icon: Brain,
-          });
-        }
-        // Insert in reverse to preserve order at same index
-        for (let i = items.length - 1; i >= 0; i -= 1) {
-          arr.splice(idx, 0, items[i] as any);
-        }
-      }
-    }
-    return arr;
-  })();
-
-  const routes = withAnalyze.filter((r) => {
+  const routes = baseRoutes.filter((r) => {
     if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
+    
+    // AI Assistant is only available for premium users
+    if (r.href === ROUTE_AI_ASSISTANT && !isPremium) return false;
+    
     const growerPaths: string[] = [
       ROUTE_DASHBOARD,
       ROUTE_PLANTS_NEW,
@@ -212,10 +189,7 @@ export function Layout({ children }: LayoutProps) {
               </>
             ) : (
               routes.map((route) => {
-                const isAnalyze = [
-                  ROUTE_ANALYZE_PLANT,
-                  ROUTE_AI_CONSUMER,
-                ].includes(route.href as any);
+                const isAI = route.href === ROUTE_AI_ASSISTANT;
                 const baseClasses =
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
                 const active = pathname === route.href;
@@ -230,7 +204,7 @@ export function Layout({ children }: LayoutProps) {
                     href={route.href}
                     className={cn(
                       baseClasses,
-                      isAnalyze ? gradientClasses : defaultClasses
+                      isAI ? gradientClasses : defaultClasses
                     )}
                   >
                     <route.icon className="h-4 w-4" />

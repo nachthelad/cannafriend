@@ -21,7 +21,7 @@ const urlsToCache = [
 
 // API endpoints to cache with short TTL
 const API_CACHE_PATTERNS = [
-  /\/api\/(?!ai-consumer|analyze-plant)/, // Cache most APIs except AI endpoints
+  /\/api\/(?!unified-chat)/, // Cache most APIs except AI endpoints
 ];
 
 // Image patterns to cache with long TTL

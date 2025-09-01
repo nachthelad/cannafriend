@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type React from "react";
 import { useRouter } from "next/navigation";
-import { ROUTE_AI_CONSUMER, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_AI_ASSISTANT, resolveHomePathForRoles } from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import {
   Card,
@@ -317,7 +317,7 @@ export default function StrainsPage() {
           {isPremium ? (
             <div className="mt-3">
               <Button
-                onClick={() => router.push(ROUTE_AI_CONSUMER)}
+                onClick={() => router.push(ROUTE_AI_ASSISTANT)}
                 className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
               >
                 <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title")}

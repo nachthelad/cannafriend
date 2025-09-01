@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   ROUTE_STRAINS,
   ROUTE_REMINDERS,
-  ROUTE_ANALYZE_PLANT,
+  ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
@@ -247,7 +247,7 @@ export function MobileDashboard({
                   <QuickActionButton
                     icon={Brain}
                     label={t("analyzePlant.title")}
-                    href={ROUTE_ANALYZE_PLANT}
+                    href={ROUTE_AI_ASSISTANT}
                     isPremiumFeature
                   />
                 )}

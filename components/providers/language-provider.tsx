@@ -636,6 +636,15 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.addLogFor": "Agregar registro para",
         "journal.viewLogs": "Ver registros",
 
+        // AI Assistant
+        "ai.assistant": "Asistente IA",
+        "ai.welcome": "¡Hola! Soy tu Asistente IA",
+        "ai.helpText": "Pregúntame sobre cannabis, cultivo, consumo o sube fotos para análisis.",
+        "ai.universalHelp": "Tu asistente inteligente para cannabis",
+        "ai.universalPlaceholder": "Pregúntame sobre cultivo, consumo o sube una foto...",
+        "ai.uploadPhoto": "Subir foto",
+        "ai.error": "Error del asistente IA",
+
         // Log Types
         "logType.watering": "Riego",
         "logType.feeding": "Fertilización",
@@ -1605,6 +1614,15 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "journal.logAdded": "Log added",
         "journal.logAddedDesc": "Log entry has been added successfully",
         "journal.viewLogs": "View Logs",
+
+        // AI Assistant
+        "ai.assistant": "AI Assistant",
+        "ai.welcome": "Hi! I'm your AI Assistant",
+        "ai.helpText": "Ask me about cannabis cultivation, consumption, or upload photos for analysis.",
+        "ai.universalHelp": "Your intelligent cannabis assistant",
+        "ai.universalPlaceholder": "Ask me about growing, consumption, or upload a photo...",
+        "ai.uploadPhoto": "Upload photo",
+        "ai.error": "AI Assistant error",
         "journal.recentLogs": "Recent Logs",
         "journal.logsFound": "logs found",
         "journal.calendarDesc": "View your logs in a calendar",
