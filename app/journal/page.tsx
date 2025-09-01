@@ -41,7 +41,6 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { AddLogForm } from "@/components/journal/add-log-form";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
 import { MobileJournal } from "@/components/mobile/mobile-journal";
@@ -50,13 +49,6 @@ import { AnimatedLogo } from "@/components/common/animated-logo";
 import { parseISO, isSameDay } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 export default function JournalPage() {
   const { t, language } = useTranslation();
@@ -434,24 +426,13 @@ export default function JournalPage() {
                 {filteredLogs.length} {t("journal.logsFound")}
               </CardDescription>
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button size="icon" aria-label="Add log">
-                  <Plus className="h-5 w-5" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>{t("journal.addLog")}</DialogTitle>
-                </DialogHeader>
-                <AddLogForm
-                  plantId={plants.length > 0 ? plants[0].id : ""}
-                  onSuccess={handleLogSuccess}
-                  showPlantSelector={true}
-                  plants={plants}
-                />
-              </DialogContent>
-            </Dialog>
+            <Button 
+              size="icon" 
+              aria-label="Add log"
+              onClick={() => router.push("/journal/new")}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
           </CardHeader>
           <CardContent>
             <JournalEntries

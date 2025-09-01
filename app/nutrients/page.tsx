@@ -12,15 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { useTranslation } from "@/hooks/use-translation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -59,12 +50,6 @@ export default function NutrientsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [mixes, setMixes] = useState<NutrientMix[]>([]);
   const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<NutrientMix | null>(null);
-  const [name, setName] = useState("");
-  const [npk, setNpk] = useState("");
-  const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -97,50 +82,6 @@ export default function NutrientsPage() {
     return mixes.filter((m) => m.name.toLowerCase().includes(q));
   }, [mixes, search]);
 
-  const resetForm = () => {
-    setEditing(null);
-    setName("");
-    setNpk("");
-    setNotes("");
-  };
-
-  const onOpenChange = (v: boolean) => {
-    setOpen(v);
-    if (!v) resetForm();
-  };
-
-  const handleSave = async () => {
-    if (!userId || !name.trim()) return;
-    setSaving(true);
-    try {
-      const payload = {
-        name: name.trim(),
-        npk: npk.trim() || undefined,
-        notes: notes.trim() || undefined,
-        createdAt: new Date().toISOString(),
-      };
-      if (editing) {
-        await updateDoc(doc(db, buildNutrientMixPath(userId, editing.id)), {
-          ...payload,
-        });
-      } else {
-        await addDoc(collection(db, buildNutrientMixesPath(userId)), payload);
-      }
-      setOpen(false);
-      resetForm();
-      await fetchMixes();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEdit = (mix: NutrientMix) => {
-    setEditing(mix);
-    setName(mix.name || "");
-    setNpk(mix.npk || "");
-    setNotes(mix.notes || "");
-    setOpen(true);
-  };
 
   const handleDelete = async (mix: NutrientMix) => {
     if (!userId) return;
@@ -165,59 +106,9 @@ export default function NutrientsPage() {
           <h1 className="text-3xl font-bold">{t("nutrients.title")}</h1>
           <p className="text-muted-foreground">{t("nutrients.description")}</p>
         </div>
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" /> Agregar mezcla
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>
-                {editing ? "Editar mezcla" : "Nueva mezcla"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="mix-name">Nombre</Label>
-                <Input
-                  id="mix-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mix-npk">NPK</Label>
-                <Input
-                  id="mix-npk"
-                  placeholder="ej. 3-1-2"
-                  value={npk}
-                  onChange={(e) => setNpk(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mix-notes">Notas</Label>
-                <Textarea
-                  id="mix-notes"
-                  rows={3}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  <X className="h-4 w-4 mr-1" /> {t("common.cancel")}
-                </Button>
-                <Button onClick={handleSave} disabled={!name.trim() || saving}>
-                  {saving ? (
-                    <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
-                  ) : null}
-                  {editing ? t("common.save") : t("common.add")}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => router.push("/nutrients/new")}>
+          <Plus className="h-4 w-4 mr-2" /> {t("nutrients.addMix")}
+        </Button>
       </div>
 
       <div className="mb-4">
@@ -246,7 +137,7 @@ export default function NutrientsPage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleEdit(mix)}
+                      onClick={() => router.push(`/nutrients/${mix.id}/edit`)}
                     >
                       {t("common.edit")}
                     </Button>
