@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Layout } from "@/components/layout";
+import { AILayout } from "@/components/layout/ai-layout";
 import { UnifiedChat } from "@/components/ai/unified-chat";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useTranslation } from "@/hooks/use-translation";
@@ -25,11 +25,11 @@ export default function AIAssistantPage() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center h-64">
+      <AILayout>
+        <div className="flex justify-center items-center h-full">
           <AnimatedLogo size={32} className="text-primary" duration={1.5} />
         </div>
-      </Layout>
+      </AILayout>
     );
   }
 
@@ -38,16 +38,16 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <Layout>
+    <AILayout>
       {!isPremium ? (
-        <div className="max-w-md mx-auto mt-8">
-          <PremiumRequiredCard />
+        <div className="flex justify-center items-center h-full">
+          <div className="max-w-md mx-auto">
+            <PremiumRequiredCard />
+          </div>
         </div>
       ) : (
-        <div className="h-[calc(100vh-8rem)] md:h-[calc(100vh-3rem)]">
-          <UnifiedChat className="h-full" />
-        </div>
+        <UnifiedChat className="h-full" />
       )}
-    </Layout>
+    </AILayout>
   );
 }

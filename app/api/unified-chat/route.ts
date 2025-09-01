@@ -19,7 +19,8 @@ type ChatRequest = {
 export async function POST(req: NextRequest) {
   try {
     // Auth check
-    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
+    const authHeader =
+      req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
       return NextResponse.json({ error: "missing_auth" }, { status: 401 });
     }
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     } catch {
       return NextResponse.json({ error: "invalid_auth" }, { status: 401 });
     }
-    
+
     // Premium check
     if (
       process.env.REQUIRE_PREMIUM_FOR_AI === "true" &&
@@ -59,20 +60,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { messages, chatType } = (await req.json()) as ChatRequest;
-    
+    const { messages, chatType, sessionId } = (await req.json()) as ChatRequest;
+
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "Messages required" }, { status: 400 });
     }
 
     const latestMessage = messages[messages.length - 1];
     if (latestMessage.role !== "user") {
-      return NextResponse.json({ error: "Last message must be from user" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Last message must be from user" },
+        { status: 400 }
+      );
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "Missing OPENAI_API_KEY" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Missing OPENAI_API_KEY" },
+        { status: 500 }
+      );
     }
 
     // System prompts based on chat type
@@ -84,19 +91,21 @@ export async function POST(req: NextRequest) {
     const systemPrompt = systemPrompts[chatType] || systemPrompts.consumer;
 
     // Check if we have images to determine model
-    const hasImages = messages.some(msg => msg.images && msg.images.length > 0);
-    const model = hasImages ? "gpt-4-vision-preview" : "gpt-4";
+    const hasImages = messages.some(
+      (msg) => msg.images && msg.images.length > 0
+    );
+    const model = hasImages ? "gpt-4.1-mini" : "gpt-4.1";
 
     // Build OpenAI messages
     const openaiMessages = [
       { role: "system", content: systemPrompt },
-      ...messages.map(msg => {
+      ...messages.map((msg) => {
         if (msg.role === "user" && msg.images && msg.images.length > 0) {
           return {
             role: "user",
             content: [
               { type: "text", text: msg.content },
-              ...msg.images.map(img => ({
+              ...msg.images.map((img) => ({
                 type: "image_url",
                 image_url: { url: img.url },
               })),
@@ -129,22 +138,28 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const text = await response.text();
-      return NextResponse.json({ error: text || "OpenAI error" }, { status: 500 });
+      return NextResponse.json(
+        { error: text || "OpenAI error" },
+        { status: 500 }
+      );
     }
 
     const data = await response.json();
     const content = data?.choices?.[0]?.message?.content ?? "";
 
-    // Save chat session to Firebase
-    let newSessionId = sessionId;
-    if (!sessionId) {
-      newSessionId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
+    // Generate session ID if needed
+    const currentSessionId =
+      sessionId ||
+      `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
       ensureAdminApp();
       const db = getFirestore();
-      const chatRef = db.collection("users").doc(decoded.uid).collection("aiChats").doc(newSessionId);
+      const chatRef = db
+        .collection("users")
+        .doc(decoded.uid)
+        .collection("aiChats")
+        .doc(currentSessionId);
 
       const assistantMessage = {
         role: "assistant" as const,
@@ -156,7 +171,9 @@ export async function POST(req: NextRequest) {
         messages: [...messages, assistantMessage],
         chatType,
         lastUpdated: new Date().toISOString(),
-        title: messages[0]?.content.slice(0, 50) + (messages[0]?.content.length > 50 ? "..." : "") || "New Chat",
+        title:
+          messages[0]?.content.slice(0, 50) +
+            (messages[0]?.content.length > 50 ? "..." : "") || "New Chat",
         createdAt: sessionId ? undefined : new Date(), // Only set createdAt for new chats
       };
 
@@ -166,11 +183,12 @@ export async function POST(req: NextRequest) {
       console.error("Error saving chat:", error);
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       response: content,
-      sessionId: newSessionId,
+      sessionId: currentSessionId,
     });
   } catch (e: any) {
+    console.error("Unified chat API error:", e);
     return NextResponse.json(
       { error: e?.message || "Unexpected error" },
       { status: 500 }
