@@ -17,6 +17,7 @@ import { collection, getDocs, query } from "firebase/firestore";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { plantsCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
+import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { useTranslation } from "@/hooks/use-translation";
 import type { Plant } from "@/types";
 
@@ -61,28 +62,36 @@ export default function RemindersPage() {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">{t("dashboard.reminders")}</h1>
-        <p className="text-muted-foreground">
-          {t("reminders.pageDescription")}
-        </p>
+      {/* Mobile View */}
+      <div className="md:hidden">
+        <MobileReminders />
       </div>
 
-      {plants.length > 0 ? (
-        <ReminderSystem plants={plants} />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.noPlants")}</CardTitle>
-            <CardDescription>{t("dashboard.noPlantDesc")}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {t("reminders.noPlantsHint")}
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Desktop View */}
+      <div className="hidden md:block">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">{t("dashboard.reminders")}</h1>
+          <p className="text-muted-foreground">
+            {t("reminders.pageDescription")}
+          </p>
+        </div>
+
+        {plants.length > 0 ? (
+          <ReminderSystem plants={plants} />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("dashboard.noPlants")}</CardTitle>
+              <CardDescription>{t("dashboard.noPlantDesc")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                {t("reminders.noPlantsHint")}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </Layout>
   );
 }

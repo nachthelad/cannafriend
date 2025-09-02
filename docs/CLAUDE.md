@@ -53,6 +53,7 @@ components/
 ├── auth/                 # Authentication components
 ├── common/               # Shared components
 ├── marketing/            # Landing page components
+├── mobile/               # Mobile-specific components
 ├── plant/                # Plant-specific components
 ├── providers/            # Context providers
 └── ui/                   # shadcn/ui components
@@ -76,13 +77,15 @@ types/                    # TypeScript type definitions
 1. **Plant Management**: CRUD operations for plants with photos and logs
 2. **AI Analysis**: Plant health analysis with GPT integration
 3. **Journal System**: Activity logging (watering, feeding, training)
-4. **Image Gallery**: Photo upload and management with Firebase Storage
-5. **PWA**: Offline capability with custom service worker
-6. **i18n**: Spanish/English support via context provider
+4. **Reminder System**: Mobile-first notification-style reminder cards with quick actions
+5. **Image Gallery**: Photo upload and management with Firebase Storage
+6. **PWA**: Offline capability with custom service worker
+7. **i18n**: Spanish/English support via context provider
 
 ### Data Models
 - **Plant**: name, seedType, growType, photos, planting date
 - **LogEntry**: type, date, notes, plant-specific data (watering, feeding, etc.)
+- **Reminder**: plantId, type, title, interval, lastReminder, nextReminder, isActive
 - **EnvironmentData**: temperature, humidity, pH tracking
 
 ### Authentication Flow
@@ -125,10 +128,28 @@ NEXT_PUBLIC_RECAPTCHA_SITE_KEY=    # reCAPTCHA site key
 - `lib/firebase.ts` - Client Firebase configuration
 - `lib/firebase-admin.ts` - Server Firebase configuration
 
+## Mobile Components Architecture
+
+### Reminder System
+The mobile reminder system follows a three-component architecture:
+
+- **MobileReminders**: Main container component managing state and Firebase operations
+- **MobileReminderCards**: Notification-style cards with swipe actions and haptic feedback
+- **MobileReminderScheduler**: Full-screen form using Layout component pattern
+
+Key patterns:
+- Uses controlled state (isOpen/onOpenChange) for scheduler visibility
+- Real-time updates via Firebase onSnapshot
+- Swipe gestures: right swipe = complete, left swipe = snooze
+- Haptic feedback for mobile interactions
+- Custom interval validation (1-99 days)
+
 ## Common Patterns
 - Use existing plant-config.ts and log-config.ts for plant/log types
 - Image uploads go through ImageUpload component to Firebase Storage
 - All user data scoped to authenticated user ID
 - Forms use React Hook Form with Zod schemas
+- Mobile full-screen forms use Layout component (not Dialog/Sheet)
 - Responsive design with mobile-first approach
 - i18n handled via LanguageProvider context
+- Haptic feedback via triggerHaptic utility for mobile web

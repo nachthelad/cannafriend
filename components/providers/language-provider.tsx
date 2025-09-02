@@ -87,6 +87,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.today": "Hoy",
         "common.yesterday": "Ayer",
         "common.daysAgo": "días",
+        "common.comingSoon": "Próximamente",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
         "app.installPWA": "Instalar App",
@@ -695,6 +696,23 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.selectType": "Selecciona un tipo",
         "logForm.selectDate": "Selecciona una fecha",
         "logForm.save": "Guardar Registro",
+        "logForm.basicInfo": "Información Básica",
+        "logForm.details": "Detalles",
+
+        // Form Validation Errors
+        "validation.logTypeRequired": "Por favor selecciona un tipo de registro",
+        "validation.notesMaxLength": "Las notas deben tener 500 caracteres o menos",
+        "validation.waterAmountRequired": "La cantidad de agua es requerida para registros de riego",
+        "validation.waterAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.waterAmountTooLarge": "Cantidad muy grande (máx 100L)",
+        "validation.waterMethodRequired": "Por favor selecciona un método de riego",
+        "validation.nutrientAmountRequired": "La cantidad de nutrientes es requerida para registros de alimentación",
+        "validation.nutrientAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.nutrientAmountTooLarge": "Cantidad muy grande (máx 50ml/L)",
+        "validation.trainingMethodRequired": "Por favor selecciona un método de entrenamiento",
+        "validation.environmentValueRequired": "Al menos un valor de ambiente es requerido",
+        "validation.lightScheduleRequired": "El horario de luz es requerido para registros de floración",
+        "validation.notesRequired": "Las notas son requeridas para registros de notas",
 
         // Watering
         "watering.amount": "Cantidad (ml)",
@@ -740,6 +758,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.edit": "Editar",
         "common.add": "Agregar",
         "common.confirm": "Confirmar",
+        "common.step": "Paso",
+        "common.of": "de",
+        "common.optional": "opcional",
+        "common.characters": "caracteres",
+        "common.continue": "Continuar",
+        "common.selected": "seleccionado",
         "common.back": "Volver",
 
         // Auth Errors
@@ -778,9 +802,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.minValue": "Debe ser mayor o igual a {min}",
         "validation.maxValue": "Debe ser menor o igual a {max}",
         "validation.invalidDate": "Fecha inválida",
+        // Reminder validation
+        "validation.plantRequired": "Por favor selecciona una planta",
+        "validation.reminderTypeRequired": "Por favor selecciona un tipo de recordatorio",
+        "validation.intervalRequired": "El intervalo es requerido",
+        "validation.intervalInvalid": "Debe ser un número entre 1 y 99",
+        "validation.titleMaxLength": "El título debe tener 50 caracteres o menos",
+        "validation.descriptionMaxLength": "La descripción debe tener 200 caracteres o menos",
 
         // Reminders
-        "reminders.title": "Recordatorios",
+        "reminders.title": "Nombre del recordatorio",
         "reminders.description": "Gestiona recordatorios para tus plantas",
         "reminders.loading": "Cargando recordatorios...",
         "reminders.add": "Agregar Recordatorio",
@@ -823,6 +854,26 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.noPlantsDesc": "Agrega una planta para crear recordatorios",
         "reminders.noPlantsHint": "Agrega una planta para crear recordatorios",
         "reminders.pageDescription": "Gestiona recordatorios para tus plantas",
+        "reminders.completed": "Completado",
+        "reminders.snoozed": "Pospuesto",
+        "reminders.snoozedFor": "Pospuesto por {{hours}} horas",
+        "reminders.snooze1h": "1h más",
+        "reminders.snooze2h": "2h más",
+        "reminders.swipeHint": "Desliza → para completar, ← para posponer",
+        "reminders.deleteReminder": "Eliminar recordatorio",
+        "reminders.deleteReminderConfirm":
+          "¿Estás seguro de que quieres eliminar este recordatorio?",
+        "reminders.addReminderDesc":
+          "Crea recordatorios personalizados para el cuidado de tus plantas",
+        "reminders.every": "cada",
+        "reminders.active": "activos",
+        "reminders.getStartedHint":
+          "Toca el botón de arriba para crear tu primer recordatorio",
+        "reminders.editComingSoon":
+          "La función de edición estará disponible pronto",
+        "reminders.customDays": "Días personalizados",
+        "reminders.selectPlantFirst": "Selecciona una planta primero",
+        "reminders.invalidInterval": "El intervalo debe ser entre 1 y 99 días",
 
         // Strains (Consumer)
         "strains.title": "Variedades",
@@ -1121,6 +1172,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.today": "Today",
         "common.yesterday": "Yesterday",
         "common.daysAgo": "days ago",
+        "common.comingSoon": "Coming Soon",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
         "app.installPWA": "Install App",
@@ -1733,6 +1785,23 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.selectType": "Select a type",
         "logForm.selectDate": "Select a date",
         "logForm.save": "Save Log",
+        "logForm.basicInfo": "Basic Info",
+        "logForm.details": "Details",
+
+        // Form Validation Errors
+        "validation.logTypeRequired": "Please select a log type",
+        "validation.notesMaxLength": "Notes must be 500 characters or less",
+        "validation.waterAmountRequired": "Water amount is required for watering logs",
+        "validation.waterAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.waterAmountTooLarge": "Amount too large (max 100L)",
+        "validation.waterMethodRequired": "Please select a watering method",
+        "validation.nutrientAmountRequired": "Nutrient amount is required for feeding logs",
+        "validation.nutrientAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.nutrientAmountTooLarge": "Amount too large (max 50ml/L)",
+        "validation.trainingMethodRequired": "Please select a training method",
+        "validation.environmentValueRequired": "At least one environment value is required",
+        "validation.lightScheduleRequired": "Light schedule is required for flowering logs",
+        "validation.notesRequired": "Notes are required for note logs",
 
         // Watering
         "watering.amount": "Amount (ml)",
@@ -1778,6 +1847,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.edit": "Edit",
         "common.add": "Add",
         "common.confirm": "Confirm",
+        "common.step": "Step",
+        "common.of": "of",
+        "common.optional": "optional",
+        "common.characters": "characters",
+        "common.continue": "Continue",
+        "common.selected": "selected",
         "common.back": "Back",
 
         // Auth Errors
@@ -1816,9 +1891,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.minValue": "Must be greater than or equal to {min}",
         "validation.maxValue": "Must be less than or equal to {max}",
         "validation.invalidDate": "Invalid date",
+        // Reminder validation
+        "validation.plantRequired": "Please select a plant",
+        "validation.reminderTypeRequired": "Please select a reminder type",
+        "validation.intervalRequired": "Interval is required",
+        "validation.intervalInvalid": "Must be a number between 1 and 99",
+        "validation.titleMaxLength": "Title must be 50 characters or less",
+        "validation.descriptionMaxLength": "Description must be 200 characters or less",
 
         // Reminders
-        "reminders.title": "Reminders",
+        "reminders.title": "Reminder Name",
         "reminders.description": "Manage reminders for your plants",
         "reminders.loading": "Loading reminders...",
         "reminders.add": "Add Reminder",
@@ -1861,6 +1943,25 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.noPlantsDesc": "Add a plant to create reminders",
         "reminders.noPlantsHint": "Add a plant to create reminders",
         "reminders.pageDescription": "Manage reminders for your plants",
+        "reminders.completed": "Completed",
+        "reminders.snoozed": "Snoozed",
+        "reminders.snoozedFor": "Snoozed for {{hours}} hours",
+        "reminders.snooze1h": "+1h",
+        "reminders.snooze2h": "+2h",
+        "reminders.swipeHint": "Swipe → to complete, ← to snooze",
+        "reminders.deleteReminder": "Delete Reminder",
+        "reminders.deleteReminderConfirm":
+          "Are you sure you want to delete this reminder?",
+        "reminders.addReminderDesc":
+          "Create custom reminders for your plant care routine",
+        "reminders.every": "every",
+        "reminders.active": "active",
+        "reminders.getStartedHint":
+          "Tap the button above to create your first reminder",
+        "reminders.editComingSoon": "Edit functionality coming soon",
+        "reminders.customDays": "Custom days",
+        "reminders.selectPlantFirst": "Select a plant first",
+        "reminders.invalidInterval": "Interval must be between 1 and 99 days",
 
         // Strains (Consumer)
         "strains.title": "Strains",

@@ -158,6 +158,7 @@ export function PhotoGallery({
     }
   };
 
+
   return (
     <div className="space-y-6">
       {/* Header con botón de subir */}
