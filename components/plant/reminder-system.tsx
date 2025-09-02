@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,8 +36,27 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Bell, Clock, Droplet, Leaf, Scissors, X, Plus } from "lucide-react";
+import { Bell, Clock, Droplet, Leaf, Scissors, X, Plus, AlertCircle } from "lucide-react";
 import type { Plant } from "@/types";
+
+// Form validation schema - created with translations
+const createReminderFormSchema = (t: any) => z.object({
+  selectedPlant: z.string().min(1, t("validation.plantRequired")),
+  reminderType: z.enum(["watering", "feeding", "training", "custom"], {
+    errorMap: () => ({ message: t("validation.reminderTypeRequired") }),
+  }),
+  title: z.string().max(50, t("validation.titleMaxLength")).optional(),
+  description: z.string().max(200, t("validation.descriptionMaxLength")).optional(),
+  interval: z.string().refine(
+    (val) => {
+      const num = parseInt(val);
+      return !isNaN(num) && num >= 1 && num <= 99;
+    },
+    { message: t("validation.intervalInvalid") }
+  ),
+});
+
+type ReminderFormData = z.infer<ReturnType<typeof createReminderFormSchema>>;
 
 interface Reminder {
   id: string;
@@ -69,14 +90,10 @@ export function ReminderSystem({
   const [showAddForm, setShowAddForm] = useState(false);
   // Notifications removed
 
-  // Form state via RHF
-  type ReminderForm = {
-    selectedPlant: string;
-    reminderType: Reminder["type"];
-    title?: string;
-    description?: string;
-    interval: string; // keep string for input, convert to number on submit
-  };
+  // Form schema with translations
+  const reminderFormSchema = useMemo(() => createReminderFormSchema(t), [t]);
+
+  // Form state via RHF with Zod validation
   const {
     register,
     handleSubmit,
@@ -84,7 +101,8 @@ export function ReminderSystem({
     watch,
     reset,
     formState: { errors },
-  } = useForm<ReminderForm>({
+  } = useForm<ReminderFormData>({
+    resolver: zodResolver(reminderFormSchema),
     defaultValues: {
       selectedPlant: "",
       reminderType: "watering",
@@ -124,7 +142,7 @@ export function ReminderSystem({
     }
   };
 
-  const handleAddReminder = async (data: ReminderForm) => {
+  const handleAddReminder = async (data: ReminderFormData) => {
     if (!auth.currentUser || !data.selectedPlant) return;
 
     const plant = plants.find((p) => p.id === data.selectedPlant);
@@ -451,30 +469,33 @@ export function ReminderSystem({
                 <Label>{t("reminders.selectPlant")}</Label>
                 <input
                   type="hidden"
-                  {...register("selectedPlant", {
-                    required: t("reminders.selectPlant") as string,
-                  })}
+                  {...register("selectedPlant")}
                   value={selectedPlant || ""}
                 />
                 <Select
                   value={selectedPlant}
                   onValueChange={(v) => setValue("selectedPlant", v)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={`min-h-[44px] ${
+                    errors.selectedPlant ? "border-destructive" : ""
+                  }`}>
                     <SelectValue placeholder={t("reminders.selectPlant")} />
                   </SelectTrigger>
                   <SelectContent>
                     {plants.map((plant) => (
-                      <SelectItem key={plant.id} value={plant.id}>
+                      <SelectItem key={plant.id} value={plant.id} className="min-h-[44px]">
                         {plant.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {errors.selectedPlant && (
-                  <p className="text-xs text-destructive">
-                    {String(errors.selectedPlant.message)}
-                  </p>
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.selectedPlant.message}
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -482,7 +503,7 @@ export function ReminderSystem({
                 <Label>{t("reminders.reminderType")}</Label>
                 <input
                   type="hidden"
-                  {...register("reminderType", { required: true })}
+                  {...register("reminderType")}
                   value={reminderType || ""}
                 />
                 <Select
@@ -491,24 +512,34 @@ export function ReminderSystem({
                     setValue("reminderType", v as Reminder["type"])
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={`min-h-[44px] ${
+                    errors.reminderType ? "border-destructive" : ""
+                  }`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="watering">
+                    <SelectItem value="watering" className="min-h-[44px]">
                       {t("logType.watering")}
                     </SelectItem>
-                    <SelectItem value="feeding">
+                    <SelectItem value="feeding" className="min-h-[44px]">
                       {t("logType.feeding")}
                     </SelectItem>
-                    <SelectItem value="training">
+                    <SelectItem value="training" className="min-h-[44px]">
                       {t("logType.training")}
                     </SelectItem>
-                    <SelectItem value="custom">
+                    <SelectItem value="custom" className="min-h-[44px]">
                       {t("reminders.custom")}
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.reminderType && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.reminderType.message}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -516,7 +547,18 @@ export function ReminderSystem({
                 <Input
                   {...register("title")}
                   placeholder={getDefaultTitle(reminderType)}
+                  className={`min-h-[44px] ${
+                    errors.title ? "border-destructive" : ""
+                  }`}
                 />
+                {errors.title && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.title.message}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -524,7 +566,18 @@ export function ReminderSystem({
                 <Input
                   {...register("description")}
                   placeholder={getDefaultDescription(reminderType)}
+                  className={`min-h-[44px] ${
+                    errors.description ? "border-destructive" : ""
+                  }`}
                 />
+                {errors.description && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.description.message}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -533,18 +586,20 @@ export function ReminderSystem({
                   <Input
                     type="number"
                     min="1"
-                    {...register("interval", {
-                      validate: (value) => {
-                        const n = Number.parseInt(value || "");
-                        return (Number.isFinite(n) && n > 0) || "Must be > 0";
-                      },
-                    })}
+                    max="99"
+                    {...register("interval")}
                     placeholder="7"
+                    className={`min-h-[44px] ${
+                      errors.interval ? "border-destructive" : ""
+                    }`}
                   />
                   {errors.interval && (
-                    <p className="text-xs text-destructive">
-                      {String(errors.interval.message)}
-                    </p>
+                    <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <AlertCircle className="w-4 h-4 text-destructive" />
+                      <p className="text-sm text-destructive font-medium">
+                        {errors.interval.message}
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
