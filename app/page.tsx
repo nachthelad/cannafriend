@@ -11,21 +11,22 @@ import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
 import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
 import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
-import { AuthLoadingModal } from "@/components/auth/auth-loading-modal";
+
+import { AnimatedLogo } from "@/components/common/animated-logo";
 
 export default function Home() {
   const router = useRouter();
-  
+
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+
   // UI state
   const [loginOpen, setLoginOpen] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  
+
   // AdSense should only load on desktop public marketing view
   const shouldLoadAds = !isLoggedIn && !loginOpen && hasConsent === true;
 
@@ -33,10 +34,10 @@ export default function Home() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Close login modal and show loading modal
+        // User is logged in, set redirect flag and show loading
+        setShouldRedirect(true);
         setLoginOpen(false);
-        setAuthLoading(true);
-        
+
         // User is logged in, redirect to appropriate home page
         try {
           const snap = await getDoc(userDoc(user.uid));
@@ -50,13 +51,16 @@ export default function Home() {
           return;
         } catch (error: any) {
           // If there's an error, just go to dashboard
-          router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
+          router.push(
+            resolveHomePathForRoles({ grower: true, consumer: false })
+          );
           return;
         }
+      } else {
+        setIsLoggedIn(false);
+        setShouldRedirect(false);
+        setCheckingAuth(false);
       }
-      setIsLoggedIn(Boolean(user));
-      setCheckingAuth(false);
-      setAuthLoading(false);
     });
     return () => unsub();
   }, [router]);
@@ -70,7 +74,10 @@ export default function Home() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     return () =>
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
   }, []);
 
   // Handle login modal query parameter
@@ -122,17 +129,30 @@ export default function Home() {
 
   const handleInstallPWA = async () => {
     if (!deferredPrompt) return;
-    
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === "accepted") {
       setDeferredPrompt(null);
     }
   };
 
-  // Show loading modal instead of full screen loading during auth check
-  // The auth loading modal will handle the loading state
+  // Show full-screen loading for authenticated users to prevent flash
+  if (shouldRedirect || (checkingAuth && auth.currentUser)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <AnimatedLogo
+            size={64}
+            className="text-primary mb-4"
+            duration={1.5}
+          />
+          <p className="text-lg font-medium text-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -158,7 +178,7 @@ export default function Home() {
           loginOpen={loginOpen}
           onLoginOpenChange={setLoginOpen}
           onLoginClick={handleDesktopLoginClick}
-          onAuthStart={() => setAuthLoading(true)}
+          onAuthStart={() => {}}
           deferredPrompt={deferredPrompt}
           onInstallPWA={handleInstallPWA}
         />
@@ -166,9 +186,6 @@ export default function Home() {
 
       {/* Cookie consent banner */}
       <CookieConsent />
-      
-      {/* Auth loading modal */}
-      <AuthLoadingModal open={authLoading} />
     </div>
   );
 }
