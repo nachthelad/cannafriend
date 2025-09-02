@@ -696,6 +696,23 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.selectType": "Selecciona un tipo",
         "logForm.selectDate": "Selecciona una fecha",
         "logForm.save": "Guardar Registro",
+        "logForm.basicInfo": "Información Básica",
+        "logForm.details": "Detalles",
+
+        // Form Validation Errors
+        "validation.logTypeRequired": "Por favor selecciona un tipo de registro",
+        "validation.notesMaxLength": "Las notas deben tener 500 caracteres o menos",
+        "validation.waterAmountRequired": "La cantidad de agua es requerida para registros de riego",
+        "validation.waterAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.waterAmountTooLarge": "Cantidad muy grande (máx 100L)",
+        "validation.waterMethodRequired": "Por favor selecciona un método de riego",
+        "validation.nutrientAmountRequired": "La cantidad de nutrientes es requerida para registros de alimentación",
+        "validation.nutrientAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.nutrientAmountTooLarge": "Cantidad muy grande (máx 50ml/L)",
+        "validation.trainingMethodRequired": "Por favor selecciona un método de entrenamiento",
+        "validation.environmentValueRequired": "Al menos un valor de ambiente es requerido",
+        "validation.lightScheduleRequired": "El horario de luz es requerido para registros de floración",
+        "validation.notesRequired": "Las notas son requeridas para registros de notas",
 
         // Watering
         "watering.amount": "Cantidad (ml)",
@@ -741,6 +758,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.edit": "Editar",
         "common.add": "Agregar",
         "common.confirm": "Confirmar",
+        "common.step": "Paso",
+        "common.of": "de",
+        "common.optional": "opcional",
+        "common.characters": "caracteres",
+        "common.continue": "Continuar",
+        "common.selected": "seleccionado",
         "common.back": "Volver",
 
         // Auth Errors
@@ -1755,6 +1778,23 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.selectType": "Select a type",
         "logForm.selectDate": "Select a date",
         "logForm.save": "Save Log",
+        "logForm.basicInfo": "Basic Info",
+        "logForm.details": "Details",
+
+        // Form Validation Errors
+        "validation.logTypeRequired": "Please select a log type",
+        "validation.notesMaxLength": "Notes must be 500 characters or less",
+        "validation.waterAmountRequired": "Water amount is required for watering logs",
+        "validation.waterAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.waterAmountTooLarge": "Amount too large (max 100L)",
+        "validation.waterMethodRequired": "Please select a watering method",
+        "validation.nutrientAmountRequired": "Nutrient amount is required for feeding logs",
+        "validation.nutrientAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.nutrientAmountTooLarge": "Amount too large (max 50ml/L)",
+        "validation.trainingMethodRequired": "Please select a training method",
+        "validation.environmentValueRequired": "At least one environment value is required",
+        "validation.lightScheduleRequired": "Light schedule is required for flowering logs",
+        "validation.notesRequired": "Notes are required for note logs",
 
         // Watering
         "watering.amount": "Amount (ml)",
@@ -1800,6 +1840,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.edit": "Edit",
         "common.add": "Add",
         "common.confirm": "Confirm",
+        "common.step": "Step",
+        "common.of": "of",
+        "common.optional": "optional",
+        "common.characters": "characters",
+        "common.continue": "Continue",
+        "common.selected": "selected",
         "common.back": "Back",
 
         // Auth Errors

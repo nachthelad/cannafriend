@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +22,7 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, AlertCircle } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 
@@ -47,22 +49,129 @@ import {
 import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 
-// Form data interface
-interface LogFormData {
-  logType: LogType;
-  date: Date;
-  notes: string;
-  wateringAmount?: string;
-  wateringMethod?: WateringMethod;
-  feedingNpk?: string;
-  feedingAmount?: string;
-  trainingMethod?: TrainingMethod;
-  temperature?: string;
-  humidity?: string;
-  ph?: string;
-  light?: string;
-  lightSchedule?: string;
-}
+// Form validation schema - will be created with translations in component
+const createLogFormSchema = (t: any) => z
+  .object({
+    logType: z.string().min(1, t("validation.logTypeRequired")),
+    date: z.date(),
+    notes: z.string().max(500, t("validation.notesMaxLength")),
+    wateringAmount: z.string().optional(),
+    wateringMethod: z.string().optional(),
+    feedingNpk: z.string().optional(),
+    feedingAmount: z.string().optional(),
+    trainingMethod: z.string().optional(),
+    temperature: z.string().optional(),
+    humidity: z.string().optional(),
+    ph: z.string().optional(),
+    light: z.string().optional(),
+    lightSchedule: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Watering log validation
+    if (data.logType === LOG_TYPES.WATERING) {
+      if (!data.wateringAmount) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.waterAmountRequired"),
+          path: ["wateringAmount"],
+        });
+      } else {
+        const amount = parseFloat(data.wateringAmount);
+        if (isNaN(amount) || amount <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.waterAmountInvalid"),
+            path: ["wateringAmount"],
+          });
+        } else if (amount > 100) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.waterAmountTooLarge"),
+            path: ["wateringAmount"],
+          });
+        }
+      }
+      if (!data.wateringMethod) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.waterMethodRequired"),
+          path: ["wateringMethod"],
+        });
+      }
+    }
+
+    // Feeding log validation
+    if (data.logType === LOG_TYPES.FEEDING) {
+      if (!data.feedingAmount) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.nutrientAmountRequired"),
+          path: ["feedingAmount"],
+        });
+      } else {
+        const amount = parseFloat(data.feedingAmount);
+        if (isNaN(amount) || amount <= 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.nutrientAmountInvalid"),
+            path: ["feedingAmount"],
+          });
+        } else if (amount > 50) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.nutrientAmountTooLarge"),
+            path: ["feedingAmount"],
+          });
+        }
+      }
+    }
+
+    // Training log validation
+    if (data.logType === LOG_TYPES.TRAINING && !data.trainingMethod) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: t("validation.trainingMethodRequired"),
+        path: ["trainingMethod"],
+      });
+    }
+
+    // Environment log validation
+    if (data.logType === LOG_TYPES.ENVIRONMENT) {
+      const hasAnyValue =
+        data.temperature || data.humidity || data.ph || data.light;
+      if (!hasAnyValue) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.environmentValueRequired"),
+          path: ["temperature"],
+        });
+      }
+    }
+
+    // Flowering log validation
+    if (data.logType === LOG_TYPES.FLOWERING) {
+      if (!data.lightSchedule?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.lightScheduleRequired"),
+          path: ["lightSchedule"],
+        });
+      }
+    }
+
+    // Notes/Observation log validation
+    if (data.logType === LOG_TYPES.NOTE) {
+      if (!data.notes?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.notesRequired"),
+          path: ["notes"],
+        });
+      }
+    }
+  });
+
+type LogFormData = z.infer<ReturnType<typeof createLogFormSchema>>;
 
 function NewJournalPageContent() {
   const { t } = useTranslation();
@@ -80,18 +189,24 @@ function NewJournalPageContent() {
   // Get plant ID from URL params if provided
   const urlPlantId = searchParams.get("plantId");
 
+  // Create schema with translations
+  const logFormSchema = useMemo(() => createLogFormSchema(t), [t]);
+
   const {
     handleSubmit,
     formState: { errors },
     setValue,
     watch,
+    register,
     reset,
   } = useForm<LogFormData>({
+    resolver: zodResolver(logFormSchema),
     defaultValues: {
       logType: "" as LogType,
       date: new Date(),
       notes: "",
     },
+    mode: "onChange",
   });
 
   const logType = watch("logType");
@@ -128,6 +243,8 @@ function NewJournalPageContent() {
 
   const onSubmit = async (data: LogFormData) => {
     if (!auth.currentUser || !data.date || !selectedPlantId) return;
+
+    // Validation is now handled by Zod schema
 
     setIsLoading(true);
 
@@ -255,7 +372,11 @@ function NewJournalPageContent() {
                 </SelectTrigger>
                 <SelectContent>
                   {plants.map((plant) => (
-                    <SelectItem key={plant.id} value={plant.id} className="min-h-[44px]">
+                    <SelectItem
+                      key={plant.id}
+                      value={plant.id}
+                      className="min-h-[44px]"
+                    >
                       {plant.name}
                     </SelectItem>
                   ))}
@@ -268,19 +389,41 @@ function NewJournalPageContent() {
           <div className="space-y-3">
             <Label className="text-base font-medium">{t("logForm.type")}</Label>
             <Select
-              onValueChange={(value: LogType) => setValue("logType", value)}
+              onValueChange={(value: LogType) => {
+                setValue("logType", value);
+                // Clear notes error when switching away from NOTE type
+                if (errors.notes && value !== LOG_TYPES.NOTE) {
+                  setValue("notes", watch("notes") || "", { shouldValidate: true });
+                }
+              }}
             >
-              <SelectTrigger className="min-h-[48px] text-base">
+              <SelectTrigger
+                className={`min-h-[48px] text-base ${
+                  errors.logType ? "border-destructive" : ""
+                }`}
+              >
                 <SelectValue placeholder={t("logForm.selectType")} />
               </SelectTrigger>
               <SelectContent>
                 {LOG_TYPE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="min-h-[44px]">
+                  <SelectItem
+                    key={option.value}
+                    value={option.value}
+                    className="min-h-[44px]"
+                  >
                     {t(option.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {errors.logType && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <AlertCircle className="w-4 h-4 text-destructive" />
+                <p className="text-sm text-destructive font-medium">
+                  {errors.logType.message}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Date Selection */}
@@ -331,17 +474,31 @@ function NewJournalPageContent() {
                   step="0.1"
                   placeholder="0.5"
                   className="min-h-[48px] text-base"
-                  onChange={(e) => setValue("wateringAmount", e.target.value)}
+                  {...register("wateringAmount")}
                 />
+                {errors.wateringAmount && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.wateringAmount.message}
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 <Label className="text-base font-medium">
                   {t("logForm.method")}
                 </Label>
                 <RadioGroup
-                  onValueChange={(value: WateringMethod) =>
-                    setValue("wateringMethod", value)
-                  }
+                  onValueChange={(value: WateringMethod) => {
+                    setValue("wateringMethod", value);
+                    // Clear validation error when user selects
+                    if (errors.wateringMethod) {
+                      setValue("wateringMethod", value, {
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
                   className="grid grid-cols-1 gap-3"
                 >
                   {WATERING_METHOD_OPTIONS.map((option) => (
@@ -363,6 +520,14 @@ function NewJournalPageContent() {
                     </div>
                   ))}
                 </RadioGroup>
+                {errors.wateringMethod && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.wateringMethod.message}
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -395,8 +560,16 @@ function NewJournalPageContent() {
                   step="0.1"
                   placeholder="2.0"
                   className="min-h-[48px] text-base"
-                  onChange={(e) => setValue("feedingAmount", e.target.value)}
+                  {...register("feedingAmount")}
                 />
+                {errors.feedingAmount && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.feedingAmount.message}
+                    </p>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -407,9 +580,13 @@ function NewJournalPageContent() {
                 {t("logForm.trainingMethod")}
               </Label>
               <RadioGroup
-                onValueChange={(value: TrainingMethod) =>
-                  setValue("trainingMethod", value)
-                }
+                onValueChange={(value: TrainingMethod) => {
+                  setValue("trainingMethod", value);
+                  // Clear validation error when user selects
+                  if (errors.trainingMethod) {
+                    setValue("trainingMethod", value, { shouldValidate: true });
+                  }
+                }}
                 className="grid grid-cols-1 gap-3"
               >
                 {TRAINING_METHOD_OPTIONS.map((option) => (
@@ -431,6 +608,14 @@ function NewJournalPageContent() {
                   </div>
                 ))}
               </RadioGroup>
+              {errors.trainingMethod && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.trainingMethod.message}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -451,7 +636,7 @@ function NewJournalPageContent() {
                     step="0.1"
                     placeholder="24.5"
                     className="min-h-[48px] text-base"
-                    onChange={(e) => setValue("temperature", e.target.value)}
+                    {...register("temperature")}
                   />
                 </div>
                 <div className="space-y-3">
@@ -465,7 +650,7 @@ function NewJournalPageContent() {
                     step="1"
                     placeholder="60"
                     className="min-h-[48px] text-base"
-                    onChange={(e) => setValue("humidity", e.target.value)}
+                    {...register("humidity")}
                   />
                 </div>
                 <div className="space-y-3">
@@ -479,7 +664,7 @@ function NewJournalPageContent() {
                     step="0.1"
                     placeholder="6.2"
                     className="min-h-[48px] text-base"
-                    onChange={(e) => setValue("ph", e.target.value)}
+                    {...register("ph")}
                   />
                 </div>
                 <div className="space-y-3">
@@ -493,10 +678,18 @@ function NewJournalPageContent() {
                     step="1"
                     placeholder="400"
                     className="min-h-[48px] text-base"
-                    onChange={(e) => setValue("light", e.target.value)}
+                    {...register("light")}
                   />
                 </div>
               </div>
+              {errors.temperature && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.temperature.message}
+                  </p>
+                </div>
+              )}
             </>
           )}
 
@@ -510,8 +703,16 @@ function NewJournalPageContent() {
                 type="text"
                 placeholder="12/12"
                 className="min-h-[48px] text-base"
-                onChange={(e) => setValue("lightSchedule", e.target.value)}
+                {...register("lightSchedule")}
               />
+              {errors.lightSchedule && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.lightSchedule.message}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -525,8 +726,19 @@ function NewJournalPageContent() {
               placeholder={t("logForm.notesPlaceholder")}
               rows={4}
               className="text-base resize-none min-h-[120px]"
-              onChange={(e) => setValue("notes", e.target.value)}
+              {...register("notes")}
             />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{watch("notes")?.length || 0}/500 characters</span>
+            </div>
+            {errors.notes && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <AlertCircle className="w-4 h-4 text-destructive" />
+                <p className="text-sm text-destructive font-medium">
+                  {errors.notes.message}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
