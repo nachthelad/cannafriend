@@ -87,6 +87,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.today": "Hoy",
         "common.yesterday": "Ayer",
         "common.daysAgo": "días",
+        "common.comingSoon": "Próximamente",
         "app.name": "cannafriend",
         "app.description": "Inicia sesión para continuar",
         "app.installPWA": "Instalar App",
@@ -780,7 +781,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.invalidDate": "Fecha inválida",
 
         // Reminders
-        "reminders.title": "Recordatorios",
+        "reminders.title": "Nombre del recordatorio",
         "reminders.description": "Gestiona recordatorios para tus plantas",
         "reminders.loading": "Cargando recordatorios...",
         "reminders.add": "Agregar Recordatorio",
@@ -823,6 +824,26 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.noPlantsDesc": "Agrega una planta para crear recordatorios",
         "reminders.noPlantsHint": "Agrega una planta para crear recordatorios",
         "reminders.pageDescription": "Gestiona recordatorios para tus plantas",
+        "reminders.completed": "Completado",
+        "reminders.snoozed": "Pospuesto",
+        "reminders.snoozedFor": "Pospuesto por {{hours}} horas",
+        "reminders.snooze1h": "1h más",
+        "reminders.snooze2h": "2h más",
+        "reminders.swipeHint": "Desliza → para completar, ← para posponer",
+        "reminders.deleteReminder": "Eliminar recordatorio",
+        "reminders.deleteReminderConfirm":
+          "¿Estás seguro de que quieres eliminar este recordatorio?",
+        "reminders.addReminderDesc":
+          "Crea recordatorios personalizados para el cuidado de tus plantas",
+        "reminders.every": "cada",
+        "reminders.active": "activos",
+        "reminders.getStartedHint":
+          "Toca el botón de arriba para crear tu primer recordatorio",
+        "reminders.editComingSoon":
+          "La función de edición estará disponible pronto",
+        "reminders.customDays": "Días personalizados",
+        "reminders.selectPlantFirst": "Selecciona una planta primero",
+        "reminders.invalidInterval": "El intervalo debe ser entre 1 y 99 días",
 
         // Strains (Consumer)
         "strains.title": "Variedades",
@@ -1121,6 +1142,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "common.today": "Today",
         "common.yesterday": "Yesterday",
         "common.daysAgo": "days ago",
+        "common.comingSoon": "Coming Soon",
         "app.name": "cannafriend",
         "app.description": "Sign in to continue",
         "app.installPWA": "Install App",
@@ -1818,7 +1840,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.invalidDate": "Invalid date",
 
         // Reminders
-        "reminders.title": "Reminders",
+        "reminders.title": "Reminder Name",
         "reminders.description": "Manage reminders for your plants",
         "reminders.loading": "Loading reminders...",
         "reminders.add": "Add Reminder",
@@ -1861,6 +1883,25 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "reminders.noPlantsDesc": "Add a plant to create reminders",
         "reminders.noPlantsHint": "Add a plant to create reminders",
         "reminders.pageDescription": "Manage reminders for your plants",
+        "reminders.completed": "Completed",
+        "reminders.snoozed": "Snoozed",
+        "reminders.snoozedFor": "Snoozed for {{hours}} hours",
+        "reminders.snooze1h": "+1h",
+        "reminders.snooze2h": "+2h",
+        "reminders.swipeHint": "Swipe → to complete, ← to snooze",
+        "reminders.deleteReminder": "Delete Reminder",
+        "reminders.deleteReminderConfirm":
+          "Are you sure you want to delete this reminder?",
+        "reminders.addReminderDesc":
+          "Create custom reminders for your plant care routine",
+        "reminders.every": "every",
+        "reminders.active": "active",
+        "reminders.getStartedHint":
+          "Tap the button above to create your first reminder",
+        "reminders.editComingSoon": "Edit functionality coming soon",
+        "reminders.customDays": "Custom days",
+        "reminders.selectPlantFirst": "Select a plant first",
+        "reminders.invalidInterval": "Interval must be between 1 and 99 days",
 
         // Strains (Consumer)
         "strains.title": "Strains",
