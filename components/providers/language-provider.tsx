@@ -802,6 +802,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.minValue": "Debe ser mayor o igual a {min}",
         "validation.maxValue": "Debe ser menor o igual a {max}",
         "validation.invalidDate": "Fecha inválida",
+        // Reminder validation
+        "validation.plantRequired": "Por favor selecciona una planta",
+        "validation.reminderTypeRequired": "Por favor selecciona un tipo de recordatorio",
+        "validation.intervalRequired": "El intervalo es requerido",
+        "validation.intervalInvalid": "Debe ser un número entre 1 y 99",
+        "validation.titleMaxLength": "El título debe tener 50 caracteres o menos",
+        "validation.descriptionMaxLength": "La descripción debe tener 200 caracteres o menos",
 
         // Reminders
         "reminders.title": "Nombre del recordatorio",
@@ -1884,6 +1891,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.minValue": "Must be greater than or equal to {min}",
         "validation.maxValue": "Must be less than or equal to {max}",
         "validation.invalidDate": "Invalid date",
+        // Reminder validation
+        "validation.plantRequired": "Please select a plant",
+        "validation.reminderTypeRequired": "Please select a reminder type",
+        "validation.intervalRequired": "Interval is required",
+        "validation.intervalInvalid": "Must be a number between 1 and 99",
+        "validation.titleMaxLength": "Title must be 50 characters or less",
+        "validation.descriptionMaxLength": "Description must be 200 characters or less",
 
         // Reminders
         "reminders.title": "Reminder Name",

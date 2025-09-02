@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,9 +30,29 @@ import {
   Scissors,
   Clock,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import type { Plant } from "@/types";
+
+// Form validation schema - created with translations
+const createMobileReminderFormSchema = (t: any) => z.object({
+  selectedPlant: z.string().min(1, t("validation.plantRequired")),
+  reminderType: z.enum(["watering", "feeding", "training", "custom"], {
+    errorMap: () => ({ message: t("validation.reminderTypeRequired") }),
+  }),
+  title: z.string().max(50, t("validation.titleMaxLength")),
+  description: z.string().max(200, t("validation.descriptionMaxLength")),
+  interval: z.string().refine(
+    (val) => {
+      const num = parseInt(val);
+      return !isNaN(num) && num >= 1 && num <= 99;
+    },
+    { message: t("validation.intervalInvalid") }
+  ),
+});
+
+type MobileReminderFormData = z.infer<ReturnType<typeof createMobileReminderFormSchema>>;
 
 interface Reminder {
   id: string;
@@ -53,13 +75,6 @@ interface MobileReminderSchedulerProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-type ReminderForm = {
-  selectedPlant: string;
-  reminderType: Reminder["type"];
-  title: string;
-  description: string;
-  interval: string;
-};
 
 const QUICK_INTERVALS = [
   { value: "1", label: "1 day", icon: "1" },
@@ -82,6 +97,9 @@ export function MobileReminderScheduler({
   const [selectedInterval, setSelectedInterval] = useState("7");
   const customInputRef = useRef<HTMLInputElement>(null);
 
+  // Form schema with translations
+  const mobileReminderFormSchema = useMemo(() => createMobileReminderFormSchema(t), [t]);
+
   const {
     register,
     handleSubmit,
@@ -89,7 +107,8 @@ export function MobileReminderScheduler({
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ReminderForm>({
+  } = useForm<MobileReminderFormData>({
+    resolver: zodResolver(mobileReminderFormSchema),
     defaultValues: {
       selectedPlant: "",
       reminderType: "watering",
@@ -191,7 +210,7 @@ export function MobileReminderScheduler({
     setValue("interval", "7");
   };
 
-  const onSubmit = async (data: ReminderForm) => {
+  const onSubmit = async (data: MobileReminderFormData) => {
     if (!auth.currentUser || !data.selectedPlant) return;
 
     const plant = plants.find((p) => p.id === data.selectedPlant);
@@ -271,11 +290,18 @@ export function MobileReminderScheduler({
               <Label className="text-base font-medium">
                 {t("reminders.selectPlant")}
               </Label>
+              <input
+                type="hidden"
+                {...register("selectedPlant")}
+                value={selectedPlant || ""}
+              />
               <Select
                 value={selectedPlant}
                 onValueChange={(v) => setValue("selectedPlant", v)}
               >
-                <SelectTrigger className="min-h-[48px] text-base">
+                <SelectTrigger className={`min-h-[48px] text-base ${
+                  errors.selectedPlant ? "border-destructive" : ""
+                }`}>
                   <SelectValue placeholder={t("reminders.selectPlant")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,6 +316,14 @@ export function MobileReminderScheduler({
                   ))}
                 </SelectContent>
               </Select>
+              {errors.selectedPlant && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.selectedPlant.message}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Reminder Type Selection */}
@@ -297,6 +331,11 @@ export function MobileReminderScheduler({
               <Label className="text-base font-medium">
                 {t("reminders.reminderType")}
               </Label>
+              <input
+                type="hidden"
+                {...register("reminderType")}
+                value={reminderType || ""}
+              />
               <div className="grid grid-cols-2 gap-3">
                 {(["watering", "feeding", "training", "custom"] as const).map(
                   (type) => (
@@ -304,7 +343,9 @@ export function MobileReminderScheduler({
                       key={type}
                       type="button"
                       variant={reminderType === type ? "default" : "outline"}
-                      className="min-h-[56px] flex-col gap-1 p-3"
+                      className={`min-h-[56px] flex-col gap-1 p-3 ${
+                        errors.reminderType ? "border-destructive" : ""
+                      }`}
                       onClick={() => handleTypeChange(type)}
                     >
                       {getReminderIcon(type)}
@@ -317,7 +358,14 @@ export function MobileReminderScheduler({
                   )
                 )}
               </div>
-            </div>
+              {errors.reminderType && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.reminderType.message}
+                  </p>
+                </div>
+              )}
 
             {/* Preview Card */}
             {reminderType && (
@@ -400,13 +448,6 @@ export function MobileReminderScheduler({
                     setSelectedInterval(value);
                   }}
                   {...register("interval", {
-                    validate: (value) => {
-                      const n = Number.parseInt(value || "");
-                      return (
-                        (Number.isFinite(n) && n > 0 && n <= 99) ||
-                        t("reminders.invalidInterval")
-                      );
-                    },
                     onChange: (e) => {
                       setSelectedInterval(e.target.value);
                     },
@@ -417,9 +458,12 @@ export function MobileReminderScheduler({
                 </Label>
               </div>
               {errors.interval && (
-                <p className="text-sm text-destructive">
-                  {errors.interval.message}
-                </p>
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.interval.message}
+                  </p>
+                </div>
               )}
             </div>
 
@@ -431,8 +475,40 @@ export function MobileReminderScheduler({
               <Input
                 {...register("title")}
                 placeholder={getDefaultTitle(reminderType)}
-                className="min-h-[44px]"
+                className={`min-h-[44px] ${
+                  errors.title ? "border-destructive" : ""
+                }`}
               />
+              {errors.title && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.title.message}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="space-y-3">
+              <Label className="text-base font-medium">
+                {t("reminders.description")}
+              </Label>
+              <Input
+                {...register("description")}
+                placeholder={getDefaultDescription(reminderType)}
+                className={`min-h-[44px] ${
+                  errors.description ? "border-destructive" : ""
+                }`}
+              />
+              {errors.description && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.description.message}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -455,6 +531,7 @@ export function MobileReminderScheduler({
                 {t("common.cancel")}
               </Button>
             </div>
+          </div>
           </div>
         </form>
       </Layout>
