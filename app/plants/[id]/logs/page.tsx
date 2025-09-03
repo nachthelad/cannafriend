@@ -29,7 +29,7 @@ export default function PlantLogsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { t, language } = useTranslation(["plants", "common"]);
+  const { t, i18n } = useTranslation(["plants", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
