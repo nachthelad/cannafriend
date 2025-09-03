@@ -13,7 +13,7 @@ service firebase.storage {
       // Validaciones adicionales para subida de archivos
       allow create: if request.auth != null 
         && request.auth.uid == userId
-        && request.resource.size < 5 * 1024 * 1024 // Máximo 5MB por archivo
+        && request.resource.size < 10 * 1024 * 1024 // Máximo 10MB por archivo
         && request.resource.contentType.matches('image/.*') // Solo imágenes
         && request.resource.contentType.matches('image/(jpeg|jpg|png|webp|gif)'); // Formatos específicos
     }

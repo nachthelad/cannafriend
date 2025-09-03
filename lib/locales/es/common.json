@@ -176,6 +176,12 @@
     "maxSize": "Tamaño máximo:",
     "maxImages": "Máximo de imágenes:"
   },
+  "imageErrors": {
+    "userNotAuthenticated": "Usuario no autenticado",
+    "fileTooLarge": "El archivo es demasiado grande",
+    "invalidFileType": "Tipo de archivo no válido",
+    "uploadFailed": "Error al subir el archivo"
+  },
   "settings": {
     "title": "Configuración",
     "account": "Cuenta",

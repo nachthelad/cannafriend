@@ -177,6 +177,12 @@
     "maxSize": "Max size:",
     "maxImages": "Max images:"
   },
+  "imageErrors": {
+    "userNotAuthenticated": "User not authenticated",
+    "fileTooLarge": "File is too large",
+    "invalidFileType": "Invalid file type",
+    "uploadFailed": "Upload failed"
+  },
   "settings": {
     "title": "Settings",
     "account": "Account",

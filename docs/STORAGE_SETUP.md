@@ -70,7 +70,7 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
    - Drag & drop de archivos
    - Selección múltiple de archivos
    - Validación de tipos de archivo (JPG, JPEG, PNG, WebP, GIF)
-   - Límite de tamaño por archivo (5MB)
+   - Límite de tamaño por archivo (10MB)
    - Límite de cantidad de imágenes (10 máximo por planta)
    - Feedback visual durante la subida
 
