@@ -18,11 +18,11 @@ import { ROUTE_LOGIN } from "@/lib/routes";
 import { plantsCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 
 export default function RemindersPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["reminders", "common"]);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -70,9 +70,11 @@ export default function RemindersPage() {
       {/* Desktop View */}
       <div className="hidden md:block">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">{t("dashboard.reminders")}</h1>
+          <h1 className="text-3xl font-bold">
+            {t("reminders", { ns: "dashboard" })}
+          </h1>
           <p className="text-muted-foreground">
-            {t("reminders.pageDescription")}
+            {t("pageDescription", { ns: "reminders" })}
           </p>
         </div>
 
@@ -81,12 +83,14 @@ export default function RemindersPage() {
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.noPlants")}</CardTitle>
-              <CardDescription>{t("dashboard.noPlantDesc")}</CardDescription>
+              <CardTitle>{t("noPlants", { ns: "dashboard" })}</CardTitle>
+              <CardDescription>
+                {t("noPlantDesc", { ns: "dashboard" })}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                {t("reminders.noPlantsHint")}
+                {t("noPlantsHint", { ns: "reminders" })}
               </p>
             </CardContent>
           </Card>

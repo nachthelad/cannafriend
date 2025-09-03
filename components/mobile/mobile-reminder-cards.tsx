@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -70,7 +70,7 @@ export function MobileReminderCards({
   onDelete,
   className,
 }: MobileReminderCardsProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["reminders", "common", "journal"]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [swipeState, setSwipeState] = useState<{
@@ -79,7 +79,9 @@ export function MobileReminderCards({
     offset: number;
   }>({ id: "", direction: null, offset: 0 });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(null);
+  const [selectedReminder, setSelectedReminder] = useState<Reminder | null>(
+    null
+  );
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -128,14 +130,20 @@ export function MobileReminderCards({
 
     if (diffMs < 0) {
       const overdueDays = Math.abs(diffDays);
-      return overdueDays === 0 ? t("reminders.overdue") : `${overdueDays} ${t("common.daysAgo")}`;
+      return overdueDays === 0
+        ? t("overdue", { ns: "reminders" })
+        : `${overdueDays} ${t("daysAgo", { ns: "common" })}`;
     }
 
     if (diffDays === 0) {
-      return diffHours <= 1 ? t("reminders.dueSoon") : `${diffHours}h`;
+      return diffHours <= 1
+        ? t("dueSoon", { ns: "reminders" })
+        : `${diffHours}h`;
     }
 
-    return diffDays === 1 ? t("common.tomorrow") : `${diffDays} ${t("reminders.days")}`;
+    return diffDays === 1
+      ? t("tomorrow", { ns: "common" })
+      : `${diffDays} ${t("days", { ns: "reminders" })}`;
   };
 
   const handleTouchStart = (e: React.TouchEvent, reminderId: string) => {
@@ -179,15 +187,15 @@ export function MobileReminderCards({
         // Right swipe = Complete
         onComplete(reminder.id, reminder.interval);
         toast({
-          title: t("reminders.completed"),
+          title: t("completed", { ns: "reminders" }),
           description: `${reminder.title} - ${reminder.plantName}`,
         });
       } else if (direction === "left") {
         // Left swipe = Snooze 1 hour
         onSnooze(reminder.id, 1);
         toast({
-          title: t("reminders.snoozed"),
-          description: t("reminders.snoozedFor", { hours: "1" }),
+          title: t("snoozed", { ns: "reminders" }),
+          description: t("snoozedFor", { ns: "reminders", hours: "1" }),
         });
       }
     }
@@ -203,8 +211,11 @@ export function MobileReminderCards({
       triggerHaptic("light");
       onSnooze(reminder.id, hours);
       toast({
-        title: t("reminders.snoozed"),
-        description: t("reminders.snoozedFor", { hours: hours.toString() }),
+        title: t("snoozed", { ns: "reminders" }),
+        description: t("snoozedFor", {
+          ns: "reminders",
+          hours: hours.toString(),
+        }),
       });
     } catch (error: any) {
       handleFirebaseError(error, "snoozing reminder");
@@ -216,7 +227,7 @@ export function MobileReminderCards({
       triggerHaptic("success");
       onComplete(reminder.id, reminder.interval);
       toast({
-        title: t("reminders.completed"),
+        title: t("completed", { ns: "reminders" }),
         description: `${reminder.title} - ${reminder.plantName}`,
       });
     } catch (error: any) {
@@ -234,7 +245,7 @@ export function MobileReminderCards({
     if (selectedReminder) {
       onDelete(selectedReminder.id);
       toast({
-        title: t("reminders.deleted"),
+        title: t("deleted", { ns: "reminders" }),
         description: `${selectedReminder.title} - ${selectedReminder.plantName}`,
       });
     }
@@ -246,8 +257,10 @@ export function MobileReminderCards({
     return (
       <div className={cn("text-center py-8 text-muted-foreground", className)}>
         <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-        <p className="text-lg font-medium mb-2">{t("reminders.noReminders")}</p>
-        <p className="text-sm">{t("reminders.noRemindersDesc")}</p>
+        <p className="text-lg font-medium mb-2">
+          {t("noReminders", { ns: "reminders" })}
+        </p>
+        <p className="text-sm">{t("noRemindersDesc", { ns: "reminders" })}</p>
       </div>
     );
   }
@@ -262,8 +275,12 @@ export function MobileReminderCards({
           className={cn(
             "relative overflow-hidden border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/30 transition-transform",
             swipeState.id === reminder.id && "transform-gpu",
-            swipeState.id === reminder.id && swipeState.direction === "right" && "translate-x-2",
-            swipeState.id === reminder.id && swipeState.direction === "left" && "-translate-x-2"
+            swipeState.id === reminder.id &&
+              swipeState.direction === "right" &&
+              "translate-x-2",
+            swipeState.id === reminder.id &&
+              swipeState.direction === "left" &&
+              "-translate-x-2"
           )}
           onTouchStart={(e) => handleTouchStart(e, reminder.id)}
           onTouchMove={(e) => handleTouchMove(e, reminder.id)}
@@ -278,7 +295,8 @@ export function MobileReminderCards({
                     {reminder.title}
                   </h3>
                   <p className="text-sm text-red-600 dark:text-red-300 truncate">
-                    {reminder.plantName} • {reminder.interval} {t("reminders.days")}
+                    {reminder.plantName} • {reminder.interval}{" "}
+                    {t("days", { ns: "reminders" })}
                   </p>
                 </div>
               </div>
@@ -291,11 +309,11 @@ export function MobileReminderCards({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => onEdit(reminder)}>
                     <Calendar className="mr-2 h-4 w-4" />
-                    {t("common.edit")}
+                    {t("edit", { ns: "common" })}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleDeleteClick(reminder)}>
                     <X className="mr-2 h-4 w-4" />
-                    {t("common.delete")}
+                    {t("delete", { ns: "common" })}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -305,8 +323,10 @@ export function MobileReminderCards({
               <Badge variant="destructive" className="text-xs">
                 {formatTimeUntilDue(reminder.nextReminder)}
               </Badge>
-              <Badge className={cn("text-xs", getReminderTypeColor(reminder.type))}>
-                {t(`logType.${reminder.type}`)}
+              <Badge
+                className={cn("text-xs", getReminderTypeColor(reminder.type))}
+              >
+                {t(`logType.${reminder.type}`, { ns: "journal" })}
               </Badge>
             </div>
 
@@ -319,7 +339,7 @@ export function MobileReminderCards({
                 className="flex-1 min-h-[44px] text-xs"
               >
                 <Clock className="mr-1 h-3 w-3" />
-                {t("reminders.snooze1h")}
+                {t("snooze1h", { ns: "reminders" })}
               </Button>
               <Button
                 size="sm"
@@ -327,13 +347,13 @@ export function MobileReminderCards({
                 className="flex-1 min-h-[44px] text-xs bg-green-600 hover:bg-green-700"
               >
                 <CheckCircle className="mr-1 h-3 w-3" />
-                {t("reminders.markDone")}
+                {t("markDone", { ns: "reminders" })}
               </Button>
             </div>
 
             {/* Swipe hint */}
             <p className="text-xs text-red-500 dark:text-red-400 mt-2 text-center">
-              {t("reminders.swipeHint")}
+              {t("swipeHint", { ns: "reminders" })}
             </p>
           </CardContent>
         </Card>
@@ -346,8 +366,12 @@ export function MobileReminderCards({
           className={cn(
             "relative overflow-hidden border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 transition-transform",
             swipeState.id === reminder.id && "transform-gpu",
-            swipeState.id === reminder.id && swipeState.direction === "right" && "translate-x-2",
-            swipeState.id === reminder.id && swipeState.direction === "left" && "-translate-x-2"
+            swipeState.id === reminder.id &&
+              swipeState.direction === "right" &&
+              "translate-x-2",
+            swipeState.id === reminder.id &&
+              swipeState.direction === "left" &&
+              "-translate-x-2"
           )}
           onTouchStart={(e) => handleTouchStart(e, reminder.id)}
           onTouchMove={(e) => handleTouchMove(e, reminder.id)}
@@ -362,7 +386,8 @@ export function MobileReminderCards({
                     {reminder.title}
                   </h3>
                   <p className="text-sm text-amber-600 dark:text-amber-300 truncate">
-                    {reminder.plantName} • {reminder.interval} {t("reminders.days")}
+                    {reminder.plantName} • {reminder.interval}{" "}
+                    {t("days", { ns: "reminders" })}
                   </p>
                 </div>
               </div>
@@ -375,11 +400,11 @@ export function MobileReminderCards({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => onEdit(reminder)}>
                     <Calendar className="mr-2 h-4 w-4" />
-                    {t("common.edit")}
+                    {t("edit", { ns: "common" })}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleDeleteClick(reminder)}>
                     <X className="mr-2 h-4 w-4" />
-                    {t("common.delete")}
+                    {t("delete", { ns: "common" })}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -389,8 +414,10 @@ export function MobileReminderCards({
               <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                 {formatTimeUntilDue(reminder.nextReminder)}
               </Badge>
-              <Badge className={cn("text-xs", getReminderTypeColor(reminder.type))}>
-                {t(`logType.${reminder.type}`)}
+              <Badge
+                className={cn("text-xs", getReminderTypeColor(reminder.type))}
+              >
+                {t(`logType.${reminder.type}`, { ns: "journal" })}
               </Badge>
             </div>
 
@@ -403,7 +430,7 @@ export function MobileReminderCards({
                 className="flex-1 min-h-[44px] text-xs"
               >
                 <Clock className="mr-1 h-3 w-3" />
-                {t("reminders.snooze2h")}
+                {t("snooze2h", { ns: "reminders" })}
               </Button>
               <Button
                 size="sm"
@@ -411,7 +438,7 @@ export function MobileReminderCards({
                 className="flex-1 min-h-[44px] text-xs"
               >
                 <CheckCircle className="mr-1 h-3 w-3" />
-                {t("reminders.markDone")}
+                {t("markDone", { ns: "reminders" })}
               </Button>
             </div>
           </CardContent>
@@ -425,7 +452,10 @@ export function MobileReminderCards({
           return r.isActive && next > dueSoonThreshold;
         })
         .map((reminder) => (
-          <Card key={reminder.id} className="border-gray-200 dark:border-gray-800">
+          <Card
+            key={reminder.id}
+            className="border-gray-200 dark:border-gray-800"
+          >
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3 flex-1">
@@ -433,7 +463,8 @@ export function MobileReminderCards({
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold truncate">{reminder.title}</h3>
                     <p className="text-sm text-muted-foreground truncate">
-                      {reminder.plantName} • {reminder.interval} {t("reminders.days")}
+                      {reminder.plantName} • {reminder.interval}{" "}
+                      {t("days", { ns: "reminders" })}
                     </p>
                   </div>
                 </div>
@@ -446,11 +477,13 @@ export function MobileReminderCards({
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => onEdit(reminder)}>
                       <Calendar className="mr-2 h-4 w-4" />
-                      {t("common.edit")}
+                      {t("edit", { ns: "common" })}
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDeleteClick(reminder)}>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(reminder)}
+                    >
                       <X className="mr-2 h-4 w-4" />
-                      {t("common.delete")}
+                      {t("delete", { ns: "common" })}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -460,8 +493,10 @@ export function MobileReminderCards({
                 <Badge variant="secondary" className="text-xs">
                   {formatTimeUntilDue(reminder.nextReminder)}
                 </Badge>
-                <Badge className={cn("text-xs", getReminderTypeColor(reminder.type))}>
-                  {t(`logType.${reminder.type}`)}
+                <Badge
+                  className={cn("text-xs", getReminderTypeColor(reminder.type))}
+                >
+                  {t(`logType.${reminder.type}`, { ns: "journal" })}
                 </Badge>
               </div>
             </CardContent>
@@ -472,19 +507,23 @@ export function MobileReminderCards({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("reminders.deleteReminder")}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("deleteReminder", { ns: "reminders" })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {t("reminders.deleteReminderConfirm")}
+              {t("deleteReminderConfirm", { ns: "reminders" })}
               {selectedReminder && ` "${selectedReminder.title}"`}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("cancel", { ns: "common" })}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {t("common.delete")}
+              {t("delete", { ns: "common" })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

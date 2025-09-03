@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { AuthTabs } from "@/components/auth/auth-tabs";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import Logo from "@/components/common/logo";
 
 export function MobileLandingView() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("common");
 
   return (
     <div className="min-h-screen flex flex-col justify-center p-6">

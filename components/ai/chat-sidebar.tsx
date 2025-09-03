@@ -4,17 +4,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import {
-  MessageSquare,
-  Plus,
-  X,
-  Menu,
-  Brain,
-  Clock,
-} from "lucide-react";
+import { MessageSquare, Plus, X, Menu, Brain, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatSession {
@@ -41,14 +34,14 @@ export function ChatSidebar({
   onNewChat,
   className,
 }: ChatSidebarProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["analyzePlant", "common"]);
   const { user } = useAuthUser();
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const loadChatHistory = async () => {
     if (!user?.uid) return;
-    
+
     setIsLoading(true);
     try {
       const chatQuery = query(
@@ -56,10 +49,10 @@ export function ChatSidebar({
         orderBy("lastUpdated", "desc"),
         limit(20)
       );
-      
+
       const snapshot = await getDocs(chatQuery);
       const sessions: ChatSession[] = [];
-      
+
       snapshot.forEach((doc) => {
         const data = doc.data();
         sessions.push({
@@ -69,7 +62,7 @@ export function ChatSidebar({
           chatType: data.chatType || "consumer",
         });
       });
-      
+
       setChatSessions(sessions);
     } catch (error) {
       console.error("Error loading chat history:", error);
@@ -89,13 +82,13 @@ export function ChatSidebar({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       return t("common.today");
     } else if (diffDays === 1) {
       return t("common.yesterday");
     } else if (diffDays < 7) {
-      return `${diffDays} ${t("common.daysAgo")}`;
+      return `${diffDays} ${t("daysAgo", { ns: "common" })}`;
     } else {
       return date.toLocaleDateString();
     }
@@ -108,24 +101,22 @@ export function ChatSidebar({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            <h2 className="font-semibold">{t("ai.chatHistory")}</h2>
+            <h2 className="font-semibold">
+              {t("chatHistory", { ns: "analyzePlant" })}
+            </h2>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggle}
-          >
+          <Button variant="ghost" size="icon" onClick={onToggle}>
             <X className="h-4 w-4" />
           </Button>
         </div>
-        
+
         <Button
           onClick={onNewChat}
           className="w-full flex items-center gap-2"
           variant="outline"
         >
           <Plus className="h-4 w-4" />
-          {t("ai.newChat")}
+          {t("newChat", { ns: "analyzePlant" })}
         </Button>
       </div>
 
@@ -140,7 +131,7 @@ export function ChatSidebar({
         ) : chatSessions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">{t("ai.noChats")}</p>
+            <p className="text-sm">{t("noChats", { ns: "analyzePlant" })}</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -166,9 +157,15 @@ export function ChatSidebar({
                     </div>
                     <div className="ml-2">
                       {session.chatType === "plant-analysis" ? (
-                        <div className="w-2 h-2 rounded-full bg-green-500" title="Plant Analysis" />
+                        <div
+                          className="w-2 h-2 rounded-full bg-green-500"
+                          title="Plant Analysis"
+                        />
                       ) : (
-                        <div className="w-2 h-2 rounded-full bg-blue-500" title="Consumer Chat" />
+                        <div
+                          className="w-2 h-2 rounded-full bg-blue-500"
+                          title="Consumer Chat"
+                        />
                       )}
                     </div>
                   </div>
@@ -190,7 +187,7 @@ export function ChatSidebar({
           onClick={onToggle}
         />
       )}
-      
+
       {/* Desktop Sidebar */}
       <div
         className={cn(
@@ -206,7 +203,9 @@ export function ChatSidebar({
               <>
                 <div className="flex items-center gap-2">
                   <Brain className="h-5 w-5 text-primary flex-shrink-0" />
-                  <h2 className="font-semibold text-sm">{t("ai.chatHistory")}</h2>
+                  <h2 className="font-semibold text-sm">
+                    {t("chatHistory", { ns: "analyzePlant" })}
+                  </h2>
                 </div>
                 <Button
                   variant="ghost"
@@ -223,13 +222,13 @@ export function ChatSidebar({
                 size="icon"
                 onClick={onToggle}
                 className="h-8 w-8 mx-auto"
-                title={t("ai.chatHistory")}
+                title={t("chatHistory", { ns: "analyzePlant" })}
               >
                 <MessageSquare className="h-5 w-5" />
               </Button>
             )}
           </div>
-          
+
           {isOpen && (
             <Button
               onClick={onNewChat}
@@ -237,7 +236,7 @@ export function ChatSidebar({
               variant="outline"
             >
               <Plus className="h-4 w-4" />
-              {t("ai.newChat")}
+              {t("newChat", { ns: "analyzePlant" })}
             </Button>
           )}
         </div>
@@ -248,13 +247,18 @@ export function ChatSidebar({
             {isLoading ? (
               <div className="space-y-2">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-14 bg-muted rounded-lg animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-14 bg-muted rounded-lg animate-pulse"
+                  />
                 ))}
               </div>
             ) : chatSessions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">{t("ai.noChats")}</p>
+                <p className="text-xs">
+                  {t("noChats", { ns: "analyzePlant" })}
+                </p>
               </div>
             ) : (
               <div className="space-y-1">
@@ -263,7 +267,8 @@ export function ChatSidebar({
                     key={session.id}
                     className={cn(
                       "cursor-pointer transition-colors hover:bg-accent p-0",
-                      currentSessionId === session.id && "bg-accent border-primary"
+                      currentSessionId === session.id &&
+                        "bg-accent border-primary"
                     )}
                     onClick={() => onSessionSelect(session.id)}
                   >
@@ -275,14 +280,22 @@ export function ChatSidebar({
                           </h3>
                           <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
-                            <span className="text-xs">{formatDate(session.lastUpdated)}</span>
+                            <span className="text-xs">
+                              {formatDate(session.lastUpdated)}
+                            </span>
                           </div>
                         </div>
                         <div className="ml-2">
                           {session.chatType === "plant-analysis" ? (
-                            <div className="w-2 h-2 rounded-full bg-green-500" title="Plant Analysis" />
+                            <div
+                              className="w-2 h-2 rounded-full bg-green-500"
+                              title="Plant Analysis"
+                            />
                           ) : (
-                            <div className="w-2 h-2 rounded-full bg-blue-500" title="Consumer Chat" />
+                            <div
+                              className="w-2 h-2 rounded-full bg-blue-500"
+                              title="Consumer Chat"
+                            />
                           )}
                         </div>
                       </div>
@@ -300,7 +313,7 @@ export function ChatSidebar({
               variant="ghost"
               size="icon"
               className="h-10 w-10"
-              title={t("ai.newChat")}
+              title={t("newChat", { ns: "analyzePlant" })}
             >
               <Plus className="h-5 w-5" />
             </Button>

@@ -228,13 +228,14 @@ function CalendarDayButton({
 export { Calendar, CalendarDayButton };
 
 // Localized Calendar Component
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { es, enUS } from "date-fns/locale";
 
 export function LocalizedCalendar(
   props: React.ComponentProps<typeof Calendar>
 ) {
-  const { language } = useTranslation();
+  const { i18n } = useTranslation(["common"]);
+  const language = i18n.language;
 
   // Use provided locale or default to language-based locale
   const calendarLocale = props.locale || (language === "es" ? es : enUS);

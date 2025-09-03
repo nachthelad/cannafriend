@@ -1,0 +1,35 @@
+{
+  "title": "Inventario",
+  "description": "Registra tu inventario de cannabis",
+  "addItem": "Agregar Artículo",
+  "empty": "No hay artículos en el inventario",
+  "emptyDesc": "Comienza agregando tu primer artículo para rastrear tu alijo",
+  "update": "Actualizar Artículo",
+  "save": "Guardar Artículo",
+  "saved": "Artículo guardado",
+  "savedDesc": "Tu artículo ha sido agregado a tu inventario",
+  "updated": "Artículo actualizado",
+  "updatedDesc": "Tu artículo ha sido actualizado exitosamente",
+  "delete": "Artículo eliminado",
+  "name": "Nombre",
+  "nameRequired": "El nombre es requerido",
+  "type": "Tipo",
+  "amount": "Cantidad",
+  "amountRequired": "La cantidad es requerida",
+  "thc": "THC (%)",
+  "cbd": "CBD (%)",
+  "vendor": "Proveedor",
+  "price": "Precio",
+  "notes": "Notas",
+  "requiredHint": "* indica campos obligatorios",
+  "types": {
+    "flower": "Flor",
+    "concentrate": "Concentrado",
+    "edible": "Comestible"
+  },
+  "units": {
+    "g": "g",
+    "ml": "ml",
+    "units": "unidades"
+  }
+}

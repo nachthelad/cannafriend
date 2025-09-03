@@ -1,7 +1,7 @@
 "use client";
 
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 interface ErrorHandlerOptions {
   showToast?: boolean;
@@ -10,7 +10,7 @@ interface ErrorHandlerOptions {
 
 export const useErrorHandler = () => {
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   const handleError = (error: any, options: ErrorHandlerOptions = {}) => {
     const { showToast = true, fallbackMessage } = options;

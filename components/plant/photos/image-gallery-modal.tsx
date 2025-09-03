@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { getImageAltText } from "@/lib/image-config";
 
 interface ImageGalleryModalProps {
@@ -20,7 +20,7 @@ export function ImageGalleryModal({
   onClose,
   initialIndex = 0,
 }: ImageGalleryModalProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common"]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const nextImage = () => {

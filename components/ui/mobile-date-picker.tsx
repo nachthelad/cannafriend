@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,7 +27,8 @@ export function MobileDatePicker({
   locale,
 }: MobileDatePickerProps): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["common"]);
+  const language = i18n.language;
 
   const handleSelect = (date?: Date) => {
     onSelect(date);

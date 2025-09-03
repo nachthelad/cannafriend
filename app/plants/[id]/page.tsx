@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -80,7 +80,7 @@ export default function PlantPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["plants", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -300,13 +300,13 @@ export default function PlantPage({
         setSelectedPhoto(newPhotos[0] || coverPhoto || "");
       }
       toast({
-        title: t("photos.removeSuccess"),
-        description: t("photos.photoRemoved"),
+        title: t("photos.removeSuccess", { ns: "plants" }),
+        description: t("photos.photoRemoved", { ns: "plants" }),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("photos.removeError"),
+        title: t("photos.removeError", { ns: "plants" }),
         description: error.message,
       });
     }
@@ -320,13 +320,13 @@ export default function PlantPage({
       setPhotos(updated);
       if (!coverPhoto && updated.length > 0) setSelectedPhoto(updated[0]);
       toast({
-        title: t("photos.uploadSuccess"),
-        description: t("photos.photosUpdated"),
+        title: t("photos.uploadSuccess", { ns: "plants" }),
+        description: t("photos.photosUpdated", { ns: "plants" }),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("photos.uploadError"),
+        title: t("photos.uploadError", { ns: "plants" }),
         description: error.message,
       });
     } finally {
@@ -351,15 +351,15 @@ export default function PlantPage({
         <MobilePlantPage
           plant={plant}
           userId={userId!}
-          lastWatering={lastWatering}
-          lastFeeding={lastFeeding}
-          lastTraining={lastTraining}
+          lastWatering={lastWatering || undefined}
+          lastFeeding={lastFeeding || undefined}
+          lastTraining={lastTraining || undefined}
           lastEnvironment={lastEnvironment}
           onAddPhoto={() => setShowUpload(true)}
           onUpdate={(patch) =>
             setPlant((prev) => (prev ? { ...prev, ...patch } : null))
           }
-          language={language}
+          language={i18n.language}
         />
       </div>
 
@@ -440,14 +440,17 @@ export default function PlantPage({
             <div className="flex items-center justify-between px-3 pb-2">
               <div className="text-sm text-muted-foreground">
                 {photos.length}{" "}
-                {photos.length === 1 ? t("photos.photo") : t("photos.photos")}
+                {photos.length === 1
+                  ? t("photos.photo", { ns: "plants" })
+                  : t("photos.photos", { ns: "plants" })}
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setShowUpload(true)}
               >
-                <Plus className="mr-2 h-4 w-4" /> {t("photos.addPhotos")}
+                <Plus className="mr-2 h-4 w-4" />{" "}
+                {t("photos.addPhotos", { ns: "plants" })}
               </Button>
             </div>
             {photos.length > 1 && (
@@ -488,7 +491,9 @@ export default function PlantPage({
                             size="icon"
                             className="absolute left-1 bottom-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
                             onClick={(e) => e.stopPropagation()}
-                            aria-label={t("photos.setAsCover")}
+                            aria-label={t("photos.setAsCover", {
+                              ns: "plants",
+                            })}
                           >
                             <Star className="h-3.5 w-3.5 text-yellow-500" />
                           </Button>
@@ -496,10 +501,14 @@ export default function PlantPage({
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle>
-                              {t("photos.setCoverConfirmTitle")}
+                              {t("photos.setCoverConfirmTitle", {
+                                ns: "plants",
+                              })}
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              {t("photos.setCoverConfirmDesc")}
+                              {t("photos.setCoverConfirmDesc", {
+                                ns: "plants",
+                              })}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -516,7 +525,11 @@ export default function PlantPage({
                                   });
                                   setCoverPhoto(p);
                                   setSelectedPhoto(p);
-                                  toast({ title: t("photos.coverSet") });
+                                  toast({
+                                    title: t("photos.coverPhotoSet", {
+                                      ns: "plants",
+                                    }),
+                                  });
                                 } catch (error: any) {
                                   toast({
                                     variant: "destructive",
@@ -526,7 +539,7 @@ export default function PlantPage({
                                 }
                               }}
                             >
-                              {t("photos.setAsCover")}
+                              {t("photos.setAsCover", { ns: "plants" })}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -541,7 +554,9 @@ export default function PlantPage({
                           size="icon"
                           className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
                           onClick={(e) => e.stopPropagation()}
-                          aria-label={t("photos.removeSuccess")}
+                          aria-label={t("photos.removeSuccess", {
+                            ns: "plants",
+                          })}
                         >
                           <Trash2 className="h-3 w-3 text-destructive" />
                         </Button>
@@ -631,7 +646,9 @@ export default function PlantPage({
         <Dialog open={showUpload} onOpenChange={setShowUpload}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{t("photos.uploadPhotos")}</DialogTitle>
+              <DialogTitle>
+                {t("photos.uploadPhotos", { ns: "plants" })}
+              </DialogTitle>
             </DialogHeader>
             <ImageUpload
               onImagesChange={handlePhotosChange}

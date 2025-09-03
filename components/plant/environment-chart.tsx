@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { EnvironmentData } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import {
@@ -22,7 +22,8 @@ interface EnvironmentChartProps {
 }
 
 export function EnvironmentChart({ data }: EnvironmentChartProps) {
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["plants", "common"]);
+  const language = i18n.language;
 
   const latest = useMemo(
     () => (data.length > 0 ? data[data.length - 1] : null),
@@ -46,7 +47,7 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
       <div className="grid grid-cols-3 gap-2 text-sm">
         <div className="rounded-md border p-3">
           <div className="text-muted-foreground">
-            {t("environment.temperature")}
+            {t("environment.temperature", { ns: "plants" })}
           </div>
           <div className="text-base font-semibold">
             {latest ? `${latest.temperature ?? "-"}°C` : "-"}
@@ -54,14 +55,16 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
         </div>
         <div className="rounded-md border p-3">
           <div className="text-muted-foreground">
-            {t("environment.humidity")}
+            {t("environment.humidity", { ns: "plants" })}
           </div>
           <div className="text-base font-semibold">
             {latest ? `${latest.humidity ?? "-"}%` : "-"}
           </div>
         </div>
         <div className="rounded-md border p-3">
-          <div className="text-muted-foreground">{t("environment.ph")}</div>
+          <div className="text-muted-foreground">
+            {t("environment.ph", { ns: "plants" })}
+          </div>
           <div className="text-base font-semibold">
             {latest ? latest.ph ?? "-" : "-"}
           </div>
@@ -70,22 +73,28 @@ export function EnvironmentChart({ data }: EnvironmentChartProps) {
 
       {data.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
-          <p>{t("environment.noData")}</p>
-          <p className="text-sm">{t("environment.noDataDesc")}</p>
+          <p>{t("environment.noData", { ns: "plants" })}</p>
+          <p className="text-sm">
+            {t("environment.noDataDesc", { ns: "plants" })}
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-muted-foreground">
-                <th className="text-left py-2 pr-2">{t("logForm.date")}</th>
                 <th className="text-left py-2 pr-2">
-                  {t("environment.temperature")}
+                  {t("logForm.date", { ns: "plants" })}
                 </th>
                 <th className="text-left py-2 pr-2">
-                  {t("environment.humidity")}
+                  {t("environment.temperature", { ns: "plants" })}
                 </th>
-                <th className="text-left py-2">{t("environment.ph")}</th>
+                <th className="text-left py-2 pr-2">
+                  {t("environment.humidity", { ns: "plants" })}
+                </th>
+                <th className="text-left py-2">
+                  {t("environment.ph", { ns: "plants" })}
+                </th>
               </tr>
             </thead>
             <tbody>

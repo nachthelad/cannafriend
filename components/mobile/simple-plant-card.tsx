@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 import { Leaf } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ export function SimplePlantCard({
   language,
   viewMode = "grid",
 }: SimplePlantCardProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
 
   const handleClick = () => {
@@ -65,8 +65,8 @@ export function SimplePlantCard({
             className="text-xs w-fit"
           >
             {plant.seedType === "autoflowering"
-              ? t("seedType.autoflowering")
-              : t("seedType.photoperiodic")}
+              ? t("autoflowering", { ns: "seedType" })
+              : t("photoperiodic", { ns: "seedType" })}
           </Badge>
         </div>
       </div>
@@ -111,8 +111,8 @@ export function SimplePlantCard({
           className="text-xs bg-white/20 text-white border-white/30"
         >
           {plant.seedType === "autoflowering"
-            ? t("seedType.autoflowering")
-            : t("seedType.photoperiodic")}
+            ? t("autoflowering", { ns: "seedType" })
+            : t("photoperiodic", { ns: "seedType" })}
         </Badge>
       </div>
     </div>

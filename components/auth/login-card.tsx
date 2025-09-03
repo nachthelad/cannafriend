@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { AuthTabs } from "./auth-tabs";
 import Link from "next/link";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
@@ -19,7 +19,7 @@ interface LoginCardProps {
 }
 
 export function LoginCard({ className = "" }: LoginCardProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("auth");
 
   const renderTermsText = () => {
     const isEnglish = t("login.terms").includes("Terms of Service");
@@ -71,10 +71,10 @@ export function LoginCard({ className = "" }: LoginCardProps) {
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-center gap-2 lg:hidden">
           <Logo size={24} className="text-green-600 dark:text-green-400" />
-          <CardTitle className="text-2xl font-bold">{t("app.name")}</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t("app.name", { ns: "common" })}</CardTitle>
         </div>
         <CardDescription className="text-center hidden sm:block">
-          {t("app.description")}
+          {t("app.description", { ns: "common" })}
         </CardDescription>
       </CardHeader>
       <CardContent>

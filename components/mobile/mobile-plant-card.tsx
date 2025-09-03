@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { Plant, LogEntry } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import { Leaf, Calendar, Droplet, Zap, Scissors } from "lucide-react";
@@ -28,7 +28,7 @@ export function MobilePlantCard({
   lastTraining,
   language,
 }: MobilePlantCardProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
 
   const handleClick = () => {
@@ -44,7 +44,7 @@ export function MobilePlantCard({
         {plant.coverPhoto ? (
           <Image
             src={plant.coverPhoto}
-            alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
+            alt={`${plant.name} - ${t("coverPhoto", { ns: "plantCard" })}`}
             fill
             className="object-cover transition-transform duration-300"
             loading="lazy"
@@ -52,7 +52,7 @@ export function MobilePlantCard({
         ) : plant.photos && plant.photos.length > 0 ? (
           <Image
             src={plant.photos[0]}
-            alt={`${plant.name} - ${t("plantCard.coverPhoto")}`}
+            alt={`${plant.name} - ${t("coverPhoto", { ns: "plantCard" })}`}
             fill
             className="object-cover transition-transform duration-300"
             loading="lazy"
@@ -74,8 +74,8 @@ export function MobilePlantCard({
             className="bg-white/90 text-black backdrop-blur-sm"
           >
             {plant.seedType === "autoflowering"
-              ? t("seedType.autoflowering")
-              : t("seedType.photoperiodic")}
+              ? t("autoflowering", { ns: "seedType" })
+              : t("photoperiodic", { ns: "seedType" })}
           </Badge>
         </div>
       </div>
@@ -83,8 +83,8 @@ export function MobilePlantCard({
         <div className="flex items-center text-sm text-muted-foreground">
           <Badge variant="outline" className="mr-2">
             {plant.growType === "indoor"
-              ? t("growType.indoor")
-              : t("growType.outdoor")}
+              ? t("indoor", { ns: "growType" })
+              : t("outdoor", { ns: "growType" })}
           </Badge>
           {plant.growType === "indoor" && plant.lightSchedule && (
             <Badge variant="outline">{plant.lightSchedule}</Badge>
@@ -102,33 +102,33 @@ export function MobilePlantCard({
             <Droplet className="h-3 w-3 mr-1" />
             {lastWatering ? (
               <span>
-                {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
-                {t(`watering.${lastWatering.method}`)})
+                {t("lastWatering", { ns: "plantCard" })}: {lastWatering.amount}ml (
+                {t(`${lastWatering.method}`, { ns: "watering" })})
               </span>
             ) : (
-              <span>{t("plantCard.noWateringRecords")}</span>
+              <span>{t("noWateringRecords", { ns: "plantCard" })}</span>
             )}
           </div>
           <div className="flex items-center">
             <Zap className="h-3 w-3 mr-1" />
             {lastFeeding ? (
               <span>
-                {t("plantCard.lastFeeding")}: {lastFeeding.npk} (
+                {t("lastFeeding", { ns: "plantCard" })}: {lastFeeding.npk} (
                 {lastFeeding.amount}ml/L)
               </span>
             ) : (
-              <span>{t("plantCard.noFeedingRecords")}</span>
+              <span>{t("noFeedingRecords", { ns: "plantCard" })}</span>
             )}
           </div>
           <div className="flex items-center">
             <Scissors className="h-3 w-3 mr-1" />
             {lastTraining ? (
               <span>
-                {t("plantCard.lastTraining")}:{" "}
-                {t(`training.${lastTraining.method}`)}
+                {t("lastTraining", { ns: "plantCard" })}:{" "}
+                {t(`${lastTraining.method}`, { ns: "training" })}
               </span>
             ) : (
-              <span>{t("plantCard.noTrainingRecords")}</span>
+              <span>{t("noTrainingRecords", { ns: "plantCard" })}</span>
             )}
           </div>
         </div>

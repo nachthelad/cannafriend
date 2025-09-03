@@ -22,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { auth, db, storage } from "@/lib/firebase";
 import {
@@ -60,7 +60,9 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
-  const { t, language, setLanguage } = useTranslation();
+  const { t, i18n } = useTranslation(["common", "onboarding"]);
+  const language = i18n.language;
+  const setLanguage = (lng: string) => i18n.changeLanguage(lng);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const { toast } = useToast();
@@ -483,7 +485,7 @@ export default function SettingsPage() {
               </div>
               <div className="mt-4">
                 <Button variant="outline" onClick={handleSignOut}>
-                  {t("nav.signOut")}
+                  {t("signOut", { ns: "nav" })}
                 </Button>
               </div>
             </CardContent>
@@ -558,7 +560,7 @@ export default function SettingsPage() {
                         toast({ title: t("settings.updated") });
                       }}
                     />
-                    <span>{t("onboarding.grower")}</span>
+                    <span>{t("grower", { ns: "onboarding" })}</span>
                   </label>
                   <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
                     <input
@@ -586,7 +588,7 @@ export default function SettingsPage() {
                         toast({ title: t("settings.updated") });
                       }}
                     />
-                    <span>{t("onboarding.consumer")}</span>
+                    <span>{t("consumer", { ns: "onboarding" })}</span>
                   </label>
                 </div>
               </div>
@@ -629,7 +631,11 @@ export default function SettingsPage() {
                     >
                       {isDeletingAccount ? (
                         <>
-                          <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
+                          <AnimatedLogo
+                            size={16}
+                            className="mr-2 text-primary"
+                            duration={1.2}
+                          />
                           {t("settings.deleting")}
                         </>
                       ) : (

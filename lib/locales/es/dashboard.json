@@ -1,0 +1,17 @@
+{
+  "title": "Panel de Cultivo",
+  "addPlant": "Agregar Planta",
+  "noPlants": "No tienes plantas",
+  "noPlantDesc": "Agrega tu primera planta para comenzar a hacer seguimiento",
+  "error": "Error al cargar las plantas",
+  "reminders": "Recordatorios",
+  "yourPlants": "Tus Plantas",
+  "growth": "Crecimiento",
+  "active": "Activo",
+  "quickActions": "Acciones Rápidas",
+  "quickActionsDesc": "Funciones frecuentes",
+  "overdueRemindersDesc": "Tienes recordatorios vencidos",
+  "plantsGrowing": "plantas creciendo",
+  "latestActivity": "Última actividad",
+  "startGrowingJourney": "Comienza tu aventura de cultivo agregando tu primera planta"
+}

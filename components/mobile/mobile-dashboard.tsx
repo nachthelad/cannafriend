@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import {
@@ -51,7 +51,7 @@ export function MobileDashboard({
   hasOverdue,
   isLoading,
 }: MobileDashboardProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["dashboard", "common", "nutrients", "journal", "nav", "reminders", "strains", "analyzePlant"]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
 
@@ -94,7 +94,7 @@ export function MobileDashboard({
         </div>
         {href && (
           <div className="flex items-center mt-2 text-xs text-primary">
-            {t("common.view")} <ArrowRight className="h-3 w-3 ml-1" />
+            {t("view", { ns: "common" })} <ArrowRight className="h-3 w-3 ml-1" />
           </div>
         )}
       </div>
@@ -147,10 +147,10 @@ export function MobileDashboard({
               <AlertTriangle className="h-5 w-5 text-orange-600" />
               <div className="flex-1">
                 <p className="font-medium text-orange-800 dark:text-orange-200">
-                  {t("reminders.overdue")}
+                  {t("overdue", { ns: "reminders" })}
                 </p>
                 <p className="text-sm text-orange-600 dark:text-orange-300">
-                  {t("dashboard.overdueRemindersDesc")}
+                  {t("overdueRemindersDesc", { ns: "dashboard" })}
                 </p>
               </div>
               <Button
@@ -159,7 +159,7 @@ export function MobileDashboard({
                 size="sm"
                 className="border-orange-200 text-orange-700 hover:bg-orange-100"
               >
-                <Link href={ROUTE_REMINDERS}>{t("common.view")}</Link>
+                <Link href={ROUTE_REMINDERS}>{t("view", { ns: "common" })}</Link>
               </Button>
             </div>
           </CardContent>
@@ -170,7 +170,7 @@ export function MobileDashboard({
       <div className="grid grid-cols-2 gap-4">
         <StatCard
           icon={Leaf}
-          label={t("dashboard.yourPlants")}
+          label={t("yourPlants", { ns: "dashboard" })}
           value={plants.length}
           href={ROUTE_PLANTS}
           color="text-green-600"
@@ -178,7 +178,7 @@ export function MobileDashboard({
         />
         <StatCard
           icon={Calendar}
-          label={t("journal.recentLogs")}
+          label={t("recentLogs", { ns: "journal" })}
           value={recentLogs.length}
           href={ROUTE_JOURNAL}
           color="text-blue-600"
@@ -187,7 +187,7 @@ export function MobileDashboard({
         {roles?.grower && (
           <StatCard
             icon={FlaskConical}
-            label={t("nutrients.title")}
+            label={t("title", { ns: "nutrients" })}
             value={nutrientMixesCount}
             href={ROUTE_NUTRIENTS}
             color="text-purple-600"
@@ -196,8 +196,8 @@ export function MobileDashboard({
         )}
         <StatCard
           icon={TrendingUp}
-          label={t("dashboard.growth")}
-          value={t("dashboard.active")}
+          label={t("growth", { ns: "dashboard" })}
+          value={t("active", { ns: "dashboard" })}
           color="text-emerald-600"
           bgColor="bg-emerald-50 dark:bg-emerald-950/20"
         />
@@ -208,9 +208,9 @@ export function MobileDashboard({
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            {t("dashboard.quickActions")}
+            {t("quickActions", { ns: "dashboard" })}
           </CardTitle>
-          <CardDescription>{t("dashboard.quickActionsDesc")}</CardDescription>
+          <CardDescription>{t("quickActionsDesc", { ns: "dashboard" })}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3">
@@ -218,23 +218,23 @@ export function MobileDashboard({
               <>
                 <QuickActionButton
                   icon={Calendar}
-                  label={t("nav.journal")}
+                  label={t("journal", { ns: "nav" })}
                   href={ROUTE_JOURNAL}
                 />
                 <QuickActionButton
                   icon={FlaskConical}
-                  label={t("nutrients.title")}
+                  label={t("title", { ns: "nutrients" })}
                   href={ROUTE_NUTRIENTS}
                 />
                 <QuickActionButton
                   icon={Bell}
-                  label={t("dashboard.reminders")}
+                  label={t("reminders", { ns: "dashboard" })}
                   href={ROUTE_REMINDERS}
                 />
                 {isPremium && (
                   <QuickActionButton
                     icon={Brain}
-                    label={t("analyzePlant.title")}
+                    label={t("title", { ns: "analyzePlant" })}
                     href={ROUTE_AI_ASSISTANT}
                     isPremiumFeature
                   />
@@ -244,7 +244,7 @@ export function MobileDashboard({
             {roles?.consumer && (
               <QuickActionButton
                 icon={Leaf}
-                label={t("strains.title")}
+                label={t("title", { ns: "strains" })}
                 href={ROUTE_STRAINS}
               />
             )}
@@ -280,14 +280,14 @@ export function MobileDashboard({
         <Card className="text-center py-8">
           <CardContent>
             <Leaf className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <CardTitle className="mb-2">{t("dashboard.noPlants")}</CardTitle>
+            <CardTitle className="mb-2">{t("noPlants", { ns: "dashboard" })}</CardTitle>
             <CardDescription className="mb-6">
-              {t("dashboard.startGrowingJourney")}
+              {t("startGrowingJourney", { ns: "dashboard" })}
             </CardDescription>
             <Button asChild size="lg">
               <Link href="/plants/new">
                 <Plus className="h-5 w-5 mr-2" />
-                {t("dashboard.addPlant")}
+                {t("addPlant", { ns: "dashboard" })}
               </Link>
             </Button>
           </CardContent>

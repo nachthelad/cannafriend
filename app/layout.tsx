@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { LanguageProvider } from "@/components/providers/language-provider";
+import { I18nProvider } from "@/components/providers/i18n-provider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
@@ -103,12 +103,12 @@ export default function RootLayout({
         )}
       </head>
       <body className={inter.className}>
-        <LanguageProvider>
+        <I18nProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
             <Toaster />
           </ThemeProvider>
-        </LanguageProvider>
+        </I18nProvider>
       </body>
     </html>
   );

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -30,7 +30,7 @@ interface SignupFormProps {
 }
 
 export function SignupForm({ onSuccess }: SignupFormProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("auth");
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
@@ -66,27 +66,27 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
 
   const handleRecaptchaExpired = () => {
     setRecaptchaToken("");
-    setRecaptchaError(t("signup.recaptchaExpired"));
+    setRecaptchaError(t("recaptchaExpired", { ns: "auth" }));
   };
 
   const handleRecaptchaError = () => {
     setRecaptchaToken("");
-    setRecaptchaError(t("signup.recaptchaError"));
+    setRecaptchaError(t("recaptchaError", { ns: "auth" }));
   };
 
   const validatePassword = (password: string, confirmPassword: string) => {
     if (password.length < 6) {
-      return t("signup.passwordTooShort");
+      return t("passwordTooShort", { ns: "auth" });
     }
     if (password !== confirmPassword) {
-      return t("signup.passwordsDoNotMatch");
+      return t("passwordsDoNotMatch", { ns: "auth" });
     }
     return "";
   };
 
   const onSubmit = async (data: SignupFormData) => {
     setIsLoading(true);
-    setLoadingStep(t("signup.validatingData"));
+    setLoadingStep(t("signup.validatingData", { ns: "auth" }));
 
     // Validate password match
     const passwordError = validatePassword(data.password, data.confirmPassword);
@@ -100,15 +100,15 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     if (isRecaptchaEnabled() && !recaptchaToken) {
       toast({
         variant: "destructive",
-        title: t("signup.error"),
-        description: t("signup.recaptchaRequired"),
+        title: t("signup.error", { ns: "auth" }),
+        description: t("recaptchaRequired", { ns: "auth" }),
       });
       setIsLoading(false);
       return;
     }
 
     try {
-      setLoadingStep(t("signup.creatingAccount"));
+      setLoadingStep(t("signup.creatingAccount", { ns: "auth" }));
       // Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -117,7 +117,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       );
       const user = userCredential.user;
 
-      setLoadingStep(t("signup.savingData"));
+      setLoadingStep(t("signup.savingData", { ns: "auth" }));
       // Guardar datos del usuario en Firestore
       await setDoc(doc(db, "users", user.uid), {
         email: data.email,
@@ -142,9 +142,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     const newPassword = e.target.value;
 
     if (confirmPassword && newPassword !== confirmPassword) {
-      setError("confirmPassword", { message: t("signup.passwordsDoNotMatch") });
+      setError("confirmPassword", { message: t("passwordsDoNotMatch", { ns: "auth" }) });
     } else if (newPassword.length > 0 && newPassword.length < 6) {
-      setError("password", { message: t("signup.passwordTooShort") });
+      setError("password", { message: t("passwordTooShort", { ns: "auth" }) });
     } else {
       clearErrors(["password", "confirmPassword"]);
     }
@@ -156,7 +156,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     const newConfirmPassword = e.target.value;
 
     if (password && newConfirmPassword !== password) {
-      setError("confirmPassword", { message: t("signup.passwordsDoNotMatch") });
+      setError("confirmPassword", { message: t("passwordsDoNotMatch", { ns: "auth" }) });
     } else {
       clearErrors("confirmPassword");
     }
@@ -165,7 +165,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">{t("signup.email")}</Label>
+        <Label htmlFor="email">{t("signup.email", { ns: "auth" })}</Label>
         <Input
           id="email"
           type="email"
@@ -175,18 +175,18 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           placeholder="ejemplo@correo.com"
           className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
           {...register("email", {
-            required: t("common.fieldRequired"),
+            required: t("fieldRequired", { ns: "common" }),
             validate: {
               completeEmail: (value) => {
-                if (!value) return t("common.fieldRequired");
+                if (!value) return t("fieldRequired", { ns: "common" });
                 if (
                   value.includes("@") &&
                   (value.endsWith("@") || value.split("@")[1]?.length === 0)
                 ) {
-                  return t("auth.incompleteEmail");
+                  return t("incompleteEmail");
                 }
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-                  return t("auth.invalidEmail");
+                  return t("invalidEmail");
                 }
                 return true;
               },
@@ -201,7 +201,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">{t("signup.password")}</Label>
+        <Label htmlFor="password">{t("signup.password", { ns: "auth" })}</Label>
         <div className="relative">
           <Input
             id="password"
@@ -210,10 +210,10 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             aria-invalid={Boolean(errors.password) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("password", {
-              required: t("common.fieldRequired"),
+              required: t("fieldRequired", { ns: "common" }),
               minLength: {
                 value: 6,
-                message: t("signup.passwordTooShort"),
+                message: t("passwordTooShort", { ns: "auth" }),
               },
             })}
             onChange={(e) => {
@@ -243,7 +243,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">{t("signup.confirmPassword")}</Label>
+        <Label htmlFor="confirmPassword">{t("signup.confirmPassword", { ns: "auth" })}</Label>
         <div className="relative">
           <Input
             id="confirmPassword"
@@ -252,7 +252,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             aria-invalid={Boolean(errors.confirmPassword) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("confirmPassword", {
-              required: t("common.fieldRequired"),
+              required: t("fieldRequired", { ns: "common" }),
             })}
             onChange={(e) => {
               register("confirmPassword").onChange(e);
@@ -312,7 +312,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         ) : (
           <>
             <UserPlus className="mr-2 h-4 w-4" />
-            {t("signup.submit")}
+            {t("signup.submit", { ns: "auth" })}
           </>
         )}
       </Button>

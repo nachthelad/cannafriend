@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { LogEntry } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import {
@@ -51,7 +51,7 @@ export function MobileJournalEntry({
   onEdit,
   language,
 }: MobileJournalEntryProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["journal", "common"]);
   const [isSwipeOpen, setIsSwipeOpen] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [dragX, setDragX] = useState(0);
@@ -143,11 +143,11 @@ export function MobileJournalEntry({
   const getLogDetails = () => {
     switch (log.type) {
       case "watering":
-        return log.amount ? `${log.amount}ml${log.method ? ` (${t(`watering.${log.method}`)})` : ""}` : null;
+        return log.amount ? `${log.amount}ml${log.method ? ` (${t(`${log.method}`, { ns: "watering" })})` : ""}` : null;
       case "feeding":
         return log.npk ? `${log.npk}${log.amount ? ` (${log.amount}ml/L)` : ""}` : null;
       case "training":
-        return log.method ? t(`training.${log.method}`) : null;
+        return log.method ? t(`${log.method}`, { ns: "training" }) : null;
       case "environment":
         const envDetails = [];
         if (log.temperature) envDetails.push(`${log.temperature}°C`);
@@ -181,7 +181,7 @@ export function MobileJournalEntry({
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-red-500 to-red-400 flex items-center justify-end pr-4 z-0">
           <div className="flex items-center gap-2 text-white">
             <Trash2 className="h-5 w-5" />
-            <span className="text-sm font-medium">{t("common.delete")}</span>
+            <span className="text-sm font-medium">{t("delete", { ns: "common" })}</span>
           </div>
         </div>
 
@@ -216,7 +216,7 @@ export function MobileJournalEntry({
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <Badge variant="secondary" className="shrink-0">
-                        {t(`logType.${log.type}`)}
+                        {t(`${log.type}`, { ns: "logType" })}
                       </Badge>
                       {showPlantName && log.plantName && (
                         <Badge variant="outline" className="shrink-0 text-xs">
@@ -256,7 +256,7 @@ export function MobileJournalEntry({
                   {onEdit && (
                     <DropdownMenuItem onClick={handleEdit}>
                       <Edit className="h-4 w-4 mr-2" />
-                      {t("common.edit")}
+                      {t("edit", { ns: "common" })}
                     </DropdownMenuItem>
                   )}
                   {onDelete && (
@@ -265,7 +265,7 @@ export function MobileJournalEntry({
                       className="text-red-600 dark:text-red-400"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      {t("common.delete")}
+                      {t("delete", { ns: "common" })}
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
@@ -295,15 +295,15 @@ export function MobileJournalEntry({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("journal.deleteLog")}</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteLog", { ns: "journal" })}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t("journal.deleteLogConfirm")}
+              {t("deleteLogConfirm", { ns: "journal" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              {t("common.delete")}
+              {t("delete", { ns: "common" })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

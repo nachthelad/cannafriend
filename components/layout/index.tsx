@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["nav", "common", "dashboard", "strains", "analyzePlant"]);
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -87,27 +87,27 @@ export function Layout({ children }: LayoutProps) {
   const baseRoutes = [
     {
       href: ROUTE_DASHBOARD,
-      label: t("nav.dashboard"),
+      label: t("dashboard", { ns: "nav" }),
       icon: Home,
     },
     {
       href: ROUTE_PLANTS,
-      label: t("dashboard.yourPlants"),
+      label: t("yourPlants", { ns: "dashboard" }),
       icon: Leaf,
     },
     {
       href: ROUTE_PLANTS_NEW,
-      label: t("nav.addPlant"),
+      label: t("addPlant", { ns: "nav" }),
       icon: Plus,
     },
     {
       href: ROUTE_STRAINS,
-      label: t("strains.title"),
+      label: t("title", { ns: "strains" }),
       icon: Plus,
     },
     {
       href: ROUTE_STASH,
-      label: t("stash.title"),
+      label: t("stash.title", { ns: "common" }),
       icon: Package,
     },
     {
@@ -117,22 +117,22 @@ export function Layout({ children }: LayoutProps) {
     },
     {
       href: ROUTE_JOURNAL,
-      label: t("nav.journal"),
+      label: t("journal", { ns: "nav" }),
       icon: Calendar,
     },
     {
       href: ROUTE_REMINDERS,
-      label: t("dashboard.reminders"),
+      label: t("reminders", { ns: "dashboard" }),
       icon: Bell,
     },
     {
       href: ROUTE_AI_ASSISTANT,
-      label: t("ai.assistant"),
+      label: t("assistant", { ns: "analyzePlant" }),
       icon: Brain,
     },
     {
       href: ROUTE_SETTINGS,
-      label: t("nav.settings"),
+      label: t("settings", { ns: "nav" }),
       icon: Settings,
     },
   ];
@@ -170,7 +170,7 @@ export function Layout({ children }: LayoutProps) {
             className="flex items-center gap-2 font-semibold"
           >
             <Logo size={20} className="text-primary" />
-            <span className="text-xl">{t("app.name")}</span>
+            <span className="text-xl">{t("app.name", { ns: "common" })}</span>
             {isPremium && (
               <span className="text-xs font-medium text-primary opacity-70 ml-1">
                 Premium
@@ -222,7 +222,7 @@ export function Layout({ children }: LayoutProps) {
             onClick={handleSignOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            {t("nav.signOut")}
+            {t("signOut", { ns: "nav" })}
           </Button>
         </div>
       </aside>
