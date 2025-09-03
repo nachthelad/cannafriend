@@ -13,11 +13,12 @@ import {
   DEFAULT_MAX_IMAGES,
   DEFAULT_MAX_SIZE_MB,
   ALLOWED_IMAGE_EXTENSIONS,
-  getImageUploadErrors,
+  IMAGE_ERROR_KEYS,
   generateImageFileName,
   getImageStoragePath,
   validateImageFile,
   getImageAcceptAttribute,
+  getTranslatedImageError,
 } from "@/lib/image-config";
 
 interface ImageUploadProps {
@@ -44,24 +45,27 @@ export function ImageUpload({
   // Detect if user is on mobile device
   useEffect(() => {
     const checkIsMobile = () => {
-      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-      const isMobileDevice = /android|avantgo|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(userAgent);
+      const userAgent =
+        navigator.userAgent || navigator.vendor || (window as any).opera;
+      const isMobileDevice =
+        /android|avantgo|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(
+          userAgent
+        );
       const isSmallScreen = window.innerWidth < 768;
       return isMobileDevice || isSmallScreen;
     };
-    
+
     setIsMobile(checkIsMobile());
-    
+
     const handleResize = () => setIsMobile(checkIsMobile());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const uploadImage = async (file: File): Promise<string> => {
     const userId = auth.currentUser?.uid;
     if (!userId) {
-      const ERR = getImageUploadErrors();
-      throw new Error(ERR.USER_NOT_AUTHENTICATED);
+      throw new Error(getTranslatedImageError(IMAGE_ERROR_KEYS.USER_NOT_AUTHENTICATED, t));
     }
 
     // Downscale and convert before upload to reduce size
@@ -114,7 +118,8 @@ export function ImageUpload({
       for (const file of files) {
         const error = validateImageFile(file, maxSizeMB);
         if (error) {
-          errors.push(`${file.name}: ${error}`);
+          const translatedError = getTranslatedImageError(error.key, t);
+          errors.push(`${file.name}: ${translatedError}`);
         } else {
           validFiles.push(file);
         }
@@ -141,7 +146,7 @@ export function ImageUpload({
             toast({
               variant: "destructive",
               title: t("imageUpload.uploadError", { ns: "common" }),
-              description: `${file.name}: ${t("imageUpload.uploadFailed", { ns: "common" })}`,
+              description: `${file.name}: ${getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t)}`,
             });
           }
         })
@@ -152,7 +157,9 @@ export function ImageUpload({
         onImagesChange(newUrls);
         toast({
           title: t("imageUpload.uploadSuccess", { ns: "common" }),
-          description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${newUrls.length}`,
+          description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${
+            newUrls.length
+          }`,
         });
       }
     } catch (error) {
@@ -160,7 +167,7 @@ export function ImageUpload({
       toast({
         variant: "destructive",
         title: t("imageUpload.uploadError", { ns: "common" }),
-        description: t("imageUpload.uploadFailed", { ns: "common" }),
+        description: getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t),
       });
     } finally {
       setUploading(false);
@@ -219,10 +226,14 @@ export function ImageUpload({
           <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
           <div>
             {isMobile ? (
-              <p className="text-sm font-medium">{t("imageUpload.tapToSelect", { ns: "common" })}</p>
+              <p className="text-sm font-medium">
+                {t("imageUpload.tapToSelect", { ns: "common" })}
+              </p>
             ) : (
               <>
-                <p className="text-sm font-medium">{t("imageUpload.dragDrop", { ns: "common" })}</p>
+                <p className="text-sm font-medium">
+                  {t("imageUpload.dragDrop", { ns: "common" })}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {t("imageUpload.orClick", { ns: "common" })}
                 </p>
@@ -244,7 +255,8 @@ export function ImageUpload({
         </div>
 
         <p className="text-xs text-muted-foreground mt-2">
-          {t("imageUpload.allowedTypes", { ns: "common" })} {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
+          {t("imageUpload.allowedTypes", { ns: "common" })}{" "}
+          {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
           <br />
           {t("imageUpload.maxSize", { ns: "common" })} {maxSizeMB}MB
           <br />

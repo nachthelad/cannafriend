@@ -24,6 +24,7 @@ import { plantsCol } from "@/lib/paths";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { MobileReminderCards } from "./mobile-reminder-cards";
 import { MobileReminderScheduler } from "./mobile-reminder-scheduler";
+import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import { Bell, Plus, TrendingUp } from "lucide-react";
 import type { Plant } from "@/types";
 
@@ -57,6 +58,8 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -152,11 +155,8 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
   };
 
   const handleEdit = (reminder: Reminder) => {
-    // TODO: Implement edit functionality
-    toast({
-      title: t("comingSoon", { ns: "common" }),
-      description: t("editComingSoon", { ns: "common" }),
-    });
+    setEditingReminder(reminder);
+    setIsEditDialogOpen(true);
   };
 
   const handleDelete = async (reminderId: string) => {
@@ -176,6 +176,10 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
   };
 
   const handleReminderAdded = () => {
+    // Reminders will be updated automatically via onSnapshot
+  };
+
+  const handleReminderUpdated = () => {
     // Reminders will be updated automatically via onSnapshot
   };
 
@@ -305,6 +309,15 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
             </CardContent>
           </Card>
         ))}
+
+      {/* Edit Reminder Dialog */}
+      <EditReminderDialog
+        reminder={editingReminder}
+        plants={plants}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onReminderUpdated={handleReminderUpdated}
+      />
     </div>
   );
 }

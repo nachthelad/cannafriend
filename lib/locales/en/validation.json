@@ -28,5 +28,6 @@
   "trainingMethodRequired": "Please select a training method",
   "environmentValueRequired": "At least one environment value is required",
   "lightScheduleRequired": "Light schedule is required for flowering logs",
-  "notesRequired": "Notes are required for note logs"
+  "notesRequired": "Notes are required for note logs",
+  "titleRequired": "Title is required"
 }

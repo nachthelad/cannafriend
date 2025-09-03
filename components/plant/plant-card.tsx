@@ -25,7 +25,7 @@ export function PlantCard({
   lastTraining,
   compact = false,
 }: PlantCardProps) {
-  const { t, i18n } = useTranslation(["plants", "common"]);
+  const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const language = i18n.language;
   const router = useRouter();
 
@@ -103,7 +103,7 @@ export function PlantCard({
                 {lastWatering ? (
                   <span>
                     {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
-                    {t(`watering.${lastWatering.method}`)})
+                    {t(`watering.${lastWatering.method}`, { ns: "journal" })})
                   </span>
                 ) : (
                   <span>{t("plantCard.noWateringRecords")}</span>

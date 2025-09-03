@@ -11,11 +11,13 @@ import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
 import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
 import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
+import { useTranslation } from "react-i18next";
 
 import { AnimatedLogo } from "@/components/common/animated-logo";
 
 export default function Home() {
   const router = useRouter();
+  const { t } = useTranslation(["common", "landing"]);
 
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -148,7 +150,9 @@ export default function Home() {
             className="text-primary mb-4"
             duration={1.5}
           />
-          <p className="text-lg font-medium text-foreground">Cargando...</p>
+          <p className="text-lg font-medium text-foreground">
+            {t("loading", { ns: "common" })}
+          </p>
         </div>
       </div>
     );

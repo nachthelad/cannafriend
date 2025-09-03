@@ -1,0 +1,116 @@
+{
+  "hero": {
+    "subtitle": "Your Complete Cannabis Growing Companion",
+    "description": "Track, manage, and optimize your plants with powerful tools designed specifically for cannabis cultivation. From seed to harvest.",
+    "startFree": "Get Started Free",
+    "professionalGrowing": "Professional Growing",
+    "professionalGrowingDesc": "Advanced tracking and management tools for serious cultivators",
+    "documentEverything": "Document Everything",
+    "documentEverythingDesc": "Photo galleries, detailed logs, and comprehensive growth history",
+    "aiComingSoon": "AI Coming Soon",
+    "aiComingSoonDesc": "Intelligent plant analysis and recommendations powered by AI"
+  },
+  "nav": {
+    "goToApp": "Go to App"
+  },
+  "showcase": {
+    "title": "Everything You Need to Grow",
+    "description": "Whether you're a beginner or expert, Cannafriend has the tools you need for successful cultivation.",
+    "growerMode": "Grower Mode",
+    "growerModeDesc": "Complete cultivation management from seedling to harvest",
+    "consumerMode": "Consumer Mode",
+    "consumerModeDesc": "Track your consumption, inventory, and preferences",
+    "comingSoon": "Coming Soon",
+    "aiTitle": "AI Plant Analysis & Recommendations",
+    "aiDesc": "Advanced artificial intelligence to help optimize your growing with personalized insights and automated problem detection.",
+    "autoDetection": "Automatic Detection",
+    "nutrientDeficiencies": "Nutrient deficiencies",
+    "commonPests": "Common pests & problems",
+    "fungalDiseases": "Fungal diseases",
+    "phProblems": "pH & water issues",
+    "intelligentRecommendations": "Intelligent Recommendations",
+    "fertilizationAdjustments": "Fertilization adjustments",
+    "organicTreatments": "Organic treatments",
+    "wateringChanges": "Watering schedule changes",
+    "environmentOptimization": "Environment optimization",
+    "whenAvailable": "When Available:",
+    "whenAvailableDesc": "AI features will be available as a premium subscription with advanced analysis capabilities."
+  },
+  "features": {
+    "plantManagement": {
+      "title": "Plant Management",
+      "desc": "Track multiple plants with detailed profiles and growth stages"
+    },
+    "growJournal": {
+      "title": "Grow Journal",
+      "desc": "Log activities, measurements, and observations with timestamps"
+    },
+    "photoGallery": {
+      "title": "Photo Gallery",
+      "desc": "Document growth with organized photo galleries and time-lapse views"
+    },
+    "environmentControl": {
+      "title": "Environment Control",
+      "desc": "Monitor temperature, humidity, pH, and lighting conditions"
+    },
+    "reminders": {
+      "title": "Smart Reminders",
+      "desc": "Never miss watering, feeding, or maintenance schedules"
+    },
+    "nutrientMixes": {
+      "title": "Nutrient Tracking",
+      "desc": "Track feeding schedules, NPK ratios, and nutrient recipes"
+    },
+    "sessionTracking": {
+      "title": "Session Tracking",
+      "desc": "Log consumption sessions with strain, method, and effects"
+    },
+    "consumptionHistory": {
+      "title": "Consumption Analytics",
+      "desc": "Analyze patterns, preferences, and consumption habits over time"
+    },
+    "favoriteStrains": {
+      "title": "Strain Library",
+      "desc": "Save favorite strains with detailed profiles and personal notes"
+    },
+    "personalInventory": {
+      "title": "Personal Inventory",
+      "desc": "Track your stash with quantities, strain info, and expiry dates"
+    },
+    "management": {
+      "title": "Plant Management"
+    },
+    "journal": {
+      "title": "Growth Journal"
+    },
+    "gallery": {
+      "title": "Photo Gallery"
+    }
+  },
+  "footer": {
+    "hero": "Your Complete Cannabis Growing Companion - Track, manage, and optimize your plants with powerful tools designed specifically for cannabis cultivation.",
+    "features": "Features",
+    "support": "Support",
+    "contact": "Contact",
+    "copyright": "© 2024 Cannafriend. All rights reserved.",
+    "version": "Version 1.0.0"
+  },
+  "cta": {
+    "title": "Ready to Transform Your Growing Experience?",
+    "description": "Join thousands of growers who are already using Cannafriend to optimize their cultivation and achieve better results. Start your journey today!",
+    "startFreeNow": "Start Free Now",
+    "installApp": "Install App",
+    "completelyFree": "Completely Free",
+    "completelyFreeDesc": "Full access to all core features without any cost or hidden fees",
+    "totalPrivacy": "Total Privacy",
+    "totalPrivacyDesc": "Your data stays on your device. We never share or sell your information",
+    "instantAccess": "Instant Access",
+    "instantAccessDesc": "Start tracking your plants immediately with our intuitive interface",
+    "mobileTitle": "Perfect Mobile Experience",
+    "mobileDesc": "Optimized for mobile devices with offline support and lightning-fast performance. Access your garden anytime, anywhere.",
+    "installAsApp": "Install as App",
+    "worksOffline": "Works Offline",
+    "loadsInstantly": "Loads Instantly",
+    "pushNotifications": "Push Notifications"
+  }
+}

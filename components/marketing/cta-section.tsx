@@ -18,17 +18,17 @@ export function CTASection({
   onInstallPWA,
   isLoggedIn,
 }: CTASectionProps) {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["landing", "common"]);
 
   return (
     <section className="py-20 bg-gradient-to-br from-green-600 to-blue-600 dark:from-green-800 dark:to-blue-800">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center text-white mb-16">
           <h2 className="text-4xl font-bold mb-6">
-            {t("cta.title")}
+            {t("cta.title", { ns: "landing" })}
           </h2>
           <p className="text-xl opacity-90 max-w-3xl mx-auto mb-12">
-            {t("cta.description")}
+            {t("cta.description", { ns: "landing" })}
           </p>
 
           {/* Action Buttons */}
@@ -39,7 +39,7 @@ export function CTASection({
               className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
             >
               <PlayCircle className="mr-2 h-6 w-6" />
-              {isLoggedIn ? t("nav.goToApp") : t("cta.startFreeNow")}
+              {isLoggedIn ? t("nav.goToApp", { ns: "landing" }) : t("cta.startFreeNow", { ns: "landing" })}
             </Button>
 
             {deferredPrompt && (
@@ -50,7 +50,7 @@ export function CTASection({
                 className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 text-lg font-semibold"
               >
                 <Download className="mr-2 h-6 w-6" />
-                {t("cta.installApp")}
+                {t("cta.installApp", { ns: "landing" })}
               </Button>
             )}
           </div>
@@ -61,9 +61,9 @@ export function CTASection({
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
               <Leaf className="h-12 w-12 mx-auto mb-4 text-green-200" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.completelyFree")}</h3>
+              <h3 className="text-xl font-semibold mb-2">{t("cta.completelyFree", { ns: "landing" })}</h3>
               <p className="opacity-90">
-                {t("cta.completelyFreeDesc")}
+                {t("cta.completelyFreeDesc", { ns: "landing" })}
               </p>
             </CardContent>
           </Card>
@@ -71,9 +71,9 @@ export function CTASection({
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
               <Shield className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.totalPrivacy")}</h3>
+              <h3 className="text-xl font-semibold mb-2">{t("cta.totalPrivacy", { ns: "landing" })}</h3>
               <p className="opacity-90">
-                {t("cta.totalPrivacyDesc")}
+                {t("cta.totalPrivacyDesc", { ns: "landing" })}
               </p>
             </CardContent>
           </Card>
@@ -81,9 +81,9 @@ export function CTASection({
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
               <Zap className="h-12 w-12 mx-auto mb-4 text-yellow-200" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.instantAccess")}</h3>
+              <h3 className="text-xl font-semibold mb-2">{t("cta.instantAccess", { ns: "landing" })}</h3>
               <p className="opacity-90">
-                {t("cta.instantAccessDesc")}
+                {t("cta.instantAccessDesc", { ns: "landing" })}
               </p>
             </CardContent>
           </Card>
@@ -93,23 +93,23 @@ export function CTASection({
         <div className="bg-white/10 backdrop-blur rounded-lg p-8 text-center text-white">
           <Smartphone className="h-16 w-16 mx-auto mb-6 text-green-200" />
           <h3 className="text-2xl font-bold mb-4">
-            {t("cta.mobileTitle")}
+            {t("cta.mobileTitle", { ns: "landing" })}
           </h3>
           <p className="text-lg opacity-90 max-w-2xl mx-auto mb-6">
-            {t("cta.mobileDesc")}
+            {t("cta.mobileDesc", { ns: "landing" })}
           </p>
           <div className="flex flex-wrap justify-center gap-3 text-sm">
             <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.installAsApp")}
+              {t("cta.installAsApp", { ns: "landing" })}
             </span>
             <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.worksOffline")}
+              {t("cta.worksOffline", { ns: "landing" })}
             </span>
             <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.loadsInstantly")}
+              {t("cta.loadsInstantly", { ns: "landing" })}
             </span>
             <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.pushNotifications")}
+              {t("cta.pushNotifications", { ns: "landing" })}
             </span>
           </div>
         </div>

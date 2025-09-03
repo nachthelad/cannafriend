@@ -45,5 +45,8 @@
   "selectPlantFirst": "Select a plant first",
   "frequency": "Frequency",
   "every": "Every",
-  "customDays": "Custom days"
+  "customDays": "Custom days",
+  "editReminder": "Edit Reminder",
+  "editReminderDesc": "Update your reminder settings",
+  "updatedMessage": "Reminder has been updated successfully"
 }

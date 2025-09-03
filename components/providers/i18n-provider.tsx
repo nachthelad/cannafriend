@@ -32,6 +32,8 @@ import esAnalyzePlant from "@/lib/locales/es/analyzePlant.json";
 import enAnalyzePlant from "@/lib/locales/en/analyzePlant.json";
 import enStash from "@/lib/locales/en/stash.json";
 import esStash from "@/lib/locales/es/stash.json";
+import enLanding from "@/lib/locales/en/landing.json";
+import esLanding from "@/lib/locales/es/landing.json";
 
 interface I18nProviderProps {
   children: React.ReactNode;
@@ -54,6 +56,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       strains: esStrains,
       analyzePlant: esAnalyzePlant,
       stash: esStash,
+      landing: esLanding,
     },
     en: {
       common: enCommon,
@@ -69,6 +72,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       strains: enStrains,
       analyzePlant: enAnalyzePlant,
       stash: enStash,
+      landing: enLanding,
     },
   };
 
@@ -94,6 +98,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       "nav",
       "strains",
       "analyzePlant",
+      "landing",
     ],
 
     interpolation: {

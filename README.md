@@ -1,62 +1,130 @@
-## CannaFriend
+## Cannafriend 🌱
 
-PWA para llevar un diario de cultivo y consumo de marihuana, simple y útil en móvil y desktop. Podés registrar tus plantas, fotos, tareas, recordatorios y sesiones; y ahora también analizar tu planta con IA.
+Your complete cannabis cultivation companion. A modern PWA designed for growers and consumers to track, manage, and optimize their cannabis experience with powerful AI-assisted insights.
 
-### Lo más importante
+### 🚀 Key Features
 
-- **Análisis con IA de la planta**: Subí una foto y hacé preguntas (o usá un análisis general). La IA sugiere posibles deficiencias, infecciones y cuidados. Podés ver el resultado, guardarlo y volver a consultarlo.
-- **Diario de cultivo (Journal)**: Registrá riegos, fertilizaciones, entrenamientos, notas y más, con filtros por fecha y planta.
-- **Recordatorios**: Evitá olvidos con avisos para riego, fertilización u otras tareas.
-- **Fotos y galería**: Cargá fotos para seguir la evolución de tus plantas.
-- **PWA y móvil primero**: Instalá la app y usala cómodo en el teléfono.
-- **Multi‑idioma**: Español e inglés.
+- **🤖 AI Plant Analysis**: Upload photos and get intelligent insights about plant health, deficiencies, pests, and care recommendations
+- **📔 Grow Journal**: Comprehensive logging system for watering, feeding, training, environmental data, and notes
+- **📅 Smart Reminders**: Never miss watering, feeding, or maintenance schedules with customizable notifications
+- **📸 Photo Documentation**: Visual progress tracking with organized galleries and time-lapse capabilities
+- **📱 Mobile-First PWA**: Install as an app for seamless mobile experience with offline functionality
+- **🌍 Internationalization**: Full support for English and Spanish with easy language switching
 
-### Novedades destacadas
+### ✨ Latest Updates
 
-- **Nueva página “Análisis con IA”**
-  - Ruta: `/analyze-plant`.
-  - Subí o sacá una foto, preguntá algo específico o pedí un análisis general.
-  - Mostramos la respuesta en un formato agradable y la guardamos en tu Journal de análisis.
-  - Cada análisis tiene su propia página: `/analysis/[id]`.
-- **Journal de análisis**
-  - Lista simple con fecha/hora, pregunta y botón “Ver”.
-  - Los análisis se guardan en tu cuenta y aparecen al iniciar sesión.
-- **Acceso premium (provisorio)**
-  - El análisis con IA está disponible para usuarios autorizados por email (o con un flag local para pruebas). Más adelante se integrará un plan premium.
-- **Acceso rápido**
-  - En dashboard (móvil) hay un botón “Análisis con IA” con fondo degradado.
-  - En desktop aparece en el menú lateral (solo premium), también con estilo destacado.
+#### 🤖 AI Analysis System
 
-### Cómo se usa (visión general)
+- **AI Assistant Page**: `/ai-assistant` - Interactive AI chat for plant analysis and growing advice
+- **Universal AI Help**: Ask anything about cannabis cultivation, get expert recommendations
+- **Photo Analysis**: Upload plant photos for automated health assessments
+- **Analysis History**: All AI interactions are saved and accessible anytime
+- **Smart Recommendations**: Personalized advice based on your specific growing conditions
 
-- **Dashboard**: Vista general del cultivo, accesos a recordatorios, búsqueda y plantas.
-- **Journal**: Historial de actividades (riego, fertilización, etc.).
-- **Fotos**: Documentá el progreso con imágenes.
-- **Análisis con IA**:
-  1. Entrá a “Análisis con IA”.
-  2. Subí o sacá una foto de tu planta.
-  3. (Opcional) Escribí una pregunta específica.
-  4. Tocá “Analizar con IA”.
-  5. Leé las recomendaciones y guardalas (se agregan al Journal de análisis).
-  6. Volvé a abrir cualquier análisis por su URL.
+#### 🌐 Enhanced Translation System
 
-### Qué guarda CannaFriend
+- **Improved i18n**: Comprehensive translation support across all components
+- **Landing Page Translations**: Fully localized marketing content
+- **Namespace Organization**: Structured translation system for better maintainability
+- **Dynamic Language Switching**: Seamless experience in both Spanish and English
 
-- **Tus análisis con IA**: fecha y hora, imagen, pregunta y respuesta.
-- **Tus registros de cultivo**: riegos, fertilizaciones, entrenamientos, etc.
-- **Tus fotos**: subidas por vos, enlazadas a tus plantas.
+#### 📱 Premium Features
 
-### Privacidad y control
+- **AI Access Control**: Advanced AI features available for authorized users
+- **Enhanced Dashboard**: Premium users get additional insights and features
+- **Priority Support**: Dedicated assistance for premium subscribers
 
-- Tus datos están asociados a tu cuenta. Podés iniciar sesión y ver tu información desde cualquier dispositivo.
-- Al usar la función de IA, la imagen y la consulta se envían al servicio de IA para obtener la respuesta.
+### 🎯 How It Works
 
-### Preguntas frecuentes
+#### 🏠 **Dashboard**
 
-- **¿Necesito internet?** La app está pensada como PWA y guarda datos para uso básico offline, pero funciones como subir fotos o usar IA requieren conexión.
-- **¿Puedo ver mis análisis antiguos?** Sí, desde “Análisis con IA” (Journal) o directamente en `/analysis/[id]`.
-- **¿Puedo usar la cámara del teléfono?** Sí, al subir imagen podés elegir cámara o galería.
+Your cultivation command center with:
 
-### Contacto y ayuda
+- Overview of all plants and their status
+- Quick access to reminders and recent activities
+- Growth statistics and insights
+- Direct access to AI assistance
 
-Si algo no funciona como esperabas o tenés ideas para mejorar, escribinos. Queremos que CannaFriend sea una herramienta realmente útil para tu cultivo.
+#### 🌱 **Plant Management**
+
+- Add and track multiple plants with detailed profiles
+- Monitor growth stages (vegetative, flowering)
+- Track strain information and growing conditions
+- Visual progress with photo galleries
+
+#### 📔 **Grow Journal**
+
+- Log watering schedules with amounts and methods
+- Track feeding with NPK ratios and nutrients
+- Record training techniques (LST, topping, defoliation)
+- Environmental monitoring (temperature, humidity, pH)
+- Add notes and observations
+
+#### 🤖 **AI Assistant**
+
+1. Navigate to "AI Assistant" (`/ai-assistant`)
+2. Upload a plant photo or ask a general question
+3. Get personalized recommendations and insights
+4. Review analysis history and previous conversations
+5. Apply AI suggestions to improve your grow
+
+#### 📅 **Reminders System**
+
+- Set custom watering and feeding schedules
+- Get notifications for maintenance tasks
+- Track overdue activities
+- Sync across all devices
+
+### 💾 What CannaFriend Stores
+
+#### 🔐 **Your Growing Data**
+
+- **Plant Profiles**: Names, strains, planting dates, growth stages
+- **Journal Entries**: Detailed logs of all activities with timestamps
+- **Photo Libraries**: Visual documentation linked to specific plants
+- **Environmental Data**: Temperature, humidity, pH measurements
+- **AI Interactions**: Chat history, analysis results, and recommendations
+
+#### 🔒 **Privacy & Security**
+
+- All data is securely stored in your personal account
+- Photos and analysis are encrypted and private
+- No sharing of personal cultivation data
+- Full account deletion available in settings
+
+### 🛡️ Technology Stack
+
+- **Framework**: Next.js 14 with App Router
+- **UI**: React with TypeScript, Tailwind CSS
+- **Database**: Firebase Firestore for scalable data storage
+- **Authentication**: Firebase Auth with custom user profiles
+- **Storage**: Firebase Storage for image handling
+- **PWA**: Service Worker for offline functionality
+- **Internationalization**: React-i18next for multi-language support
+- **AI Integration**: OpenAI API for plant analysis and recommendations
+
+### ❓ Frequently Asked Questions
+
+**Q: Do I need internet connection?**
+A: CannaFriend works offline for basic functionality (viewing plants, reading journal entries). Internet is required for syncing data, uploading photos, and AI features.
+
+**Q: Can I access my data from multiple devices?**
+A: Yes! Your account syncs across all devices. Sign in anywhere to access your complete grow history.
+
+**Q: How does the AI analysis work?**
+A: Upload plant photos or ask questions via the AI Assistant. Our AI analyzes images for health issues, nutrient deficiencies, pests, and provides personalized growing advice.
+
+**Q: Is my growing data private?**
+A: Absolutely. All data is encrypted and stored securely in your personal account. We never share or sell cultivation information.
+
+**Q: Can I use this for commercial grows?**
+A: CannaFriend is designed for personal cultivation tracking. For commercial operations, contact us about enterprise solutions.
+
+### 🚀 Getting Started
+
+1. **Visit**: [CannaFriend Web App](https://cannafriend.app)
+2. **Sign Up**: Create your account with email authentication
+3. **Add Plants**: Start by adding your first plant profile
+4. **Begin Logging**: Record your first watering or feeding
+5. **Try AI**: Upload a plant photo for instant analysis
+6. **Install PWA**: Add to home screen for app-like experience

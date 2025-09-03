@@ -18,61 +18,61 @@ import {
 } from "lucide-react";
 
 export function AppShowcase() {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["landing", "common"]);
 
   const growerFeatures = [
     {
       icon: <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" />,
-      title: t("features.plantManagement.title"),
-      description: t("features.plantManagement.desc"),
+      title: t("features.plantManagement.title", { ns: "landing" }),
+      description: t("features.plantManagement.desc", { ns: "landing" }),
     },
     {
       icon: <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400" />,
-      title: t("features.growJournal.title"),
-      description: t("features.growJournal.desc"),
+      title: t("features.growJournal.title", { ns: "landing" }),
+      description: t("features.growJournal.desc", { ns: "landing" }),
     },
     {
       icon: <Camera className="h-8 w-8 text-purple-600 dark:text-purple-400" />,
-      title: t("features.photoGallery.title"),
-      description: t("features.photoGallery.desc"),
+      title: t("features.photoGallery.title", { ns: "landing" }),
+      description: t("features.photoGallery.desc", { ns: "landing" }),
     },
     {
       icon: <Thermometer className="h-8 w-8 text-red-600 dark:text-red-400" />,
-      title: t("features.environmentControl.title"),
-      description: t("features.environmentControl.desc"),
+      title: t("features.environmentControl.title", { ns: "landing" }),
+      description: t("features.environmentControl.desc", { ns: "landing" }),
     },
     {
       icon: <Bell className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />,
-      title: t("features.reminders.title"),
-      description: t("features.reminders.desc"),
+      title: t("features.reminders.title", { ns: "landing" }),
+      description: t("features.reminders.desc", { ns: "landing" }),
     },
     {
       icon: <Droplets className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />,
-      title: t("features.nutrientMixes.title"),
-      description: t("features.nutrientMixes.desc"),
+      title: t("features.nutrientMixes.title", { ns: "landing" }),
+      description: t("features.nutrientMixes.desc", { ns: "landing" }),
     },
   ];
 
   const consumerFeatures = [
     {
       icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />,
-      title: t("features.sessionTracking.title"),
-      description: t("features.sessionTracking.desc"),
+      title: t("features.sessionTracking.title", { ns: "landing" }),
+      description: t("features.sessionTracking.desc", { ns: "landing" }),
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
-      title: t("features.consumptionHistory.title"),
-      description: t("features.consumptionHistory.desc"),
+      title: t("features.consumptionHistory.title", { ns: "landing" }),
+      description: t("features.consumptionHistory.desc", { ns: "landing" }),
     },
     {
       icon: <Heart className="h-8 w-8 text-pink-600 dark:text-pink-400" />,
-      title: t("features.favoriteStrains.title"),
-      description: t("features.favoriteStrains.desc"),
+      title: t("features.favoriteStrains.title", { ns: "landing" }),
+      description: t("features.favoriteStrains.desc", { ns: "landing" }),
     },
     {
       icon: <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" />,
-      title: t("features.personalInventory.title"),
-      description: t("features.personalInventory.desc"),
+      title: t("features.personalInventory.title", { ns: "landing" }),
+      description: t("features.personalInventory.desc", { ns: "landing" }),
     },
   ];
 
@@ -82,10 +82,10 @@ export function AppShowcase() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-            {t("showcase.title")}
+            {t("showcase.title", { ns: "landing" })}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            {t("showcase.description")}
+            {t("showcase.description", { ns: "landing" })}
           </p>
         </div>
 
@@ -94,10 +94,10 @@ export function AppShowcase() {
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               <Leaf className="inline h-8 w-8 text-green-600 mr-3" />
-              {t("showcase.growerMode")}
+              {t("showcase.growerMode", { ns: "landing" })}
             </h3>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              {t("showcase.growerModeDesc")}
+              {t("showcase.growerModeDesc", { ns: "landing" })}
             </p>
           </div>
 
@@ -129,10 +129,10 @@ export function AppShowcase() {
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               <Users className="inline h-8 w-8 text-indigo-600 mr-3" />
-              {t("showcase.consumerMode")}
+              {t("showcase.consumerMode", { ns: "landing" })}
             </h3>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              {t("showcase.consumerModeDesc")}
+              {t("showcase.consumerModeDesc", { ns: "landing" })}
             </p>
           </div>
 
@@ -164,45 +164,45 @@ export function AppShowcase() {
               <div className="flex items-center justify-center mb-6">
                 <Brain className="h-16 w-16 text-purple-600 dark:text-purple-400 mr-4" />
                 <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                  {t("showcase.comingSoon")}
+                  {t("showcase.comingSoon", { ns: "landing" })}
                 </span>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                {t("showcase.aiTitle")}
+                {t("showcase.aiTitle", { ns: "landing" })}
               </h3>
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-                {t("showcase.aiDesc")}
+                {t("showcase.aiDesc", { ns: "landing" })}
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                    {t("showcase.autoDetection")}
+                    {t("showcase.autoDetection", { ns: "landing" })}
                   </h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>{t("showcase.nutrientDeficiencies")}</li>
-                    <li>{t("showcase.commonPests")}</li>
-                    <li>{t("showcase.fungalDiseases")}</li>
-                    <li>{t("showcase.phProblems")}</li>
+                    <li>{t("showcase.nutrientDeficiencies", { ns: "landing" })}</li>
+                    <li>{t("showcase.commonPests", { ns: "landing" })}</li>
+                    <li>{t("showcase.fungalDiseases", { ns: "landing" })}</li>
+                    <li>{t("showcase.phProblems", { ns: "landing" })}</li>
                   </ul>
                 </div>
                 
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                    {t("showcase.intelligentRecommendations")}
+                    {t("showcase.intelligentRecommendations", { ns: "landing" })}
                   </h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>{t("showcase.fertilizationAdjustments")}</li>
-                    <li>{t("showcase.organicTreatments")}</li>
-                    <li>{t("showcase.wateringChanges")}</li>
-                    <li>{t("showcase.environmentOptimization")}</li>
+                    <li>{t("showcase.fertilizationAdjustments", { ns: "landing" })}</li>
+                    <li>{t("showcase.organicTreatments", { ns: "landing" })}</li>
+                    <li>{t("showcase.wateringChanges", { ns: "landing" })}</li>
+                    <li>{t("showcase.environmentOptimization", { ns: "landing" })}</li>
                   </ul>
                 </div>
               </div>
 
               <div className="mt-8 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                 <p className="text-sm text-gray-600 dark:text-gray-300">
-                  <strong>{t("showcase.whenAvailable")}</strong> {t("showcase.whenAvailableDesc")}
+                  <strong>{t("showcase.whenAvailable", { ns: "landing" })}</strong> {t("showcase.whenAvailableDesc", { ns: "landing" })}
                 </p>
               </div>
             </CardContent>

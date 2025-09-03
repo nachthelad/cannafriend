@@ -103,7 +103,7 @@ function TimeField({
 }
 
 export default function NewSessionPage() {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["common", "strains"]);
   const { toast } = useToast();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
@@ -155,8 +155,8 @@ export default function NewSessionPage() {
     if (!userId || !data.strain.trim()) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
-        description: t("strains.required"),
+        title: t("error", { ns: "common" }),
+        description: t("required", { ns: "strains" }),
       });
       return;
     }
@@ -194,12 +194,12 @@ export default function NewSessionPage() {
         photos: photos.length > 0 ? photos : null,
         date: dateISO,
       });
-      toast({ title: t("strains.saved") });
+      toast({ title: t("saved", { ns: "strains" }) });
       router.push(ROUTE_STRAINS);
     } catch (e: any) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
+        title: t("error", { ns: "common" }),
         description: e?.message || String(e),
       });
     } finally {
@@ -212,19 +212,19 @@ export default function NewSessionPage() {
       <div className="max-w-xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>{t("strains.addSession")}</CardTitle>
+            <CardTitle>{t("addSession", { ns: "strains" })}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit(onSave)} className="space-y-4">
               <div>
                 <label className="text-sm font-medium">
-                  {t("strains.strain")}
+                  {t("strain", { ns: "strains" })}
                 </label>
                 <Input
                   {...register("strain", {
-                    required: t("strains.required") as any,
+                    required: t("required", { ns: "strains" }) as any,
                   })}
-                  placeholder={t("strains.strainPlaceholder")}
+                  placeholder={t("strainPlaceholder", { ns: "strains" })}
                 />
                 {errors.strain && (
                   <p className="text-xs text-destructive mt-1">
@@ -234,7 +234,7 @@ export default function NewSessionPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("logForm.date")}
+                  {t("logForm.date", { ns: "strains" })}
                 </label>
                 <div className="md:hidden">
                   <MobileDatePicker
@@ -242,7 +242,7 @@ export default function NewSessionPage() {
                     onSelect={(d) =>
                       d && setValue("date", d, { shouldDirty: true })
                     }
-                    locale={t("common.language") === "es" ? es : enUS}
+                    locale={t("language", { ns: "common" }) === "es" ? es : enUS}
                   />
                 </div>
                 <div className="hidden md:block">
@@ -274,7 +274,7 @@ export default function NewSessionPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    {t("strains.startTime")}
+                    {t("startTime", { ns: "strains" })}
                   </label>
                   <TimeField
                     value={startTime}
@@ -285,7 +285,7 @@ export default function NewSessionPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    {t("strains.endTime")}
+                    {t("endTime", { ns: "strains" })}
                   </label>
                   <TimeField
                     value={endTime}
@@ -298,35 +298,35 @@ export default function NewSessionPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">
-                    {t("strains.method")}
+                    {t("method", { ns: "strains" })}
                   </label>
                   <Input
                     {...register("method")}
-                    placeholder={t("strains.methodPlaceholder")}
+                    placeholder={t("methodPlaceholder", { ns: "strains" })}
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium">
-                    {t("strains.amount")}
+                    {t("amount", { ns: "strains" })}
                   </label>
                   <Input
                     {...register("amount")}
-                    placeholder={t("strains.amountPlaceholder")}
+                    placeholder={t("amountPlaceholder", { ns: "strains" })}
                   />
                 </div>
               </div>
               <div>
                 <label className="text-sm font-medium">
-                  {t("strains.notes")}
+                  {t("notes", { ns: "strains" })}
                 </label>
                 <Textarea
                   {...register("notes")}
-                  placeholder={t("strains.notesPlaceholder")}
+                  placeholder={t("notesPlaceholder", { ns: "strains" })}
                 />
               </div>
               <div>
                 <label className="text-sm font-medium">
-                  {t("strains.photos")}
+                  {t("photos", { ns: "strains" })}
                 </label>
                 <ImageUpload
                   onImagesChange={(newUrls) =>
@@ -359,10 +359,10 @@ export default function NewSessionPage() {
                   variant="outline"
                   onClick={() => router.push(ROUTE_STRAINS)}
                 >
-                  {t("common.cancel")}
+                  {t("cancel", { ns: "common" })}
                 </Button>
                 <Button type="submit" disabled={isSaving}>
-                  {t("strains.save")}
+                  {t("save", { ns: "strains" })}
                 </Button>
               </div>
             </form>

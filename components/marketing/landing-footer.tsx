@@ -6,7 +6,7 @@ import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import Logo from "@/components/common/logo";
 
 export function LandingFooter() {
-  const { t } = useTranslation(["common"]);
+  const { t } = useTranslation(["landing", "common", "analyzePlant"]);
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-border/50">
@@ -17,56 +17,56 @@ export function LandingFooter() {
             <div className="flex items-center mb-4">
               <Logo size={32} className="text-primary mr-3" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                {t("app.name")}
+                {t("app.name", { ns: "common" })}
               </h3>
             </div>
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
-              {t("landing.hero")}
+              {t("footer.hero", { ns: "landing" })}
             </p>
           </div>
 
           {/* Features Column */}
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
-              {t("footer.features")}
+              {t("footer.features", { ns: "landing" })}
             </h4>
             <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-              <li>{t("features.management.title")}</li>
-              <li>{t("features.journal.title")}</li>
-              <li>{t("features.gallery.title")}</li>
-              <li>{t("analyzePlant.title")}</li>
-              <li>{t("features.reminders.title")}</li>
+              <li>{t("features.management.title", { ns: "landing" })}</li>
+              <li>{t("features.journal.title", { ns: "landing" })}</li>
+              <li>{t("features.gallery.title", { ns: "landing" })}</li>
+              <li>{t("title", { ns: "analyzePlant" })}</li>
+              <li>{t("features.reminders.title", { ns: "landing" })}</li>
             </ul>
           </div>
 
           {/* Support Column */}
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-white mb-4">
-              {t("footer.support")}
+              {t("footer.support", { ns: "landing" })}
             </h4>
             <ul className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
               <li>
-                <Link 
+                <Link
                   href={ROUTE_PRIVACY}
                   className="hover:text-primary transition-colors"
                 >
-                  {t("privacy.title")}
+                  {t("privacy.title", { ns: "common" })}
                 </Link>
               </li>
               <li>
-                <Link 
+                <Link
                   href={ROUTE_TERMS}
                   className="hover:text-primary transition-colors"
                 >
-                  {t("terms.title")}
+                  {t("terms.title", { ns: "common" })}
                 </Link>
               </li>
               <li>
-                <a 
+                <a
                   href="mailto:nachthelad.dev@gmail.com"
                   className="hover:text-primary transition-colors flex items-center"
                 >
-                  {t("footer.contact")}
+                  {t("footer.contact", { ns: "landing" })}
                 </a>
               </li>
             </ul>
@@ -76,10 +76,10 @@ export function LandingFooter() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center">
           <div className="text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
-            {t("footer.copyright")}
+            {t("footer.copyright", { ns: "landing" })}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {t("footer.version")}
+            {t("footer.version", { ns: "landing" })}
           </div>
         </div>
       </div>

@@ -42,20 +42,20 @@ export function DesktopLandingView({
             <div className="flex items-center space-x-3">
               <Logo size={32} className="text-primary" />
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                {t("app.name")}
+                {t("app.name", { ns: "common" })}
               </span>
             </div>
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a 
-                href="#features" 
+              <a
+                href="#features"
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               >
                 {t("features", { ns: "nav" })}
               </a>
-              <a 
-                href="#showcase" 
+              <a
+                href="#showcase"
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               >
                 {t("functions", { ns: "nav" })}
@@ -64,7 +64,7 @@ export function DesktopLandingView({
                 onClick={() => {
                   const element = document.querySelector('[data-section="ai"]');
                   if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+                    element.scrollIntoView({ behavior: "smooth" });
                   }
                 }}
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors cursor-pointer"
@@ -78,7 +78,9 @@ export function DesktopLandingView({
               <LanguageSwitcher />
               <ThemeToggle />
               <Button onClick={onLoginClick} className="font-semibold">
-                {isLoggedIn ? t("dashboard", { ns: "nav" }) : t("login.title", { ns: "auth" })}
+                {isLoggedIn
+                  ? t("dashboard", { ns: "nav" })
+                  : t("login.title", { ns: "auth" })}
               </Button>
             </div>
           </div>
@@ -106,25 +108,33 @@ export function DesktopLandingView({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">100%</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.free", { ns: "common" })}</div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  {t("stats.free", { ns: "common" })}
+                </div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">📱</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.mobileApp", { ns: "common" })}</div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  {t("stats.mobileApp", { ns: "common" })}
+                </div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">🧠</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.aiComingSoon", { ns: "common" })}</div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  {t("stats.aiComingSoon", { ns: "common" })}
+                </div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">🔄</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.worksOffline", { ns: "common" })}</div>
+                <div className="text-gray-600 dark:text-gray-300">
+                  {t("stats.worksOffline", { ns: "common" })}
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Why Choose CannaFriend */}
+        {/* Why Choose Cannafriend */}
         <section id="features" className="py-20 bg-gray-50 dark:bg-gray-800/50">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
@@ -225,7 +235,11 @@ export function DesktopLandingView({
       <LandingFooter />
 
       {/* Login Modal */}
-      <LoginModal open={loginOpen} onOpenChange={onLoginOpenChange} onAuthStart={onAuthStart} />
+      <LoginModal
+        open={loginOpen}
+        onOpenChange={onLoginOpenChange}
+        onAuthStart={onAuthStart}
+      />
     </div>
   );
 }
