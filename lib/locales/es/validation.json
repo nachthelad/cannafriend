@@ -28,5 +28,6 @@
   "trainingMethodRequired": "Por favor selecciona un método de entrenamiento",
   "environmentValueRequired": "Al menos un valor de ambiente es requerido",
   "lightScheduleRequired": "El horario de luz es requerido para registros de floración",
-  "notesRequired": "Las notas son requeridas para registros de notas"
+  "notesRequired": "Las notas son requeridas para registros de notas",
+  "titleRequired": "El título es requerido"
 }

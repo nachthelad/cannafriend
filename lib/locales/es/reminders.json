@@ -45,5 +45,8 @@
   "selectPlantFirst": "Selecciona una planta primero",
   "frequency": "Frecuencia",
   "every": "Cada",
-  "customDays": "Días personalizados"
+  "customDays": "Días personalizados",
+  "editReminder": "Editar Recordatorio",
+  "editReminderDesc": "Actualiza la configuración de tu recordatorio",
+  "updatedMessage": "El recordatorio se ha actualizado exitosamente"
 }

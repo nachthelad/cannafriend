@@ -45,7 +45,9 @@ import {
   X,
   Plus,
   AlertCircle,
+  Edit,
 } from "lucide-react";
+import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import type { Plant } from "@/types";
 
 // Form validation schema - created with translations
@@ -111,6 +113,8 @@ export function ReminderSystem({
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   // Notifications removed
 
   // Form schema with translations
@@ -275,6 +279,15 @@ export function ReminderSystem({
     } catch (error: any) {
       handleFirebaseError(error, "marking reminder done");
     }
+  };
+
+  const handleEditReminder = (reminder: Reminder) => {
+    setEditingReminder(reminder);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleReminderUpdated = () => {
+    fetchReminders(); // Refresh the reminders list
   };
 
   const handleDeleteReminder = async (reminderId: string) => {
@@ -736,7 +749,16 @@ export function ReminderSystem({
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => handleEditReminder(reminder)}
+                      title={t("edit", { ns: "common" })}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleDeleteReminder(reminder.id)}
+                      title={t("delete", { ns: "common" })}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -747,6 +769,15 @@ export function ReminderSystem({
           )}
         </CardContent>
       </Card>
+
+      {/* Edit Reminder Dialog */}
+      <EditReminderDialog
+        reminder={editingReminder}
+        plants={plants}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onReminderUpdated={handleReminderUpdated}
+      />
     </div>
   );
 }
