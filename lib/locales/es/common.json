@@ -87,7 +87,7 @@
     "name": "cannafriend",
     "description": "Inicia sesión para continuar",
     "installPWA": "Instalar App",
-    "installPWADesc": "Instala CannaFriend en tu dispositivo para acceder rápidamente"
+    "installPWADesc": "Instala Cannafriend en tu dispositivo para acceder rápidamente"
   },
   "privacy": {
     "title": "Privacidad",
@@ -141,7 +141,8 @@
     "worksOffline": "Funciona Sin Internet"
   },
   "landing": {
-    "whyChoose": "¿Por qué elegir CannaFriend?",
+    "hero": "Tu Compañero Completo para el Cultivo de Cannabis - Rastrea, gestiona y optimiza tus plantas con herramientas poderosas diseñadas específicamente para el cultivo de cannabis.",
+    "whyChoose": "¿Por qué elegir Cannafriend?",
     "whyChooseDesc": "La herramienta de cultivo más completa y fácil de usar"
   },
   "benefits": {

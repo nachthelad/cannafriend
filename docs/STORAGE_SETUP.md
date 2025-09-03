@@ -1,4 +1,4 @@
-# Configuración de Firebase Storage para CannaFriend
+# Configuración de Firebase Storage para Cannafriend
 
 ## Pasos para configurar Firebase Storage
 
@@ -19,11 +19,11 @@
 rules_version = '2';
 
 service firebase.storage {
-  match /b/{bucket}/o {
-    // Reglas para imágenes de usuarios
-    match /images/{userId}/{allPaths=**} {
-      // Solo usuarios autenticados pueden acceder a sus propias imágenes
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+match /b/{bucket}/o {
+// Reglas para imágenes de usuarios
+match /images/{userId}/{allPaths=\*\*} {
+// Solo usuarios autenticados pueden acceder a sus propias imágenes
+allow read, write: if request.auth != null && request.auth.uid == userId;
 
       // Validaciones adicionales para subida de archivos
       allow create: if request.auth != null
@@ -37,7 +37,8 @@ service firebase.storage {
     match /{allPaths=**} {
       allow read, write: if false; // Denegar acceso por defecto
     }
-  }
+
+}
 }
 \`\`\`
 
@@ -52,11 +53,11 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
 
 \`\`\`json
 [
-  {
-    "origin": ["*"],
-    "method": ["GET", "POST", "PUT", "DELETE"],
-    "maxAgeSeconds": 3600
-  }
+{
+"origin": ["*"],
+"method": ["GET", "POST", "PUT", "DELETE"],
+"maxAgeSeconds": 3600
+}
 ]
 \`\`\`
 
@@ -101,9 +102,9 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
 \`\`\`
 images/
 └── {userId}/
-    ├── {timestamp}_image1.jpg
-    ├── {timestamp}_image2.png
-    └── ...
+├── {timestamp}\_image1.jpg
+├── {timestamp}\_image2.png
+└── ...
 \`\`\`
 
 ### 🔒 Seguridad:

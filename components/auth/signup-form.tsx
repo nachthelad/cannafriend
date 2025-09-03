@@ -14,10 +14,9 @@ import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { ROUTE_ONBOARDING } from "@/lib/routes";
 import { useToast } from "@/hooks/use-toast";
-import ReCAPTCHA from "react-google-recaptcha";
-import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
+// import ReCAPTCHA from "react-google-recaptcha";
+// import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
 
 interface SignupFormData {
   email: string;
@@ -97,15 +96,15 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     }
 
     // Validate reCAPTCHA only if enabled
-    if (isRecaptchaEnabled() && !recaptchaToken) {
-      toast({
-        variant: "destructive",
-        title: t("signup.error", { ns: "auth" }),
-        description: t("recaptchaRequired", { ns: "auth" }),
-      });
-      setIsLoading(false);
-      return;
-    }
+    // if (isRecaptchaEnabled() && !recaptchaToken) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: t("signup.error", { ns: "auth" }),
+    //     description: t("recaptchaRequired", { ns: "auth" }),
+    //   });
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     try {
       setLoadingStep(t("signup.creatingAccount", { ns: "auth" }));
@@ -127,7 +126,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
 
       // Close the modal immediately after successful signup
       onSuccess?.();
-      
+
       // Let the auth state change handler in Home component handle navigation
       // to avoid race conditions with competing redirects
     } catch (error: any) {
@@ -142,7 +141,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     const newPassword = e.target.value;
 
     if (confirmPassword && newPassword !== confirmPassword) {
-      setError("confirmPassword", { message: t("passwordsDoNotMatch", { ns: "auth" }) });
+      setError("confirmPassword", {
+        message: t("passwordsDoNotMatch", { ns: "auth" }),
+      });
     } else if (newPassword.length > 0 && newPassword.length < 6) {
       setError("password", { message: t("passwordTooShort", { ns: "auth" }) });
     } else {
@@ -156,7 +157,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     const newConfirmPassword = e.target.value;
 
     if (password && newConfirmPassword !== password) {
-      setError("confirmPassword", { message: t("passwordsDoNotMatch", { ns: "auth" }) });
+      setError("confirmPassword", {
+        message: t("passwordsDoNotMatch", { ns: "auth" }),
+      });
     } else {
       clearErrors("confirmPassword");
     }
@@ -205,6 +208,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <div className="relative">
           <Input
             id="password"
+            placeholder="••••••••"
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             aria-invalid={Boolean(errors.password) || undefined}
@@ -243,10 +247,13 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">{t("signup.confirmPassword", { ns: "auth" })}</Label>
+        <Label htmlFor="confirmPassword">
+          {t("signup.confirmPassword", { ns: "auth" })}
+        </Label>
         <div className="relative">
           <Input
             id="confirmPassword"
+            placeholder="••••••••"
             type={showConfirmPassword ? "text" : "password"}
             autoComplete="new-password"
             aria-invalid={Boolean(errors.confirmPassword) || undefined}
@@ -280,7 +287,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         )}
       </div>
 
-      {isRecaptchaEnabled() && (
+      {/* {isRecaptchaEnabled() && (
         <>
           <div className="flex justify-center">
             <ReCAPTCHA
@@ -297,7 +304,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             </Alert>
           )}
         </>
-      )}
+      )} */}
 
       <Button
         type="submit"
@@ -306,7 +313,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       >
         {isLoading ? (
           <>
-            <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
+            <AnimatedLogo
+              size={16}
+              className="mr-2 text-primary"
+              duration={1.2}
+            />
             {loadingStep}
           </>
         ) : (

@@ -198,7 +198,8 @@ export default function PlantsListPage() {
                 </p>
               </div>
               <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
+                <Plus className="h-4 w-4 mr-2" />{" "}
+                {t("addPlant", { ns: "dashboard" })}
               </Button>
             </div>
 
@@ -232,7 +233,8 @@ export default function PlantsListPage() {
                 </CardHeader>
                 <CardContent>
                   <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                    <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
+                    <Plus className="h-4 w-4 mr-2" />{" "}
+                    {t("addPlant", { ns: "dashboard" })}
                   </Button>
                 </CardContent>
               </Card>

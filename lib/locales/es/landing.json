@@ -1,0 +1,116 @@
+{
+  "hero": {
+    "subtitle": "Tu Compañero Completo para el Cultivo de Cannabis",
+    "description": "Rastrea, gestiona y optimiza tus plantas con herramientas poderosas diseñadas específicamente para el cultivo de cannabis. De la semilla a la cosecha.",
+    "startFree": "Comenzar Gratis",
+    "professionalGrowing": "Cultivo Profesional",
+    "professionalGrowingDesc": "Herramientas avanzadas de seguimiento y gestión para cultivadores serios",
+    "documentEverything": "Documenta Todo",
+    "documentEverythingDesc": "Galerías de fotos, registros detallados e historial completo de crecimiento",
+    "aiComingSoon": "IA Próximamente",
+    "aiComingSoonDesc": "Análisis inteligente de plantas y recomendaciones impulsadas por IA"
+  },
+  "nav": {
+    "goToApp": "Ir a la App"
+  },
+  "showcase": {
+    "title": "Todo lo que Necesitas para Cultivar",
+    "description": "Ya seas principiante o experto, Cannafriend tiene las herramientas que necesitas para un cultivo exitoso.",
+    "growerMode": "Modo Cultivador",
+    "growerModeDesc": "Gestión completa de cultivo desde plantón hasta cosecha",
+    "consumerMode": "Modo Consumidor",
+    "consumerModeDesc": "Rastrea tu consumo, inventario y preferencias",
+    "comingSoon": "Próximamente",
+    "aiTitle": "Análisis IA de Plantas y Recomendaciones",
+    "aiDesc": "Inteligencia artificial avanzada para ayudar a optimizar tu cultivo con ideas personalizadas y detección automática de problemas.",
+    "autoDetection": "Detección Automática",
+    "nutrientDeficiencies": "Deficiencias nutricionales",
+    "commonPests": "Plagas y problemas comunes",
+    "fungalDiseases": "Enfermedades fúngicas",
+    "phProblems": "Problemas de pH y agua",
+    "intelligentRecommendations": "Recomendaciones Inteligentes",
+    "fertilizationAdjustments": "Ajustes de fertilización",
+    "organicTreatments": "Tratamientos orgánicos",
+    "wateringChanges": "Cambios en horario de riego",
+    "environmentOptimization": "Optimización del ambiente",
+    "whenAvailable": "Cuando Esté Disponible:",
+    "whenAvailableDesc": "Las funciones de IA estarán disponibles como suscripción premium con capacidades de análisis avanzado."
+  },
+  "features": {
+    "plantManagement": {
+      "title": "Gestión de Plantas",
+      "desc": "Rastrea múltiples plantas con perfiles detallados y etapas de crecimiento"
+    },
+    "growJournal": {
+      "title": "Diario de Cultivo",
+      "desc": "Registra actividades, mediciones y observaciones con marca de tiempo"
+    },
+    "photoGallery": {
+      "title": "Galería de Fotos",
+      "desc": "Documenta el crecimiento con galerías organizadas y vistas time-lapse"
+    },
+    "environmentControl": {
+      "title": "Control Ambiental",
+      "desc": "Monitorea temperatura, humedad, pH y condiciones de iluminación"
+    },
+    "reminders": {
+      "title": "Recordatorios Inteligentes",
+      "desc": "Nunca te olvides de regar, alimentar o mantener tus plantas"
+    },
+    "nutrientMixes": {
+      "title": "Seguimiento de Nutrientes",
+      "desc": "Rastrea horarios de alimentación, proporciones NPK y recetas de nutrientes"
+    },
+    "sessionTracking": {
+      "title": "Seguimiento de Sesiones",
+      "desc": "Registra sesiones de consumo con cepa, método y efectos"
+    },
+    "consumptionHistory": {
+      "title": "Análisis de Consumo",
+      "desc": "Analiza patrones, preferencias y hábitos de consumo a lo largo del tiempo"
+    },
+    "favoriteStrains": {
+      "title": "Biblioteca de Cepas",
+      "desc": "Guarda cepas favoritas con perfiles detallados y notas personales"
+    },
+    "personalInventory": {
+      "title": "Inventario Personal",
+      "desc": "Rastrea tu reserva con cantidades, info de cepas y fechas de vencimiento"
+    },
+    "management": {
+      "title": "Gestión de Plantas"
+    },
+    "journal": {
+      "title": "Diario de Cultivo"
+    },
+    "gallery": {
+      "title": "Galería de Fotos"
+    }
+  },
+  "footer": {
+    "hero": "Tu Compañero Completo para el Cultivo de Cannabis - Rastrea, gestiona y optimiza tus plantas con herramientas poderosas diseñadas específicamente para el cultivo de cannabis.",
+    "features": "Funciones",
+    "support": "Soporte",
+    "contact": "Contacto",
+    "copyright": "© 2024 Cannafriend. Todos los derechos reservados.",
+    "version": "Versión 1.0.0"
+  },
+  "cta": {
+    "title": "¿Listo para Transformar tu Experiencia de Cultivo?",
+    "description": "Únete a miles de cultivadores que ya están usando Cannafriend para optimizar su cultivo y lograr mejores resultados. ¡Comienza tu viaje hoy!",
+    "startFreeNow": "Comenzar Gratis Ahora",
+    "installApp": "Instalar App",
+    "completelyFree": "Completamente Gratis",
+    "completelyFreeDesc": "Acceso completo a todas las funciones principales sin costo ni tarifas ocultas",
+    "totalPrivacy": "Privacidad Total",
+    "totalPrivacyDesc": "Tus datos permanecen en tu dispositivo. Nunca compartimos ni vendemos tu información",
+    "instantAccess": "Acceso Instantáneo",
+    "instantAccessDesc": "Comienza a rastrear tus plantas inmediatamente con nuestra interfaz intuitiva",
+    "mobileTitle": "Experiencia Móvil Perfecta",
+    "mobileDesc": "Optimizado para dispositivos móviles con soporte sin conexión y rendimiento ultrarrápido. Accede a tu jardín en cualquier momento, en cualquier lugar.",
+    "installAsApp": "Instalar como App",
+    "worksOffline": "Funciona Sin Internet",
+    "loadsInstantly": "Carga Instantáneamente",
+    "pushNotifications": "Notificaciones Push"
+  }
+}

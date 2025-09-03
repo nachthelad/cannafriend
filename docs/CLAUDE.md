@@ -4,11 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CannaFriend is a bilingual (Spanish/English) Next.js PWA for tracking cannabis cultivation and consumption. It features plant diaries, AI-powered plant analysis, journaling, reminders, and image galleries.
+Cannafriend is a bilingual (Spanish/English) Next.js PWA for tracking cannabis cultivation and consumption. It features plant diaries, AI-powered plant analysis, journaling, reminders, and image galleries.
 
 ## Commands
 
 ### Development
+
 ```bash
 pnpm dev                    # Start development server
 pnpm build                  # Build production version
@@ -17,6 +18,7 @@ pnpm lint                   # Run ESLint
 ```
 
 ### Important Notes
+
 - Uses pnpm as package manager (check pnpm-lock.yaml)
 - ESLint and TypeScript errors are ignored during builds (see next.config.mjs)
 - No test framework configured
@@ -24,6 +26,7 @@ pnpm lint                   # Run ESLint
 ## Architecture
 
 ### Tech Stack
+
 - **Framework**: Next.js 15.2.4 with App Router
 - **UI**: Tailwind CSS v4 + shadcn/ui components
 - **Backend**: Firebase (Firestore, Auth, Storage)
@@ -31,6 +34,7 @@ pnpm lint                   # Run ESLint
 - **PWA**: Custom service worker implementation
 
 ### Key Dependencies
+
 - Firebase ecosystem (firebase, firebase-admin)
 - shadcn/ui with Radix UI primitives
 - React Hook Form with Zod validation
@@ -68,12 +72,14 @@ types/                    # TypeScript type definitions
 ```
 
 ### Firebase Architecture
+
 - **Authentication**: Google Auth + email/password
 - **Database**: Firestore with user-scoped collections
 - **Storage**: User-specific image folders (`images/{userId}/`)
 - **Security**: Comprehensive rules in firestore.rules and storage.rules
 
 ### Key Features
+
 1. **Plant Management**: CRUD operations for plants with photos and logs
 2. **AI Analysis**: Plant health analysis with GPT integration
 3. **Journal System**: Activity logging (watering, feeding, training)
@@ -83,23 +89,27 @@ types/                    # TypeScript type definitions
 7. **i18n**: Spanish/English support via context provider
 
 ### Data Models
+
 - **Plant**: name, seedType, growType, photos, planting date
 - **LogEntry**: type, date, notes, plant-specific data (watering, feeding, etc.)
 - **Reminder**: plantId, type, title, interval, lastReminder, nextReminder, isActive
 - **EnvironmentData**: temperature, humidity, pH tracking
 
 ### Authentication Flow
+
 - Firebase Auth with Google OAuth and email/password
 - User data stored in `/users/{userId}` collections
 - Premium features controlled by user roles/flags
 
 ### API Patterns
+
 - Next.js API routes for server-side operations
 - Firebase Admin SDK for backend operations
 - Rate limiting implemented for AI endpoints
 - MercadoPago integration for payments
 
 ### Development Practices
+
 - TypeScript throughout with path aliases (`@/*`)
 - Tailwind utility classes with shadcn/ui components
 - Form handling with React Hook Form + Zod
@@ -109,6 +119,7 @@ types/                    # TypeScript type definitions
 ## Environment Configuration
 
 ### Required Variables
+
 ```bash
 # Firebase (already configured in codebase)
 # reCAPTCHA (optional, disabled by default)
@@ -117,12 +128,14 @@ NEXT_PUBLIC_RECAPTCHA_SITE_KEY=    # reCAPTCHA site key
 ```
 
 ### Optional Features
+
 - reCAPTCHA: Disabled by default, enable with NEXT_PUBLIC_ENABLE_RECAPTCHA=true
 - Google Ads: Conditionally loaded based on authentication state
 
 ## Important Files
+
 - `firestore.rules` - Database security rules
-- `storage.rules` - File upload security rules  
+- `storage.rules` - File upload security rules
 - `next.config.mjs` - Next.js configuration with PWA setup
 - `components.json` - shadcn/ui configuration
 - `lib/firebase.ts` - Client Firebase configuration
@@ -131,6 +144,7 @@ NEXT_PUBLIC_RECAPTCHA_SITE_KEY=    # reCAPTCHA site key
 ## Mobile Components Architecture
 
 ### Reminder System
+
 The mobile reminder system follows a three-component architecture:
 
 - **MobileReminders**: Main container component managing state and Firebase operations
@@ -138,6 +152,7 @@ The mobile reminder system follows a three-component architecture:
 - **MobileReminderScheduler**: Full-screen form using Layout component pattern
 
 Key patterns:
+
 - Uses controlled state (isOpen/onOpenChange) for scheduler visibility
 - Real-time updates via Firebase onSnapshot
 - Swipe gestures: right swipe = complete, left swipe = snooze
@@ -145,6 +160,7 @@ Key patterns:
 - Custom interval validation (1-99 days)
 
 ## Common Patterns
+
 - Use existing plant-config.ts and log-config.ts for plant/log types
 - Image uploads go through ImageUpload component to Firebase Storage
 - All user data scoped to authenticated user ID

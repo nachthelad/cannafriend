@@ -1,18 +1,20 @@
-# CannaFriend UI Component Guide
+# Cannafriend UI Component Guide
 
 ## Overview
 
-This guide provides comprehensive patterns and conventions for creating mobile-first, responsive UI components in the CannaFriend application. The app uses a sophisticated responsive design system that adapts seamlessly between mobile and desktop experiences.
+This guide provides comprehensive patterns and conventions for creating mobile-first, responsive UI components in the Cannafriend application. The app uses a sophisticated responsive design system that adapts seamlessly between mobile and desktop experiences.
 
 ## Core Design Principles
 
 ### 1. Mobile-First Approach
+
 - Design and build for mobile devices first
 - Progressive enhancement for larger screens
 - Touch-friendly interfaces with adequate tap targets (minimum 44px)
 - Thumb-zone optimization for bottom navigation
 
 ### 2. Responsive Breakpoints
+
 ```css
 /* Tailwind CSS breakpoints used in the app */
 sm: 640px   /* Small tablets */
@@ -23,6 +25,7 @@ xl: 1280px  /* Extra large screens */
 ```
 
 ### 3. Layout Strategy
+
 - **Mobile**: Single column, bottom navigation, full-width cards
 - **Desktop**: Sidebar navigation, multi-column layouts, constrained content width
 
@@ -61,6 +64,7 @@ The app uses a unified layout component that handles both mobile and desktop exp
 ### Navigation Patterns
 
 #### Mobile Bottom Navigation (`components/navigation/mobile-bottom-nav.tsx`)
+
 - Fixed bottom position with safe area support
 - 5-slot grid layout with floating center action button
 - Role-based navigation items
@@ -83,6 +87,7 @@ The app uses a unified layout component that handles both mobile and desktop exp
 ```
 
 #### Desktop Sidebar Navigation
+
 - Fixed left sidebar with logo and navigation links
 - Collapsible sections based on user roles
 - Premium feature highlighting with gradient styling
@@ -92,6 +97,7 @@ The app uses a unified layout component that handles both mobile and desktop exp
 ### Card Components
 
 #### Base Card Structure (`components/ui/card.tsx`)
+
 The app uses a sophisticated card system with multiple variants:
 
 ```tsx
@@ -105,11 +111,12 @@ function Card({ className, ...props }) {
       )}
       {...props}
     />
-  )
+  );
 }
 ```
 
 #### Plant Card (`components/plant/plant-card.tsx`)
+
 Feature-rich card with image, metadata, and responsive layouts:
 
 ```tsx
@@ -118,10 +125,10 @@ Feature-rich card with image, metadata, and responsive layouts:
   {/* Responsive image container */}
   <div className="relative aspect-[4/3] sm:aspect-video">
     <Image src={plant.coverPhoto} fill className="object-cover" />
-    
+
     {/* Overlay with gradient */}
     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-    
+
     {/* Content overlay */}
     <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
       <h3 className="text-white text-lg font-semibold drop-shadow">
@@ -136,9 +143,7 @@ Feature-rich card with image, metadata, and responsive layouts:
   {/* Card content - hidden in compact mode */}
   {!compact && (
     <>
-      <CardContent className="pb-2">
-        {/* Plant metadata */}
-      </CardContent>
+      <CardContent className="pb-2">{/* Plant metadata */}</CardContent>
       <CardFooter className="pt-0 text-xs text-muted-foreground">
         {/* Last action details */}
       </CardFooter>
@@ -150,6 +155,7 @@ Feature-rich card with image, metadata, and responsive layouts:
 ### Grid Systems
 
 #### Responsive Grid Patterns
+
 ```tsx
 // Dashboard widgets - 1 column mobile, 2 columns desktop
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -175,6 +181,7 @@ Feature-rich card with image, metadata, and responsive layouts:
 ### Form Components
 
 #### Mobile-Optimized Forms
+
 - Large touch targets
 - Proper input types for mobile keyboards
 - Floating labels and inline validation
@@ -192,6 +199,7 @@ Feature-rich card with image, metadata, and responsive layouts:
 ### Modal and Dialog Patterns
 
 #### Responsive Modals
+
 ```tsx
 // Dialog that adapts to screen size
 <Dialog>
@@ -207,12 +215,14 @@ Feature-rich card with image, metadata, and responsive layouts:
 ## Mobile-Specific Patterns
 
 ### Touch Interactions
+
 - Minimum 44px tap targets
 - Hover states that work on touch devices
 - Swipe gestures for navigation (where applicable)
 - Long press for context actions
 
 ### Mobile Header Pattern
+
 ```tsx
 <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 md:hidden">
   <Link href={homeHref} className="flex items-center gap-2 font-semibold">
@@ -227,6 +237,7 @@ Feature-rich card with image, metadata, and responsive layouts:
 ```
 
 ### Safe Area Handling
+
 ```tsx
 // Bottom navigation with safe area support
 <nav style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
@@ -237,12 +248,14 @@ Feature-rich card with image, metadata, and responsive layouts:
 ## Desktop-Specific Patterns
 
 ### Sidebar Navigation
+
 - Fixed width (256px) with logo and full navigation
 - Persistent across all pages
 - Role-based menu items
 - Sign out action at bottom
 
 ### Multi-Column Layouts
+
 ```tsx
 // Desktop dashboard with responsive columns
 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -251,6 +264,7 @@ Feature-rich card with image, metadata, and responsive layouts:
 ```
 
 ### Hover States and Transitions
+
 ```tsx
 // Card with desktop hover effects
 <Card className="group cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5">
@@ -261,59 +275,70 @@ Feature-rich card with image, metadata, and responsive layouts:
 ## Styling Conventions
 
 ### Color System
+
 - Uses CSS custom properties for theming
 - Dark/light mode support via `next-themes`
 - Semantic color names (`primary`, `secondary`, `muted-foreground`)
 
 ### Typography Scale
+
 - Consistent heading hierarchy (`text-3xl font-bold` for page titles)
 - Responsive font sizes
 - Proper contrast ratios
 
 ### Spacing System
+
 - Consistent gap and padding using Tailwind's spacing scale
 - Responsive spacing (`p-4 md:p-6`)
 
 ### Border Radius
+
 - Consistent rounding (`rounded-xl` for cards, `rounded-md` for buttons)
 - More rounded corners on mobile for better touch interaction
 
 ## Animation and Transitions
 
 ### Micro-Interactions
+
 ```tsx
 // Subtle animations for better UX
 <Card className="transition-all hover:shadow-lg hover:-translate-y-0.5">
 ```
 
 ### Loading States
+
 ```tsx
 // Animated logo for loading states
 <AnimatedLogo size={32} className="text-primary" duration={1.5} />
 ```
 
 ### Page Transitions
+
 - Smooth transitions between routes
 - Skeleton screens for loading states
 
 ## Accessibility
 
 ### Touch Targets
+
 - Minimum 44px touch targets on mobile
 - Adequate spacing between interactive elements
 
 ### Focus Management
+
 - Visible focus indicators
 - Proper tab order
 - Screen reader friendly labels
 
 ### Color Contrast
+
 - WCAG AA compliance
 - Works in both light and dark themes
 
 ## Performance Considerations
 
 ### Image Optimization
+
 ```tsx
 // Optimized image loading with Next.js
 <Image
@@ -326,10 +351,12 @@ Feature-rich card with image, metadata, and responsive layouts:
 ```
 
 ### Code Splitting
+
 - Route-based code splitting with Next.js App Router
 - Dynamic imports for heavy components
 
 ### Responsive Images
+
 - Different aspect ratios for mobile vs desktop
 - Proper image sizing and lazy loading
 
@@ -338,14 +365,14 @@ Feature-rich card with image, metadata, and responsive layouts:
 ### Creating New Components
 
 1. **Start Mobile-First**
+
    ```tsx
    // Base mobile styles first
-   <div className="p-4 md:p-6">
-     {/* Content */}
-   </div>
+   <div className="p-4 md:p-6">{/* Content */}</div>
    ```
 
 2. **Add Responsive Behavior**
+
    ```tsx
    // Progressive enhancement for larger screens
    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -354,6 +381,7 @@ Feature-rich card with image, metadata, and responsive layouts:
    ```
 
 3. **Handle Navigation Context**
+
    ```tsx
    // Consider both mobile and desktop navigation
    const { roles } = useUserRoles();
@@ -363,19 +391,19 @@ Feature-rich card with image, metadata, and responsive layouts:
 4. **Optimize Touch Interactions**
    ```tsx
    // Ensure touch targets are large enough
-   <button className="h-12 px-4 text-sm">
-     {/* Button content */}
-   </button>
+   <button className="h-12 px-4 text-sm">{/* Button content */}</button>
    ```
 
 ### Testing Responsive Design
 
 1. **Mobile Testing**
+
    - Test on actual devices
    - Use browser dev tools for various screen sizes
    - Check touch interactions and scrolling
 
 2. **Desktop Testing**
+
    - Verify sidebar navigation works
    - Test hover states
    - Check multi-column layouts
@@ -387,18 +415,21 @@ Feature-rich card with image, metadata, and responsive layouts:
 ## Component Library Structure
 
 ### Base UI Components (`components/ui/`)
+
 - Built on Radix UI primitives
 - Consistent styling with shadcn/ui
 - Fully responsive and accessible
 
 ### Feature Components
+
 - `components/plant/` - Plant-specific components
 - `components/auth/` - Authentication components
 - `components/journal/` - Journal and logging components
 - `components/navigation/` - Navigation components
 
 ### Layout Components
+
 - `components/layout/` - Main layout wrapper
 - `components/marketing/` - Landing page components
 
-This guide provides a comprehensive foundation for building consistent, responsive UI components that work seamlessly across all devices in the CannaFriend application.
+This guide provides a comprehensive foundation for building consistent, responsive UI components that work seamlessly across all devices in the Cannafriend application.

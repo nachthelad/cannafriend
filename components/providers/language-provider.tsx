@@ -92,7 +92,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "app.description": "Inicia sesión para continuar",
         "app.installPWA": "Instalar App",
         "app.installPWADesc":
-          "Instala CannaFriend en tu dispositivo para acceder rápidamente",
+          "Instala Cannafriend en tu dispositivo para acceder rápidamente",
         "landing.hero":
           "Tu compañero perfecto para el cultivo de plantas. Registra, monitorea y optimiza el crecimiento de tus plantas de manera profesional.",
 
@@ -188,7 +188,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "stats.worksOffline": "Funciona Offline",
 
         // Landing page sections
-        "landing.whyChoose": "¿Por qué elegir CannaFriend?",
+        "landing.whyChoose": "¿Por qué elegir Cannafriend?",
         "landing.whyChooseDesc":
           "Una solución completa que se adapta a tu estilo de vida cannábico con herramientas profesionales y fáciles de usar.",
 
@@ -231,7 +231,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // CTA section
         "cta.title": "Comienza tu viaje cannábico digital hoy",
         "cta.description":
-          "Únete a la comunidad de cultivadores y consumidores que ya utilizan CannaFriend para documentar, optimizar y disfrutar su experiencia con el cannabis.",
+          "Únete a la comunidad de cultivadores y consumidores que ya utilizan Cannafriend para documentar, optimizar y disfrutar su experiencia con el cannabis.",
         "cta.startFreeNow": "Comenzar Gratis Ahora",
         "cta.installApp": "Instalar App",
         "cta.completelyFree": "Completamente Gratuito",
@@ -245,7 +245,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Instalable como app en tu teléfono. Funciona sin conexión para que nunca pierdas tus registros.",
         "cta.mobileTitle": "Perfecta para usar en tu teléfono",
         "cta.mobileDesc":
-          "CannaFriend está optimizada para móviles y se puede instalar como una app nativa. Lleva tu diario de cultivo y sesiones siempre contigo, incluso sin internet.",
+          "Cannafriend está optimizada para móviles y se puede instalar como una app nativa. Lleva tu diario de cultivo y sesiones siempre contigo, incluso sin internet.",
         "cta.installAsApp": "📱 Instala como app",
         "cta.worksOffline": "🔄 Funciona sin internet",
         "cta.loadsInstantly": "⚡ Carga al instante",
@@ -254,7 +254,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // App Showcase section
         "showcase.title": "Diseñado para cultivadores y consumidores",
         "showcase.description":
-          "CannaFriend adapta sus funciones a tu estilo de vida cannábico, ya seas cultivador, consumidor, o ambos.",
+          "Cannafriend adapta sus funciones a tu estilo de vida cannábico, ya seas cultivador, consumidor, o ambos.",
         "showcase.growerMode": "Modo Cultivador",
         "showcase.growerModeDesc":
           "Herramientas completas para documentar y optimizar cada etapa de tu cultivo, desde la germinación hasta la cosecha.",
@@ -700,19 +700,30 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "logForm.details": "Detalles",
 
         // Form Validation Errors
-        "validation.logTypeRequired": "Por favor selecciona un tipo de registro",
-        "validation.notesMaxLength": "Las notas deben tener 500 caracteres o menos",
-        "validation.waterAmountRequired": "La cantidad de agua es requerida para registros de riego",
-        "validation.waterAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.logTypeRequired":
+          "Por favor selecciona un tipo de registro",
+        "validation.notesMaxLength":
+          "Las notas deben tener 500 caracteres o menos",
+        "validation.waterAmountRequired":
+          "La cantidad de agua es requerida para registros de riego",
+        "validation.waterAmountInvalid":
+          "Por favor ingresa una cantidad válida mayor a 0",
         "validation.waterAmountTooLarge": "Cantidad muy grande (máx 100L)",
-        "validation.waterMethodRequired": "Por favor selecciona un método de riego",
-        "validation.nutrientAmountRequired": "La cantidad de nutrientes es requerida para registros de alimentación",
-        "validation.nutrientAmountInvalid": "Por favor ingresa una cantidad válida mayor a 0",
+        "validation.waterMethodRequired":
+          "Por favor selecciona un método de riego",
+        "validation.nutrientAmountRequired":
+          "La cantidad de nutrientes es requerida para registros de alimentación",
+        "validation.nutrientAmountInvalid":
+          "Por favor ingresa una cantidad válida mayor a 0",
         "validation.nutrientAmountTooLarge": "Cantidad muy grande (máx 50ml/L)",
-        "validation.trainingMethodRequired": "Por favor selecciona un método de entrenamiento",
-        "validation.environmentValueRequired": "Al menos un valor de ambiente es requerido",
-        "validation.lightScheduleRequired": "El horario de luz es requerido para registros de floración",
-        "validation.notesRequired": "Las notas son requeridas para registros de notas",
+        "validation.trainingMethodRequired":
+          "Por favor selecciona un método de entrenamiento",
+        "validation.environmentValueRequired":
+          "Al menos un valor de ambiente es requerido",
+        "validation.lightScheduleRequired":
+          "El horario de luz es requerido para registros de floración",
+        "validation.notesRequired":
+          "Las notas son requeridas para registros de notas",
 
         // Watering
         "watering.amount": "Cantidad (ml)",
@@ -804,11 +815,14 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.invalidDate": "Fecha inválida",
         // Reminder validation
         "validation.plantRequired": "Por favor selecciona una planta",
-        "validation.reminderTypeRequired": "Por favor selecciona un tipo de recordatorio",
+        "validation.reminderTypeRequired":
+          "Por favor selecciona un tipo de recordatorio",
         "validation.intervalRequired": "El intervalo es requerido",
         "validation.intervalInvalid": "Debe ser un número entre 1 y 99",
-        "validation.titleMaxLength": "El título debe tener 50 caracteres o menos",
-        "validation.descriptionMaxLength": "La descripción debe tener 200 caracteres o menos",
+        "validation.titleMaxLength":
+          "El título debe tener 50 caracteres o menos",
+        "validation.descriptionMaxLength":
+          "La descripción debe tener 200 caracteres o menos",
 
         // Reminders
         "reminders.title": "Nombre del recordatorio",
@@ -1177,7 +1191,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "app.description": "Sign in to continue",
         "app.installPWA": "Install App",
         "app.installPWADesc":
-          "Install CannaFriend on your device for quick access",
+          "Install Cannafriend on your device for quick access",
         "landing.hero":
           "Your perfect companion for plant growing. Record, monitor, and optimize your plants' growth like a pro.",
 
@@ -1260,7 +1274,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "stats.worksOffline": "Works Offline",
 
         // Landing page sections
-        "landing.whyChoose": "Why Choose CannaFriend?",
+        "landing.whyChoose": "Why Choose Cannafriend?",
         "landing.whyChooseDesc":
           "A complete solution that adapts to your cannabis lifestyle with professional and easy-to-use tools.",
 
@@ -1318,7 +1332,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // CTA section
         "cta.title": "Start your digital cannabis journey today",
         "cta.description":
-          "Join the community of growers and consumers already using CannaFriend to document, optimize, and enjoy their cannabis experience.",
+          "Join the community of growers and consumers already using Cannafriend to document, optimize, and enjoy their cannabis experience.",
         "cta.startFreeNow": "Start Free Now",
         "cta.installApp": "Install App",
         "cta.completelyFree": "Completely Free",
@@ -1332,7 +1346,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
           "Installable as an app on your phone. Works offline so you never lose your records.",
         "cta.mobileTitle": "Perfect for use on your phone",
         "cta.mobileDesc":
-          "CannaFriend is optimized for mobile and can be installed as a native app. Take your grow journal and sessions with you everywhere, even without internet.",
+          "Cannafriend is optimized for mobile and can be installed as a native app. Take your grow journal and sessions with you everywhere, even without internet.",
         "cta.installAsApp": "📱 Install as app",
         "cta.worksOffline": "🔄 Works offline",
         "cta.loadsInstantly": "⚡ Loads instantly",
@@ -1341,7 +1355,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // App Showcase section
         "showcase.title": "Designed for growers and consumers",
         "showcase.description":
-          "CannaFriend adapts its features to your cannabis lifestyle, whether you're a grower, consumer, or both.",
+          "Cannafriend adapts its features to your cannabis lifestyle, whether you're a grower, consumer, or both.",
         "showcase.growerMode": "Grower Mode",
         "showcase.growerModeDesc":
           "Complete tools to document and optimize every stage of your grow, from germination to harvest.",
@@ -1791,16 +1805,22 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         // Form Validation Errors
         "validation.logTypeRequired": "Please select a log type",
         "validation.notesMaxLength": "Notes must be 500 characters or less",
-        "validation.waterAmountRequired": "Water amount is required for watering logs",
-        "validation.waterAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.waterAmountRequired":
+          "Water amount is required for watering logs",
+        "validation.waterAmountInvalid":
+          "Please enter a valid amount greater than 0",
         "validation.waterAmountTooLarge": "Amount too large (max 100L)",
         "validation.waterMethodRequired": "Please select a watering method",
-        "validation.nutrientAmountRequired": "Nutrient amount is required for feeding logs",
-        "validation.nutrientAmountInvalid": "Please enter a valid amount greater than 0",
+        "validation.nutrientAmountRequired":
+          "Nutrient amount is required for feeding logs",
+        "validation.nutrientAmountInvalid":
+          "Please enter a valid amount greater than 0",
         "validation.nutrientAmountTooLarge": "Amount too large (max 50ml/L)",
         "validation.trainingMethodRequired": "Please select a training method",
-        "validation.environmentValueRequired": "At least one environment value is required",
-        "validation.lightScheduleRequired": "Light schedule is required for flowering logs",
+        "validation.environmentValueRequired":
+          "At least one environment value is required",
+        "validation.lightScheduleRequired":
+          "Light schedule is required for flowering logs",
         "validation.notesRequired": "Notes are required for note logs",
 
         // Watering
@@ -1897,7 +1917,8 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         "validation.intervalRequired": "Interval is required",
         "validation.intervalInvalid": "Must be a number between 1 and 99",
         "validation.titleMaxLength": "Title must be 50 characters or less",
-        "validation.descriptionMaxLength": "Description must be 200 characters or less",
+        "validation.descriptionMaxLength":
+          "Description must be 200 characters or less",
 
         // Reminders
         "reminders.title": "Reminder Name",
