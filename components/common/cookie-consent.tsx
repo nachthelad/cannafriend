@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import { ROUTE_PRIVACY } from "@/lib/routes";
 import { X } from "lucide-react";
 
 export function CookieConsent() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {

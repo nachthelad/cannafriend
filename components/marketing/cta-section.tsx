@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, PlayCircle, Smartphone, Leaf, Shield, Zap } from "lucide-react";
@@ -18,7 +18,7 @@ export function CTASection({
   onInstallPWA,
   isLoggedIn,
 }: CTASectionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <section className="py-20 bg-gradient-to-br from-green-600 to-blue-600 dark:from-green-800 dark:to-blue-800">

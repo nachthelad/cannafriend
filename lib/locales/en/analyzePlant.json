@@ -1,0 +1,13 @@
+{
+  "title": "AI Analysis",
+  "error": "Error",
+  "assistant": "AI Assistant",
+  "universalHelp": "Cannabis AI Help",
+  "welcome": "Welcome to AI Assistant",
+  "helpText": "Ask anything about your plants",
+  "universalPlaceholder": "Ask anything about your plants...",
+  "uploadPhoto": "Upload Photo",
+  "chatHistory": "Chat History",
+  "newChat": "New Chat",
+  "noChats": "No chats yet"
+}

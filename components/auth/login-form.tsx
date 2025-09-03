@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -28,7 +28,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["auth", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
@@ -53,10 +53,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    setLoadingStep(t("login.verifyingCredentials"));
+    setLoadingStep(t("login.verifyingCredentials", { ns: "auth" }));
 
     try {
-      setLoadingStep(t("login.signingIn"));
+      setLoadingStep(t("login.signingIn", { ns: "auth" }));
       const result = await signInWithEmailAndPassword(
         auth,
         data.email,
@@ -76,51 +76,51 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             setValue("password", "");
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: t("auth.wrongPassword"),
+              title: t("error", { ns: "auth" }),
+              description: t("wrongPassword", { ns: "auth" }),
             });
             break;
           case "auth/user-not-found":
             setValue("email", "");
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: t("auth.userNotFound"),
+              title: t("error", { ns: "auth" }),
+              description: t("userNotFound", { ns: "auth" }),
             });
             break;
           case "auth/invalid-email":
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: t("auth.invalidEmail"),
+              title: t("error", { ns: "auth" }),
+              description: t("invalidEmail", { ns: "auth" }),
             });
             break;
           case "auth/too-many-requests":
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: t("auth.tooManyRequests"),
+              title: t("error", { ns: "auth" }),
+              description: t("tooManyRequests", { ns: "auth" }),
             });
             break;
           case "auth/network-request-failed":
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: t("auth.networkError"),
+              title: t("error", { ns: "auth" }),
+              description: t("networkError", { ns: "auth" }),
             });
             break;
           default:
             toast({
               variant: "destructive",
-              title: t("auth.error"),
-              description: error.message || t("common.unknownError"),
+              title: t("error", { ns: "auth" }),
+              description: error.message || t("unknownError", { ns: "common" }),
             });
         }
       } else {
         toast({
           variant: "destructive",
-          title: t("auth.error"),
-          description: error.message || t("common.unknownError"),
+          title: t("error", { ns: "auth" }),
+          description: error.message || t("unknownError", { ns: "common" }),
         });
       }
     } finally {
@@ -136,7 +136,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">{t("login.email")}</Label>
+        <Label htmlFor="email">{t("login.email", { ns: "auth" })}</Label>
         <Input
           id="email"
           type="email"
@@ -146,18 +146,18 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           placeholder="ejemplo@correo.com"
           className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
           {...register("email", {
-            required: t("common.fieldRequired"),
+            required: t("fieldRequired", { ns: "common" }),
             validate: {
               completeEmail: (value) => {
-                if (!value) return t("common.fieldRequired");
+                if (!value) return t("fieldRequired", { ns: "common" });
                 if (
                   value.includes("@") &&
                   (value.endsWith("@") || value.split("@")[1]?.length === 0)
                 ) {
-                  return t("auth.incompleteEmail");
+                  return t("incompleteEmail", { ns: "auth" });
                 }
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-                  return t("auth.invalidEmail");
+                  return t("invalidEmail", { ns: "auth" });
                 }
                 return true;
               },
@@ -172,7 +172,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">{t("login.password")}</Label>
+        <Label htmlFor="password">{t("login.password", { ns: "auth" })}</Label>
         <div className="relative">
           <Input
             id="password"
@@ -182,10 +182,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             aria-invalid={Boolean(errors.password) || undefined}
             className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
             {...register("password", {
-              required: t("common.fieldRequired"),
+              required: t("fieldRequired", { ns: "common" }),
               minLength: {
                 value: 6,
-                message: t("auth.passwordTooShort"),
+                message: t("passwordTooShort", { ns: "auth" }),
               },
             })}
           />
@@ -226,7 +226,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         ) : (
           <>
             <LogIn className="mr-2 h-4 w-4" />
-            {t("login.submit")}
+            {t("login.submit", { ns: "auth" })}
           </>
         )}
       </Button>
@@ -238,7 +238,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           onClick={handlePasswordReset}
           className="text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
         >
-          {t("login.forgotPassword")}
+          {t("login.forgotPassword", { ns: "auth" })}
         </Button>
       </div>
     </form>

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -46,7 +46,7 @@ interface MobileRemindersProps {
 }
 
 export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const router = useRouter();
@@ -154,8 +154,8 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
   const handleEdit = (reminder: Reminder) => {
     // TODO: Implement edit functionality
     toast({
-      title: t("common.comingSoon"),
-      description: t("reminders.editComingSoon"),
+      title: t("comingSoon", { ns: "common" }),
+      description: t("editComingSoon", { ns: "common" }),
     });
   };
 
@@ -208,10 +208,10 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
         {showHeader && (
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">
-              {t("dashboard.reminders")}
+              {t("reminders", { ns: "dashboard" })}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {t("reminders.pageDescription")}
+              {t("pageDescription", { ns: "reminders" })}
             </p>
           </div>
         )}
@@ -220,17 +220,17 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
           <CardContent className="p-6 text-center">
             <Bell className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h2 className="text-xl font-semibold mb-2">
-              {t("dashboard.noPlants")}
+              {t("noPlants", { ns: "dashboard" })}
             </h2>
             <p className="text-muted-foreground mb-4">
-              {t("reminders.noPlantsDesc")}
+              {t("noPlantsHint", { ns: "reminders" })}
             </p>
             <Button
               onClick={() => router.push("/plants/new")}
               className="min-h-[48px]"
             >
               <Plus className="mr-2 h-4 w-4" />
-              {t("plants.addPlant")}
+              {t("newPlant.addPlant", { ns: "plants" })}
             </Button>
           </CardContent>
         </Card>
@@ -242,26 +242,28 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
     <div className="space-y-6 pb-8">
       {showHeader && !isSchedulerOpen && (
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold">{t("dashboard.reminders")}</h1>
+          <h1 className="text-2xl font-bold">
+            {t("reminders", { ns: "dashboard" })}
+          </h1>
           <p className="text-muted-foreground text-sm">
-            {t("reminders.pageDescription")}
+            {t("pageDescription", { ns: "reminders" })}
           </p>
 
           {/* Status Summary */}
           <div className="flex justify-center gap-3 pt-2">
             {overdueCount > 0 && (
               <Badge variant="destructive" className="text-xs">
-                {overdueCount} {t("reminders.overdue").toLowerCase()}
+                {overdueCount} {t("overdue", { ns: "reminders" }).toLowerCase()}
               </Badge>
             )}
             {dueSoonCount > 0 && (
               <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
-                {dueSoonCount} {t("reminders.dueSoon").toLowerCase()}
+                {dueSoonCount} {t("dueSoon", { ns: "reminders" }).toLowerCase()}
               </Badge>
             )}
             {activeReminders.length > 0 && (
               <Badge variant="secondary" className="text-xs">
-                {activeReminders.length} {t("reminders.active")}
+                {activeReminders.length} {t("active", { ns: "reminders" })}
               </Badge>
             )}
           </div>
@@ -277,8 +279,8 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
       />
 
       {/* Reminder Cards */}
-      {!isSchedulerOpen && (
-        reminders.length > 0 ? (
+      {!isSchedulerOpen &&
+        (reminders.length > 0 ? (
           <MobileReminderCards
             reminders={reminders}
             onComplete={handleComplete}
@@ -291,19 +293,18 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
             <CardContent className="p-8 text-center">
               <Bell className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
               <h2 className="text-xl font-semibold mb-2">
-                {t("reminders.noReminders")}
+                {t("noReminders", { ns: "reminders" })}
               </h2>
               <p className="text-muted-foreground text-sm mb-4">
-                {t("reminders.noRemindersDesc")}
+                {t("noRemindersDesc", { ns: "reminders" })}
               </p>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <TrendingUp className="h-4 w-4" />
-                <span>{t("reminders.getStartedHint")}</span>
+                <span>{t("getStartedHint", { ns: "reminders" })}</span>
               </div>
             </CardContent>
           </Card>
-        )
-      )}
+        ))}
     </div>
   );
 }

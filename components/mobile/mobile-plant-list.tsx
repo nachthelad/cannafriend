@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 import {
   Plus,
@@ -66,7 +66,7 @@ export function MobilePlantList({
   onRefresh,
   language,
 }: MobilePlantListProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -159,9 +159,9 @@ export function MobilePlantList({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">{t("dashboard.yourPlants")}</h1>
+            <h1 className="text-2xl font-bold">{t("yourPlants", { ns: "dashboard" })}</h1>
             <p className="text-sm text-muted-foreground">
-              {filteredAndSortedPlants.length} {t("plants.total")}
+              {filteredAndSortedPlants.length} {t("total", { ns: "plants" })}
             </p>
           </div>
           <Button
@@ -178,7 +178,7 @@ export function MobilePlantList({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder={t("search.plants")}
+              placeholder={t("plants", { ns: "search" })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
@@ -246,16 +246,16 @@ export function MobilePlantList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setSortBy("date")}>
-                {t("sort.byDate")}
+                {t("byDate", { ns: "sort" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("name")}>
-                {t("sort.byName")}
+                {t("byName", { ns: "sort" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("seedType")}>
-                {t("sort.bySeedType")}
+                {t("bySeedType", { ns: "sort" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("growType")}>
-                {t("sort.byGrowType")}
+                {t("byGrowType", { ns: "sort" })}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -263,7 +263,7 @@ export function MobilePlantList({
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                 }
               >
-                {sortOrder === "asc" ? t("sort.descending") : t("sort.ascending")}
+                {sortOrder === "asc" ? t("descending", { ns: "sort" }) : t("ascending", { ns: "sort" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -274,7 +274,7 @@ export function MobilePlantList({
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {t("filters.active")}:
+            {t("active", { ns: "filters" })}:
           </span>
           {seedTypeFilter !== "all" && (
             <Badge
@@ -282,7 +282,7 @@ export function MobilePlantList({
               className="gap-1 cursor-pointer"
               onClick={() => setSeedTypeFilter("all")}
             >
-              {t(`seedType.${seedTypeFilter}`)}
+              {t(`${seedTypeFilter}`, { ns: "seedType" })}
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -292,7 +292,7 @@ export function MobilePlantList({
               className="gap-1 cursor-pointer"
               onClick={() => setGrowTypeFilter("all")}
             >
-              {t(`growType.${growTypeFilter}`)}
+              {t(`${growTypeFilter}`, { ns: "growType" })}
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -323,18 +323,18 @@ export function MobilePlantList({
             <Plus className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="mb-2">
               {search || activeFiltersCount > 0
-                ? t("plants.noResults")
-                : t("dashboard.noPlants")}
+                ? t("noResults", { ns: "plants" })
+                : t("noPlants", { ns: "dashboard" })}
             </CardTitle>
             <CardDescription className="mb-6">
               {search || activeFiltersCount > 0
-                ? t("plants.tryDifferentSearch")
-                : t("dashboard.noPlantDesc")}
+                ? t("tryDifferentSearch", { ns: "plants" })
+                : t("noPlantDesc", { ns: "dashboard" })}
             </CardDescription>
             {!search && activeFiltersCount === 0 && (
               <Button asChild>
                 <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                  <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+                  <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
                 </Button>
               </Button>
             )}
@@ -358,13 +358,13 @@ export function MobilePlantList({
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("filters.title")}</DialogTitle>
+            <DialogTitle>{t("title", { ns: "filters" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
             {/* Seed Type Filter */}
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                {t("filters.seedType")}
+                {t("seedType", { ns: "filters" })}
               </label>
               <div className="flex flex-wrap gap-2">
                 <Badge
@@ -372,7 +372,7 @@ export function MobilePlantList({
                   className="cursor-pointer"
                   onClick={() => setSeedTypeFilter("all")}
                 >
-                  {t("filters.all")}
+                  {t("all", { ns: "filters" })}
                 </Badge>
                 {seedTypes.map((type) => (
                   <Badge
@@ -381,7 +381,7 @@ export function MobilePlantList({
                     className="cursor-pointer"
                     onClick={() => setSeedTypeFilter(type)}
                   >
-                    {t(`seedType.${type}`)}
+                    {t(`${type}`, { ns: "seedType" })}
                   </Badge>
                 ))}
               </div>
@@ -390,7 +390,7 @@ export function MobilePlantList({
             {/* Grow Type Filter */}
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                {t("filters.growType")}
+                {t("growType", { ns: "filters" })}
               </label>
               <div className="flex flex-wrap gap-2">
                 <Badge
@@ -398,7 +398,7 @@ export function MobilePlantList({
                   className="cursor-pointer"
                   onClick={() => setGrowTypeFilter("all")}
                 >
-                  {t("filters.all")}
+                  {t("all", { ns: "filters" })}
                 </Badge>
                 {growTypes.map((type) => (
                   <Badge
@@ -407,7 +407,7 @@ export function MobilePlantList({
                     className="cursor-pointer"
                     onClick={() => setGrowTypeFilter(type)}
                   >
-                    {t(`growType.${type}`)}
+                    {t(`${type}`, { ns: "growType" })}
                   </Badge>
                 ))}
               </div>
@@ -423,7 +423,7 @@ export function MobilePlantList({
                 }}
                 className="w-full"
               >
-                {t("filters.clear")} ({activeFiltersCount})
+                {t("clear", { ns: "filters" })} ({activeFiltersCount})
               </Button>
             )}
           </div>

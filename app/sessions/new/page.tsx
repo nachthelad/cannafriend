@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth, db } from "@/lib/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
@@ -103,7 +103,7 @@ function TimeField({
 }
 
 export default function NewSessionPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const { toast } = useToast();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);

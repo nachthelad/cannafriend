@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 
@@ -10,7 +10,7 @@ interface AuthLoadingModalProps {
 }
 
 export function AuthLoadingModal({ open }: AuthLoadingModalProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("auth");
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
@@ -19,7 +19,7 @@ export function AuthLoadingModal({ open }: AuthLoadingModalProps) {
         showCloseButton={false}
       >
         <VisuallyHidden>
-          <DialogTitle>{t("auth.signingIn")}</DialogTitle>
+          <DialogTitle>{t("login.signingIn")}</DialogTitle>
         </VisuallyHidden>
         <div className="flex flex-col items-center justify-center py-6">
           <AnimatedLogo
@@ -28,10 +28,10 @@ export function AuthLoadingModal({ open }: AuthLoadingModalProps) {
             duration={1.5}
           />
           <p className="text-lg font-medium text-foreground">
-            {t("auth.signingIn")}
+            {t("login.signingIn")}
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            {t("auth.pleaseWait")}
+            {t("pleaseWait")}
           </p>
         </div>
       </DialogContent>

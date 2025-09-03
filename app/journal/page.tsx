@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -51,7 +51,7 @@ import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
 
 export default function JournalPage() {
-  const { t, language } = useTranslation();
+  const { t, language } = useTranslation(["journal", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -150,7 +150,7 @@ export default function JournalPage() {
       } catch (error: any) {
         toast({
           variant: "destructive",
-          title: t("journal.error"),
+          title: t("error", { ns: "journal" }),
           description: error.message,
         });
       } finally {
@@ -285,13 +285,13 @@ export default function JournalPage() {
       );
       setLogs((prev) => prev.filter((l) => l.id !== log.id));
       toast({
-        title: t("journal.deleted"),
-        description: t("journal.deletedDesc"),
+        title: t("deleted", { ns: "journal" }),
+        description: t("deletedDesc", { ns: "journal" }),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
+        title: t("error", { ns: "common" }),
         description: error.message,
       });
     }
@@ -327,8 +327,8 @@ export default function JournalPage() {
       {/* Desktop Journal */}
       <div className="hidden md:block">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">{t("journal.title")}</h1>
-          <p className="text-muted-foreground">{t("journal.description")}</p>
+          <h1 className="text-3xl font-bold">{t("title", { ns: "journal" })}</h1>
+          <p className="text-muted-foreground">{t("description", { ns: "journal" })}</p>
         </div>
 
       <div className="grid gap-6 md:grid-cols-[320px_1fr]">
@@ -337,21 +337,21 @@ export default function JournalPage() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="mr-2 h-4 w-4" />
-              {t("journal.filters")}
+              {t("filters", { ns: "journal" })}
             </CardTitle>
-            <CardDescription>{t("journal.filtersDesc")}</CardDescription>
+            <CardDescription>{t("filtersDesc", { ns: "journal" })}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {t("journal.filterByPlant")}
+                {t("filterByPlant", { ns: "journal" })}
               </label>
               <Select value={selectedPlant} onValueChange={setSelectedPlant}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("journal.selectPlant")} />
+                  <SelectValue placeholder={t("selectPlant", { ns: "journal" })} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("journal.allPlants")}</SelectItem>
+                  <SelectItem value="all">{t("allPlants", { ns: "journal" })}</SelectItem>
                   {plants.map((plant) => (
                     <SelectItem key={plant.id} value={plant.id}>
                       {plant.name}
@@ -363,40 +363,40 @@ export default function JournalPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {t("journal.filterByType")}
+                {t("filterByType", { ns: "journal" })}
               </label>
               <Select
                 value={selectedLogType}
                 onValueChange={setSelectedLogType}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t("journal.selectType")} />
+                  <SelectValue placeholder={t("selectType", { ns: "journal" })} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t("journal.allTypes")}</SelectItem>
+                  <SelectItem value="all">{t("allTypes", { ns: "journal" })}</SelectItem>
                   <SelectItem value="watering">
-                    {t("logType.watering")}
+                    {t("logType.watering", { ns: "journal" })}
                   </SelectItem>
                   <SelectItem value="feeding">
-                    {t("logType.feeding")}
+                    {t("logType.feeding", { ns: "journal" })}
                   </SelectItem>
                   <SelectItem value="training">
-                    {t("logType.training")}
+                    {t("logType.training", { ns: "journal" })}
                   </SelectItem>
                   <SelectItem value="environment">
-                    {t("logType.environment")}
+                    {t("logType.environment", { ns: "journal" })}
                   </SelectItem>
                   <SelectItem value="flowering">
-                    {t("logType.flowering")}
+                    {t("logType.flowering", { ns: "journal" })}
                   </SelectItem>
-                  <SelectItem value="note">{t("logType.note")}</SelectItem>
+                  <SelectItem value="note">{t("logType.note", { ns: "journal" })}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                {t("journal.filterByDate")}
+                {t("filterByDate", { ns: "journal" })}
               </label>
               <MobileDatePicker
                 selected={selectedDate}
@@ -411,7 +411,7 @@ export default function JournalPage() {
                   onClick={() => setSelectedDate(undefined)}
                   className="w-full"
                 >
-                  {t("journal.clearDate")}
+                  {t("clearDate", { ns: "journal" })}
                 </Button>
               )}
             </div>
@@ -421,9 +421,9 @@ export default function JournalPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
-              <CardTitle>{t("journal.recentLogs")}</CardTitle>
+              <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
               <CardDescription>
-                {filteredLogs.length} {t("journal.logsFound")}
+                {filteredLogs.length} {t("logsFound", { ns: "journal" })}
               </CardDescription>
             </div>
             <Button 
@@ -450,10 +450,10 @@ export default function JournalPage() {
                   {loadingMoreLogs ? (
                     <>
                       <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />{" "}
-                      {t("common.loading")}
+                      {t("loading", { ns: "common" })}
                     </>
                   ) : (
-                    t("common.loadMore")
+                    t("loadMore", { ns: "common" })
                   )}
                 </Button>
               </div>

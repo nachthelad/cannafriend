@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import Logo from "@/components/common/logo";
 
 export function LandingFooter() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-border/50">

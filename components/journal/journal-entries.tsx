@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { LogEntry } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import {
@@ -25,13 +25,14 @@ export function JournalEntries({
   showPlantName = false,
   onDelete,
 }: JournalEntriesProps) {
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["journal", "common", "plants"]);
+  const language = i18n.language;
 
   if (logs.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>{t("journal.noEntries")}</p>
-        <p className="text-sm">{t("journal.noEntriesDesc")}</p>
+        <p>{t("noEntries", { ns: "journal" })}</p>
+        <p className="text-sm">{t("noEntriesDesc", { ns: "journal" })}</p>
       </div>
     );
   }
@@ -56,25 +57,25 @@ export function JournalEntries({
   const getLogTitle = (log: LogEntry) => {
     switch (log.type) {
       case "watering":
-        return `${t("logType.watering")} - ${log.amount}ml (${t(
-          `watering.${log.method}`
+        return `${t("logType.watering", { ns: "journal" })} - ${log.amount}ml (${t(
+          `watering.${log.method}`, { ns: "journal" }
         )})`;
       case "feeding":
-        return `${t("logType.feeding")} - ${log.npk} (${log.amount}ml/L)`;
+        return `${t("logType.feeding", { ns: "journal" })} - ${log.npk} (${log.amount}ml/L)`;
       case "training":
-        return `${t("logType.training")} - ${t(`training.${log.method}`)}`;
+        return `${t("logType.training", { ns: "journal" })} - ${t(`training.${log.method}`, { ns: "journal" })}`;
       case "environment":
-        return `${t("logType.environment")} - ${log.temperature}°C, ${
+        return `${t("logType.environment", { ns: "journal" })} - ${log.temperature}°C, ${
           log.humidity
         }%, pH ${log.ph}`;
       case "flowering":
         return log.lightSchedule
-          ? `${t("logType.flowering")} - ${t("newPlant.lightSchedule")}: ${
+          ? `${t("logType.flowering", { ns: "journal" })} - ${t("newPlant.lightSchedule", { ns: "plants" })}: ${
               log.lightSchedule
             }`
-          : t("logType.flowering");
+          : t("logType.flowering", { ns: "journal" });
       default:
-        return t("logType.note");
+        return t("logType.note", { ns: "journal" });
     }
   };
 

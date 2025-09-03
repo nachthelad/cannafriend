@@ -2,7 +2,7 @@
 // This file centralizes all image-related constants and functions for reuse across the application
 
 import { buildImageStoragePath as buildFirebaseImagePath } from "./firebase-config";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 // File type configuration
 export const ALLOWED_IMAGE_TYPES = [
@@ -35,7 +35,7 @@ export const getImageUploadErrors = () => {
     // at runtime in client components, we can get t
     // fallback to Spanish literals if used server-side
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { t } = useTranslation();
+    const { t } = useTranslation(["common"]);
     return {
       USER_NOT_AUTHENTICATED: t("imageErrors.userNotAuthenticated"),
       FILE_TOO_LARGE: t("imageErrors.fileTooLarge"),

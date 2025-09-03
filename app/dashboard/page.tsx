@@ -4,13 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ROUTE_STRAINS,
   ROUTE_REMINDERS,
   ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
-  resolveHomePathForRoles,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
@@ -31,12 +29,7 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import {
-  Plus,
-  AlertTriangle,
-  Bell,
-  Brain,
-} from "lucide-react";
+import { Plus, AlertTriangle, Bell, Brain } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
@@ -46,7 +39,15 @@ import { collection } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
 
 export default function DashboardPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation([
+    "dashboard",
+    "common",
+    "reminders",
+    "journal",
+    "nutrients",
+    "nav",
+    "analyzePlant",
+  ]);
   const { roles } = useUserRoles();
   const router = useRouter();
   const { toast } = useToast();
@@ -182,7 +183,7 @@ export default function DashboardPage() {
       } catch (error: any) {
         toast({
           variant: "destructive",
-          title: t("dashboard.error"),
+          title: t("error", { ns: "dashboard" }),
           description: error.message,
         });
       } finally {
@@ -204,13 +205,13 @@ export default function DashboardPage() {
       <div className="md:hidden mb-6 flex items-center gap-3">
         <div className="flex items-center">
           <h1 className="text-3xl font-bold">
-            {t("dashboard.title")}
+            {t("title", { ns: "dashboard" })}
           </h1>
         </div>
         {hasOverdue && (
           <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-xs">
             <AlertTriangle className="h-3.5 w-3.5" />
-            {t("reminders.overdue")}
+            {t("overdue", { ns: "reminders" })}
           </span>
         )}
       </div>
@@ -219,13 +220,13 @@ export default function DashboardPage() {
       <div className="hidden md:flex mb-6 items-center gap-3">
         <div className="flex items-center">
           <h1 className="text-3xl font-bold">
-            {t("dashboard.title")}
+            {t("title", { ns: "dashboard" })}
           </h1>
         </div>
         {hasOverdue && (
           <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 text-orange-800 px-2 py-0.5 text-xs">
             <AlertTriangle className="h-3.5 w-3.5" />
-            {t("reminders.overdue")}
+            {t("overdue", { ns: "reminders" })}
           </span>
         )}
       </div>
@@ -260,11 +261,15 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <div>
-                    <CardTitle>{t("dashboard.yourPlants")}</CardTitle>
+                    <CardTitle>
+                      {t("yourPlants", { ns: "dashboard" })}
+                    </CardTitle>
                     <CardDescription>{plants.length} total</CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_PLANTS}>{t("common.view")}</Link>
+                    <Link href={ROUTE_PLANTS}>
+                      {t("view", { ns: "common" })}
+                    </Link>
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -276,7 +281,8 @@ export default function DashboardPage() {
                     </div>
                   ) : (
                     <Button onClick={() => router.push("/plants/new")}>
-                      <Plus className="mr-2 h-4 w-4" /> {t("dashboard.addPlant")}
+                      <Plus className="mr-2 h-4 w-4" />{" "}
+                      {t("addPlant", { ns: "dashboard" })}
                     </Button>
                   )}
                 </CardContent>
@@ -286,13 +292,15 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <div>
-                    <CardTitle>{t("journal.recentLogs")}</CardTitle>
+                    <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
                     <CardDescription>
-                      {recentLogs.length} {t("journal.logsFound")}
+                      {recentLogs.length} {t("logsFound", { ns: "journal" })}
                     </CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_JOURNAL}>{t("common.view")}</Link>
+                    <Link href={ROUTE_JOURNAL}>
+                      {t("view", { ns: "common" })}
+                    </Link>
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -304,11 +312,15 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <div>
-                    <CardTitle>{t("nutrients.title")}</CardTitle>
-                    <CardDescription>{nutrientMixesCount} mixes</CardDescription>
+                    <CardTitle>{t("title", { ns: "nutrients" })}</CardTitle>
+                    <CardDescription>
+                      {nutrientMixesCount} mixes
+                    </CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_NUTRIENTS}>{t("common.view")}</Link>
+                    <Link href={ROUTE_NUTRIENTS}>
+                      {t("view", { ns: "common" })}
+                    </Link>
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -322,17 +334,25 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Acciones rápidas</CardTitle>
-                  <CardDescription>Atajos a funciones frecuentes</CardDescription>
+                  <CardDescription>
+                    Atajos a funciones frecuentes
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Button asChild>
-                    <Link href="/plants/new">{t("nav.addPlant")}</Link>
+                    <Link href="/plants/new">
+                      {t("addPlant", { ns: "nav" })}
+                    </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href={ROUTE_REMINDERS}>{t("dashboard.reminders")}</Link>
+                    <Link href={ROUTE_REMINDERS}>
+                      {t("reminders", { ns: "dashboard" })}
+                    </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href={ROUTE_JOURNAL}>{t("nav.journal")}</Link>
+                    <Link href={ROUTE_JOURNAL}>
+                      {t("journal", { ns: "nav" })}
+                    </Link>
                   </Button>
                   {isPremium && (
                     <Button
@@ -341,7 +361,7 @@ export default function DashboardPage() {
                     >
                       <Link href={ROUTE_AI_ASSISTANT}>
                         <Brain className="h-4 w-4 mr-1" />{" "}
-                        {t("analyzePlant.title")}
+                        {t("title", { ns: "analyzePlant" })}
                       </Link>
                     </Button>
                   )}

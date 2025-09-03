@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/lib/firebase";
@@ -18,7 +18,7 @@ import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
 
 export default function NewNutrientPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
   const { user } = useAuthUser();
   const { toast } = useToast();
@@ -41,16 +41,16 @@ export default function NewNutrientPage() {
       };
       await addDoc(collection(db, buildNutrientMixesPath(userId)), payload);
       toast({
-        title: t("nutrients.added"),
-        description: t("nutrients.addedDesc"),
+        title: t("added"),
+        description: t("addedDesc"),
       });
       router.push(ROUTE_NUTRIENTS);
     } catch (error) {
       console.error("Error adding nutrient mix:", error);
       toast({
         variant: "destructive",
-        title: t("common.error"),
-        description: t("nutrients.addError"),
+        title: t("error", { ns: "common" }),
+        description: t("addError"),
       });
     } finally {
       setSaving(false);
@@ -69,11 +69,11 @@ export default function NewNutrientPage() {
             className="flex items-center gap-2 min-h-[48px] px-3"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">{t("common.back")}</span>
+            <span className="md:inline hidden">{t("back", { ns: "common" })}</span>
           </Button>
         </div>
-        <h1 className="text-3xl font-bold">{t("nutrients.new")}</h1>
-        <p className="text-muted-foreground">{t("nutrients.newDesc")}</p>
+        <h1 className="text-3xl font-bold">{t("new")}</h1>
+        <p className="text-muted-foreground">{t("newDesc")}</p>
       </div>
 
       {/* Form */}
@@ -81,13 +81,13 @@ export default function NewNutrientPage() {
         <div className="space-y-6">
           <div className="space-y-3">
             <Label htmlFor="mix-name" className="text-base font-medium">
-              {t("nutrients.name")}
+              {t("name")}
             </Label>
             <Input
               id="mix-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={t("nutrients.namePlaceholder")}
+              placeholder={t("namePlaceholder")}
               className="min-h-[48px] text-base"
               type="text"
               autoComplete="off"
@@ -96,13 +96,13 @@ export default function NewNutrientPage() {
 
           <div className="space-y-3">
             <Label htmlFor="mix-npk" className="text-base font-medium">
-              {t("nutrients.npk")}
+              {t("npk")}
             </Label>
             <Input
               id="mix-npk"
               value={npk}
               onChange={(e) => setNpk(e.target.value)}
-              placeholder={t("nutrients.npkPlaceholder")}
+              placeholder={t("npkPlaceholder")}
               className="min-h-[48px] text-base"
               type="text"
               autoComplete="off"
@@ -111,13 +111,13 @@ export default function NewNutrientPage() {
 
           <div className="space-y-3">
             <Label htmlFor="mix-notes" className="text-base font-medium">
-              {t("nutrients.notes")}
+              {t("notes")}
             </Label>
             <Textarea
               id="mix-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder={t("nutrients.notesPlaceholder")}
+              placeholder={t("notesPlaceholder")}
               rows={4}
               className="text-base resize-none"
             />
@@ -132,7 +132,7 @@ export default function NewNutrientPage() {
               className="min-h-[48px] w-full sm:w-auto text-base font-medium"
               disabled={saving}
             >
-              {t("common.cancel")}
+              {t("cancel", { ns: "common" })}
             </Button>
             <Button
               onClick={handleSave}
@@ -142,10 +142,10 @@ export default function NewNutrientPage() {
               {saving ? (
                 <>
                   <AnimatedLogo size={16} className="mr-2" duration={1.2} />
-                  {t("common.saving")}
+                  {t("saving", { ns: "common" })}
                 </>
               ) : (
-                t("common.save")
+                t("save", { ns: "common" })
               )}
             </Button>
           </div>

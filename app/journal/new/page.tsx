@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -50,131 +50,132 @@ import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 
 // Form validation schema - will be created with translations in component
-const createLogFormSchema = (t: any) => z
-  .object({
-    logType: z.string().min(1, t("validation.logTypeRequired")),
-    date: z.date(),
-    notes: z.string().max(500, t("validation.notesMaxLength")),
-    wateringAmount: z.string().optional(),
-    wateringMethod: z.string().optional(),
-    feedingNpk: z.string().optional(),
-    feedingAmount: z.string().optional(),
-    trainingMethod: z.string().optional(),
-    temperature: z.string().optional(),
-    humidity: z.string().optional(),
-    ph: z.string().optional(),
-    light: z.string().optional(),
-    lightSchedule: z.string().optional(),
-  })
-  .superRefine((data, ctx) => {
-    // Watering log validation
-    if (data.logType === LOG_TYPES.WATERING) {
-      if (!data.wateringAmount) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.waterAmountRequired"),
-          path: ["wateringAmount"],
-        });
-      } else {
-        const amount = parseFloat(data.wateringAmount);
-        if (isNaN(amount) || amount <= 0) {
+const createLogFormSchema = (t: any) =>
+  z
+    .object({
+      logType: z.string().min(1, t("logTypeRequired", { ns: "validation" })),
+      date: z.date(),
+      notes: z.string().max(500, t("notesMaxLength", { ns: "validation" })),
+      wateringAmount: z.string().optional(),
+      wateringMethod: z.string().optional(),
+      feedingNpk: z.string().optional(),
+      feedingAmount: z.string().optional(),
+      trainingMethod: z.string().optional(),
+      temperature: z.string().optional(),
+      humidity: z.string().optional(),
+      ph: z.string().optional(),
+      light: z.string().optional(),
+      lightSchedule: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      // Watering log validation
+      if (data.logType === LOG_TYPES.WATERING) {
+        if (!data.wateringAmount) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t("validation.waterAmountInvalid"),
+            message: t("waterAmountRequired", { ns: "validation" }),
             path: ["wateringAmount"],
           });
-        } else if (amount > 100) {
+        } else {
+          const amount = parseFloat(data.wateringAmount);
+          if (isNaN(amount) || amount <= 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("waterAmountInvalid", { ns: "validation" }),
+              path: ["wateringAmount"],
+            });
+          } else if (amount > 100) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("waterAmountTooLarge", { ns: "validation" }),
+              path: ["wateringAmount"],
+            });
+          }
+        }
+        if (!data.wateringMethod) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t("validation.waterAmountTooLarge"),
-            path: ["wateringAmount"],
+            message: t("waterMethodRequired", { ns: "validation" }),
+            path: ["wateringMethod"],
           });
         }
       }
-      if (!data.wateringMethod) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.waterMethodRequired"),
-          path: ["wateringMethod"],
-        });
-      }
-    }
 
-    // Feeding log validation
-    if (data.logType === LOG_TYPES.FEEDING) {
-      if (!data.feedingAmount) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.nutrientAmountRequired"),
-          path: ["feedingAmount"],
-        });
-      } else {
-        const amount = parseFloat(data.feedingAmount);
-        if (isNaN(amount) || amount <= 0) {
+      // Feeding log validation
+      if (data.logType === LOG_TYPES.FEEDING) {
+        if (!data.feedingAmount) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t("validation.nutrientAmountInvalid"),
+            message: t("nutrientAmountRequired", { ns: "validation" }),
             path: ["feedingAmount"],
           });
-        } else if (amount > 50) {
+        } else {
+          const amount = parseFloat(data.feedingAmount);
+          if (isNaN(amount) || amount <= 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("nutrientAmountInvalid", { ns: "validation" }),
+              path: ["feedingAmount"],
+            });
+          } else if (amount > 50) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("nutrientAmountTooLarge", { ns: "validation" }),
+              path: ["feedingAmount"],
+            });
+          }
+        }
+      }
+
+      // Training log validation
+      if (data.logType === LOG_TYPES.TRAINING && !data.trainingMethod) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("trainingMethodRequired", { ns: "validation" }),
+          path: ["trainingMethod"],
+        });
+      }
+
+      // Environment log validation
+      if (data.logType === LOG_TYPES.ENVIRONMENT) {
+        const hasAnyValue =
+          data.temperature || data.humidity || data.ph || data.light;
+        if (!hasAnyValue) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: t("validation.nutrientAmountTooLarge"),
-            path: ["feedingAmount"],
+            message: t("environmentValueRequired", { ns: "validation" }),
+            path: ["temperature"],
           });
         }
       }
-    }
 
-    // Training log validation
-    if (data.logType === LOG_TYPES.TRAINING && !data.trainingMethod) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: t("validation.trainingMethodRequired"),
-        path: ["trainingMethod"],
-      });
-    }
-
-    // Environment log validation
-    if (data.logType === LOG_TYPES.ENVIRONMENT) {
-      const hasAnyValue =
-        data.temperature || data.humidity || data.ph || data.light;
-      if (!hasAnyValue) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.environmentValueRequired"),
-          path: ["temperature"],
-        });
+      // Flowering log validation
+      if (data.logType === LOG_TYPES.FLOWERING) {
+        if (!data.lightSchedule?.trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("lightScheduleRequired", { ns: "validation" }),
+            path: ["lightSchedule"],
+          });
+        }
       }
-    }
 
-    // Flowering log validation
-    if (data.logType === LOG_TYPES.FLOWERING) {
-      if (!data.lightSchedule?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.lightScheduleRequired"),
-          path: ["lightSchedule"],
-        });
+      // Notes/Observation log validation
+      if (data.logType === LOG_TYPES.NOTE) {
+        if (!data.notes?.trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("notesRequired", { ns: "validation" }),
+            path: ["notes"],
+          });
+        }
       }
-    }
-
-    // Notes/Observation log validation
-    if (data.logType === LOG_TYPES.NOTE) {
-      if (!data.notes?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("validation.notesRequired"),
-          path: ["notes"],
-        });
-      }
-    }
-  });
+    });
 
 type LogFormData = z.infer<ReturnType<typeof createLogFormSchema>>;
 
 function NewJournalPageContent() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["journal", "common", "validation"]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthUser();
@@ -185,6 +186,7 @@ function NewJournalPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [plants, setPlants] = useState<Plant[]>([]);
   const [selectedPlantId, setSelectedPlantId] = useState<string>("");
+  const [plantsLoading, setPlantsLoading] = useState<boolean>(true);
 
   // Get plant ID from URL params if provided
   const urlPlantId = searchParams.get("plantId");
@@ -215,7 +217,10 @@ function NewJournalPageContent() {
   // Load plants for selection
   useEffect(() => {
     const fetchPlants = async () => {
-      if (!userId) return;
+      if (!userId) {
+        setPlantsLoading(false);
+        return;
+      }
       try {
         const q = query(plantsCol(userId));
         const snapshot = await getDocs(q);
@@ -233,6 +238,8 @@ function NewJournalPageContent() {
         }
       } catch (error) {
         console.error("Error fetching plants:", error);
+      } finally {
+        setPlantsLoading(false);
       }
     };
 
@@ -318,8 +325,8 @@ function NewJournalPageContent() {
       await addDoc(logsRef, logData);
 
       toast({
-        title: t("logForm.success"),
-        description: t("logForm.successDesc"),
+        title: t("logForm.success", { ns: "journal" }),
+        description: t("logForm.successDesc", { ns: "journal" }),
       });
 
       router.push(ROUTE_JOURNAL);
@@ -327,13 +334,24 @@ function NewJournalPageContent() {
       console.error("Error adding log:", error);
       toast({
         variant: "destructive",
-        title: t("logForm.error"),
-        description: error?.message || t("logForm.errorDesc"),
+        title: t("logForm.error", { ns: "journal" }),
+        description:
+          error?.message || t("logForm.errorDesc", { ns: "journal" }),
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (plantsLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <AnimatedLogo size={24} className="text-primary" duration={1.2} />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -347,11 +365,17 @@ function NewJournalPageContent() {
             className="flex items-center gap-2 min-h-[48px] px-3"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">{t("common.back")}</span>
+            <span className="md:inline hidden">
+              {t("back", { ns: "common" })}
+            </span>
           </Button>
         </div>
-        <h1 className="text-3xl font-bold">{t("logForm.title")}</h1>
-        <p className="text-muted-foreground">{t("logForm.description")}</p>
+        <h1 className="text-3xl font-bold">
+          {t("logForm.title", { ns: "journal" })}
+        </h1>
+        <p className="text-muted-foreground">
+          {t("logForm.description", { ns: "journal" })}
+        </p>
       </div>
 
       {/* Form */}
@@ -361,14 +385,16 @@ function NewJournalPageContent() {
           {plants.length > 1 && (
             <div className="space-y-3">
               <Label className="text-base font-medium">
-                {t("logForm.plant")}
+                {t("logForm.plant", { ns: "journal" })}
               </Label>
               <Select
                 value={selectedPlantId}
                 onValueChange={setSelectedPlantId}
               >
                 <SelectTrigger className="min-h-[48px] text-base">
-                  <SelectValue placeholder={t("logForm.selectPlant")} />
+                  <SelectValue
+                    placeholder={t("logForm.selectPlant", { ns: "journal" })}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {plants.map((plant) => (
@@ -387,13 +413,17 @@ function NewJournalPageContent() {
 
           {/* Log Type Selection */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">{t("logForm.type")}</Label>
+            <Label className="text-base font-medium">
+              {t("logForm.type", { ns: "journal" })}
+            </Label>
             <Select
               onValueChange={(value: LogType) => {
                 setValue("logType", value);
                 // Clear notes error when switching away from NOTE type
                 if (errors.notes && value !== LOG_TYPES.NOTE) {
-                  setValue("notes", watch("notes") || "", { shouldValidate: true });
+                  setValue("notes", watch("notes") || "", {
+                    shouldValidate: true,
+                  });
                 }
               }}
             >
@@ -402,7 +432,9 @@ function NewJournalPageContent() {
                   errors.logType ? "border-destructive" : ""
                 }`}
               >
-                <SelectValue placeholder={t("logForm.selectType")} />
+                <SelectValue
+                  placeholder={t("logForm.selectType", { ns: "journal" })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {LOG_TYPE_OPTIONS.map((option) => (
@@ -411,7 +443,7 @@ function NewJournalPageContent() {
                     value={option.value}
                     className="min-h-[44px]"
                   >
-                    {t(option.label)}
+                    {t(option.label, { ns: "journal" })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -428,7 +460,9 @@ function NewJournalPageContent() {
 
           {/* Date Selection */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">{t("logForm.date")}</Label>
+            <Label className="text-base font-medium">
+              {t("logForm.date", { ns: "journal" })}
+            </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -441,7 +475,7 @@ function NewJournalPageContent() {
                   <Calendar className="mr-2 h-4 w-4" />
                   {date
                     ? formatDateObjectWithLocale(date)
-                    : t("logForm.selectDate")}
+                    : t("logForm.selectDate", { ns: "journal" })}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -465,7 +499,7 @@ function NewJournalPageContent() {
                   htmlFor="wateringAmount"
                   className="text-base font-medium"
                 >
-                  {t("logForm.amount")}
+                  {t("logForm.amount", { ns: "journal" })}
                 </Label>
                 <Input
                   id="wateringAmount"
@@ -487,7 +521,7 @@ function NewJournalPageContent() {
               </div>
               <div className="space-y-3">
                 <Label className="text-base font-medium">
-                  {t("logForm.method")}
+                  {t("logForm.method", { ns: "journal" })}
                 </Label>
                 <RadioGroup
                   onValueChange={(value: WateringMethod) => {
@@ -515,7 +549,7 @@ function NewJournalPageContent() {
                         htmlFor={option.value}
                         className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
                       >
-                        {t(option.label)}
+                        {t(option.label, { ns: "journal" })}
                       </Label>
                     </div>
                   ))}
@@ -536,7 +570,7 @@ function NewJournalPageContent() {
             <>
               <div className="space-y-3">
                 <Label htmlFor="feedingNpk" className="text-base font-medium">
-                  {t("logForm.npk")}
+                  {t("logForm.npk", { ns: "journal" })}
                 </Label>
                 <Input
                   id="feedingNpk"
@@ -551,7 +585,7 @@ function NewJournalPageContent() {
                   htmlFor="feedingAmount"
                   className="text-base font-medium"
                 >
-                  {t("logForm.amount")}
+                  {t("logForm.amount", { ns: "journal" })}
                 </Label>
                 <Input
                   id="feedingAmount"
@@ -577,7 +611,7 @@ function NewJournalPageContent() {
           {logType === LOG_TYPES.TRAINING && (
             <div className="space-y-3">
               <Label className="text-base font-medium">
-                {t("logForm.trainingMethod")}
+                {t("logForm.trainingMethod", { ns: "journal" })}
               </Label>
               <RadioGroup
                 onValueChange={(value: TrainingMethod) => {
@@ -603,7 +637,7 @@ function NewJournalPageContent() {
                       htmlFor={option.value}
                       className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
                     >
-                      {t(option.label)}
+                      {t(option.label, { ns: "journal" })}
                     </Label>
                   </div>
                 ))}
@@ -627,7 +661,7 @@ function NewJournalPageContent() {
                     htmlFor="temperature"
                     className="text-base font-medium"
                   >
-                    {t("logForm.temperature")}
+                    {t("logForm.temperature", { ns: "journal" })}
                   </Label>
                   <Input
                     id="temperature"
@@ -641,7 +675,7 @@ function NewJournalPageContent() {
                 </div>
                 <div className="space-y-3">
                   <Label htmlFor="humidity" className="text-base font-medium">
-                    {t("logForm.humidity")}
+                    {t("logForm.humidity", { ns: "journal" })}
                   </Label>
                   <Input
                     id="humidity"
@@ -655,7 +689,7 @@ function NewJournalPageContent() {
                 </div>
                 <div className="space-y-3">
                   <Label htmlFor="ph" className="text-base font-medium">
-                    {t("logForm.ph")}
+                    {t("logForm.ph", { ns: "journal" })}
                   </Label>
                   <Input
                     id="ph"
@@ -669,7 +703,7 @@ function NewJournalPageContent() {
                 </div>
                 <div className="space-y-3">
                   <Label htmlFor="light" className="text-base font-medium">
-                    {t("logForm.light")}
+                    {t("logForm.light", { ns: "journal" })}
                   </Label>
                   <Input
                     id="light"
@@ -696,7 +730,7 @@ function NewJournalPageContent() {
           {logType === LOG_TYPES.FLOWERING && (
             <div className="space-y-3">
               <Label htmlFor="lightSchedule" className="text-base font-medium">
-                {t("logForm.lightSchedule")}
+                {t("logForm.lightSchedule", { ns: "journal" })}
               </Label>
               <Input
                 id="lightSchedule"
@@ -719,11 +753,11 @@ function NewJournalPageContent() {
           {/* Notes */}
           <div className="space-y-3">
             <Label htmlFor="notes" className="text-base font-medium">
-              {t("logForm.notes")}
+              {t("logForm.notes", { ns: "journal" })}
             </Label>
             <Textarea
               id="notes"
-              placeholder={t("logForm.notesPlaceholder")}
+              placeholder={t("logForm.notesPlaceholder", { ns: "journal" })}
               rows={4}
               className="text-base resize-none min-h-[120px]"
               {...register("notes")}
@@ -751,10 +785,10 @@ function NewJournalPageContent() {
               {isLoading ? (
                 <>
                   <AnimatedLogo size={16} className="mr-2" duration={1.2} />
-                  {t("common.saving")}
+                  {t("saving", { ns: "common" })}
                 </>
               ) : (
-                t("logForm.save")
+                t("logForm.save", { ns: "journal" })
               )}
             </Button>
             <Button
@@ -764,7 +798,7 @@ function NewJournalPageContent() {
               className="min-h-[48px] w-full sm:w-auto text-base font-medium"
               disabled={isLoading}
             >
-              {t("common.cancel")}
+              {t("cancel", { ns: "common" })}
             </Button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 import { formatDateWithLocale, calculateAgeInDays } from "@/lib/utils";
 import {
@@ -39,7 +39,8 @@ export function PlantDetails({
   lastFlowering,
   onUpdate,
 }: PlantDetailsProps) {
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["plants", "common"]);
+  const language = i18n.language;
 
   const daysSincePlanting = plant.plantingDate
     ? calculateAgeInDays(plant.plantingDate)
@@ -169,7 +170,8 @@ export function PlantDetails({
               <span>
                 {lastWatering
                   ? `${lastWatering.amount}ml (${t(
-                      `watering.${lastWatering.method}`
+                      `watering.${lastWatering.method}`,
+                      { ns: "journal" }
                     )})`
                   : t("plantPage.noWateringRecords")}
               </span>
@@ -198,7 +200,7 @@ export function PlantDetails({
               <Scissors className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastTraining
-                  ? t(`training.${lastTraining.method}`)
+                  ? t(`training.${lastTraining.method}`, { ns: "journal" })
                   : t("plantPage.noTrainingRecords")}
               </span>
             </div>

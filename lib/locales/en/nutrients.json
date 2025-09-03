@@ -1,0 +1,18 @@
+{
+  "title": "Nutrients",
+  "description": "Saved mixes (NPK and notes).",
+  "empty": "No mixes",
+  "emptyDesc": "Add your first mix to get started",
+  "addMix": "Add mix",
+  "new": "New mix",
+  "newDesc": "Create a new nutrient mix",
+  "name": "Name",
+  "namePlaceholder": "e.g: Bloom Booster",
+  "npk": "NPK",
+  "npkPlaceholder": "e.g: 3-1-2",
+  "notes": "Notes",
+  "notesPlaceholder": "Usage instructions, dosage, etc.",
+  "added": "Mix added",
+  "addedDesc": "Mix has been added successfully",
+  "addError": "Error adding mix"
+}

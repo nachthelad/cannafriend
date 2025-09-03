@@ -1,12 +1,14 @@
 "use client"
 
-import { useTranslation } from "@/hooks/use-translation"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Globe } from "lucide-react"
 
 export function LanguageSwitcher() {
-  const { language, setLanguage } = useTranslation()
+  const { i18n } = useTranslation(["common"])
+  const language = i18n.language
+  const setLanguage = (lang: string) => i18n.changeLanguage(lang)
 
   return (
     <DropdownMenu>

@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ interface AILayoutProps {
 }
 
 export function AILayout({ children }: AILayoutProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["nav", "common"]);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -42,7 +42,7 @@ export function AILayout({ children }: AILayoutProps) {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            {t("common.back")}
+            {t("back", { ns: "common" })}
           </Button>
           <div className="w-px h-6 bg-border" />
           <Logo className="h-6" />
@@ -55,10 +55,10 @@ export function AILayout({ children }: AILayoutProps) {
             className="flex items-center gap-2"
           >
             <Settings className="h-4 w-4" />
-            {t("settings.title")}
+            {t("settings.title", { ns: "common" })}
           </Button>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            {t("auth.signOut")}
+            {t("signOut", { ns: "nav" })}
           </Button>
         </div>
       </div>

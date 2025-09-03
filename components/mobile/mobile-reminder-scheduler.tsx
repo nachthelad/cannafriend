@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -36,23 +36,30 @@ import { Layout } from "@/components/layout";
 import type { Plant } from "@/types";
 
 // Form validation schema - created with translations
-const createMobileReminderFormSchema = (t: any) => z.object({
-  selectedPlant: z.string().min(1, t("validation.plantRequired")),
-  reminderType: z.enum(["watering", "feeding", "training", "custom"], {
-    errorMap: () => ({ message: t("validation.reminderTypeRequired") }),
-  }),
-  title: z.string().max(50, t("validation.titleMaxLength")),
-  description: z.string().max(200, t("validation.descriptionMaxLength")),
-  interval: z.string().refine(
-    (val) => {
-      const num = parseInt(val);
-      return !isNaN(num) && num >= 1 && num <= 99;
-    },
-    { message: t("validation.intervalInvalid") }
-  ),
-});
+const createMobileReminderFormSchema = (t: any) =>
+  z.object({
+    selectedPlant: z.string().min(1, t("plantRequired", { ns: "validation" })),
+    reminderType: z.enum(["watering", "feeding", "training", "custom"], {
+      errorMap: () => ({
+        message: t("reminderTypeRequired", { ns: "validation" }),
+      }),
+    }),
+    title: z.string().max(50, t("titleMaxLength", { ns: "validation" })),
+    description: z
+      .string()
+      .max(200, t("descriptionMaxLength", { ns: "validation" })),
+    interval: z.string().refine(
+      (val) => {
+        const num = parseInt(val);
+        return !isNaN(num) && num >= 1 && num <= 99;
+      },
+      { message: t("intervalInvalid", { ns: "validation" }) }
+    ),
+  });
 
-type MobileReminderFormData = z.infer<ReturnType<typeof createMobileReminderFormSchema>>;
+type MobileReminderFormData = z.infer<
+  ReturnType<typeof createMobileReminderFormSchema>
+>;
 
 interface Reminder {
   id: string;
@@ -75,7 +82,6 @@ interface MobileReminderSchedulerProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-
 const QUICK_INTERVALS = [
   { value: "1", label: "1 day", icon: "1" },
   { value: "3", label: "3 days", icon: "3" },
@@ -89,7 +95,12 @@ export function MobileReminderScheduler({
   isOpen: externalIsOpen,
   onOpenChange,
 }: MobileReminderSchedulerProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation([
+    "reminders",
+    "common",
+    "validation",
+    "journal",
+  ]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -98,7 +109,10 @@ export function MobileReminderScheduler({
   const customInputRef = useRef<HTMLInputElement>(null);
 
   // Form schema with translations
-  const mobileReminderFormSchema = useMemo(() => createMobileReminderFormSchema(t), [t]);
+  const mobileReminderFormSchema = useMemo(
+    () => createMobileReminderFormSchema(t),
+    [t]
+  );
 
   const {
     register,
@@ -151,26 +165,26 @@ export function MobileReminderScheduler({
   const getDefaultTitle = (type: Reminder["type"]) => {
     switch (type) {
       case "watering":
-        return t("reminders.wateringTitle");
+        return t("wateringTitle", { ns: "reminders" });
       case "feeding":
-        return t("reminders.feedingTitle");
+        return t("feedingTitle", { ns: "reminders" });
       case "training":
-        return t("reminders.trainingTitle");
+        return t("trainingTitle", { ns: "reminders" });
       default:
-        return t("reminders.customTitle");
+        return t("customTitle", { ns: "reminders" });
     }
   };
 
   const getDefaultDescription = (type: Reminder["type"]) => {
     switch (type) {
       case "watering":
-        return t("reminders.wateringDesc");
+        return t("wateringDesc", { ns: "reminders" });
       case "feeding":
-        return t("reminders.feedingDesc");
+        return t("feedingDesc", { ns: "reminders" });
       case "training":
-        return t("reminders.trainingDesc");
+        return t("trainingDesc", { ns: "reminders" });
       default:
-        return t("reminders.customDesc");
+        return t("customDesc", { ns: "reminders" });
     }
   };
 
@@ -247,8 +261,8 @@ export function MobileReminderScheduler({
       await addDoc(remindersRef, reminderData);
 
       toast({
-        title: t("reminders.success"),
-        description: t("reminders.successMessage"),
+        title: t("success", { ns: "reminders" }),
+        description: t("successMessage", { ns: "reminders" }),
       });
 
       handleClose();
@@ -270,15 +284,19 @@ export function MobileReminderScheduler({
             className="flex items-center gap-2 min-h-[48px] px-3"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">{t("common.back")}</span>
+            <span className="md:inline hidden">
+              {t("back", { ns: "common" })}
+            </span>
           </Button>
           <div className="flex items-center gap-3 mb-4"></div>
           <div className="flex items-center gap-2 mb-2">
             <Bell className="h-5 w-5" />
-            <h1 className="text-3xl font-bold">{t("reminders.addReminder")}</h1>
+            <h1 className="text-3xl font-bold">
+              {t("addReminder", { ns: "reminders" })}
+            </h1>
           </div>
           <p className="text-muted-foreground">
-            {t("reminders.addReminderDesc")}
+            {t("addReminderDesc", { ns: "reminders" })}
           </p>
         </div>
 
@@ -288,7 +306,7 @@ export function MobileReminderScheduler({
             {/* Plant Selection */}
             <div className="space-y-3">
               <Label className="text-base font-medium">
-                {t("reminders.selectPlant")}
+                {t("selectPlant", { ns: "reminders" })}
               </Label>
               <input
                 type="hidden"
@@ -299,10 +317,14 @@ export function MobileReminderScheduler({
                 value={selectedPlant}
                 onValueChange={(v) => setValue("selectedPlant", v)}
               >
-                <SelectTrigger className={`min-h-[48px] text-base ${
-                  errors.selectedPlant ? "border-destructive" : ""
-                }`}>
-                  <SelectValue placeholder={t("reminders.selectPlant")} />
+                <SelectTrigger
+                  className={`min-h-[48px] text-base ${
+                    errors.selectedPlant ? "border-destructive" : ""
+                  }`}
+                >
+                  <SelectValue
+                    placeholder={t("selectPlant", { ns: "reminders" })}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {plants.map((plant) => (
@@ -329,7 +351,7 @@ export function MobileReminderScheduler({
             {/* Reminder Type Selection */}
             <div className="space-y-3">
               <Label className="text-base font-medium">
-                {t("reminders.reminderType")}
+                {t("reminderType", { ns: "reminders" })}
               </Label>
               <input
                 type="hidden"
@@ -351,8 +373,8 @@ export function MobileReminderScheduler({
                       {getReminderIcon(type)}
                       <span className="text-xs">
                         {type === "custom"
-                          ? t("reminders.custom")
-                          : t(`logType.${type}`)}
+                          ? t("custom", { ns: "reminders" })
+                          : t(`logType.${type}`, { ns: "journal" })}
                       </span>
                     </Button>
                   )
@@ -367,171 +389,174 @@ export function MobileReminderScheduler({
                 </div>
               )}
 
-            {/* Preview Card */}
-            {reminderType && (
-              <Card className="border-dashed">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    {getReminderIcon(reminderType)}
-                    <div className="flex-1">
-                      <h3 className="font-medium">
-                        {watch("title") || getDefaultTitle(reminderType)}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedPlant
-                          ? plants.find((p) => p.id === selectedPlant)?.name
-                          : t("reminders.selectPlantFirst")}
-                      </p>
+              {/* Preview Card */}
+              {reminderType && (
+                <Card className="border-dashed">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      {getReminderIcon(reminderType)}
+                      <div className="flex-1">
+                        <h3 className="font-medium">
+                          {watch("title") || getDefaultTitle(reminderType)}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedPlant
+                            ? plants.find((p) => p.id === selectedPlant)?.name
+                            : t("selectPlantFirst", { ns: "reminders" })}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge
-                      className={getReminderTypeColor(reminderType)}
-                      variant="secondary"
-                    >
-                      {reminderType === "custom"
-                        ? t("reminders.custom")
-                        : t(`logType.${reminderType}`)}
-                    </Badge>
-                    {interval && (
-                      <Badge variant="outline">
-                        {t("reminders.every")} {interval} {t("reminders.days")}
+                    <div className="flex gap-2">
+                      <Badge
+                        className={getReminderTypeColor(reminderType)}
+                        variant="secondary"
+                      >
+                        {reminderType === "custom"
+                          ? t("custom", { ns: "reminders" })
+                          : t(`logType.${reminderType}`, { ns: "journal" })}
                       </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                      {interval && (
+                        <Badge variant="outline">
+                          {t("every", { ns: "reminders" })} {interval}{" "}
+                          {t("days", { ns: "reminders" })}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-            {/* Quick Interval Selection */}
-            <div className="space-y-3">
-              <Label className="text-base font-medium">
-                {t("reminders.frequency")}
-              </Label>
-              <div className="grid grid-cols-4 gap-2">
-                {QUICK_INTERVALS.map((option) => (
-                  <Button
-                    key={option.value}
-                    type="button"
-                    variant={
-                      (option.value === "custom" && selectedInterval === "") ||
-                      selectedInterval === option.value
-                        ? "default"
-                        : "outline"
-                    }
-                    className="min-h-[48px] flex-col gap-1 text-xs"
-                    onClick={() => handleIntervalSelect(option.value)}
-                  >
-                    <Clock className="h-4 w-4" />
-                    <span>
-                      {option.value === "custom" ? "..." : `${option.icon}d`}
-                    </span>
-                  </Button>
-                ))}
-              </div>
-              {/* Custom interval input */}
-              <div className="flex gap-2 items-center">
-                <Input
-                  ref={customInputRef}
-                  type="number"
-                  min="1"
-                  max="99"
-                  placeholder={t("reminders.customDays")}
-                  className="min-h-[44px]"
-                  onInput={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    let value = target.value.replace(/[^0-9]/g, "");
-                    if (value && parseInt(value) > 99) {
-                      value = "99";
-                    }
-                    target.value = value;
-                    setSelectedInterval(value);
-                  }}
-                  {...register("interval", {
-                    onChange: (e) => {
-                      setSelectedInterval(e.target.value);
-                    },
-                  })}
-                />
-                <Label className="text-sm text-muted-foreground whitespace-nowrap">
-                  {t("reminders.days")}
+              {/* Quick Interval Selection */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">
+                  {t("frequency", { ns: "reminders" })}
                 </Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {QUICK_INTERVALS.map((option) => (
+                    <Button
+                      key={option.value}
+                      type="button"
+                      variant={
+                        (option.value === "custom" &&
+                          selectedInterval === "") ||
+                        selectedInterval === option.value
+                          ? "default"
+                          : "outline"
+                      }
+                      className="min-h-[48px] flex-col gap-1 text-xs"
+                      onClick={() => handleIntervalSelect(option.value)}
+                    >
+                      <Clock className="h-4 w-4" />
+                      <span>
+                        {option.value === "custom" ? "..." : `${option.icon}d`}
+                      </span>
+                    </Button>
+                  ))}
+                </div>
+                {/* Custom interval input */}
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="99"
+                    placeholder={t("customDays", { ns: "reminders" })}
+                    className="min-h-[44px]"
+                    onInput={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      let value = target.value.replace(/[^0-9]/g, "");
+                      if (value && parseInt(value) > 99) {
+                        value = "99";
+                      }
+                      target.value = value;
+                      setSelectedInterval(value);
+                    }}
+                    {...register("interval", {
+                      onChange: (e) => {
+                        setSelectedInterval(e.target.value);
+                      },
+                    })}
+                  />
+                  <Label className="text-sm text-muted-foreground whitespace-nowrap">
+                    {t("days", { ns: "reminders" })}
+                  </Label>
+                </div>
+                {errors.interval && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.interval.message}
+                    </p>
+                  </div>
+                )}
               </div>
-              {errors.interval && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                  <p className="text-sm text-destructive font-medium">
-                    {errors.interval.message}
-                  </p>
-                </div>
-              )}
-            </div>
 
-            {/* Title */}
-            <div className="space-y-3">
-              <Label className="text-base font-medium">
-                {t("reminders.title")}
-              </Label>
-              <Input
-                {...register("title")}
-                placeholder={getDefaultTitle(reminderType)}
-                className={`min-h-[44px] ${
-                  errors.title ? "border-destructive" : ""
-                }`}
-              />
-              {errors.title && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                  <p className="text-sm text-destructive font-medium">
-                    {errors.title.message}
-                  </p>
-                </div>
-              )}
-            </div>
+              {/* Title */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">
+                  {t("title", { ns: "reminders" })}
+                </Label>
+                <Input
+                  {...register("title")}
+                  placeholder={getDefaultTitle(reminderType)}
+                  className={`min-h-[44px] ${
+                    errors.title ? "border-destructive" : ""
+                  }`}
+                />
+                {errors.title && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.title.message}
+                    </p>
+                  </div>
+                )}
+              </div>
 
-            {/* Description */}
-            <div className="space-y-3">
-              <Label className="text-base font-medium">
-                {t("reminders.description")}
-              </Label>
-              <Input
-                {...register("description")}
-                placeholder={getDefaultDescription(reminderType)}
-                className={`min-h-[44px] ${
-                  errors.description ? "border-destructive" : ""
-                }`}
-              />
-              {errors.description && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                  <p className="text-sm text-destructive font-medium">
-                    {errors.description.message}
-                  </p>
-                </div>
-              )}
-            </div>
+              {/* Description */}
+              <div className="space-y-3">
+                <Label className="text-base font-medium">
+                  {t("description", { ns: "reminders" })}
+                </Label>
+                <Input
+                  {...register("description")}
+                  placeholder={getDefaultDescription(reminderType)}
+                  className={`min-h-[44px] ${
+                    errors.description ? "border-destructive" : ""
+                  }`}
+                />
+                {errors.description && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive font-medium">
+                      {errors.description.message}
+                    </p>
+                  </div>
+                )}
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-6">
-              <Button
-                type="submit"
-                disabled={isSubmitting || !selectedPlant}
-                className="min-h-[48px] w-full sm:w-auto text-base font-medium"
-              >
-                <Bell className="mr-2 h-4 w-4" />
-                {isSubmitting ? t("common.saving") : t("reminders.add")}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                className="min-h-[48px] w-full sm:w-auto text-base font-medium"
-                disabled={isSubmitting}
-              >
-                {t("common.cancel")}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-6">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || !selectedPlant}
+                  className="min-h-[48px] w-full sm:w-auto text-base font-medium"
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  {isSubmitting
+                    ? t("saving", { ns: "common" })
+                    : t("add", { ns: "reminders" })}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleClose}
+                  className="min-h-[48px] w-full sm:w-auto text-base font-medium"
+                  disabled={isSubmitting}
+                >
+                  {t("cancel", { ns: "common" })}
+                </Button>
+              </div>
             </div>
-          </div>
           </div>
         </form>
       </Layout>
@@ -550,7 +575,7 @@ export function MobileReminderScheduler({
       className="w-full min-h-[48px] text-lg"
     >
       <Plus className="mr-2 h-5 w-5" />
-      {t("reminders.addReminder")}
+      {t("addReminder", { ns: "reminders" })}
     </Button>
   );
 }

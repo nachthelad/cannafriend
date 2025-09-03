@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Download, PlayCircle, Leaf, Camera, Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
@@ -18,7 +18,7 @@ export function HeroSection({
   onInstallPWA,
   isLoggedIn,
 }: HeroSectionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <section className="relative py-20 px-6">

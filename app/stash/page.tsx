@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
@@ -61,7 +61,7 @@ type StashItem = {
 };
 
 export default function StashPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["stash", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuthUser();
@@ -92,7 +92,7 @@ export default function StashPage() {
       } catch (e: any) {
         toast({
           variant: "destructive",
-          title: t("common.error"),
+          title: t("error", { ns: "common" }),
           description: e?.message || String(e),
         });
       } finally {
@@ -212,21 +212,17 @@ export default function StashPage() {
         );
       }
       toast({
-        title: t(
-          editing?.id ? ("stash.updated" as any) : ("stash.saved" as any)
-        ),
-        description: t(
-          editing?.id
-            ? ("stash.updatedDesc" as any)
-            : ("stash.savedDesc" as any)
-        ),
+        title: t(editing?.id ? "updated" : "saved", { ns: "stash" }),
+        description: t(editing?.id ? "updatedDesc" : "savedDesc", {
+          ns: "stash",
+        }),
       });
       setEditOpen(false);
       reset();
     } catch (e: any) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
+        title: t("error", { ns: "common" }),
         description: e?.message || String(e),
       });
     } finally {
@@ -239,11 +235,11 @@ export default function StashPage() {
     try {
       await deleteDoc(doc(db, "users", userId, "stash", id));
       setItems((prev) => prev.filter((x) => x.id !== id));
-      toast({ title: t("stash.delete" as any) });
+      toast({ title: t("delete", { ns: "stash" }) });
     } catch (e: any) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
+        title: t("error", { ns: "common" }),
         description: e?.message || String(e),
       });
     }
@@ -253,19 +249,21 @@ export default function StashPage() {
     <Layout>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-3xl font-bold">{t("stash.title")}</h1>
-          <p className="text-muted-foreground mt-1">{t("stash.description")}</p>
+          <h1 className="text-3xl font-bold">{t("title", { ns: "stash" })}</h1>
+          <p className="text-muted-foreground mt-1">
+            {t("description", { ns: "stash" })}
+          </p>
         </div>
         <div className="shrink-0">
           <div className="hidden sm:block">
             <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
+              <Plus className="mr-2 h-4 w-4" /> {t("addItem", { ns: "stash" })}
             </Button>
           </div>
           <div className="sm:hidden">
             <Button
               onClick={openNew}
-              aria-label={t("stash.addItem")}
+              aria-label={t("addItem", { ns: "stash" })}
               className="h-9 w-9 p-0"
             >
               <Plus className="h-5 w-5" />
@@ -281,19 +279,20 @@ export default function StashPage() {
       ) : items.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{t("stash.empty")}</CardTitle>
-            <CardDescription>{t("stash.emptyDesc")}</CardDescription>
+            <CardTitle>{t("empty", { ns: "stash" })}</CardTitle>
+            <CardDescription>{t("emptyDesc", { ns: "stash" })}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="hidden sm:block">
               <Button onClick={openNew}>
-                <Plus className="mr-2 h-4 w-4" /> {t("stash.addItem")}
+                <Plus className="mr-2 h-4 w-4" />{" "}
+                {t("addItem", { ns: "stash" })}
               </Button>
             </div>
             <div className="sm:hidden">
               <Button
                 onClick={openNew}
-                aria-label={t("stash.addItem")}
+                aria-label={t("addItem", { ns: "stash" })}
                 className="h-9 w-9 p-0"
               >
                 <Plus className="h-5 w-5" />
@@ -310,10 +309,10 @@ export default function StashPage() {
                   <CardTitle className="truncate">{it.name}</CardTitle>
                   <CardDescription className="text-xs mt-1">
                     {it.type === "flower"
-                      ? t("stash.types.flower")
+                      ? t("types.flower", { ns: "stash" })
                       : it.type === "concentrate"
-                      ? t("stash.types.concentrate")
-                      : t("stash.types.edible")}{" "}
+                      ? t("types.concentrate", { ns: "stash" })
+                      : t("types.edible", { ns: "stash" })}{" "}
                     • {it.amount} {it.unit}
                   </CardDescription>
                 </div>
@@ -347,18 +346,22 @@ export default function StashPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editing?.id ? t("stash.update") : t("stash.addItem")}
+              {editing?.id
+                ? t("update", { ns: "stash" })
+                : t("addItem", { ns: "stash" })}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              {t("stash.requiredHint")}
+              {t("requiredHint", { ns: "stash" })}
             </p>
             <div>
-              <label className="text-sm font-medium">{t("stash.name")}</label>
+              <label className="text-sm font-medium">
+                {t("name", { ns: "stash" })}
+              </label>
               <Input
                 {...register("name", {
-                  required: t("stash.nameRequired") as any,
+                  required: t("nameRequired", { ns: "stash" }) as any,
                 })}
               />
               {errors.name && (
@@ -369,7 +372,9 @@ export default function StashPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium">{t("stash.type")}</label>
+                <label className="text-sm font-medium">
+                  {t("type", { ns: "stash" })}
+                </label>
                 <input
                   type="hidden"
                   {...register("type")}
@@ -387,25 +392,25 @@ export default function StashPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="flower">
-                      {t("stash.types.flower")}
+                      {t("types.flower", { ns: "stash" })}
                     </SelectItem>
                     <SelectItem value="concentrate">
-                      {t("stash.types.concentrate")}
+                      {t("types.concentrate", { ns: "stash" })}
                     </SelectItem>
                     <SelectItem value="edible">
-                      {t("stash.types.edible")}
+                      {t("types.edible", { ns: "stash" })}
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <label className="text-sm font-medium">
-                  {t("stash.amount")}
+                  {t("amount", { ns: "stash" })}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   <Input
                     {...register("amount", {
-                      required: t("stash.amountRequired") as any,
+                      required: t("amountRequired", { ns: "stash" }) as any,
                     })}
                     placeholder="0.0"
                   />
@@ -425,10 +430,14 @@ export default function StashPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="g">{t("stash.units.g")}</SelectItem>
-                      <SelectItem value="ml">{t("stash.units.ml")}</SelectItem>
+                      <SelectItem value="g">
+                        {t("units.g", { ns: "stash" })}
+                      </SelectItem>
+                      <SelectItem value="ml">
+                        {t("units.ml", { ns: "stash" })}
+                      </SelectItem>
                       <SelectItem value="units">
-                        {t("stash.units.units")}
+                        {t("units.units", { ns: "stash" })}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -442,30 +451,36 @@ export default function StashPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium">{t("stash.thc")}</label>
+                <label className="text-sm font-medium">
+                  {t("thc", { ns: "stash" })}
+                </label>
                 <Input {...register("thc")} />
               </div>
               <div>
-                <label className="text-sm font-medium">{t("stash.cbd")}</label>
+                <label className="text-sm font-medium">
+                  {t("cbd", { ns: "stash" })}
+                </label>
                 <Input {...register("cbd")} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm font-medium">
-                  {t("stash.vendor")}
+                  {t("vendor", { ns: "stash" })}
                 </label>
                 <Input {...register("vendor")} />
               </div>
               <div>
                 <label className="text-sm font-medium">
-                  {t("stash.price")}
+                  {t("price", { ns: "stash" })}
                 </label>
                 <Input {...register("price")} />
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium">{t("stash.notes")}</label>
+              <label className="text-sm font-medium">
+                {t("notes", { ns: "stash" })}
+              </label>
               <Textarea {...register("notes")} />
             </div>
             <DialogFooter>
@@ -474,7 +489,7 @@ export default function StashPage() {
                 variant="outline"
                 onClick={() => setEditOpen(false)}
               >
-                {t("common.cancel")}
+                {t("cancel", { ns: "common" })}
               </Button>
               <Button type="submit" disabled={saving}>
                 {saving ? (
@@ -495,14 +510,10 @@ export default function StashPage() {
                         d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                       ></path>
                     </svg>
-                    {t("common.loading")}
+                    {t("loading", { ns: "common" })}
                   </span>
                 ) : (
-                  t(
-                    editing?.id
-                      ? ("stash.update" as any)
-                      : ("stash.save" as any)
-                  )
+                  t(editing?.id ? "update" : "save", { ns: "stash" })
                 )}
               </Button>
             </DialogFooter>

@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // removed select components for light schedule; using free text input now
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
@@ -48,7 +48,7 @@ import {
 } from "@/lib/plant-config";
 
 export default function NewPlantPage() {
-  const { t, language } = useTranslation() as any;
+  const { t, language } = useTranslation(["plants", "common", "validation"]);
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
@@ -129,8 +129,8 @@ export default function NewPlantPage() {
       const docRef = await addDoc(plantsRef, plantData);
 
       toast({
-        title: t("newPlant.success"),
-        description: t("newPlant.successMessage"),
+        title: t("newPlant.success", { ns: "plants" }),
+        description: t("newPlant.successMessage", { ns: "plants" }),
       });
 
       router.push(`/plants/${docRef.id}`);
@@ -146,20 +146,20 @@ export default function NewPlantPage() {
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>{t("newPlant.title")}</CardTitle>
-            <CardDescription>{t("newPlant.description")}</CardDescription>
+            <CardTitle>{t("newPlant.title", { ns: "plants" })}</CardTitle>
+            <CardDescription>{t("newPlant.description", { ns: "plants" })}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">{t("newPlant.name")}</Label>
+                <Label htmlFor="name">{t("newPlant.name", { ns: "plants" })}</Label>
                 <Input
                   id="name"
-                  placeholder={t("newPlant.namePlaceholder")}
+                  placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
                   {...register("name", {
                     validate: (v) =>
                       (v && v.trim().length > 0) ||
-                      (t("validation.required") as string),
+                      (t("required", { ns: "validation" }) as string),
                   })}
                 />
                 {errors.name && (
@@ -170,12 +170,12 @@ export default function NewPlantPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.seedType")}</Label>
+                <Label>{t("newPlant.seedType", { ns: "plants" })}</Label>
                 {/* Hidden field to register for validation */}
                 <input
                   type="hidden"
                   {...register("seedType", {
-                    required: t("validation.required") as string,
+                    required: t("required", { ns: "validation" }) as string,
                   })}
                   value={seedType || ""}
                 />
@@ -192,7 +192,7 @@ export default function NewPlantPage() {
                       id="autoflowering"
                     />
                     <Label htmlFor="autoflowering" className="font-normal">
-                      {t("newPlant.autoflowering")}
+                      {t("newPlant.autoflowering", { ns: "plants" })}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -201,7 +201,7 @@ export default function NewPlantPage() {
                       id="photoperiodic"
                     />
                     <Label htmlFor="photoperiodic" className="font-normal">
-                      {t("newPlant.photoperiodic")}
+                      {t("newPlant.photoperiodic", { ns: "plants" })}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -213,11 +213,11 @@ export default function NewPlantPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.growType")}</Label>
+                <Label>{t("newPlant.growType", { ns: "plants" })}</Label>
                 <input
                   type="hidden"
                   {...register("growType", {
-                    required: t("validation.required") as string,
+                    required: t("required", { ns: "validation" }) as string,
                   })}
                   value={growType || ""}
                 />
@@ -231,13 +231,13 @@ export default function NewPlantPage() {
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value={GROW_TYPES.INDOOR} id="indoor" />
                     <Label htmlFor="indoor" className="font-normal">
-                      {t("newPlant.indoor")}
+                      {t("newPlant.indoor", { ns: "plants" })}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value={GROW_TYPES.OUTDOOR} id="outdoor" />
                     <Label htmlFor="outdoor" className="font-normal">
-                      {t("newPlant.outdoor")}
+                      {t("newPlant.outdoor", { ns: "plants" })}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -249,7 +249,7 @@ export default function NewPlantPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.plantingDate")}</Label>
+                <Label>{t("newPlant.plantingDate", { ns: "plants" })}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -267,7 +267,7 @@ export default function NewPlantPage() {
                           language
                         )
                       ) : (
-                        <span>{t("newPlant.pickDate")}</span>
+                        <span>{t("newPlant.pickDate", { ns: "plants" })}</span>
                       )}
                     </Button>
                   </PopoverTrigger>
@@ -287,19 +287,19 @@ export default function NewPlantPage() {
                 requiresLightSchedule(seedType, growType) && (
                   <div className="space-y-2">
                     <Label htmlFor="lightSchedule">
-                      {t("newPlant.lightSchedule")}
+                      {t("newPlant.lightSchedule", { ns: "plants" })}
                     </Label>
                     <Input
                       id="lightSchedule"
-                      placeholder={t("newPlant.lightSchedulePlaceholder")}
+                      placeholder={t("newPlant.lightSchedulePlaceholder", { ns: "plants" })}
                       {...register("lightSchedule", {
                         validate: (v) => {
                           if (!v || !v.trim())
-                            return t("validation.required") as string;
+                            return t("required", { ns: "validation" }) as string;
                           const ok = isValidLightSchedule(v.trim());
                           return (
                             ok ||
-                            (t("validation.invalidLightSchedule") as string)
+                            (t("invalidLightSchedule", { ns: "validation" }) as string)
                           );
                         },
                       })}
@@ -313,16 +313,16 @@ export default function NewPlantPage() {
                 )}
 
               <div className="space-y-2">
-                <Label htmlFor="seedBank">{t("newPlant.seedBank")}</Label>
+                <Label htmlFor="seedBank">{t("newPlant.seedBank", { ns: "plants" })}</Label>
                 <Input
                   id="seedBank"
-                  placeholder={t("newPlant.seedBankPlaceholder")}
+                  placeholder={t("newPlant.seedBankPlaceholder", { ns: "plants" })}
                   {...register("seedBank")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.photos")}</Label>
+                <Label>{t("newPlant.photos", { ns: "plants" })}</Label>
                 <ImageUpload
                   onImagesChange={setPhotos}
                   maxImages={DEFAULT_MAX_IMAGES}
@@ -334,10 +334,10 @@ export default function NewPlantPage() {
                 {isLoading ? (
                   <>
                     <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
-                    {t("newPlant.loading")}
+                    {t("newPlant.loading", { ns: "plants" })}
                   </>
                 ) : (
-                  t("newPlant.submit")
+                  t("newPlant.submit", { ns: "plants" })
                 )}
               </Button>
             </form>

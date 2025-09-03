@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Brain, 
@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 export function AppShowcase() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   const growerFeatures = [
     {
