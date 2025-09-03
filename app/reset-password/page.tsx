@@ -15,7 +15,7 @@ import {
 import { ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +28,7 @@ interface ResetPasswordFormData {
 }
 
 function ResetPasswordContent() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["auth", "common"]);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();

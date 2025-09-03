@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AuthTabs } from "@/components/auth/auth-tabs";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 interface LoginModalProps {
   open: boolean;
@@ -17,7 +17,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ open, onOpenChange, onAuthStart }: LoginModalProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("auth");
 
   useEffect(() => {
     // focus trap or side effects are handled by Dialog

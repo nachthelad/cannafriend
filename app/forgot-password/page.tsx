@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Mail } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import {
@@ -30,7 +30,7 @@ interface ForgotPasswordFormData {
 }
 
 export default function ForgotPasswordPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["auth", "common"]);
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

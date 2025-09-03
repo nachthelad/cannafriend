@@ -1,0 +1,35 @@
+{
+  "title": "Inventory",
+  "description": "Track your cannabis inventory",
+  "addItem": "Add Item",
+  "empty": "No items in inventory",
+  "emptyDesc": "Start by adding your first item to track your stash",
+  "update": "Update Item",
+  "save": "Save Item",
+  "saved": "Item saved",
+  "savedDesc": "Your item has been added to your inventory",
+  "updated": "Item updated", 
+  "updatedDesc": "Your item has been updated successfully",
+  "delete": "Item deleted",
+  "name": "Name",
+  "nameRequired": "Name is required",
+  "type": "Type",
+  "amount": "Amount",
+  "amountRequired": "Amount is required",
+  "thc": "THC (%)",
+  "cbd": "CBD (%)",
+  "vendor": "Vendor",
+  "price": "Price",
+  "notes": "Notes",
+  "requiredHint": "* indicates required fields",
+  "types": {
+    "flower": "Flower",
+    "concentrate": "Concentrate",
+    "edible": "Edible"
+  },
+  "units": {
+    "g": "g",
+    "ml": "ml", 
+    "units": "units"
+  }
+}

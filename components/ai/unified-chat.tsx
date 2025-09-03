@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ImageUpload } from "@/components/common/image-upload";
@@ -40,7 +40,7 @@ interface UnifiedChatProps {
 }
 
 export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["analyzePlant", "common"]);
   const { toast } = useToast();
   const { user } = useAuthUser();
   const [messages, setMessages] = useState<UnifiedMessage[]>([]);
@@ -120,7 +120,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("ai.error"),
+        title: t("error", { ns: "analyzePlant" }),
         description: error.message,
       });
     } finally {
@@ -161,7 +161,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
       console.error("Error loading chat session:", error);
       toast({
         variant: "destructive",
-        title: t("ai.error"),
+        title: t("error", { ns: "analyzePlant" }),
         description: "Failed to load chat session",
       });
     }
@@ -201,10 +201,10 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
             <div className="flex-1">
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <Brain className="h-6 w-6 text-primary" />
-                {t("ai.assistant")}
+                {t("assistant", { ns: "analyzePlant" })}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {t("ai.universalHelp")}
+                {t("universalHelp", { ns: "analyzePlant" })}
               </p>
             </div>
           </div>
@@ -215,8 +215,8 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
         {messages.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             <Brain className="h-16 w-16 mx-auto mb-4 text-primary/50" />
-            <h3 className="text-lg font-semibold mb-2">{t("ai.welcome")}</h3>
-            <p className="text-sm max-w-md mx-auto">{t("ai.helpText")}</p>
+            <h3 className="text-lg font-semibold mb-2">{t("welcome", { ns: "analyzePlant" })}</h3>
+            <p className="text-sm max-w-md mx-auto">{t("helpText", { ns: "analyzePlant" })}</p>
           </div>
         )}
 
@@ -326,7 +326,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={t("ai.universalPlaceholder")}
+              placeholder={t("universalPlaceholder", { ns: "analyzePlant" })}
               disabled={isLoading}
               className="pr-12"
             />
@@ -356,7 +356,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
           <Card className="w-full max-w-md">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">{t("ai.uploadPhoto")}</h3>
+                <h3 className="text-lg font-semibold">{t("uploadPhoto", { ns: "analyzePlant" })}</h3>
                 <Button
                   size="icon"
                   variant="ghost"

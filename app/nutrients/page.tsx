@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { db } from "@/lib/firebase";
@@ -42,7 +42,7 @@ interface NutrientMix {
 }
 
 export default function NutrientsPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
@@ -103,17 +103,17 @@ export default function NutrientsPage() {
     <Layout>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">{t("nutrients.title")}</h1>
-          <p className="text-muted-foreground">{t("nutrients.description")}</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={() => router.push("/nutrients/new")}>
-          <Plus className="h-4 w-4 mr-2" /> {t("nutrients.addMix")}
+          <Plus className="h-4 w-4 mr-2" /> {t("addMix")}
         </Button>
       </div>
 
       <div className="mb-4">
         <Input
-          placeholder={t("search.placeholder")}
+          placeholder={t("search", { ns: "common" })}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -122,8 +122,8 @@ export default function NutrientsPage() {
       {filtered.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{t("nutrients.empty")}</CardTitle>
-            <CardDescription>{t("nutrients.emptyDesc")}</CardDescription>
+            <CardTitle>{t("empty")}</CardTitle>
+            <CardDescription>{t("emptyDesc")}</CardDescription>
           </CardHeader>
         </Card>
       ) : (
@@ -139,14 +139,14 @@ export default function NutrientsPage() {
                       variant="outline"
                       onClick={() => router.push(`/nutrients/${mix.id}/edit`)}
                     >
-                      {t("common.edit")}
+                      {t("edit", { ns: "common" })}
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(mix)}
                     >
-                      {t("common.delete")}
+                      {t("delete", { ns: "common" })}
                     </Button>
                   </div>
                 </CardTitle>

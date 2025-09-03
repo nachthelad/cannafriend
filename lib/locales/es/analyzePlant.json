@@ -1,0 +1,13 @@
+{
+  "title": "Análisis con IA",
+  "error": "Error",
+  "assistant": "Asistente IA",
+  "universalHelp": "Ayuda sobre cannabis con IA",
+  "welcome": "Bienvenido al asistente con IA",
+  "helpText": "Pregunta lo que quieras para saber sobre tus plantas",
+  "universalPlaceholder": "Pregunta lo que quieras sobre tus plantas...",
+  "uploadPhoto": "Subir foto",
+  "chatHistory": "Historial",
+  "newChat": "Nuevo Chat",
+  "noChats": "Sin chats"
+}

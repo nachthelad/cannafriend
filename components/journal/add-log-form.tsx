@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 
 import { auth, db } from "@/lib/firebase";
@@ -87,7 +87,8 @@ export function AddLogForm({
   showPlantSelector = false,
   plants = [],
 }: AddLogFormProps) {
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["journal", "common"]);
+  const language = i18n.language;
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);

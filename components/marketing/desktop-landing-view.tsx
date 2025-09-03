@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { LoginModal } from "@/components/auth/login-modal";
 import { HeroSection } from "@/components/marketing/hero-section";
@@ -30,7 +30,7 @@ export function DesktopLandingView({
   deferredPrompt,
   onInstallPWA,
 }: DesktopLandingViewProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common", "nav", "auth", "analyzePlant"]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,13 +52,13 @@ export function DesktopLandingView({
                 href="#features" 
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               >
-                {t("nav.features")}
+                {t("features", { ns: "nav" })}
               </a>
               <a 
                 href="#showcase" 
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               >
-                {t("nav.functions")}
+                {t("functions", { ns: "nav" })}
               </a>
               <button
                 onClick={() => {
@@ -69,7 +69,7 @@ export function DesktopLandingView({
                 }}
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors cursor-pointer"
               >
-                {t("nav.ai")}
+                {t("assistant", { ns: "analyzePlant" })}
               </button>
             </nav>
 
@@ -78,7 +78,7 @@ export function DesktopLandingView({
               <LanguageSwitcher />
               <ThemeToggle />
               <Button onClick={onLoginClick} className="font-semibold">
-                {isLoggedIn ? t("nav.goToApp") : t("login.title")}
+                {isLoggedIn ? t("dashboard", { ns: "nav" }) : t("login.title", { ns: "auth" })}
               </Button>
             </div>
           </div>
@@ -106,19 +106,19 @@ export function DesktopLandingView({
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">100%</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.free")}</div>
+                <div className="text-gray-600 dark:text-gray-300">{t("stats.free", { ns: "common" })}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">📱</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.mobileApp")}</div>
+                <div className="text-gray-600 dark:text-gray-300">{t("stats.mobileApp", { ns: "common" })}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">🧠</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.aiComingSoon")}</div>
+                <div className="text-gray-600 dark:text-gray-300">{t("stats.aiComingSoon", { ns: "common" })}</div>
               </div>
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">🔄</div>
-                <div className="text-gray-600 dark:text-gray-300">{t("stats.worksOffline")}</div>
+                <div className="text-gray-600 dark:text-gray-300">{t("stats.worksOffline", { ns: "common" })}</div>
               </div>
             </div>
           </div>
@@ -129,10 +129,10 @@ export function DesktopLandingView({
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                {t("landing.whyChoose")}
+                {t("landing.whyChoose", { ns: "common" })}
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                {t("landing.whyChooseDesc")}
+                {t("landing.whyChooseDesc", { ns: "common" })}
               </p>
             </div>
 
@@ -142,10 +142,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">🌱</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.cannabisSpecific")}
+                  {t("benefits.cannabisSpecific", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.cannabisSpecificDesc")}
+                  {t("benefits.cannabisSpecificDesc", { ns: "common" })}
                 </p>
               </div>
 
@@ -154,10 +154,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">📱</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.easyToUse")}
+                  {t("benefits.easyToUse", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.easyToUseDesc")}
+                  {t("benefits.easyToUseDesc", { ns: "common" })}
                 </p>
               </div>
 
@@ -166,10 +166,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">🔄</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.alwaysAvailable")}
+                  {t("benefits.alwaysAvailable", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.alwaysAvailableDesc")}
+                  {t("benefits.alwaysAvailableDesc", { ns: "common" })}
                 </p>
               </div>
 
@@ -178,10 +178,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">🔒</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.completelyPrivate")}
+                  {t("benefits.completelyPrivate", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.completelyPrivateDesc")}
+                  {t("benefits.completelyPrivateDesc", { ns: "common" })}
                 </p>
               </div>
 
@@ -190,10 +190,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">💡</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.continuousImprovement")}
+                  {t("benefits.continuousImprovement", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.continuousImprovementDesc")}
+                  {t("benefits.continuousImprovementDesc", { ns: "common" })}
                 </p>
               </div>
 
@@ -202,10 +202,10 @@ export function DesktopLandingView({
                   <span className="text-2xl">🎯</span>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {t("benefits.betterResults")}
+                  {t("benefits.betterResults", { ns: "common" })}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {t("benefits.betterResultsDesc")}
+                  {t("benefits.betterResultsDesc", { ns: "common" })}
                 </p>
               </div>
             </div>

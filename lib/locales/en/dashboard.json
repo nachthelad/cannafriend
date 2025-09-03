@@ -1,0 +1,17 @@
+{
+  "title": "Dashboard",
+  "addPlant": "Add Plant",
+  "noPlants": "No plants",
+  "noPlantDesc": "Add your first plant to start tracking",
+  "error": "Error loading plants",
+  "reminders": "Reminders",
+  "yourPlants": "Your Plants",
+  "growth": "Growth",
+  "active": "Active",
+  "quickActions": "Quick Actions",
+  "quickActionsDesc": "Frequently used features",
+  "overdueRemindersDesc": "You have overdue reminders",
+  "plantsGrowing": "plants growing",
+  "latestActivity": "Latest activity",
+  "startGrowingJourney": "Start your growing journey by adding your first plant"
+}

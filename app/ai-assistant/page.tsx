@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { AILayout } from "@/components/layout/ai-layout";
 import { UnifiedChat } from "@/components/ai/unified-chat";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/use-premium";
 import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 
 export default function AIAssistantPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["analyzePlant", "common"]);
   const router = useRouter();
   const { user, isLoading } = useAuthUser();
   const { isPremium } = usePremium();

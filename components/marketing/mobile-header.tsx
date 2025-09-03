@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
 
 interface MobileHeaderProps {
@@ -15,7 +15,7 @@ export function MobileHeader({
   isLoggedIn = false,
   onPrimaryClick,
 }: MobileHeaderProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <div className={`flex justify-between items-center mb-8 ${className}`}>

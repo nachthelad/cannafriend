@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search as SearchIcon, X } from "lucide-react";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 interface SearchProps {
   placeholder?: string;
@@ -19,7 +19,7 @@ export function Search({
   onClear,
   className = "",
 }: SearchProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +41,7 @@ export function PhotoGallery({
   onPhotosUpdate,
   onCoverPhotoUpdate,
 }: PhotoGalleryProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common"]);
   const { toast } = useToast();
   const [showUpload, setShowUpload] = useState(false);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);

@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import {
@@ -36,25 +36,43 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { Bell, Clock, Droplet, Leaf, Scissors, X, Plus, AlertCircle } from "lucide-react";
+import {
+  Bell,
+  Clock,
+  Droplet,
+  Leaf,
+  Scissors,
+  X,
+  Plus,
+  AlertCircle,
+} from "lucide-react";
 import type { Plant } from "@/types";
 
 // Form validation schema - created with translations
-const createReminderFormSchema = (t: any) => z.object({
-  selectedPlant: z.string().min(1, t("validation.plantRequired")),
-  reminderType: z.enum(["watering", "feeding", "training", "custom"], {
-    errorMap: () => ({ message: t("validation.reminderTypeRequired") }),
-  }),
-  title: z.string().max(50, t("validation.titleMaxLength")).optional(),
-  description: z.string().max(200, t("validation.descriptionMaxLength")).optional(),
-  interval: z.string().refine(
-    (val) => {
-      const num = parseInt(val);
-      return !isNaN(num) && num >= 1 && num <= 99;
-    },
-    { message: t("validation.intervalInvalid") }
-  ),
-});
+const createReminderFormSchema = (t: any) =>
+  z.object({
+    selectedPlant: z.string().min(1, t("plantRequired", { ns: "validation" })),
+    reminderType: z.enum(["watering", "feeding", "training", "custom"], {
+      errorMap: () => ({
+        message: t("reminderTypeRequired", { ns: "validation" }),
+      }),
+    }),
+    title: z
+      .string()
+      .max(50, t("titleMaxLength", { ns: "validation" }))
+      .optional(),
+    description: z
+      .string()
+      .max(200, t("descriptionMaxLength", { ns: "validation" }))
+      .optional(),
+    interval: z.string().refine(
+      (val) => {
+        const num = parseInt(val);
+        return !isNaN(num) && num >= 1 && num <= 99;
+      },
+      { message: t("intervalInvalid", { ns: "validation" }) }
+    ),
+  });
 
 type ReminderFormData = z.infer<ReturnType<typeof createReminderFormSchema>>;
 
@@ -82,7 +100,12 @@ export function ReminderSystem({
   plants,
   showOnlyOverdue = false,
 }: ReminderSystemProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation([
+    "reminders",
+    "common",
+    "journal",
+    "validation",
+  ]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -177,8 +200,8 @@ export function ReminderSystem({
       await addDoc(remindersRef, reminderData);
 
       toast({
-        title: t("reminders.success"),
-        description: t("reminders.successMessage"),
+        title: t("success", { ns: "reminders" }),
+        description: t("successMessage", { ns: "reminders" }),
       });
 
       setShowAddForm(false);
@@ -210,10 +233,10 @@ export function ReminderSystem({
       );
 
       toast({
-        title: t("reminders.updated"),
+        title: t("updated", { ns: "reminders" }),
         description: isActive
-          ? t("reminders.activated")
-          : t("reminders.deactivated"),
+          ? t("activated", { ns: "reminders" })
+          : t("deactivated", { ns: "reminders" }),
       });
     } catch (error: any) {
       handleFirebaseError(error, "updating reminder");
@@ -248,7 +271,7 @@ export function ReminderSystem({
             : r
         )
       );
-      toast({ title: t("reminders.updated") });
+      toast({ title: t("updated", { ns: "reminders" }) });
     } catch (error: any) {
       handleFirebaseError(error, "marking reminder done");
     }
@@ -270,8 +293,8 @@ export function ReminderSystem({
       setReminders(reminders.filter((r) => r.id !== reminderId));
 
       toast({
-        title: t("reminders.deleted"),
-        description: t("reminders.deletedMessage"),
+        title: t("deleted", { ns: "reminders" }),
+        description: t("deletedMessage", { ns: "reminders" }),
       });
     } catch (error: any) {
       handleFirebaseError(error, "deleting reminder");
@@ -281,26 +304,26 @@ export function ReminderSystem({
   const getDefaultTitle = (type: Reminder["type"]) => {
     switch (type) {
       case "watering":
-        return t("reminders.wateringTitle");
+        return t("wateringTitle", { ns: "reminders" });
       case "feeding":
-        return t("reminders.feedingTitle");
+        return t("feedingTitle", { ns: "reminders" });
       case "training":
-        return t("reminders.trainingTitle");
+        return t("trainingTitle", { ns: "reminders" });
       default:
-        return t("reminders.customTitle");
+        return t("customTitle", { ns: "reminders" });
     }
   };
 
   const getDefaultDescription = (type: Reminder["type"]) => {
     switch (type) {
       case "watering":
-        return t("reminders.wateringDesc");
+        return t("wateringDesc", { ns: "reminders" });
       case "feeding":
-        return t("reminders.feedingDesc");
+        return t("feedingDesc", { ns: "reminders" });
       case "training":
-        return t("reminders.trainingDesc");
+        return t("trainingDesc", { ns: "reminders" });
       default:
-        return t("reminders.customDesc");
+        return t("customDesc", { ns: "reminders" });
     }
   };
 
@@ -339,8 +362,10 @@ export function ReminderSystem({
     if (showOnlyOverdue) return; // avoid toast on dashboard
     if (!overdueToastShown && overdueReminders.length > 0) {
       toast({
-        title: t("reminders.overdue"),
-        description: `${overdueReminders.length} ${t("reminders.overdue")}`,
+        title: t("overdue", { ns: "reminders" }),
+        description: `${overdueReminders.length} ${t("overdue", {
+          ns: "reminders",
+        })}`,
       });
       setOverdueToastShown(true);
     }
@@ -350,7 +375,9 @@ export function ReminderSystem({
     return (
       <Card>
         <CardContent className="flex justify-center items-center h-32">
-          <div className="text-muted-foreground">{t("reminders.loading")}</div>
+          <div className="text-muted-foreground">
+            {t("loading", { ns: "reminders" })}
+          </div>
         </CardContent>
       </Card>
     );
@@ -363,10 +390,10 @@ export function ReminderSystem({
       <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
         <CardHeader>
           <CardTitle className="text-orange-800 dark:text-orange-200">
-            {t("reminders.overdue")} ({overdueReminders.length})
+            {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
           </CardTitle>
           <CardDescription className="text-orange-600 dark:text-orange-300">
-            {t("reminders.overdueDesc")}
+            {t("overdueDesc", { ns: "reminders" })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -385,12 +412,14 @@ export function ReminderSystem({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="destructive">{t("reminders.overdue")}</Badge>
+                <Badge variant="destructive">
+                  {t("overdue", { ns: "reminders" })}
+                </Badge>
                 <Button
                   size="sm"
                   onClick={() => handleMarkDone(reminder.id, reminder.interval)}
                 >
-                  {t("reminders.markDone")}
+                  {t("markDone", { ns: "reminders" })}
                 </Button>
               </div>
             </div>
@@ -407,10 +436,10 @@ export function ReminderSystem({
         <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
           <CardHeader>
             <CardTitle className="text-orange-800 dark:text-orange-200">
-              {t("reminders.overdue")} ({overdueReminders.length})
+              {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
             </CardTitle>
             <CardDescription className="text-orange-600 dark:text-orange-300">
-              {t("reminders.overdueDesc")}
+              {t("overdueDesc", { ns: "reminders" })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -429,14 +458,16 @@ export function ReminderSystem({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="destructive">{t("reminders.overdue")}</Badge>
+                  <Badge variant="destructive">
+                    {t("overdue", { ns: "reminders" })}
+                  </Badge>
                   <Button
                     size="sm"
                     onClick={() =>
                       handleMarkDone(reminder.id, reminder.interval)
                     }
                   >
-                    {t("reminders.markDone")}
+                    {t("markDone", { ns: "reminders" })}
                   </Button>
                 </div>
               </div>
@@ -450,7 +481,7 @@ export function ReminderSystem({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              {t("reminders.addReminder")}
+              {t("addReminder", { ns: "reminders" })}
               <Button
                 variant="ghost"
                 size="sm"
@@ -466,7 +497,7 @@ export function ReminderSystem({
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label>{t("reminders.selectPlant")}</Label>
+                <Label>{t("selectPlant", { ns: "reminders" })}</Label>
                 <input
                   type="hidden"
                   {...register("selectedPlant")}
@@ -476,14 +507,22 @@ export function ReminderSystem({
                   value={selectedPlant}
                   onValueChange={(v) => setValue("selectedPlant", v)}
                 >
-                  <SelectTrigger className={`min-h-[44px] ${
-                    errors.selectedPlant ? "border-destructive" : ""
-                  }`}>
-                    <SelectValue placeholder={t("reminders.selectPlant")} />
+                  <SelectTrigger
+                    className={`min-h-[44px] ${
+                      errors.selectedPlant ? "border-destructive" : ""
+                    }`}
+                  >
+                    <SelectValue
+                      placeholder={t("selectPlant", { ns: "reminders" })}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {plants.map((plant) => (
-                      <SelectItem key={plant.id} value={plant.id} className="min-h-[44px]">
+                      <SelectItem
+                        key={plant.id}
+                        value={plant.id}
+                        className="min-h-[44px]"
+                      >
                         {plant.name}
                       </SelectItem>
                     ))}
@@ -500,7 +539,7 @@ export function ReminderSystem({
               </div>
 
               <div className="space-y-2">
-                <Label>{t("reminders.reminderType")}</Label>
+                <Label>{t("reminderType", { ns: "reminders" })}</Label>
                 <input
                   type="hidden"
                   {...register("reminderType")}
@@ -512,23 +551,25 @@ export function ReminderSystem({
                     setValue("reminderType", v as Reminder["type"])
                   }
                 >
-                  <SelectTrigger className={`min-h-[44px] ${
-                    errors.reminderType ? "border-destructive" : ""
-                  }`}>
+                  <SelectTrigger
+                    className={`min-h-[44px] ${
+                      errors.reminderType ? "border-destructive" : ""
+                    }`}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="watering" className="min-h-[44px]">
-                      {t("logType.watering")}
+                      {t("logType.watering", { ns: "journal" })}
                     </SelectItem>
                     <SelectItem value="feeding" className="min-h-[44px]">
-                      {t("logType.feeding")}
+                      {t("logType.feeding", { ns: "journal" })}
                     </SelectItem>
                     <SelectItem value="training" className="min-h-[44px]">
-                      {t("logType.training")}
+                      {t("logType.training", { ns: "journal" })}
                     </SelectItem>
                     <SelectItem value="custom" className="min-h-[44px]">
-                      {t("reminders.custom")}
+                      {t("custom", { ns: "reminders" })}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -543,7 +584,7 @@ export function ReminderSystem({
               </div>
 
               <div className="space-y-2">
-                <Label>{t("reminders.title")}</Label>
+                <Label>{t("title", { ns: "reminders" })}</Label>
                 <Input
                   {...register("title")}
                   placeholder={getDefaultTitle(reminderType)}
@@ -562,7 +603,7 @@ export function ReminderSystem({
               </div>
 
               <div className="space-y-2">
-                <Label>{t("reminders.description")}</Label>
+                <Label>{t("description", { ns: "reminders" })}</Label>
                 <Input
                   {...register("description")}
                   placeholder={getDefaultDescription(reminderType)}
@@ -582,7 +623,7 @@ export function ReminderSystem({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("reminders.interval")}</Label>
+                  <Label>{t("interval", { ns: "reminders" })}</Label>
                   <Input
                     type="number"
                     min="1"
@@ -610,9 +651,9 @@ export function ReminderSystem({
                   variant="outline"
                   onClick={() => setShowAddForm(false)}
                 >
-                  {t("common.cancel")}
+                  {t("cancel", { ns: "common" })}
                 </Button>
-                <Button type="submit">{t("reminders.add")}</Button>
+                <Button type="submit">{t("add", { ns: "reminders" })}</Button>
               </div>
             </form>
           </CardContent>
@@ -624,18 +665,20 @@ export function ReminderSystem({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>{t("reminders.title")}</CardTitle>
-              <CardDescription>{t("reminders.description")}</CardDescription>
+              <CardTitle>{t("title", { ns: "reminders" })}</CardTitle>
+              <CardDescription>
+                {t("description", { ns: "reminders" })}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               {overdueReminders.length > 0 && (
                 <Badge variant="destructive">
-                  {t("reminders.overdue")} {overdueReminders.length}
+                  {t("overdue", { ns: "reminders" })} {overdueReminders.length}
                 </Badge>
               )}
               {dueSoonReminders.length > 0 && (
                 <Badge>
-                  {t("reminders.dueSoon")} {dueSoonReminders.length}
+                  {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
                 </Badge>
               )}
               {/* Mobile: icon-only plus */}
@@ -652,7 +695,7 @@ export function ReminderSystem({
                 className="hidden md:inline-flex"
               >
                 <Bell className="mr-2 h-4 w-4" />
-                {t("reminders.add")}
+                {t("add", { ns: "reminders" })}
               </Button>
             </div>
           </div>
@@ -661,8 +704,10 @@ export function ReminderSystem({
           {reminders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{t("reminders.noReminders")}</p>
-              <p className="text-sm">{t("reminders.noRemindersDesc")}</p>
+              <p>{t("noReminders", { ns: "reminders" })}</p>
+              <p className="text-sm">
+                {t("noRemindersDesc", { ns: "reminders" })}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -677,7 +722,7 @@ export function ReminderSystem({
                       <div className="font-medium">{reminder.title}</div>
                       <div className="text-sm text-muted-foreground">
                         {reminder.plantName} • {reminder.interval}{" "}
-                        {t("reminders.days")}
+                        {t("days", { ns: "reminders" })}
                       </div>
                     </div>
                   </div>

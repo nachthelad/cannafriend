@@ -19,7 +19,7 @@ import {
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { triggerHaptic } from "@/lib/haptic";
 import {
@@ -36,20 +36,28 @@ export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
   const router = useRouter();
   const { roles, isLoading: rolesLoading } = useUserRoles();
-  const { t } = useTranslation();
-  const [currentViewMode, setCurrentViewMode] = useState<'grower' | 'consumer'>('grower');
+  const { t } = useTranslation(["nav", "common", "onboarding"]);
+  const [currentViewMode, setCurrentViewMode] = useState<"grower" | "consumer">(
+    "grower"
+  );
 
   // Load persisted role selection from localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedViewMode = localStorage.getItem('cannafriend-view-mode') as 'grower' | 'consumer' | null;
-      if (savedViewMode && (savedViewMode === 'grower' || savedViewMode === 'consumer')) {
+    if (typeof window !== "undefined") {
+      const savedViewMode = localStorage.getItem("cannafriend-view-mode") as
+        | "grower"
+        | "consumer"
+        | null;
+      if (
+        savedViewMode &&
+        (savedViewMode === "grower" || savedViewMode === "consumer")
+      ) {
         setCurrentViewMode(savedViewMode);
       } else if (roles) {
         // Default to grower if user has grower role, otherwise consumer
-        const defaultMode = roles.grower ? 'grower' : 'consumer';
+        const defaultMode = roles.grower ? "grower" : "consumer";
         setCurrentViewMode(defaultMode);
-        localStorage.setItem('cannafriend-view-mode', defaultMode);
+        localStorage.setItem("cannafriend-view-mode", defaultMode);
       }
     }
   }, [roles]);
@@ -60,74 +68,147 @@ export function MobileBottomNav(): React.ReactElement {
       return pathname === ROUTE_DASHBOARD || pathname === "/";
     }
     if (path === ROUTE_STRAINS) {
-      return pathname === ROUTE_STRAINS || (pathname === "/" && currentViewMode === 'consumer');
+      return (
+        pathname === ROUTE_STRAINS ||
+        (pathname === "/" && currentViewMode === "consumer")
+      );
     }
     return pathname?.startsWith(path) ?? false;
   };
 
-  const handleHapticClick = useCallback((pattern: 'light' | 'medium' | 'heavy' = 'light') => {
-    triggerHaptic(pattern);
-  }, []);
+  const handleHapticClick = useCallback(
+    (pattern: "light" | "medium" | "heavy" = "light") => {
+      triggerHaptic(pattern);
+    },
+    []
+  );
 
-  const handleRoleSwitch = useCallback((mode: 'grower' | 'consumer') => {
-    triggerHaptic('medium');
-    setCurrentViewMode(mode);
-    // Persist role selection
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cannafriend-view-mode', mode);
-    }
-    // Navigate to appropriate page for the selected role
-    if (mode === 'grower') {
-      router.push(ROUTE_DASHBOARD);
-    } else {
-      router.push(ROUTE_STRAINS);
-    }
-  }, [router]);
+  const handleRoleSwitch = useCallback(
+    (mode: "grower" | "consumer") => {
+      triggerHaptic("medium");
+      setCurrentViewMode(mode);
+      // Persist role selection
+      if (typeof window !== "undefined") {
+        localStorage.setItem("cannafriend-view-mode", mode);
+      }
+      // Navigate to appropriate page for the selected role
+      if (mode === "grower") {
+        router.push(ROUTE_DASHBOARD);
+      } else {
+        router.push(ROUTE_STRAINS);
+      }
+    },
+    [router]
+  );
 
   const handleFloatingActionClick = useCallback(() => {
-    triggerHaptic('medium');
+    triggerHaptic("medium");
     // Navigate based on current view mode
-    if (currentViewMode === 'grower') {
-      router.push('/plants/new');
+    if (currentViewMode === "grower") {
+      router.push("/plants/new");
     } else {
-      router.push('/sessions/new');
+      router.push("/sessions/new");
     }
   }, [currentViewMode, router]);
 
   // Determine navigation items based on current view mode for dual-role users
   const getNavigationItems = () => {
     if (!roles) return [];
-    
+
     if (roles.grower && roles.consumer) {
       // Dual role - show based on current view mode (always 4 items for centered floating button)
-      return currentViewMode === 'grower' 
+      return currentViewMode === "grower"
         ? [
-            { href: ROUTE_DASHBOARD, icon: Home, label: t("nav.dashboard") },
-            { href: ROUTE_JOURNAL, icon: Calendar, label: t("nav.journal") },
-            { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
-            { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+            {
+              href: ROUTE_DASHBOARD,
+              icon: Home,
+              label: t("dashboard", { ns: "nav" }),
+            },
+            {
+              href: ROUTE_JOURNAL,
+              icon: Calendar,
+              label: t("journal", { ns: "nav" }),
+            },
+            {
+              href: ROUTE_AI_ASSISTANT,
+              icon: Brain,
+              label: t("assistant", { ns: "ai" }),
+            },
+            {
+              href: ROUTE_SETTINGS,
+              icon: Settings,
+              label: t("settings", { ns: "nav" }),
+            },
           ]
         : [
-            { href: ROUTE_STRAINS, icon: Home, label: t("strains.title") },
-            { href: ROUTE_STASH, icon: Package, label: t("stash.title") },
-            { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
-            { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+            {
+              href: ROUTE_STRAINS,
+              icon: Home,
+              label: t("title", { ns: "strains" }),
+            },
+            {
+              href: ROUTE_STASH,
+              icon: Package,
+              label: t("title", { ns: "stash" }),
+            },
+            {
+              href: ROUTE_AI_ASSISTANT,
+              icon: Brain,
+              label: t("assistant", { ns: "ai" }),
+            },
+            {
+              href: ROUTE_SETTINGS,
+              icon: Settings,
+              label: t("settings", { ns: "nav" }),
+            },
           ];
     } else if (roles.grower) {
       // Grower only (4 items for centered floating button) - always dashboard
       return [
-        { href: ROUTE_DASHBOARD, icon: Home, label: t("nav.dashboard") },
-        { href: ROUTE_JOURNAL, icon: Calendar, label: t("nav.journal") },
-        { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
-        { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+        {
+          href: ROUTE_DASHBOARD,
+          icon: Home,
+          label: t("dashboard", { ns: "nav" }),
+        },
+        {
+          href: ROUTE_JOURNAL,
+          icon: Calendar,
+          label: t("journal", { ns: "nav" }),
+        },
+        {
+          href: ROUTE_AI_ASSISTANT,
+          icon: Brain,
+          label: t("assistant", { ns: "ai" }),
+        },
+        {
+          href: ROUTE_SETTINGS,
+          icon: Settings,
+          label: t("settings", { ns: "nav" }),
+        },
       ];
     } else {
       // Consumer only (4 items for centered floating button) - always strains
       return [
-        { href: ROUTE_STRAINS, icon: Home, label: t("strains.title") },
-        { href: ROUTE_STASH, icon: Package, label: t("stash.title") },
-        { href: ROUTE_AI_ASSISTANT, icon: Brain, label: t("ai.assistant") },
-        { href: ROUTE_SETTINGS, icon: Settings, label: t("nav.settings") },
+        {
+          href: ROUTE_STRAINS,
+          icon: Home,
+          label: t("title", { ns: "strains" }),
+        },
+        {
+          href: ROUTE_STASH,
+          icon: Package,
+          label: t("title", { ns: "stash" }),
+        },
+        {
+          href: ROUTE_AI_ASSISTANT,
+          icon: Brain,
+          label: t("assistant", { ns: "ai" }),
+        },
+        {
+          href: ROUTE_SETTINGS,
+          icon: Settings,
+          label: t("settings", { ns: "nav" }),
+        },
       ];
     }
   };
@@ -148,30 +229,30 @@ export function MobileBottomNav(): React.ReactElement {
         <div className="flex items-center justify-center py-1 px-4 border-b border-border/40">
           <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1">
             <button
-              onClick={() => handleRoleSwitch('grower')}
+              onClick={() => handleRoleSwitch("grower")}
               className={cn(
                 "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
-                currentViewMode === 'grower'
+                currentViewMode === "grower"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
               aria-label="Grower mode"
             >
               <Sprout className="h-3 w-3 mr-1.5" />
-              {t("roles.grower")}
+              {t("grower", { ns: "onboarding" })}
             </button>
             <button
-              onClick={() => handleRoleSwitch('consumer')}
+              onClick={() => handleRoleSwitch("consumer")}
               className={cn(
                 "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
-                currentViewMode === 'consumer'
+                currentViewMode === "consumer"
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               )}
               aria-label="Consumer mode"
             >
               <Leaf className="h-3 w-3 mr-1.5" />
-              {t("roles.consumer")}
+              {t("consumer", { ns: "onboarding" })}
             </button>
           </div>
         </div>
@@ -195,7 +276,7 @@ export function MobileBottomNav(): React.ReactElement {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => handleHapticClick('light')}
+                  onClick={() => handleHapticClick("light")}
                   className={cn(
                     "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
                     isActive(item.href)
@@ -229,7 +310,7 @@ export function MobileBottomNav(): React.ReactElement {
                 <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => handleHapticClick('light')}
+                  onClick={() => handleHapticClick("light")}
                   className={cn(
                     "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
                     isActive(item.href)

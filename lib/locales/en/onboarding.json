@@ -1,0 +1,16 @@
+{
+  "title": "Welcome",
+  "description": "Set up your account to get started",
+  "timezone": "Timezone",
+  "selectTimezone": "Select your timezone",
+  "roles": "How will you use the app?",
+  "grower": "Grower",
+  "consumer": "Consumer",
+  "selectAtLeastOneRole": "Select at least one option",
+  "submit": "Continue",
+  "loading": "Saving...",
+  "success": "Settings saved!",
+  "successMessage": "Your account has been set up successfully",
+  "error": "Error saving settings",
+  "info": "This information helps us display dates and reminders in your timezone"
+}

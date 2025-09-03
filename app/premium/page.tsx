@@ -3,13 +3,13 @@
 import { Layout } from "@/components/layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 
 export default function PremiumPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const router = useRouter();
   const { roles } = useUserRoles();
   return (

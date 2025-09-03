@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { Upload, Image as ImageIcon } from "lucide-react";
@@ -35,7 +35,7 @@ export function ImageUpload({
   className,
   buttonSize = "sm",
 }: ImageUploadProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -124,7 +124,7 @@ export function ImageUpload({
       if (errors.length > 0) {
         toast({
           variant: "destructive",
-          title: t("imageUpload.validationErrors"),
+          title: t("imageUpload.validationErrors", { ns: "common" }),
           description: errors.join("\n"),
         });
       }
@@ -140,8 +140,8 @@ export function ImageUpload({
             console.error("Error uploading file:", file.name, error);
             toast({
               variant: "destructive",
-              title: t("imageUpload.uploadError"),
-              description: `${file.name}: ${t("imageUpload.uploadFailed")}`,
+              title: t("imageUpload.uploadError", { ns: "common" }),
+              description: `${file.name}: ${t("imageUpload.uploadFailed", { ns: "common" })}`,
             });
           }
         })
@@ -151,16 +151,16 @@ export function ImageUpload({
       if (newUrls.length > 0) {
         onImagesChange(newUrls);
         toast({
-          title: t("imageUpload.uploadSuccess"),
-          description: `${t("imageUpload.imagesUploaded")} ${newUrls.length}`,
+          title: t("imageUpload.uploadSuccess", { ns: "common" }),
+          description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${newUrls.length}`,
         });
       }
     } catch (error) {
       console.error("Error in file upload:", error);
       toast({
         variant: "destructive",
-        title: t("imageUpload.uploadError"),
-        description: t("imageUpload.uploadFailed"),
+        title: t("imageUpload.uploadError", { ns: "common" }),
+        description: t("imageUpload.uploadFailed", { ns: "common" }),
       });
     } finally {
       setUploading(false);
@@ -219,12 +219,12 @@ export function ImageUpload({
           <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
           <div>
             {isMobile ? (
-              <p className="text-sm font-medium">{t("imageUpload.tapToSelect")}</p>
+              <p className="text-sm font-medium">{t("imageUpload.tapToSelect", { ns: "common" })}</p>
             ) : (
               <>
-                <p className="text-sm font-medium">{t("imageUpload.dragDrop")}</p>
+                <p className="text-sm font-medium">{t("imageUpload.dragDrop", { ns: "common" })}</p>
                 <p className="text-xs text-muted-foreground">
-                  {t("imageUpload.orClick")}
+                  {t("imageUpload.orClick", { ns: "common" })}
                 </p>
               </>
             )}
@@ -238,17 +238,17 @@ export function ImageUpload({
           >
             <ImageIcon className="mr-2 h-4 w-4" />
             {uploading
-              ? t("imageUpload.uploading")
-              : t("imageUpload.selectImages")}
+              ? t("imageUpload.uploading", { ns: "common" })
+              : t("imageUpload.selectImages", { ns: "common" })}
           </Button>
         </div>
 
         <p className="text-xs text-muted-foreground mt-2">
-          {t("imageUpload.allowedTypes")} {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
+          {t("imageUpload.allowedTypes", { ns: "common" })} {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
           <br />
-          {t("imageUpload.maxSize")} {maxSizeMB}MB
+          {t("imageUpload.maxSize", { ns: "common" })} {maxSizeMB}MB
           <br />
-          {t("imageUpload.maxImages")} {maxImages}
+          {t("imageUpload.maxImages", { ns: "common" })} {maxImages}
         </p>
       </div>
     </div>

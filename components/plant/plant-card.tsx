@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import { Leaf, Calendar, Droplet, Zap, Scissors } from "lucide-react";
@@ -25,7 +25,8 @@ export function PlantCard({
   lastTraining,
   compact = false,
 }: PlantCardProps) {
-  const { t, language } = useTranslation();
+  const { t, i18n } = useTranslation(["plants", "common"]);
+  const language = i18n.language;
   const router = useRouter();
 
   const handleClick = () => {
@@ -124,7 +125,7 @@ export function PlantCard({
                 {lastTraining ? (
                   <span>
                     {t("plantCard.lastTraining")}:{" "}
-                    {t(`training.${lastTraining.method}`)}
+                    {t(`training.${lastTraining.method}`, { ns: "journal" })}
                   </span>
                 ) : (
                   <span>{t("plantCard.noTrainingRecords")}</span>

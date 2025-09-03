@@ -1,0 +1,18 @@
+{
+  "title": "Nutrientes",
+  "description": "Mezclas guardadas (NPK y notas).",
+  "empty": "Sin mezclas",
+  "emptyDesc": "Agrega tu primera mezcla para empezar",
+  "addMix": "Agregar mezcla",
+  "new": "Nueva mezcla",
+  "newDesc": "Crea una nueva mezcla de nutrientes",
+  "name": "Nombre",
+  "namePlaceholder": "Ej: Bloom Booster",
+  "npk": "NPK",
+  "npkPlaceholder": "Ej: 3-1-2",
+  "notes": "Notas",
+  "notesPlaceholder": "Instrucciones de uso, dosis, etc.",
+  "added": "Mezcla agregada",
+  "addedDesc": "La mezcla ha sido agregada exitosamente",
+  "addError": "Error al agregar mezcla"
+}

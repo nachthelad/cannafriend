@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
@@ -28,7 +28,7 @@ export function GoogleLoginButton({
   onSuccess,
   onAuthStart,
 }: GoogleLoginButtonProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("auth");
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();

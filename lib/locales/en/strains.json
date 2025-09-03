@@ -1,0 +1,35 @@
+{
+  "title": "Strains",
+  "description": "Track your strain experiences and preferences",
+  "addSession": "Add Session",
+  "noSessions": "No sessions found",
+  "noSessionsDesc": "Start by adding your first strain session",
+  "editSession": "Edit Session",
+  "strain": "Strain",
+  "startTime": "Start Time",
+  "endTime": "End Time",
+  "notes": "Notes",
+  "photos": "Photos",
+  "edit": "Edit",
+  "delete": "Delete",
+  "deleteConfirmTitle": "Delete Session",
+  "deleteConfirmDesc": "Are you sure you want to delete this session? This action cannot be undone.",
+  "deleteConfirm": "Delete",
+  "updated": "Session updated",
+  "deleted": "Session deleted",
+  "update": "Update",
+  "favorites": {
+    "added": "Added to favorites",
+    "removed": "Removed from favorites",
+    "filter": "Favorites Only"
+  },
+  "aiConsumer": {
+    "title": "AI Assistant"
+  },
+  "logForm": {
+    "date": "Date"
+  },
+  "settings": {
+    "cancel": "Cancel"
+  }
+}

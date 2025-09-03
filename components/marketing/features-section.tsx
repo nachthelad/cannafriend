@@ -8,7 +8,7 @@ import {
   List,
   NotebookPen,
 } from "lucide-react";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 interface Feature {
   icon: React.ComponentType<{ className?: string }>;
@@ -21,7 +21,7 @@ interface FeaturesSectionProps {
 }
 
 export function FeaturesSection({ className = "" }: FeaturesSectionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const growerFeatures: Feature[] = [
     {
       icon: Leaf,

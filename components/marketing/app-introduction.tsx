@@ -1,13 +1,13 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 
 interface AppIntroductionProps {
   className?: string;
 }
 
 export function AppIntroduction({ className = "" }: AppIntroductionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <div className={`text-center mb-8 ${className}`}>

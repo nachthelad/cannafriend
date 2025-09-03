@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { auth, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
@@ -34,7 +34,7 @@ import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 
 export default function OnboardingPage() {
-  const { t } = useTranslation() as any;
+  const { t } = useTranslation("onboarding");
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -86,8 +86,8 @@ export default function OnboardingPage() {
       );
 
       toast({
-        title: t("onboarding.success"),
-        description: t("onboarding.successMessage"),
+        title: t("success"),
+        description: t("successMessage"),
       });
 
       // Decide next route based on user roles
@@ -103,7 +103,7 @@ export default function OnboardingPage() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("onboarding.error"),
+        title: t("error"),
         description: error.message,
       });
     } finally {
@@ -132,21 +132,21 @@ export default function OnboardingPage() {
             <LanguageSwitcher />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
-            {t("onboarding.title")}
+            {t("title")}
           </CardTitle>
           <CardDescription className="text-center">
-            {t("onboarding.description")}
+            {t("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="timezone">{t("onboarding.timezone")}</Label>
+              <Label htmlFor="timezone">{t("timezone")}</Label>
               {/* Hidden registered field for validation */}
               <input
                 type="hidden"
                 {...register("timezone", {
-                  required: t("onboarding.selectTimezone") as string,
+                  required: t("selectTimezone") as string,
                 })}
                 value={watch("timezone") || ""}
               />
@@ -155,7 +155,7 @@ export default function OnboardingPage() {
                 onValueChange={(v) => setValue("timezone", v)}
               >
                 <SelectTrigger id="timezone">
-                  <SelectValue placeholder={t("onboarding.selectTimezone")} />
+                  <SelectValue placeholder={t("selectTimezone")} />
                 </SelectTrigger>
                 <SelectContent>
                   {timezones.map((tz) => (
@@ -173,7 +173,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>{t("onboarding.roles")}</Label>
+              <Label>{t("roles")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
                   <input
@@ -182,7 +182,7 @@ export default function OnboardingPage() {
                     checked={watch("roles.grower")}
                     onChange={(e) => setValue("roles.grower", e.target.checked)}
                   />
-                  <span>{t("onboarding.grower")}</span>
+                  <span>{t("grower")}</span>
                 </label>
                 <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
                   <input
@@ -193,7 +193,7 @@ export default function OnboardingPage() {
                       setValue("roles.consumer", e.target.checked)
                     }
                   />
-                  <span>{t("onboarding.consumer")}</span>
+                  <span>{t("consumer")}</span>
                 </label>
               </div>
               {(() => {
@@ -201,7 +201,7 @@ export default function OnboardingPage() {
                 if (!r?.grower && !r?.consumer) {
                   return (
                     <p className="text-xs text-destructive">
-                      {t("onboarding.selectAtLeastOneRole")}
+                      {t("selectAtLeastOneRole")}
                     </p>
                   );
                 }
@@ -212,17 +212,17 @@ export default function OnboardingPage() {
               {isLoading ? (
                 <>
                   <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
-                  {t("onboarding.loading")}
+                  {t("loading")}
                 </>
               ) : (
-                t("onboarding.submit")
+                t("submit")
               )}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-xs text-center text-muted-foreground">
-            {t("onboarding.info")}
+            {t("info")}
           </p>
         </CardFooter>
       </Card>

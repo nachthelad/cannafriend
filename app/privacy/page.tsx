@@ -1,23 +1,23 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { ROUTE_HOME } from "@/lib/routes";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 
 export default function PrivacyPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href={ROUTE_HOME}>
+          <Link href={ROUTE_DASHBOARD}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {t("common.back")}
+              {t("back")}
             </Button>
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">

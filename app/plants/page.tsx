@@ -12,7 +12,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN, ROUTE_PLANTS_NEW } from "@/lib/routes";
 import { plantsCol, logsCol } from "@/lib/paths";
@@ -33,7 +33,7 @@ import { MobilePlantList } from "@/components/mobile/mobile-plant-list";
 import { MobilePlantListSkeleton } from "@/components/skeletons/mobile-plant-list-skeleton";
 
 export default function PlantsListPage() {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["plants", "common", "dashboard"]);
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
@@ -175,7 +175,7 @@ export default function PlantsListPage() {
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLoadMore={loadMore}
-            language={t("common.language") || "en"}
+            language={t("language", { ns: "common" }) || "en"}
           />
         )}
       </div>
@@ -191,20 +191,20 @@ export default function PlantsListPage() {
             <div className="mb-6 flex items-center justify-between gap-3">
               <div>
                 <h1 className="text-3xl font-bold">
-                  {t("dashboard.yourPlants")}
+                  {t("yourPlants", { ns: "dashboard" })}
                 </h1>
                 <p className="text-muted-foreground">
-                  {t("features.management.desc")}
+                  {t("managementDesc", { ns: "plants" })}
                 </p>
               </div>
               <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+                <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
               </Button>
             </div>
 
             <div className="mb-4">
               <Input
-                placeholder={t("search.placeholder")}
+                placeholder={t("searchPlaceholder", { ns: "plants" })}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -225,14 +225,14 @@ export default function PlantsListPage() {
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("dashboard.noPlants")}</CardTitle>
+                  <CardTitle>{t("noPlants", { ns: "dashboard" })}</CardTitle>
                   <CardDescription>
-                    {t("dashboard.noPlantDesc")}
+                    {t("noPlantDesc", { ns: "dashboard" })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                    <Plus className="h-4 w-4 mr-2" /> {t("dashboard.addPlant")}
+                    <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
                   </Button>
                 </CardContent>
               </Card>
@@ -252,10 +252,10 @@ export default function PlantsListPage() {
                         className="mr-2 text-primary"
                         duration={1.2}
                       />{" "}
-                      {t("common.loading")}
+                      {t("loading", { ns: "common" })}
                     </>
                   ) : (
-                    t("common.loadMore")
+                    t("loadMore", { ns: "common" })
                   )}
                 </Button>
               </div>

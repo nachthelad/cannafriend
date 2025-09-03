@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslation } from "@/hooks/use-translation";
+import { useTranslation } from "react-i18next";
 import { AuthTabs } from "@/components/auth/auth-tabs";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -13,7 +13,7 @@ interface MobileLoginSectionProps {
 export function MobileLoginSection({
   className = "",
 }: MobileLoginSectionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["common"]);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {

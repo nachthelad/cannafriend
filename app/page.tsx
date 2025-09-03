@@ -148,7 +148,7 @@ export default function Home() {
             className="text-primary mb-4"
             duration={1.5}
           />
-          <p className="text-lg font-medium text-foreground">Loading...</p>
+          <p className="text-lg font-medium text-foreground">Cargando...</p>
         </div>
       </div>
     );

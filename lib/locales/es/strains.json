@@ -1,0 +1,35 @@
+{
+  "title": "Variedades",
+  "description": "Registra tus experiencias y preferencias de variedades",
+  "addSession": "Agregar Sesión",
+  "noSessions": "No se encontraron sesiones",
+  "noSessionsDesc": "Comienza agregando tu primera sesión de variedad",
+  "editSession": "Editar Sesión",
+  "strain": "Variedad",
+  "startTime": "Hora de Inicio",
+  "endTime": "Hora de Fin",
+  "notes": "Notas",
+  "photos": "Fotos",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "deleteConfirmTitle": "Eliminar Sesión",
+  "deleteConfirmDesc": "¿Estás seguro de que quieres eliminar esta sesión? Esta acción no se puede deshacer.",
+  "deleteConfirm": "Eliminar",
+  "updated": "Sesión actualizada",
+  "deleted": "Sesión eliminada",
+  "update": "Actualizar",
+  "favorites": {
+    "added": "Agregado a favoritos",
+    "removed": "Eliminado de favoritos",
+    "filter": "Solo Favoritos"
+  },
+  "aiConsumer": {
+    "title": "Asistente IA"
+  },
+  "logForm": {
+    "date": "Fecha"
+  },
+  "settings": {
+    "cancel": "Cancelar"
+  }
+}
