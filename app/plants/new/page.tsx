@@ -48,7 +48,7 @@ import {
 } from "@/lib/plant-config";
 
 export default function NewPlantPage() {
-  const { t, language } = useTranslation(["plants", "common", "validation"]);
+  const { t, i18n } = useTranslation(["plants", "common", "validation"]);
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
@@ -264,7 +264,7 @@ export default function NewPlantPage() {
                         formatDateObjectWithLocale(
                           plantingDate,
                           "PPP",
-                          language
+                          i18n.language
                         )
                       ) : (
                         <span>{t("newPlant.pickDate", { ns: "plants" })}</span>

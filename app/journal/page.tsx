@@ -51,7 +51,7 @@ import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
 
 export default function JournalPage() {
-  const { t, language } = useTranslation(["journal", "common"]);
+  const { t, i18n } = useTranslation(["journal", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -275,7 +275,7 @@ export default function JournalPage() {
     setLogs([logWithPlant, ...logs]);
   };
 
-  const getCalendarLocale = () => (language === "es" ? es : enUS);
+  const getCalendarLocale = () => (i18n.language === "es" ? es : enUS);
 
   const handleDeleteLog = async (log: LogEntry) => {
     if (!userId || !log.id) return;
@@ -320,7 +320,7 @@ export default function JournalPage() {
           onLoadMore={loadMoreLogs}
           onDeleteLog={handleDeleteLog}
           onLogSuccess={handleLogSuccess}
-          language={language}
+          language={i18n.language}
         />
       </div>
 
