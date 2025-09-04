@@ -1,14 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "react-i18next";
-import { useErrorHandler } from "@/hooks/use-error-handler";
+import { useFormAuth, useToggle, useLoadingSteps } from "@/hooks";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getDoc } from "firebase/firestore";
@@ -16,7 +13,6 @@ import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
-import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormData {
   email: string;
@@ -28,13 +24,28 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const { t } = useTranslation(["auth", "common"]);
   const router = useRouter();
-  const { toast } = useToast();
-  const { handleFirebaseError } = useErrorHandler();
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState<string>("");
-  const [showPassword, setShowPassword] = useState(false);
+  const { 
+    form,
+    t,
+    toast,
+    handleFirebaseError
+  } = useFormAuth<LoginFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    }
+  });
+  
+  const { 
+    isLoading, 
+    currentStep: loadingStep, 
+    startLoading, 
+    setStep: setLoadingStep, 
+    stopLoading 
+  } = useLoadingSteps();
+  
+  const { value: showPassword, toggle: togglePassword } = useToggle();
 
   const {
     register,
@@ -42,18 +53,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<LoginFormData>({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  } = form;
 
   const email = watch("email");
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
-    setLoadingStep(t("login.verifyingCredentials", { ns: "auth" }));
+    startLoading(t("login.verifyingCredentials", { ns: "auth" }));
 
     try {
       setLoadingStep(t("login.signingIn", { ns: "auth" }));
@@ -124,7 +129,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         });
       }
     } finally {
-      setIsLoading(false);
+      stopLoading();
     }
   };
 
@@ -194,7 +199,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             variant="ghost"
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={togglePassword}
             aria-label={
               showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
             }

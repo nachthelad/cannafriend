@@ -1,20 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { useTranslation } from "react-i18next";
-import { useErrorHandler } from "@/hooks/use-error-handler";
+import { useFormAuth, useToggle, useLoadingSteps } from "@/hooks";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 // import ReCAPTCHA from "react-google-recaptcha";
 // import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
 
@@ -29,14 +26,30 @@ interface SignupFormProps {
 }
 
 export function SignupForm({ onSuccess }: SignupFormProps) {
-  const { t } = useTranslation("auth");
   const router = useRouter();
-  const { toast } = useToast();
-  const { handleFirebaseError } = useErrorHandler();
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState<string>("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { 
+    form,
+    t,
+    toast,
+    handleFirebaseError
+  } = useFormAuth<SignupFormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    }
+  });
+  
+  const { 
+    isLoading, 
+    currentStep: loadingStep, 
+    startLoading, 
+    setStep: setLoadingStep, 
+    stopLoading 
+  } = useLoadingSteps();
+  
+  const { value: showPassword, toggle: togglePassword } = useToggle();
+  const { value: showConfirmPassword, toggle: toggleConfirmPassword } = useToggle();
   const [recaptchaToken, setRecaptchaToken] = useState("");
   const [recaptchaError, setRecaptchaError] = useState("");
 
@@ -47,13 +60,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     watch,
     setError,
     clearErrors,
-  } = useForm<SignupFormData>({
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  } = form;
 
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
@@ -84,14 +91,13 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   };
 
   const onSubmit = async (data: SignupFormData) => {
-    setIsLoading(true);
-    setLoadingStep(t("signup.validatingData", { ns: "auth" }));
+    startLoading(t("signup.validatingData", { ns: "auth" }));
 
     // Validate password match
     const passwordError = validatePassword(data.password, data.confirmPassword);
     if (passwordError) {
       setError("confirmPassword", { message: passwordError });
-      setIsLoading(false);
+      stopLoading();
       return;
     }
 
@@ -102,7 +108,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     //     title: t("signup.error", { ns: "auth" }),
     //     description: t("recaptchaRequired", { ns: "auth" }),
     //   });
-    //   setIsLoading(false);
+    //   stopLoading();
     //   return;
     // }
 
@@ -132,7 +138,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
     } catch (error: any) {
       handleFirebaseError(error, "signup");
     } finally {
-      setIsLoading(false);
+      stopLoading();
     }
   };
 
@@ -230,7 +236,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             variant="ghost"
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={togglePassword}
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -271,7 +277,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             variant="ghost"
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            onClick={toggleConfirmPassword}
           >
             {showConfirmPassword ? (
               <EyeOff className="h-4 w-4" />
