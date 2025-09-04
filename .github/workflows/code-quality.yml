@@ -18,17 +18,22 @@ jobs:
       with:
         fetch-depth: 0  # Shallow clones should be disabled for better analysis
     
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
     
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
     
     - name: Run tests with coverage
-      run: npm run test:coverage
+      run: pnpm run test:coverage
     
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
@@ -71,24 +76,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
     
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
     
     - name: Run comprehensive audit
       run: |
         echo "# Weekly Security Audit Report" > audit-report.md
-        echo "## NPM Audit" >> audit-report.md
-        npm audit --json > npm-audit.json || true
-        npx audit-ci --report-type summary >> audit-report.md || true
+        echo "## PNPM Audit" >> audit-report.md
+        pnpm audit --json > pnpm-audit.json || true
+        pnpm dlx audit-ci --report-type summary >> audit-report.md || true
         
         echo "## Outdated Dependencies" >> audit-report.md
-        npm outdated --json > outdated.json || true
+        pnpm outdated --json > outdated.json || true
         
     - name: Create Issue from Audit
       if: failure()
