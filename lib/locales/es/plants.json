@@ -108,6 +108,22 @@
   },
   "managementDesc": "Gestiona todas tus plantas en un solo lugar",
   "searchPlaceholder": "Buscar plantas...",
+  "filters": {
+    "title": "Filtros",
+    "seedType": "Tipo de Semilla",
+    "growType": "Tipo de Cultivo", 
+    "active": "Filtros activos",
+    "all": "Todos",
+    "clear": "Limpiar filtros"
+  },
+  "sort": {
+    "byName": "Ordenar por Nombre",
+    "byDate": "Ordenar por Fecha", 
+    "bySeedType": "Ordenar por Tipo de Semilla",
+    "byGrowType": "Ordenar por Tipo de Cultivo",
+    "ascending": "Ascendente",
+    "descending": "Descendente"
+  },
   "photos": {
     "title": "Fotos",
     "photo": "foto",

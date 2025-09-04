@@ -44,7 +44,9 @@ export function MobilePlantCard({
         {plant.coverPhoto ? (
           <Image
             src={plant.coverPhoto}
-            alt={`${plant.name} - ${t("coverPhoto", { ns: "plantCard" })}`}
+            alt={`${plant.name} - ${t("plantCard.coverPhoto", {
+              ns: "plants",
+            })}`}
             fill
             className="object-cover transition-transform duration-300"
             loading="lazy"
@@ -52,7 +54,9 @@ export function MobilePlantCard({
         ) : plant.photos && plant.photos.length > 0 ? (
           <Image
             src={plant.photos[0]}
-            alt={`${plant.name} - ${t("coverPhoto", { ns: "plantCard" })}`}
+            alt={`${plant.name} - ${t("plantCard.coverPhoto", {
+              ns: "plants",
+            })}`}
             fill
             className="object-cover transition-transform duration-300"
             loading="lazy"
@@ -74,8 +78,8 @@ export function MobilePlantCard({
             className="bg-white/90 text-black backdrop-blur-sm"
           >
             {plant.seedType === "autoflowering"
-              ? t("autoflowering", { ns: "seedType" })
-              : t("photoperiodic", { ns: "seedType" })}
+              ? t("seedType.autoflowering", { ns: "plants" })
+              : t("seedType.photoperiodic", { ns: "plants" })}
           </Badge>
         </div>
       </div>
@@ -83,8 +87,8 @@ export function MobilePlantCard({
         <div className="flex items-center text-sm text-muted-foreground">
           <Badge variant="outline" className="mr-2">
             {plant.growType === "indoor"
-              ? t("indoor", { ns: "growType" })
-              : t("outdoor", { ns: "growType" })}
+              ? t("growType.indoor", { ns: "plants" })
+              : t("growType.outdoor", { ns: "plants" })}
           </Badge>
           {plant.growType === "indoor" && plant.lightSchedule && (
             <Badge variant="outline">{plant.lightSchedule}</Badge>
@@ -102,33 +106,34 @@ export function MobilePlantCard({
             <Droplet className="h-3 w-3 mr-1" />
             {lastWatering ? (
               <span>
-                {t("lastWatering", { ns: "plantCard" })}: {lastWatering.amount}ml (
-                {t(`${lastWatering.method}`, { ns: "watering" })})
+                {t("plantCard.lastWatering", { ns: "plants" })}:{" "}
+                {lastWatering.amount}ml (
+                {t(`watering.${lastWatering.method}`, { ns: "journal" })})
               </span>
             ) : (
-              <span>{t("noWateringRecords", { ns: "plantCard" })}</span>
+              <span>{t("plantCard.noWateringRecords", { ns: "plants" })}</span>
             )}
           </div>
           <div className="flex items-center">
             <Zap className="h-3 w-3 mr-1" />
             {lastFeeding ? (
               <span>
-                {t("lastFeeding", { ns: "plantCard" })}: {lastFeeding.npk} (
-                {lastFeeding.amount}ml/L)
+                {t("plantCard.lastFeeding", { ns: "plants" })}:{" "}
+                {lastFeeding.npk} ({lastFeeding.amount}ml/L)
               </span>
             ) : (
-              <span>{t("noFeedingRecords", { ns: "plantCard" })}</span>
+              <span>{t("plantCard.noFeedingRecords", { ns: "plants" })}</span>
             )}
           </div>
           <div className="flex items-center">
             <Scissors className="h-3 w-3 mr-1" />
             {lastTraining ? (
               <span>
-                {t("lastTraining", { ns: "plantCard" })}:{" "}
-                {t(`${lastTraining.method}`, { ns: "training" })}
+                {t("plantCard.lastTraining", { ns: "plants" })}:{" "}
+                {t(`training.${lastTraining.method}`, { ns: "journal" })}
               </span>
             ) : (
-              <span>{t("noTrainingRecords", { ns: "plantCard" })}</span>
+              <span>{t("plantCard.noTrainingRecords", { ns: "plants" })}</span>
             )}
           </div>
         </div>

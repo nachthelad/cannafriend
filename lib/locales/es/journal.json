@@ -6,7 +6,6 @@
   "error": "Error cargando diario",
   "deleted": "Registro eliminado",
   "deletedDesc": "El registro ha sido eliminado",
-  "filters": "Filtros",
   "filtersDesc": "Filtra las entradas de tu diario",
   "filterByPlant": "Filtrar por Planta",
   "selectPlant": "Selecciona una planta",
@@ -52,6 +51,25 @@
   },
   "noEntries": "No se encontraron registros",
   "noEntriesDesc": "Comienza agregando tu primer registro",
+  "noFilteredLogs": "No hay registros que coincidan con tus filtros",
+  "noLogs": "No hay entradas en el diario",
+  "tryDifferentFilters": "Prueba ajustando tus filtros o términos de búsqueda",
+  "addFirstLog": "Comienza agregando tu primera entrada de registro",
+  "addLog": "Agregar Registro",
+  "selectDate": "Seleccionar Fecha",
+  "searchPlaceholder": "Buscar entradas del diario...",
+  "filters": {
+    "title": "Filtros", 
+    "active": "Filtros activos",
+    "clear": "Limpiar filtros"
+  },
+  "sort": {
+    "byDate": "Ordenar por Fecha",
+    "byType": "Ordenar por Tipo", 
+    "byPlant": "Ordenar por Planta",
+    "ascending": "Ascendente",
+    "descending": "Descendente"
+  },
   "watering": {
     "topWatering": "Riego Superior",
     "bottomWatering": "Riego Inferior",

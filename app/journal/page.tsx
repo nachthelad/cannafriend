@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -54,6 +55,7 @@ export default function JournalPage() {
   const { t, i18n } = useTranslation(["journal", "common"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleError, handleFirebaseError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -148,11 +150,7 @@ export default function JournalPage() {
         );
         setLogs(allLogs);
       } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: t("error", { ns: "journal" }),
-          description: error.message,
-        });
+        handleFirebaseError(error, "journal data fetch");
       } finally {
         setIsLoading(false);
       }
@@ -289,11 +287,7 @@ export default function JournalPage() {
         description: t("deletedDesc", { ns: "journal" }),
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: error.message,
-      });
+      handleFirebaseError(error, "delete log");
     }
   };
 
@@ -337,7 +331,7 @@ export default function JournalPage() {
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="mr-2 h-4 w-4" />
-              {t("filters", { ns: "journal" })}
+              {t("filters.title", { ns: "journal" })}
             </CardTitle>
             <CardDescription>{t("filtersDesc", { ns: "journal" })}</CardDescription>
           </CardHeader>

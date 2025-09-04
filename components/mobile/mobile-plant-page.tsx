@@ -220,7 +220,7 @@ export function MobilePlantPage({
                 </div>
                 <div className="flex items-center text-lg text-green-400 font-bold drop-shadow">
                   <span>
-                    {t("day", { ns: "plantPage" })} {daysSincePlanting}
+                    {t("plantPage.day", { ns: "plants" })} {daysSincePlanting}
                   </span>
                 </div>
               </div>
@@ -230,8 +230,8 @@ export function MobilePlantPage({
                   className="bg-green-500/20 text-green-400 border-green-500/50 backdrop-blur-sm"
                 >
                   {plant.seedType === "autoflowering"
-                    ? t("autoflowering", { ns: "seedType" })
-                    : t("photoperiodic", { ns: "seedType" })}
+                    ? t("seedType.autoflowering", { ns: "plants" })
+                    : t("seedType.photoperiodic", { ns: "plants" })}
                 </Badge>
               </div>
             </div>
@@ -245,7 +245,7 @@ export function MobilePlantPage({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-medium text-green-400 tracking-wide uppercase">
-              {t("plantStatus", { ns: "plantPage" })}
+              {t("plantPage.plantStatus", { ns: "plants" })}
             </h3>
           </div>
 
@@ -276,13 +276,13 @@ export function MobilePlantPage({
               {lastWatering && (
                 <div className="text-right">
                   <div className="text-xs text-green-400 font-medium uppercase">
-                    {t("watered", { ns: "plantPage" })}:
+                    {t("plantPage.watered", { ns: "plants" })}:
                   </div>
                   <div className="text-white text-sm">
                     {Math.abs(
                       differenceInDays(new Date(), parseISO(lastWatering.date))
                     )}{" "}
-                    {t("dayAgo", { ns: "plantPage" })}
+                    {t("plantPage.dayAgo", { ns: "plants" })}
                   </div>
                 </div>
               )}
@@ -291,7 +291,7 @@ export function MobilePlantPage({
             {/* Lighting Row */}
             <div className="space-y-2">
               <div className="text-xs text-slate-400 font-medium uppercase">
-                {t("lighting", { ns: "plantPage" })}
+                {t("plantPage.lighting", { ns: "plants" })}
               </div>
               <div className="flex items-center space-x-2">
                 <Sun className="h-5 w-5 text-yellow-400" />
@@ -304,14 +304,14 @@ export function MobilePlantPage({
             {/* Nutrients Row */}
             <div className="space-y-2">
               <div className="text-xs text-slate-400 font-medium uppercase">
-                {t("nutrients", { ns: "plantPage" })}
+                {t("plantPage.nutrients", { ns: "plants" })}
               </div>
               <div className="space-y-2">
                 {lastFeeding && (
                   <div className="flex items-center space-x-2">
                     <Zap className="h-5 w-5 text-green-400" />
                     <span className="text-white font-bold">
-                      {t("npk", { ns: "plantPage" })}:{" "}
+                      {t("plantPage.npk", { ns: "plants" })}:{" "}
                       {lastFeeding.npk || "6.5"}
                     </span>
                   </div>
@@ -320,7 +320,8 @@ export function MobilePlantPage({
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                     <span className="text-white font-bold">
-                      {t("ph", { ns: "plantPage" })}: {lastEnvironment.ph}
+                      {t("plantPage.ph", { ns: "plants" })}:{" "}
+                      {lastEnvironment.ph}
                     </span>
                   </div>
                 )}
@@ -353,7 +354,7 @@ export function MobilePlantPage({
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-sm">
-              {t("seedType", { ns: "plantPage" })}
+              {t("plantPage.seedType", { ns: "plants" })}
             </span>
             <div className="text-white font-medium">
               <Select
@@ -370,8 +371,8 @@ export function MobilePlantPage({
                 <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded px-2 py-1 h-auto font-medium">
                   <SelectValue>
                     {plant.seedType === "autoflowering"
-                      ? t("autoflowering", { ns: "seedType" })
-                      : t("photoperiodic", { ns: "seedType" })}
+                      ? t("seedType.autoflowering", { ns: "plants" })
+                      : t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
@@ -379,13 +380,13 @@ export function MobilePlantPage({
                     value="autoflowering"
                     className="text-slate-200 hover:bg-slate-700"
                   >
-                    {t("autoflowering", { ns: "seedType" })}
+                    {t("seedType.autoflowering", { ns: "plants" })}
                   </SelectItem>
                   <SelectItem
                     value="photoperiodic"
                     className="text-slate-200 hover:bg-slate-700"
                   >
-                    {t("photoperiodic", { ns: "seedType" })}
+                    {t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -393,7 +394,7 @@ export function MobilePlantPage({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-sm">
-              {t("growType", { ns: "plantPage" })}
+              {t("plantPage.growType", { ns: "plants" })}
             </span>
             <div className="text-white font-medium">
               <Select
@@ -408,8 +409,8 @@ export function MobilePlantPage({
                 <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded px-2 py-1 h-auto font-medium">
                   <SelectValue>
                     {plant.growType === "indoor"
-                      ? t("indoor", { ns: "growType" })
-                      : t("outdoor", { ns: "growType" })}
+                      ? t("growType.indoor", { ns: "plants" })
+                      : t("growType.outdoor", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
@@ -417,13 +418,13 @@ export function MobilePlantPage({
                     value="indoor"
                     className="text-slate-200 hover:bg-slate-700"
                   >
-                    {t("indoor", { ns: "growType" })}
+                    {t("growType.indoor", { ns: "plants" })}
                   </SelectItem>
                   <SelectItem
                     value="outdoor"
                     className="text-slate-200 hover:bg-slate-700"
                   >
-                    {t("outdoor", { ns: "growType" })}
+                    {t("growType.outdoor", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -431,7 +432,7 @@ export function MobilePlantPage({
           </div>
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-sm">
-              {t("seedBank", { ns: "plantPage" })}
+              {t("plantPage.seedBank", { ns: "plants" })}
             </span>
             <div className="text-white font-medium flex-1 text-right">
               <InlineEdit
@@ -442,7 +443,9 @@ export function MobilePlantPage({
                   });
                   onUpdate?.({ seedBank: newBank });
                 }}
-                placeholder={t("seedBankPlaceholder", { ns: "newPlant" })}
+                placeholder={t("newPlant.seedBankPlaceholder", {
+                  ns: "plants",
+                })}
                 className="text-white font-medium hover:bg-white/10 rounded px-2 py-1"
                 inputClassName="text-white bg-black/50 border-white/30 rounded px-3 py-1 backdrop-blur-sm placeholder-white/60"
               />

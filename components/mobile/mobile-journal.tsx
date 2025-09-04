@@ -106,7 +106,7 @@ export function MobileJournal({
         const searchLower = searchText.toLowerCase();
         const matchesNotes = log.notes?.toLowerCase().includes(searchLower);
         const matchesPlant = log.plantName?.toLowerCase().includes(searchLower);
-        const matchesType = t(`${log.type}`, { ns: "logType" }).toLowerCase().includes(searchLower);
+        const matchesType = t(`logType.${log.type}`, { ns: "journal" }).toLowerCase().includes(searchLower);
         if (!matchesNotes && !matchesPlant && !matchesType) {
           return false;
         }
@@ -203,7 +203,7 @@ export function MobileJournal({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder={t("journal", { ns: "search" })}
+            placeholder={t("searchPlaceholder", { ns: "journal" })}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             className="pl-10 pr-10 h-11"
@@ -228,7 +228,7 @@ export function MobileJournal({
             className="relative h-11 flex-1 max-w-32"
           >
             <Filter className="h-4 w-4 mr-2" />
-            {t("filters", { ns: "journal" })}
+            {t("filters.title", { ns: "journal" })}
             {activeFiltersCount > 0 && (
               <Badge
                 variant="destructive"
@@ -262,13 +262,13 @@ export function MobileJournal({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setSortBy("date")}>
-                {t("byDate", { ns: "sort" })}
+                {t("sort.byDate", { ns: "journal" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("type")}>
-                {t("byType", { ns: "sort" })}
+                {t("sort.byType", { ns: "journal" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("plant")}>
-                {t("byPlant", { ns: "sort" })}
+                {t("sort.byPlant", { ns: "journal" })}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -276,7 +276,7 @@ export function MobileJournal({
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                 }
               >
-                {sortOrder === "asc" ? t("descending", { ns: "sort" }) : t("ascending", { ns: "sort" })}
+                {sortOrder === "asc" ? t("sort.descending", { ns: "journal" }) : t("sort.ascending", { ns: "journal" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -287,7 +287,7 @@ export function MobileJournal({
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {t("active", { ns: "filters" })}:
+            {t("filters.active", { ns: "journal" })}:
           </span>
           {searchText && (
             <Badge
@@ -315,7 +315,7 @@ export function MobileJournal({
               className="gap-1 cursor-pointer"
               onClick={() => setSelectedLogType("all")}
             >
-              {t(`${selectedLogType}`, { ns: "logType" })}
+              {t(`logType.${selectedLogType}`, { ns: "journal" })}
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -336,7 +336,7 @@ export function MobileJournal({
               onClick={clearFilters}
               className="h-7 px-2 text-xs"
             >
-              {t("clear", { ns: "filters" })}
+              {t("filters.clear", { ns: "journal" })}
             </Button>
           )}
         </div>
@@ -385,7 +385,7 @@ export function MobileJournal({
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("filters", { ns: "journal" })}</DialogTitle>
+            <DialogTitle>{t("filters.title", { ns: "journal" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
             {/* Plant Filter */}
@@ -434,7 +434,7 @@ export function MobileJournal({
                     className="cursor-pointer"
                     onClick={() => setSelectedLogType(type)}
                   >
-                    {t(`${type}`, { ns: "logType" })}
+                    {t(`logType.${type}`, { ns: "journal" })}
                   </Badge>
                 ))}
               </div>
@@ -450,7 +450,7 @@ export function MobileJournal({
                 }}
                 className="w-full"
               >
-                {t("clear", { ns: "filters" })} ({activeFiltersCount})
+                {t("filters.clear", { ns: "journal" })} ({activeFiltersCount})
               </Button>
             )}
           </div>

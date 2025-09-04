@@ -27,7 +27,7 @@ export function MobileDatePicker({
   locale,
 }: MobileDatePickerProps): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const { t, i18n } = useTranslation(["common"]);
+  const { t, i18n } = useTranslation(["common", "journal"]);
   const language = i18n.language;
 
   const handleSelect = (date?: Date) => {
@@ -49,23 +49,33 @@ export function MobileDatePicker({
                     "PPP",
                     locale?.code ?? "en"
                   )
-                : t("logForm.selectDate")}
+                : t("logForm.selectDate", { ns: "journal" })}
             </Button>
           </DialogTrigger>
-          <DialogContent
-            showCloseButton={false}
-            className="bg-transparent border-0 shadow-none p-0 fixed top-0 left-0 translate-x-0 translate-y-0 h-screen w-screen max-w-none"
-          >
-            <DialogTitle className="hidden"></DialogTitle>
-            <div className="mx-auto h-full w-full max-w-md sm:max-w-lg flex items-center justify-center p-4">
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t("logForm.selectDate", { ns: "journal" })}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
               <Calendar
                 mode="single"
                 selected={selected}
                 onSelect={(d) => handleSelect(d)}
-                className="rounded-lg border p-4 [--cell-size:3rem] sm:[--cell-size:3rem]"
+                className="rounded-md border w-full"
                 locale={locale}
-                // marker function removed due to React attribute constraints
               />
+              {selected && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline" 
+                    onClick={() => handleSelect(undefined)}
+                    className="flex-1"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    {t("clear", { ns: "common" })}
+                  </Button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
