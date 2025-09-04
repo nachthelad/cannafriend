@@ -54,19 +54,16 @@ export function SimplePlantCard({
             </div>
           )}
         </div>
-        
+
         {/* Plant Info */}
         <div className="flex-1 p-4 flex flex-col justify-center">
           <h3 className="font-semibold text-base truncate mb-1">
             {plant.name}
           </h3>
-          <Badge
-            variant="secondary"
-            className="text-xs w-fit"
-          >
+          <Badge variant="secondary" className="text-xs w-fit">
             {plant.seedType === "autoflowering"
-              ? t("autoflowering", { ns: "seedType" })
-              : t("photoperiodic", { ns: "seedType" })}
+              ? t("seedType.autoflowering", { ns: "plants" })
+              : t("seedType.photoperiodic", { ns: "plants" })}
           </Badge>
         </div>
       </div>
@@ -100,7 +97,7 @@ export function SimplePlantCard({
           </div>
         )}
       </div>
-      
+
       {/* Plant Info Overlay */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
         <h3 className="text-white font-semibold text-sm truncate mb-1">
@@ -111,8 +108,8 @@ export function SimplePlantCard({
           className="text-xs bg-white/20 text-white border-white/30"
         >
           {plant.seedType === "autoflowering"
-            ? t("autoflowering", { ns: "seedType" })
-            : t("photoperiodic", { ns: "seedType" })}
+            ? t("seedType.autoflowering", { ns: "plants" })
+            : t("seedType.photoperiodic", { ns: "plants" })}
         </Badge>
       </div>
     </div>

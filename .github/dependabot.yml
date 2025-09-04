@@ -1,0 +1,82 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "nachthelad"
+    assignees:
+      - "nachthelad"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Group minor and patch updates
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Separate group for major updates
+      major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+      
+      # Group React ecosystem updates
+      react-ecosystem:
+        patterns:
+          - "react*"
+          - "@types/react*"
+          - "next*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      # Group testing dependencies
+      testing-dependencies:
+        patterns:
+          - "@testing-library/*"
+          - "jest*"
+        update-types:
+          - "minor"
+          - "patch"
+    
+    # Ignore certain dependencies that need manual updates
+    ignore:
+      - dependency-name: "node"
+        versions: [">= 21"]  # Keep Node.js version stable
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]  # Manual React major updates
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]  # Manual Next.js major updates
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday" 
+      time: "06:00"
+      timezone: "UTC"
+    reviewers:
+      - "nachthelad"
+    assignees:
+      - "nachthelad"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "ci/cd"
+      - "automated"

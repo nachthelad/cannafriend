@@ -178,7 +178,7 @@ export function MobilePlantList({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder={t("plants", { ns: "search" })}
+              placeholder={t("searchPlaceholder", { ns: "plants" })}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
@@ -246,16 +246,16 @@ export function MobilePlantList({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setSortBy("date")}>
-                {t("byDate", { ns: "sort" })}
+                {t("sort.byDate", { ns: "plants" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("name")}>
-                {t("byName", { ns: "sort" })}
+                {t("sort.byName", { ns: "plants" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("seedType")}>
-                {t("bySeedType", { ns: "sort" })}
+                {t("sort.bySeedType", { ns: "plants" })}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("growType")}>
-                {t("byGrowType", { ns: "sort" })}
+                {t("sort.byGrowType", { ns: "plants" })}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -263,7 +263,7 @@ export function MobilePlantList({
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                 }
               >
-                {sortOrder === "asc" ? t("descending", { ns: "sort" }) : t("ascending", { ns: "sort" })}
+                {sortOrder === "asc" ? t("sort.descending", { ns: "plants" }) : t("sort.ascending", { ns: "plants" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -274,7 +274,7 @@ export function MobilePlantList({
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {t("active", { ns: "filters" })}:
+            {t("filters.active", { ns: "plants" })}:
           </span>
           {seedTypeFilter !== "all" && (
             <Badge
@@ -282,7 +282,7 @@ export function MobilePlantList({
               className="gap-1 cursor-pointer"
               onClick={() => setSeedTypeFilter("all")}
             >
-              {t(`${seedTypeFilter}`, { ns: "seedType" })}
+              {t(`seedType.${seedTypeFilter}`, { ns: "plants" })}
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -292,7 +292,7 @@ export function MobilePlantList({
               className="gap-1 cursor-pointer"
               onClick={() => setGrowTypeFilter("all")}
             >
-              {t(`${growTypeFilter}`, { ns: "growType" })}
+              {t(`growType.${growTypeFilter}`, { ns: "plants" })}
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -358,13 +358,13 @@ export function MobilePlantList({
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("title", { ns: "filters" })}</DialogTitle>
+            <DialogTitle>{t("filters.title", { ns: "plants" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
             {/* Seed Type Filter */}
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                {t("seedType", { ns: "filters" })}
+                {t("filters.seedType", { ns: "plants" })}
               </label>
               <div className="flex flex-wrap gap-2">
                 <Badge
@@ -372,7 +372,7 @@ export function MobilePlantList({
                   className="cursor-pointer"
                   onClick={() => setSeedTypeFilter("all")}
                 >
-                  {t("all", { ns: "filters" })}
+                  {t("filters.all", { ns: "plants" })}
                 </Badge>
                 {seedTypes.map((type) => (
                   <Badge
@@ -381,7 +381,7 @@ export function MobilePlantList({
                     className="cursor-pointer"
                     onClick={() => setSeedTypeFilter(type)}
                   >
-                    {t(`${type}`, { ns: "seedType" })}
+                    {t(`seedType.${type}`, { ns: "plants" })}
                   </Badge>
                 ))}
               </div>
@@ -390,7 +390,7 @@ export function MobilePlantList({
             {/* Grow Type Filter */}
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                {t("growType", { ns: "filters" })}
+                {t("filters.growType", { ns: "plants" })}
               </label>
               <div className="flex flex-wrap gap-2">
                 <Badge
@@ -398,7 +398,7 @@ export function MobilePlantList({
                   className="cursor-pointer"
                   onClick={() => setGrowTypeFilter("all")}
                 >
-                  {t("all", { ns: "filters" })}
+                  {t("filters.all", { ns: "plants" })}
                 </Badge>
                 {growTypes.map((type) => (
                   <Badge
@@ -407,7 +407,7 @@ export function MobilePlantList({
                     className="cursor-pointer"
                     onClick={() => setGrowTypeFilter(type)}
                   >
-                    {t(`${type}`, { ns: "growType" })}
+                    {t(`growType.${type}`, { ns: "plants" })}
                   </Badge>
                 ))}
               </div>
@@ -423,7 +423,7 @@ export function MobilePlantList({
                 }}
                 className="w-full"
               >
-                {t("clear", { ns: "filters" })} ({activeFiltersCount})
+                {t("filters.clear", { ns: "plants" })} ({activeFiltersCount})
               </Button>
             )}
           </div>

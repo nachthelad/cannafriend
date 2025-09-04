@@ -108,6 +108,22 @@
   },
   "managementDesc": "Manage all your plants in one place",
   "searchPlaceholder": "Search plants...",
+  "filters": {
+    "title": "Filters",
+    "seedType": "Seed Type",
+    "growType": "Grow Type", 
+    "active": "Active filters",
+    "all": "All",
+    "clear": "Clear filters"
+  },
+  "sort": {
+    "byName": "Sort by Name",
+    "byDate": "Sort by Date", 
+    "bySeedType": "Sort by Seed Type",
+    "byGrowType": "Sort by Grow Type",
+    "ascending": "Ascending",
+    "descending": "Descending"
+  },
   "photos": {
     "title": "Photos",
     "photo": "photo",

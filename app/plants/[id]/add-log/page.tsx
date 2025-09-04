@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -25,6 +26,7 @@ export default function AddLogPage({
   const { t, i18n } = useTranslation(["plants", "common"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(true);
   const [plant, setPlant] = useState<Plant | null>(null);
   const { user, isLoading: authLoading } = useAuthUser();
@@ -54,11 +56,7 @@ export default function AddLogPage({
         const plantData = { id: plantSnap.id, ...plantSnap.data() } as Plant;
         setPlant(plantData);
       } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: t("plantPage.error"),
-          description: error.message,
-        });
+        handleFirebaseError(error, "plant data fetch");
       } finally {
         setIsLoading(false);
       }

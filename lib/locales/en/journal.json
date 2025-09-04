@@ -2,11 +2,10 @@
   "title": "Grow Journal",
   "description": "Track and view all your plant activities",
   "recentLogs": "Recent Logs",
-  "logsFound": "logs found",
+  "logsFound": "Logs found",
   "error": "Error loading journal",
   "deleted": "Log deleted",
   "deletedDesc": "The log entry has been deleted",
-  "filters": "Filters",
   "filtersDesc": "Filter your journal entries",
   "filterByPlant": "Filter by Plant",
   "selectPlant": "Select a plant",
@@ -52,9 +51,28 @@
   },
   "noEntries": "No log entries found",
   "noEntriesDesc": "Start by adding your first log entry",
+  "noFilteredLogs": "No logs match your filters",
+  "noLogs": "No journal entries",
+  "tryDifferentFilters": "Try adjusting your filters or search terms",
+  "addFirstLog": "Start by adding your first log entry",
+  "addLog": "Add Log",
+  "selectDate": "Select Date",
+  "searchPlaceholder": "Search journal entries...",
+  "filters": {
+    "title": "Filters",
+    "active": "Active filters",
+    "clear": "Clear filters"
+  },
+  "sort": {
+    "byDate": "Sort by Date",
+    "byType": "Sort by Type", 
+    "byPlant": "Sort by Plant",
+    "ascending": "Ascending",
+    "descending": "Descending"
+  },
   "watering": {
     "topWatering": "Top Watering",
-    "bottomWatering": "Bottom Watering", 
+    "bottomWatering": "Bottom Watering",
     "drip": "Drip Irrigation"
   },
   "training": {
