@@ -168,7 +168,7 @@ jobs:
         echo "Bundle analysis complete - results available in artifacts"
     
     - name: Lighthouse CI
-      uses: treosh/lighthouse-ci-action@v11
+      uses: treosh/lighthouse-ci-action@v12
       with:
         configPath: './lighthouserc.json'
         uploadArtifacts: true
