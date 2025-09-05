@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
-import { getAuth } from "firebase-admin/auth";
 
 export const runtime = "nodejs";
 
 // Client calls this after returning from Mercado Pago to refresh custom claims
 export async function POST(req: NextRequest) {
   try {
+    // Import Firebase Admin at runtime
+    const { adminAuth } = await import("@/lib/firebase-admin");
+    
     const authHeader =
       req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
