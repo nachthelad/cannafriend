@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AILayout } from "@/components/layout/ai-layout";
 import { UnifiedChat } from "@/components/ai/unified-chat";
@@ -16,6 +16,11 @@ export default function AIAssistantPage() {
   const router = useRouter();
   const { user, isLoading } = useAuthUser();
   const { isPremium } = usePremium();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -38,7 +43,7 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <AILayout>
+    <AILayout onToggleSidebar={handleToggleSidebar}>
       {!isPremium ? (
         <div className="flex justify-center items-center h-full">
           <div className="max-w-md mx-auto">
@@ -46,7 +51,7 @@ export default function AIAssistantPage() {
           </div>
         </div>
       ) : (
-        <UnifiedChat className="h-full" />
+        <UnifiedChat className="h-full" sidebarOpen={sidebarOpen} onToggleSidebar={handleToggleSidebar} />
       )}
     </AILayout>
   );
