@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
 
 export const runtime = "nodejs";
 
@@ -22,6 +21,9 @@ interface MercadoPagoPreapprovalRequest {
 
 export async function POST(req: NextRequest) {
   try {
+    // Import Firebase Admin at runtime
+    const { adminAuth } = await import("@/lib/firebase-admin");
+    
     // Verify authentication
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
