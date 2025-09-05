@@ -16,6 +16,15 @@ async function setPremiumByEmail(email: string, premium: boolean) {
   }
 }
 
+// GET endpoint for testing webhook is alive
+export async function GET() {
+  return NextResponse.json({ 
+    status: "Stripe webhook endpoint is active",
+    timestamp: new Date().toISOString(),
+    methods: ["POST"]
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Initialize Stripe (runtime only)
