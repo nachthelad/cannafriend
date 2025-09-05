@@ -52,45 +52,45 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
-    setLoadingStep(t("forgotPassword.verifyingEmail"));
+    setLoadingStep(t("forgotPassword.verifyingEmail", { ns: "auth" }));
 
     try {
       // Verificar si existe una cuenta para este email usando Firebase Auth
-      setLoadingStep(t("forgotPassword.verifyingEmail"));
+      setLoadingStep(t("forgotPassword.verifyingEmail", { ns: "auth" }));
       const methods = await fetchSignInMethodsForEmail(auth, data.email);
       if (!methods || methods.length === 0) {
         setError("email", {
-          message: t("forgotPassword.emailNotRegisteredDescription"),
+          message: t("forgotPassword.emailNotRegisteredDescription", { ns: "auth" }),
         });
         return;
       }
 
       // Enviar el email de recuperación con configuración personalizada
-      setLoadingStep(t("forgotPassword.sendingEmail"));
+      setLoadingStep(t("forgotPassword.sendingEmail", { ns: "auth" }));
       await sendPasswordResetEmail(auth, data.email, {
         url: `${window.location.origin}/reset-password`,
         handleCodeInApp: true,
       });
       toast({
-        title: t("forgotPassword.emailSentTitle"),
-        description: t("forgotPassword.emailSentDescription"),
+        title: t("forgotPassword.emailSentTitle", { ns: "auth" }),
+        description: t("forgotPassword.emailSentDescription", { ns: "auth" }),
       });
       setTimeout(() => {
         router.push(ROUTE_LOGIN);
       }, 2000);
     } catch (error: any) {
-      let errorMessage = t("forgotPassword.error");
+      let errorMessage = t("forgotPassword.error", { ns: "auth" });
 
       if (error?.code) {
         switch (error.code) {
           case "auth/invalid-email":
-            errorMessage = t("auth.invalidEmail");
+            errorMessage = t("auth.invalidEmail", { ns: "auth" });
             break;
           case "auth/too-many-requests":
-            errorMessage = t("auth.tooManyRequests");
+            errorMessage = t("auth.tooManyRequests", { ns: "auth" });
             break;
           case "auth/user-not-found":
-            errorMessage = t("forgotPassword.emailNotRegisteredDescription");
+            errorMessage = t("forgotPassword.emailNotRegisteredDescription", { ns: "auth" });
             break;
           default:
             errorMessage = error.message || t("common.unknownError");
@@ -115,35 +115,35 @@ export default function ForgotPasswordPage() {
             <Mail className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
           <CardTitle className="text-2xl font-bold">
-            {t("forgotPassword.title")}
+            {t("forgotPassword.title", { ns: "auth" })}
           </CardTitle>
-          <CardDescription>{t("forgotPassword.description")}</CardDescription>
+          <CardDescription>{t("forgotPassword.description", { ns: "auth" })}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">{t("forgotPassword.email")}</Label>
+              <Label htmlFor="email">{t("forgotPassword.email", { ns: "auth" })}</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="ejemplo@correo.com"
                 className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
                 {...register("email", {
-                  required: "El correo electrónico es requerido",
+                  required: t("forgotPassword.emailRequired", { ns: "auth" }),
                   validate: {
                     completeEmail: (value) => {
-                      if (!value) return "El correo electrónico es requerido";
+                      if (!value) return t("forgotPassword.emailRequired", { ns: "auth" });
                       if (
                         value.includes("@") &&
                         (value.endsWith("@") ||
                           value.split("@")[1]?.length === 0)
                       ) {
-                        return "Email incompleto";
+                        return t("forgotPassword.emailIncomplete", { ns: "auth" });
                       }
                       if (
                         !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)
                       ) {
-                        return "Formato de email inválido";
+                        return t("forgotPassword.emailInvalidFormat", { ns: "auth" });
                       }
                       return true;
                     },
@@ -170,7 +170,7 @@ export default function ForgotPasswordPage() {
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  {t("forgotPassword.submit")}
+                  {t("forgotPassword.submit", { ns: "auth" })}
                 </>
               )}
             </Button>
@@ -183,7 +183,7 @@ export default function ForgotPasswordPage() {
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  {t("forgotPassword.backToLogin")}
+                  {t("forgotPassword.backToLogin", { ns: "auth" })}
                 </Button>
               </Link>
             </div>

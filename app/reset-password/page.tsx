@@ -72,7 +72,7 @@ function ResetPasswordContent() {
       toast({
         variant: "destructive",
         title: t("common.error"),
-        description: t("resetPassword.invalidLinkError"),
+        description: t("resetPassword.invalidLinkError", { ns: "auth" }),
       });
       router.push("/forgot-password");
       return;
@@ -212,7 +212,7 @@ function ResetPasswordContent() {
             <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
           <CardTitle className="text-2xl font-bold">
-            {t("resetPassword.title")}
+            {t("resetPassword.title", { ns: "auth" })}
           </CardTitle>
           <CardDescription>{t("resetPassword.description")}</CardDescription>
         </CardHeader>

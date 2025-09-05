@@ -2,8 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -11,20 +9,18 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ImageUpload } from "@/components/common/image-upload";
 import {
-  Send,
-  Image as ImageIcon,
   Brain,
-  Leaf,
   User,
-  Bot,
-  Camera,
   X,
-  Menu,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
-import { collection, query, orderBy, getDocs, doc, getDoc } from "firebase/firestore";
+import { ChatInput } from "@/components/ai/chat-input";
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 interface UnifiedMessage {
@@ -37,9 +33,11 @@ interface UnifiedMessage {
 interface UnifiedChatProps {
   sessionId?: string;
   className?: string;
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
+export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggleSidebar }: UnifiedChatProps) {
   const { t } = useTranslation(["analyzePlant", "common"]);
   const { toast } = useToast();
   const { user } = useAuthUser();
@@ -51,7 +49,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
     sessionId
   );
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Default to minimized on desktop
+  // Sidebar state is now managed by parent component
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -148,14 +146,16 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
 
   const loadChatSession = async (sessionId: string) => {
     if (!user?.uid) return;
-    
+
     try {
-      const chatDoc = await getDoc(doc(db, "users", user.uid, "aiChats", sessionId));
+      const chatDoc = await getDoc(
+        doc(db, "users", user.uid, "aiChats", sessionId)
+      );
       if (chatDoc.exists()) {
         const data = chatDoc.data();
         setMessages(data.messages || []);
         setCurrentSessionId(sessionId);
-        setSidebarOpen(false); // Close sidebar on mobile after selection
+        onToggleSidebar && sidebarOpen && onToggleSidebar(); // Close sidebar on mobile after selection
       }
     } catch (error) {
       console.error("Error loading chat session:", error);
@@ -170,7 +170,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
   const handleNewChat = () => {
     setMessages([]);
     setCurrentSessionId(undefined);
-    setSidebarOpen(false);
+    onToggleSidebar && sidebarOpen && onToggleSidebar();
   };
 
   return (
@@ -178,7 +178,7 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
       {/* Chat Sidebar */}
       <ChatSidebar
         isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onToggle={onToggleSidebar || (() => {})}
         currentSessionId={currentSessionId}
         onSessionSelect={loadChatSession}
         onNewChat={handleNewChat}
@@ -187,193 +187,209 @@ export function UnifiedChat({ sessionId, className }: UnifiedChatProps) {
 
       {/* Main Chat */}
       <div className="flex flex-col flex-1 h-full max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="border-b p-4">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold flex items-center gap-2">
-                <Brain className="h-6 w-6 text-primary" />
-                {t("assistant", { ns: "analyzePlant" })}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t("universalHelp", { ns: "analyzePlant" })}
+
+        {/* Chat Content */}
+        {messages.length === 0 ? (
+          /* Centered Welcome State - ChatGPT Style */
+          <div className="flex-1 flex flex-col items-center justify-center p-4 pb-32 md:pb-4">
+            <div className="text-center mb-8 text-muted-foreground max-w-md">
+              <p className="text-lg mb-6">
+                {t("helpText", { ns: "analyzePlant" })}
               </p>
             </div>
-          </div>
-        </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <Brain className="h-16 w-16 mx-auto mb-4 text-primary/50" />
-            <h3 className="text-lg font-semibold mb-2">{t("welcome", { ns: "analyzePlant" })}</h3>
-            <p className="text-sm max-w-md mx-auto">{t("helpText", { ns: "analyzePlant" })}</p>
-          </div>
-        )}
+            {/* Centered Input */}
+            <div className="w-full max-w-2xl">
+              {/* Image Preview */}
+              {images.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex gap-2 overflow-x-auto justify-center">
+                    {images.map((img, index) => (
+                      <div key={index} className="relative flex-shrink-0">
+                        <div className="relative w-12 h-12 rounded-md overflow-hidden">
+                          <Image
+                            src={img.url}
+                            alt="Upload preview"
+                            fill
+                            className="object-cover"
+                            sizes="48px"
+                          />
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="absolute -top-1 -right-1 w-4 h-4"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-2 w-2" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={cn(
-              "flex gap-3 max-w-3xl",
-              message.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
-            )}
-          >
-            <div
-              className={cn(
-                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+              {/* Input */}
+              <ChatInput
+                ref={inputRef}
+                value={input}
+                onChange={setInput}
+                onKeyPress={handleKeyPress}
+                onSendMessage={handleSendMessage}
+                onShowImageUpload={() => setShowImageUpload(true)}
+                isLoading={isLoading}
+              />
+            </div>
+          </div>
+        ) : (
+          /* Message View - Standard Chat Layout */
+          <>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "flex gap-3 max-w-3xl",
+                    message.role === "user"
+                      ? "ml-auto flex-row-reverse"
+                      : "mr-auto"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted"
+                    )}
+                  >
+                    {message.role === "user" ? (
+                      <User className="h-4 w-4" />
+                    ) : (
+                      <Brain className="h-4 w-4" />
+                    )}
+                  </div>
+
+                  <div
+                    className={cn(
+                      "flex-1 rounded-lg p-4 prose prose-sm max-w-none",
+                      message.role === "user"
+                        ? "bg-gray-100 dark:bg-gray-800 text-foreground"
+                        : "bg-muted"
+                    )}
+                  >
+                    {message.images && message.images.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {message.images.map((img, imgIndex) => (
+                          <div
+                            key={imgIndex}
+                            className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0"
+                          >
+                            <Image
+                              src={img.url}
+                              alt="Uploaded image"
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  </div>
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3 max-w-3xl mr-auto">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                    <Brain className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 bg-muted rounded-lg p-4">
+                    <AnimatedLogo
+                      size={16}
+                      className="text-primary"
+                      duration={1.2}
+                    />
+                  </div>
+                </div>
               )}
-            >
-              {message.role === "user" ? (
-                <User className="h-4 w-4" />
-              ) : (
-                <Brain className="h-4 w-4" />
-              )}
+
+              <div ref={messagesEndRef} />
             </div>
 
-            <div
-              className={cn(
-                "flex-1 rounded-lg p-4 prose prose-sm max-w-none",
-                message.role === "user"
-                  ? "bg-gray-100 dark:bg-gray-800 text-foreground"
-                  : "bg-muted"
-              )}
-            >
-              {message.images && message.images.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-2">
-                  {message.images.map((img, imgIndex) => (
-                    <div
-                      key={imgIndex}
-                      className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0"
-                    >
-                      <Image
-                        src={img.url}
-                        alt="Uploaded image"
-                        fill
-                        className="object-cover"
-                        sizes="48px"
-                      />
+            {/* Image Preview - Only in message mode */}
+            {images.length > 0 && (
+              <div className="border-t p-4">
+                <div className="flex gap-2 overflow-x-auto">
+                  {images.map((img, index) => (
+                    <div key={index} className="relative flex-shrink-0">
+                      <div className="relative w-12 h-12 rounded-md overflow-hidden">
+                        <Image
+                          src={img.url}
+                          alt="Upload preview"
+                          fill
+                          className="object-cover"
+                          sizes="48px"
+                        />
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 w-4 h-4"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-2 w-2" />
+                      </Button>
                     </div>
                   ))}
                 </div>
-              )}
-              <div className="whitespace-pre-wrap">{message.content}</div>
-            </div>
-          </div>
-        ))}
+              </div>
+            )}
 
-        {isLoading && (
-          <div className="flex gap-3 max-w-3xl mr-auto">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-              <Brain className="h-4 w-4" />
+            {/* Input - Bottom position */}
+            <div className="border-t p-4">
+              <ChatInput
+                ref={inputRef}
+                value={input}
+                onChange={setInput}
+                onKeyPress={handleKeyPress}
+                onSendMessage={handleSendMessage}
+                onShowImageUpload={() => setShowImageUpload(true)}
+                isLoading={isLoading}
+              />
             </div>
-            <div className="flex-1 bg-muted rounded-lg p-4">
-              <AnimatedLogo size={16} className="text-primary" duration={1.2} />
-            </div>
-          </div>
+          </>
         )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Image Preview */}
-      {images.length > 0 && (
-        <div className="border-t p-4">
-          <div className="flex gap-2 overflow-x-auto">
-            {images.map((img, index) => (
-              <div key={index} className="relative flex-shrink-0">
-                <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                  <Image
-                    src={img.url}
-                    alt="Upload preview"
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                  />
+        {/* Image Upload Modal */}
+        {showImageUpload && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">
+                    {t("uploadPhoto", { ns: "analyzePlant" })}
+                  </h3>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowImageUpload(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 w-4 h-4"
-                  onClick={() => removeImage(index)}
-                >
-                  <X className="h-2 w-2" />
-                </Button>
-              </div>
-            ))}
+                <ImageUpload
+                  onImagesChange={handleImageUpload}
+                  maxImages={3}
+                  className="w-full"
+                />
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      )}
-
-      {/* Input */}
-      <div className="border-t p-4">
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={t("universalPlaceholder", { ns: "analyzePlant" })}
-              disabled={isLoading}
-              className="pr-12"
-            />
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-1 top-1 w-8 h-8"
-              onClick={() => setShowImageUpload(true)}
-              disabled={isLoading}
-            >
-              <Camera className="h-4 w-4" />
-            </Button>
-          </div>
-          <Button
-            onClick={handleSendMessage}
-            disabled={isLoading || (!input.trim() && images.length === 0)}
-            size="icon"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Image Upload Modal */}
-      {showImageUpload && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">{t("uploadPhoto", { ns: "analyzePlant" })}</h3>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => setShowImageUpload(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <ImageUpload
-                onImagesChange={handleImageUpload}
-                maxImages={3}
-                className="w-full"
-              />
-            </CardContent>
-          </Card>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

@@ -6,17 +6,17 @@ import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, Settings, Brain, Menu } from "lucide-react";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
-import Logo from "@/components/common/logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 
 interface AILayoutProps {
   children: React.ReactNode;
+  onToggleSidebar?: () => void;
 }
 
-export function AILayout({ children }: AILayoutProps) {
-  const { t } = useTranslation(["nav", "common"]);
+export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
+  const { t } = useTranslation(["nav", "common", "analyzePlant"]);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -30,7 +30,21 @@ export function AILayout({ children }: AILayoutProps) {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* No mobile top bar - use bottom navigation instead */}
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex items-center p-4 border-b bg-background/95 backdrop-blur">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleSidebar}
+          className="mr-3"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          <span className="font-semibold text-lg">{t("assistant", { ns: "analyzePlant" })}</span>
+        </div>
+      </div>
 
       {/* Top Bar - Desktop */}
       <div className="hidden md:flex items-center justify-between p-3 border-b bg-background/95 backdrop-blur">
@@ -45,7 +59,10 @@ export function AILayout({ children }: AILayoutProps) {
             {t("back", { ns: "common" })}
           </Button>
           <div className="w-px h-6 bg-border" />
-          <Logo className="h-6" />
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-lg">{t("assistant", { ns: "analyzePlant" })}</span>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button

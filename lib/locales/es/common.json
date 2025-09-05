@@ -212,5 +212,20 @@
     "reauthRequired": "Vuelve a autenticarte e inténtalo de nuevo.",
     "accountDeleted": "Cuenta eliminada",
     "accountDeletedDesc": "Tu cuenta y datos han sido eliminados"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "description": "Usamos cookies para mejorar tu experiencia. Al continuar navegando, aceptas su uso.",
+    "learnMore": "Más información",
+    "accept": "Aceptar",
+    "decline": "Rechazar"
+  },
+  "premium": {
+    "title": "Premium requerido",
+    "analyzeDesc": "Esta función requiere una suscripción premium. Actualiza tu cuenta para acceder al asistente de IA.",
+    "upgrade": "Actualizar a Premium",
+    "wip": "Próximamente",
+    "mercadoPago": "Estamos trabajando en la integración con MercadoPago para ofrecerte la mejor experiencia de pago.",
+    "back": "Volver"
   }
 }
