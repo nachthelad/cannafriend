@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -11,20 +10,20 @@ export function PremiumRequiredCard(): React.ReactElement {
   const { t } = useTranslation(["common"]);
 
   return (
-    <Card>
-      <CardContent className="p-4 space-y-3">
-        <div className="text-lg font-medium">{t("premium.title")}</div>
-        <div className="text-sm text-muted-foreground">
-          {t("premium.analyzeDesc")}
-        </div>
-        <Button
-          onClick={() => router.push(ROUTE_PREMIUM)}
-          className="w-full"
-          style={{ backgroundColor: "#228B22" }}
-        >
-          {t("premium.upgrade")}
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="text-center space-y-6">
+      <div className="space-y-3">
+        <h2 className="text-2xl font-bold">{t("premium.title", { ns: "common" })}</h2>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          {t("premium.analyzeDesc", { ns: "common" })}
+        </p>
+      </div>
+      <Button
+        onClick={() => router.push(ROUTE_PREMIUM)}
+        className="w-full max-w-xs"
+        style={{ backgroundColor: "#228B22" }}
+      >
+        {t("premium.upgrade", { ns: "common" })}
+      </Button>
+    </div>
   );
 }

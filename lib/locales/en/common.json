@@ -213,5 +213,20 @@
     "reauthRequired": "Please reauthenticate and try again.",
     "accountDeleted": "Account deleted",
     "accountDeletedDesc": "Your account and data were removed"
+  },
+  "cookies": {
+    "title": "Cookies",
+    "description": "We use cookies to improve your experience. By continuing to browse, you accept their use.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
+  "premium": {
+    "title": "Premium required",
+    "analyzeDesc": "This feature requires a premium subscription. Upgrade your account to access the AI assistant.",
+    "upgrade": "Upgrade to Premium",
+    "wip": "Coming soon",
+    "mercadoPago": "We are working on MercadoPago integration to offer you the best payment experience.",
+    "back": "Go back"
   }
 }

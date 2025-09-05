@@ -47,7 +47,7 @@ export function CookieConsent() {
       <Card className="shadow-lg border">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
-            <h3 className="font-semibold text-sm">{t("cookies.title")}</h3>
+            <h3 className="font-semibold text-sm">{t("cookies.title", { ns: "common" })}</h3>
             <Button
               variant="ghost"
               size="icon"
@@ -58,14 +58,14 @@ export function CookieConsent() {
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            {t("cookies.description")}{" "}
+            {t("cookies.description", { ns: "common" })}{"; "}
             <Link href={ROUTE_PRIVACY} className="text-primary hover:underline">
-              {t("cookies.learnMore")}
+              {t("cookies.learnMore", { ns: "common" })}
             </Link>
           </p>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleAccept} className="flex-1">
-              {t("cookies.accept")}
+              {t("cookies.accept", { ns: "common" })}
             </Button>
             <Button
               variant="outline"
@@ -73,7 +73,7 @@ export function CookieConsent() {
               onClick={handleDecline}
               className="flex-1"
             >
-              {t("cookies.decline")}
+              {t("cookies.decline", { ns: "common" })}
             </Button>
           </div>
         </CardContent>
