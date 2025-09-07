@@ -12,9 +12,10 @@ export async function POST(req: NextRequest) {
 
     // Import Firebase Admin at runtime
     const { adminAuth } = await import("@/lib/firebase-admin");
-    
+
     // Verify authentication
-    const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
+    const authHeader =
+      req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader || !authHeader.toLowerCase().startsWith("bearer ")) {
       return NextResponse.json({ error: "missing_auth" }, { status: 401 });
     }
@@ -27,17 +28,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "missing_email" }, { status: 400 });
     }
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Use existing Stripe Payment Link
-    const stripePaymentLink = "https://buy.stripe.com/test_3cI4gB6FF2rH7WWdcX2kw00";
+    const stripePaymentLink = "https://buy.stripe.com/cNibJ37LpfHIfnx3aJcZa00";
 
     return NextResponse.json({
       success: true,
       checkout_url: stripePaymentLink,
       session_id: null, // Not applicable for payment links
     });
-
   } catch (error: any) {
     console.error("Stripe checkout creation error:", error);
     return NextResponse.json(
