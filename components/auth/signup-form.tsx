@@ -192,10 +192,10 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
                   value.includes("@") &&
                   (value.endsWith("@") || value.split("@")[1]?.length === 0)
                 ) {
-                  return t("incompleteEmail");
+                  return t("incompleteEmail", { ns: "validation" });
                 }
                 if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
-                  return t("invalidEmail");
+                  return t("invalidEmail", { ns: "validation" });
                 }
                 return true;
               },
