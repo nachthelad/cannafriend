@@ -38,7 +38,7 @@ import type { Plant, LogEntry } from "@/types";
 import { db } from "@/lib/firebase";
 import { collection } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
-import { ADMIN_EMAIL } from "@/app/api/admin/users/route";
+import { ADMIN_EMAIL } from "@/lib/constants";
 
 export default function DashboardPage() {
   const { t } = useTranslation([

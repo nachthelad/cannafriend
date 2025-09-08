@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { MobileAdmin } from "@/components/mobile/mobile-admin";
-import { ADMIN_EMAIL } from "@/app/api/admin/users/route";
+import { ADMIN_EMAIL } from "@/lib/constants";
 
 type ListedUser = {
   uid: string;

@@ -389,10 +389,55 @@ t("required", { ns: "validation" });
 5. **Smaller Bundles**: Eliminated duplicate form code
 6. **Mobile Optimization**: Buttons positioned correctly above bottom navbar
 
+### ✅ Constants Architecture (Sept 2025)
+
+**Issue Addressed**: Client components importing from server-only API routes causing build errors.
+
+**Problem**: Admin email constant was defined in server-only API route (`app/api/admin/users/route.ts`) but imported by client components (`app/admin/page.tsx`, `app/dashboard/page.tsx`), creating build errors due to `firebase-admin` "server-only" dependency chain.
+
+**Solution Implemented**: **Shared Constants Pattern**
+
+#### **Constants Architecture**:
+
+```typescript
+// lib/constants.ts - Shared constants for client & server
+export const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
+```
+
+**Import Pattern**:
+```typescript
+// ✅ Client components
+import { ADMIN_EMAIL } from "@/lib/constants";
+
+// ✅ Server components/API routes  
+import { ADMIN_EMAIL } from "@/lib/constants";
+```
+
+**Files Updated**:
+- **Created**: `lib/constants.ts` - Centralized constants file
+- **Updated**: `app/api/admin/users/route.ts` - Import from constants
+- **Updated**: `app/admin/page.tsx` - Fixed client-side import
+- **Updated**: `app/dashboard/page.tsx` - Fixed client-side import
+
+#### **Pattern for Future Constants**:
+
+When adding constants that need to be accessed by both client and server code:
+
+1. **Add to `lib/constants.ts`** - Never define in API routes
+2. **Import from constants** - Both client and server import from same file  
+3. **Avoid server-only dependencies** - Keep constants file clean of Firebase Admin, etc.
+
+**Common constants to move here**:
+- Configuration values used across components
+- Feature flags and toggles
+- Default values and limits
+- Email addresses and identifiers
+
 ### Current Priorities (Next Tasks)
 
 1. **Standardize mobile headers** - Apply consistent header pattern to remaining pages
-2. **Address ESLint warnings** - Gradually fix the 240+ identified warnings
+2. **Move shared constants** - Identify and move other constants from server-only locations
+3. **Address ESLint warnings** - Gradually fix the 240+ identified warnings
 
 ## Common Issues & Solutions
 
