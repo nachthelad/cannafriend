@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type React from "react";
 import { useRouter } from "next/navigation";
-import { ROUTE_AI_ASSISTANT, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_AI_ASSISTANT, ROUTE_SESSIONS } from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import {
   Card,
@@ -83,8 +83,8 @@ type Session = {
   photos?: string[] | null;
 };
 
-export default function StrainsPage() {
-  const { t } = useTranslation(["strains", "common"]);
+export default function SessionsPage() {
+  const { t } = useTranslation(["sessions", "common"]);
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -153,7 +153,7 @@ export default function StrainsPage() {
       setFavoriteStrains((prev) =>
         isFav ? prev.filter((s) => s !== norm) : [...prev, norm]
       );
-      toast({ title: isFav ? t("favorites.removed", { ns: "strains" }) : t("favorites.added", { ns: "strains" }) });
+      toast({ title: isFav ? t("favorites.removed", { ns: "sessions" }) : t("favorites.added", { ns: "sessions" }) });
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -235,7 +235,7 @@ export default function StrainsPage() {
             : x
         )
       );
-      toast({ title: t("updated", { ns: "strains" }) });
+      toast({ title: t("updated", { ns: "sessions" }) });
       setEditOpen(false);
     } catch (e: any) {
       toast({
@@ -251,7 +251,7 @@ export default function StrainsPage() {
     try {
       await deleteDoc(doc(db, "users", userId, "sessions", id));
       setSessions((prev) => prev.filter((x) => x.id !== id));
-      toast({ title: t("deleted", { ns: "strains" }) });
+      toast({ title: t("deleted", { ns: "sessions" }) });
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -268,15 +268,15 @@ export default function StrainsPage() {
           <div className="flex items-center">
             {/* Desktop title */}
             <h1 className="hidden md:block text-3xl font-bold">
-              {t("title", { ns: "strains" })}
+              {t("title", { ns: "sessions" })}
             </h1>
             {/* Mobile title */}
             <h1 className="md:hidden text-3xl font-bold">
-              {t("title", { ns: "strains" })}
+              {t("title", { ns: "sessions" })}
             </h1>
           </div>
           <p className="text-muted-foreground mt-1">
-            {t("description", { ns: "strains" })}
+            {t("description", { ns: "sessions" })}
           </p>
           {isPremium ? (
             <div className="mt-3">
@@ -284,22 +284,22 @@ export default function StrainsPage() {
                 onClick={() => router.push(ROUTE_AI_ASSISTANT)}
                 className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
               >
-                <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title", { ns: "strains" })}
+                <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title", { ns: "sessions" })}
               </Button>
             </div>
           ) : null}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
-            onClick={() => router.push("/sessions/new")}
+            onClick={() => router.push(`${ROUTE_SESSIONS}/new`)}
             className="hidden sm:inline-flex"
           >
             <Plus className="mr-2 h-4 w-4" />
-            {t("addSession", { ns: "strains" })}
+            {t("addSession", { ns: "sessions" })}
           </Button>
           <Button
-            onClick={() => router.push("/sessions/new")}
-            aria-label={t("addSession", { ns: "strains" })}
+            onClick={() => router.push(`${ROUTE_SESSIONS}/new`)}
+            aria-label={t("addSession", { ns: "sessions" })}
             className="h-9 w-9 p-0 sm:hidden"
           >
             <Plus className="h-5 w-5" />
@@ -309,11 +309,11 @@ export default function StrainsPage() {
             onClick={() => setShowFavoritesOnly((v) => !v)}
             className="hidden sm:inline-flex"
           >
-            <Heart className="mr-2 h-4 w-4" /> {t("favorites.filter", { ns: "strains" })}
+            <Heart className="mr-2 h-4 w-4" /> {t("favorites.filter", { ns: "sessions" })}
           </Button>
           <Button
             onClick={() => setShowFavoritesOnly((v) => !v)}
-            aria-label={t("favorites.filter", { ns: "strains" })}
+            aria-label={t("favorites.filter", { ns: "sessions" })}
             className="h-9 w-9 p-0 sm:hidden"
             variant={showFavoritesOnly ? "secondary" : "outline"}
           >
@@ -329,13 +329,13 @@ export default function StrainsPage() {
       ) : sessions.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>{t("noSessions", { ns: "strains" })}</CardTitle>
-            <CardDescription>{t("noSessionsDesc", { ns: "strains" })}</CardDescription>
+            <CardTitle>{t("noSessions", { ns: "sessions" })}</CardTitle>
+            <CardDescription>{t("noSessionsDesc", { ns: "sessions" })}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/sessions/new")}>
+            <Button onClick={() => router.push(`${ROUTE_SESSIONS}/new`)}>
               <Plus className="mr-2 h-4 w-4" />
-              {t("addSession", { ns: "strains" })}
+              {t("addSession", { ns: "sessions" })}
             </Button>
           </CardContent>
         </Card>
@@ -382,7 +382,7 @@ export default function StrainsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={t("edit", { ns: "strains" })}
+                      aria-label={t("edit", { ns: "sessions" })}
                       onClick={() => openEdit(s)}
                     >
                       <Pencil className="h-4 w-4" />
@@ -392,7 +392,7 @@ export default function StrainsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-label={t("delete", { ns: "strains" })}
+                          aria-label={t("delete", { ns: "sessions" })}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -401,21 +401,21 @@ export default function StrainsPage() {
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            {t("deleteConfirmTitle", { ns: "strains" })}
+                            {t("deleteConfirmTitle", { ns: "sessions" })}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            {t("deleteConfirmDesc", { ns: "strains" })}
+                            {t("deleteConfirmDesc", { ns: "sessions" })}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>
-                            {t("settings.cancel", { ns: "strains" })}
+                            {t("cancel", { ns: "common" })}
                           </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => handleDelete(s.id)}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            {t("deleteConfirm", { ns: "strains" })}
+                            {t("deleteConfirm", { ns: "sessions" })}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
@@ -459,12 +459,12 @@ export default function StrainsPage() {
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t("editSession", { ns: "strains" })}</DialogTitle>
+            <DialogTitle>{t("editSession", { ns: "sessions" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium">
-                {t("strain", { ns: "strains" })}
+                {t("strain", { ns: "sessions" })}
               </label>
               <Input
                 value={editStrain}
@@ -474,7 +474,7 @@ export default function StrainsPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("logForm.date", { ns: "strains" })}</label>
+              <label className="text-sm font-medium">{t("logForm.date", { ns: "sessions" })}</label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -498,20 +498,20 @@ export default function StrainsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("startTime", { ns: "strains" })}
+                  {t("startTime", { ns: "sessions" })}
                 </label>
                 <TimeField value={editStartTime} onChange={setEditStartTime} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {t("endTime", { ns: "strains" })}
+                  {t("endTime", { ns: "sessions" })}
                 </label>
                 <TimeField value={editEndTime} onChange={setEditEndTime} />
               </div>
             </div>
             <div>
               <label className="text-sm font-medium">
-                {t("notes", { ns: "strains" })}
+                {t("notes", { ns: "sessions" })}
               </label>
               <Textarea
                 value={editNotes}
@@ -520,7 +520,7 @@ export default function StrainsPage() {
             </div>
             <div>
               <label className="text-sm font-medium">
-                {t("photos", { ns: "strains" })}
+                {t("photos", { ns: "sessions" })}
               </label>
               <ImageUpload
                 onImagesChange={(newUrls) =>
@@ -552,7 +552,7 @@ export default function StrainsPage() {
             <Button variant="outline" onClick={() => setEditOpen(false)}>
               {t("cancel", { ns: "common" })}
             </Button>
-            <Button onClick={saveEdit}>{t("update", { ns: "strains" })}</Button>
+            <Button onClick={saveEdit}>{t("update", { ns: "sessions" })}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

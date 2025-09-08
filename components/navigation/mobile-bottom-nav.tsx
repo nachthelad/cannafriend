@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/skeleton";
 import { triggerHaptic } from "@/lib/haptic";
 import {
-  ROUTE_STRAINS,
+  ROUTE_SESSIONS,
   ROUTE_DASHBOARD,
   ROUTE_JOURNAL,
   ROUTE_SETTINGS,
@@ -67,9 +67,9 @@ export function MobileBottomNav(): React.ReactElement {
     if (path === ROUTE_DASHBOARD) {
       return pathname === ROUTE_DASHBOARD || pathname === "/";
     }
-    if (path === ROUTE_STRAINS) {
+    if (path === ROUTE_SESSIONS) {
       return (
-        pathname === ROUTE_STRAINS ||
+        pathname === ROUTE_SESSIONS ||
         (pathname === "/" && currentViewMode === "consumer")
       );
     }
@@ -95,7 +95,7 @@ export function MobileBottomNav(): React.ReactElement {
       if (mode === "grower") {
         router.push(ROUTE_DASHBOARD);
       } else {
-        router.push(ROUTE_STRAINS);
+        router.push(ROUTE_SESSIONS);
       }
     },
     [router]
@@ -142,9 +142,9 @@ export function MobileBottomNav(): React.ReactElement {
           ]
         : [
             {
-              href: ROUTE_STRAINS,
+              href: ROUTE_SESSIONS,
               icon: Home,
-              label: t("title", { ns: "strains" }),
+              label: t("title", { ns: "sessions" }),
             },
             {
               href: ROUTE_STASH,
@@ -190,9 +190,9 @@ export function MobileBottomNav(): React.ReactElement {
       // Consumer only (4 items for centered floating button) - always strains
       return [
         {
-          href: ROUTE_STRAINS,
+          href: ROUTE_SESSIONS,
           icon: Home,
-          label: t("title", { ns: "strains" }),
+          label: t("title", { ns: "sessions" }),
         },
         {
           href: ROUTE_STASH,

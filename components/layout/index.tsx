@@ -30,7 +30,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   ROUTE_AI_ASSISTANT,
   ROUTE_DASHBOARD,
-  ROUTE_STRAINS,
+  ROUTE_SESSIONS,
   ROUTE_PLANTS_NEW,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
@@ -47,7 +47,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { t } = useTranslation(["nav", "common", "dashboard", "strains", "analyzePlant"]);
+  const { t } = useTranslation(["nav", "common", "dashboard", "sessions", "analyzePlant"]);
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -68,7 +68,7 @@ export function Layout({ children }: LayoutProps) {
       ROUTE_REMINDERS,
       ROUTE_JOURNAL,
     ].some((p) => pathname?.startsWith(p));
-    const isConsumerArea = pathname?.startsWith(ROUTE_STRAINS);
+    const isConsumerArea = pathname?.startsWith(ROUTE_SESSIONS);
     if (roles.consumer && !roles.grower && isGrowerArea) {
       router.replace(resolveHomePathForRoles(roles));
     } else if (roles.grower && !roles.consumer && isConsumerArea) {
@@ -101,8 +101,8 @@ export function Layout({ children }: LayoutProps) {
       icon: Plus,
     },
     {
-      href: ROUTE_STRAINS,
-      label: t("title", { ns: "strains" }),
+      href: ROUTE_SESSIONS,
+      label: t("title", { ns: "sessions" }),
       icon: Plus,
     },
     {
@@ -151,7 +151,7 @@ export function Layout({ children }: LayoutProps) {
       ROUTE_REMINDERS,
       ROUTE_JOURNAL,
     ];
-    const consumerPaths: string[] = [ROUTE_STRAINS, ROUTE_STASH]; // sidebar entry for consumer
+    const consumerPaths: string[] = [ROUTE_SESSIONS, ROUTE_STASH]; // sidebar entry for consumer
     const isGrowerRoute =
       growerPaths.includes(r.href) || r.href.startsWith(ROUTE_PLANTS);
     const isConsumerRoute = consumerPaths.includes(r.href);
