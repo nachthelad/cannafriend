@@ -1,0 +1,45 @@
+{
+  "title": "Premium",
+  "subtitle": "Upgrade to Premium and unlock the full power of Cannafriend's AI assistant",
+  "featuresTitle": "Premium Features",
+  "featuresSubtitle": "Everything you get with Premium access",
+  "features": {
+    "aiAssistant": {
+      "title": "AI Plant Assistant",
+      "description": "Get expert advice and plant analysis"
+    },
+    "analytics": {
+      "title": "Advanced Analytics",
+      "description": "Detailed growth tracking and insights"
+    },
+    "support": {
+      "title": "Priority Support",
+      "description": "Get help when you need it most"
+    },
+    "content": {
+      "title": "Premium Content",
+      "description": "Exclusive guides and resources"
+    }
+  },
+  "subscription": {
+    "title": "Premium Subscription",
+    "subtitle": "Choose your preferred payment method"
+  },
+  "payment": {
+    "stripe": {
+      "title": "Pay with Stripe",
+      "description": "Secure international payments",
+      "price": "$9.99/month",
+      "button": "Subscribe with Stripe",
+      "processing": "Processing..."
+    },
+    "mercadoPago": {
+      "title": "Pay with MercadoPago",
+      "description": "Popular in Latin America",
+      "price": "$10,000 ARS/month",
+      "button": "Subscribe with MercadoPago",
+      "processing": "Processing..."
+    }
+  },
+  "back": "Back"
+}

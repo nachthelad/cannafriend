@@ -29,5 +29,9 @@
   "environmentValueRequired": "Al menos un valor de ambiente es requerido",
   "lightScheduleRequired": "El horario de luz es requerido para registros de floración",
   "notesRequired": "Las notas son requeridas para registros de notas",
-  "titleRequired": "El título es requerido"
+  "titleRequired": "El título es requerido",
+  "nameRequired": "El nombre es requerido",
+  "typeRequired": "El tipo es requerido",
+  "amountRequired": "La cantidad es requerida",
+  "unitRequired": "La unidad es requerida"
 }

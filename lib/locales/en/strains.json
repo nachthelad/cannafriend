@@ -2,6 +2,7 @@
   "title": "Strains",
   "description": "Track your strain experiences and preferences",
   "addSession": "Add Session",
+  "addSessionDesc": "Record a new cannabis consumption session",
   "noSessions": "No sessions found",
   "noSessionsDesc": "Start by adding your first strain session",
   "editSession": "Edit Session",

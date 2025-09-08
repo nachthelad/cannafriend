@@ -34,6 +34,8 @@ import enStash from "@/lib/locales/en/stash.json";
 import esStash from "@/lib/locales/es/stash.json";
 import enLanding from "@/lib/locales/en/landing.json";
 import esLanding from "@/lib/locales/es/landing.json";
+import enPremium from "@/lib/locales/en/premium.json";
+import esPremium from "@/lib/locales/es/premium.json";
 
 interface I18nProviderProps {
   children: React.ReactNode;
@@ -57,6 +59,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       analyzePlant: esAnalyzePlant,
       stash: esStash,
       landing: esLanding,
+      premium: esPremium,
     },
     en: {
       common: enCommon,
@@ -73,6 +76,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       analyzePlant: enAnalyzePlant,
       stash: enStash,
       landing: enLanding,
+      premium: enPremium,
     },
   };
 
@@ -99,6 +103,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       "strains",
       "analyzePlant",
       "landing",
+      "premium",
     ],
 
     interpolation: {

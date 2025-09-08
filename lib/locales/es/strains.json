@@ -2,6 +2,7 @@
   "title": "Variedades",
   "description": "Registra tus experiencias y preferencias de variedades",
   "addSession": "Agregar Sesión",
+  "addSessionDesc": "Registra una nueva sesión de consumo de cannabis",
   "noSessions": "No se encontraron sesiones",
   "noSessionsDesc": "Comienza agregando tu primera sesión de variedad",
   "editSession": "Editar Sesión",

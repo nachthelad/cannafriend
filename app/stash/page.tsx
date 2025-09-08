@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_STASH } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
   addDoc,
@@ -103,20 +103,8 @@ export default function StashPage() {
   }, [userId]);
 
   const openNew = () => {
-    setEditing({
-      id: "",
-      name: "",
-      type: "flower",
-      amount: "",
-      unit: "g",
-      thc: "",
-      cbd: "",
-      addedAt: new Date().toISOString(),
-      vendor: "",
-      price: "",
-      notes: "",
-    });
-    setEditOpen(true);
+    // Always redirect to dedicated page for better UX and consistency
+    router.push(`${ROUTE_STASH}/new`);
   };
 
   const openEdit = (item: StashItem) => {

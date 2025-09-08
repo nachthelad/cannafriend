@@ -227,5 +227,22 @@
     "wip": "Próximamente",
     "mercadoPago": "Estamos trabajando en la integración con MercadoPago para ofrecerte la mejor experiencia de pago.",
     "back": "Volver"
+  },
+  "subscription": {
+    "title": "Suscripción Premium",
+    "status": "Estado de Suscripción",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "cancel": "Cancelar Suscripción",
+    "cancelDesc": "Cancelar tu suscripción premium. Perderás acceso a las funciones premium inmediatamente.",
+    "confirmCancel": "¿Confirmar cancelación?",
+    "confirmCancelDesc": "Esta acción cancelará tu suscripción premium. No podrás acceder a las funciones premium.",
+    "confirmCancelButton": "Sí, cancelar suscripción",
+    "cancelling": "Cancelando...",
+    "cancelled": "Suscripción cancelada",
+    "cancelledDesc": "Tu suscripción premium ha sido cancelada exitosamente",
+    "cancelError": "Error al cancelar",
+    "alreadyCancelled": "No tienes una suscripción activa para cancelar",
+    "mercadopagoNote": "Para suscripciones de MercadoPago, también puedes cancelar desde tu cuenta de MercadoPago"
   }
 }

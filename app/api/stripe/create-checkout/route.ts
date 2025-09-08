@@ -28,6 +28,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "missing_email" }, { status: 400 });
     }
 
+    // Check if user is already premium
+    const isPremium = Boolean((user.customClaims as any)?.premium);
+    if (isPremium) {
+      return NextResponse.json(
+        { error: "already_premium", message: "User already has an active premium subscription" },
+        { status: 409 } // Conflict
+      );
+    }
+
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Use existing Stripe Payment Link
