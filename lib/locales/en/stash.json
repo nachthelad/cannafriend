@@ -31,5 +31,14 @@
     "g": "g",
     "ml": "ml", 
     "units": "units"
-  }
+  },
+  "addItemDesc": "Add a new item to your inventory",
+  "selectType": "Select a type",
+  "namePlaceholder": "e.g. Blue Dream",
+  "vendorPlaceholder": "e.g. Local Dispensary",
+  "notesPlaceholder": "Additional notes about this item...",
+  "addSuccess": "Item added",
+  "addSuccessDesc": "Item was successfully added to your inventory",
+  "addError": "Error adding item",
+  "addErrorDesc": "There was an error adding the item"
 }

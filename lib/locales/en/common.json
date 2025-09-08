@@ -228,5 +228,22 @@
     "wip": "Coming soon",
     "mercadoPago": "We are working on MercadoPago integration to offer you the best payment experience.",
     "back": "Go back"
+  },
+  "subscription": {
+    "title": "Premium Subscription",
+    "status": "Subscription Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "cancel": "Cancel Subscription",
+    "cancelDesc": "Cancel your premium subscription. You will lose access to premium features immediately.",
+    "confirmCancel": "Confirm cancellation?",
+    "confirmCancelDesc": "This action will cancel your premium subscription. You won't be able to access premium features.",
+    "confirmCancelButton": "Yes, cancel subscription",
+    "cancelling": "Cancelling...",
+    "cancelled": "Subscription cancelled",
+    "cancelledDesc": "Your premium subscription has been cancelled successfully",
+    "cancelError": "Error cancelling subscription",
+    "alreadyCancelled": "You don't have an active subscription to cancel",
+    "mercadopagoNote": "For MercadoPago subscriptions, you can also cancel from your MercadoPago account"
   }
 }

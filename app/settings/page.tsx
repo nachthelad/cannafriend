@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ROUTE_LOGIN, ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_PRIVACY, ROUTE_TERMS, ROUTE_PREMIUM } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,7 +45,8 @@ import {
 import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
-import { Trash2, AlertTriangle } from "lucide-react";
+import { usePremium } from "@/hooks/use-premium";
+import { Trash2, AlertTriangle, Crown, CreditCard } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   AlertDialog,
@@ -66,8 +67,10 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const { toast } = useToast();
+  const { isPremium } = usePremium();
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isCancellingSubscription, setIsCancellingSubscription] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userSettings, setUserSettings] = useState<{
     timezone: string;
@@ -420,6 +423,71 @@ export default function SettingsPage() {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    if (!auth.currentUser) return;
+    
+    setIsCancellingSubscription(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      
+      // Try Stripe first
+      let response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      let data = await response.json();
+      
+      // If Stripe fails with customer_not_found, try MercadoPago
+      if (!response.ok && data.error === 'customer_not_found') {
+        response = await fetch('/api/mercadopago/cancel-subscription', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        data = await response.json();
+      }
+      
+      if (response.ok && data.success) {
+        toast({
+          title: t("subscription.cancelled"),
+          description: t("subscription.cancelledDesc"),
+        });
+        
+        // Show additional note for MercadoPago if applicable
+        if (data.note) {
+          setTimeout(() => {
+            toast({
+              title: t("info"),
+              description: data.note,
+            });
+          }, 2000);
+        }
+      } else if (data.error === 'not_premium') {
+        toast({
+          variant: "destructive",
+          title: t("subscription.cancelError"),
+          description: t("subscription.alreadyCancelled"),
+        });
+      } else {
+        throw new Error(data.message || 'Failed to cancel subscription');
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("subscription.cancelError"),
+        description: error.message || 'Failed to cancel subscription',
+      });
+    } finally {
+      setIsCancellingSubscription(false);
+    }
+  };
+
   const timezones = [
     "America/Argentina/Buenos_Aires",
     "America/Mexico_City",
@@ -592,6 +660,90 @@ export default function SettingsPage() {
                   </label>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Premium Subscription Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Crown className="mr-2 h-5 w-5 text-yellow-500" />
+                {t("subscription.title")}
+              </CardTitle>
+              <CardDescription>{t("subscription.status")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${isPremium ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <span className="font-medium">
+                    {isPremium ? t("subscription.active") : t("subscription.inactive")}
+                  </span>
+                </div>
+                {!isPremium ? (
+                  <Button 
+                    onClick={() => router.push(ROUTE_PREMIUM)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-black"
+                    size="sm"
+                  >
+                    <Crown className="mr-2 h-4 w-4" />
+                    {t("premium.upgrade")}
+                  </Button>
+                ) : (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        {t("subscription.cancel")}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center">
+                          <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />
+                          {t("subscription.confirmCancel")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t("subscription.confirmCancelDesc")}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          {t("cancel")}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleCancelSubscription}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          disabled={isCancellingSubscription}
+                        >
+                          {isCancellingSubscription ? (
+                            <>
+                              <AnimatedLogo
+                                size={16}
+                                className="mr-2 text-primary"
+                                duration={1.2}
+                              />
+                              {t("subscription.cancelling")}
+                            </>
+                          ) : (
+                            t("subscription.confirmCancelButton")
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+              {!isPremium && (
+                <p className="text-sm text-muted-foreground mt-3">
+                  {t("premium.analyzeDesc")}
+                </p>
+              )}
+              {isPremium && (
+                <p className="text-sm text-muted-foreground mt-3">
+                  {t("subscription.mercadopagoNote")}
+                </p>
+              )}
             </CardContent>
           </Card>
 

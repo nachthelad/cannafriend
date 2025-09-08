@@ -38,6 +38,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "missing_email" }, { status: 400 });
     }
 
+    // Check if user is already premium
+    const isPremium = Boolean((user.customClaims as any)?.premium);
+    if (isPremium) {
+      return NextResponse.json(
+        { error: "already_premium", message: "User already has an active premium subscription" },
+        { status: 409 } // Conflict
+      );
+    }
+
     // Check MercadoPago token
     const mpToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     if (!mpToken) {
@@ -82,8 +91,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       subscription_id: mpData.id,
-      init_point: mpData.init_point, // URL to redirect user for payment
-      sandbox_init_point: mpData.sandbox_init_point, // For testing
+      init_point: mpData.init_point, // Production URL for payment
+      // sandbox_init_point: mpData.sandbox_init_point, // Removed for production
     });
 
   } catch (error: any) {

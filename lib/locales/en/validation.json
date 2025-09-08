@@ -29,5 +29,9 @@
   "environmentValueRequired": "At least one environment value is required",
   "lightScheduleRequired": "Light schedule is required for flowering logs",
   "notesRequired": "Notes are required for note logs",
-  "titleRequired": "Title is required"
+  "titleRequired": "Title is required",
+  "nameRequired": "Name is required",
+  "typeRequired": "Type is required", 
+  "amountRequired": "Amount is required",
+  "unitRequired": "Unit is required"
 }

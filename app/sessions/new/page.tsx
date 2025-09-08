@@ -17,7 +17,7 @@ import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 import { ImageUpload } from "@/components/common/image-upload";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -109,6 +109,10 @@ export default function NewSessionPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleBack = () => {
+    router.push(ROUTE_STRAINS);
+  };
 
   type SessionForm = {
     strain: string;
@@ -209,33 +213,69 @@ export default function NewSessionPage() {
 
   return (
     <Layout>
-      <div className="max-w-xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("addSession", { ns: "strains" })}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit(onSave)} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">
-                  {t("strain", { ns: "strains" })}
-                </label>
-                <Input
-                  {...register("strain", {
-                    required: t("required", { ns: "strains" }) as any,
-                  })}
-                  placeholder={t("strainPlaceholder", { ns: "strains" })}
-                />
-                {errors.strain && (
-                  <p className="text-xs text-destructive mt-1">
-                    {String(errors.strain.message)}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("logForm.date", { ns: "strains" })}
-                </label>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="p-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">
+              {t("addSession", { ns: "strains" })}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {t("addSessionDesc", { ns: "strains" })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
+          </Button>
+        </div>
+        <h1 className="text-3xl font-bold">
+          {t("addSession", { ns: "strains" })}
+        </h1>
+        <p className="text-muted-foreground">
+          {t("addSessionDesc", { ns: "strains" })}
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSave)} className="max-w-2xl px-4 md:px-6">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <label htmlFor="strain" className="text-base font-medium">
+              {t("strain", { ns: "strains" })} *
+            </label>
+            <Input
+              id="strain"
+              {...register("strain", {
+                required: t("required", { ns: "strains" }) as any,
+              })}
+              placeholder={t("strainPlaceholder", { ns: "strains" })}
+              className="min-h-[48px] text-base"
+            />
+            {errors.strain && (
+              <p className="text-xs text-destructive mt-1">
+                {String(errors.strain.message)}
+              </p>
+            )}
+          </div>
+          <div className="space-y-3">
+            <label className="text-base font-medium">
+              {t("logForm.date", { ns: "strains" })}
+            </label>
                 <div className="md:hidden">
                   <MobileDatePicker
                     selected={sessionDate}
@@ -251,7 +291,7 @@ export default function NewSessionPage() {
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full justify-start text-left font-normal"
+                          "w-full justify-start text-left font-normal min-h-[48px] text-base"
                         )}
                       >
                         <Calendar className="mr-2 h-4 w-4" />
@@ -270,23 +310,23 @@ export default function NewSessionPage() {
                     </PopoverContent>
                   </Popover>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("startTime", { ns: "strains" })}
-                  </label>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <label className="text-base font-medium">
+                {t("startTime", { ns: "strains" })}
+              </label>
                   <TimeField
                     value={startTime}
                     onChange={(v) =>
                       setValue("startTime", v, { shouldDirty: true })
                     }
                   />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    {t("endTime", { ns: "strains" })}
-                  </label>
+            </div>
+            <div className="space-y-3">
+              <label className="text-base font-medium">
+                {t("endTime", { ns: "strains" })}
+              </label>
                   <TimeField
                     value={endTime}
                     onChange={(v) =>
@@ -294,40 +334,46 @@ export default function NewSessionPage() {
                     }
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">
-                    {t("method", { ns: "strains" })}
-                  </label>
-                  <Input
-                    {...register("method")}
-                    placeholder={t("methodPlaceholder", { ns: "strains" })}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">
-                    {t("amount", { ns: "strains" })}
-                  </label>
-                  <Input
-                    {...register("amount")}
-                    placeholder={t("amountPlaceholder", { ns: "strains" })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium">
-                  {t("notes", { ns: "strains" })}
-                </label>
-                <Textarea
-                  {...register("notes")}
-                  placeholder={t("notesPlaceholder", { ns: "strains" })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">
-                  {t("photos", { ns: "strains" })}
-                </label>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <label htmlFor="method" className="text-base font-medium">
+                {t("method", { ns: "strains" })}
+              </label>
+              <Input
+                id="method"
+                {...register("method")}
+                placeholder={t("methodPlaceholder", { ns: "strains" })}
+                className="min-h-[48px] text-base"
+              />
+            </div>
+            <div className="space-y-3">
+              <label htmlFor="amount" className="text-base font-medium">
+                {t("amount", { ns: "strains" })}
+              </label>
+              <Input
+                id="amount"
+                {...register("amount")}
+                placeholder={t("amountPlaceholder", { ns: "strains" })}
+                className="min-h-[48px] text-base"
+              />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <label htmlFor="notes" className="text-base font-medium">
+              {t("notes", { ns: "strains" })}
+            </label>
+            <Textarea
+              id="notes"
+              {...register("notes")}
+              placeholder={t("notesPlaceholder", { ns: "strains" })}
+              className="min-h-[100px] text-base resize-none"
+            />
+          </div>
+          <div className="space-y-3">
+            <label className="text-base font-medium">
+              {t("photos", { ns: "strains" })}
+            </label>
                 <ImageUpload
                   onImagesChange={(newUrls) =>
                     setPhotos((prev) => [...prev, ...newUrls])
@@ -352,23 +398,39 @@ export default function NewSessionPage() {
                     ))}
                   </div>
                 )}
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.push(ROUTE_STRAINS)}
-                >
-                  {t("cancel", { ns: "common" })}
-                </Button>
-                <Button type="submit" disabled={isSaving}>
-                  {t("save", { ns: "strains" })}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-3 pt-4 pb-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              className="flex-1 min-h-[48px] text-base"
+            >
+              {t("cancel", { ns: "common" })}
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSaving}
+              className="flex-1 min-h-[48px] text-base"
+            >
+              {isSaving ? (
+                <span className="inline-flex items-center gap-2">
+                  <AnimatedLogo
+                    size={16}
+                    className="text-primary-foreground"
+                    duration={1.2}
+                  />
+                  {t("saving", { ns: "common" })}
+                </span>
+              ) : (
+                t("save", { ns: "strains" })
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
     </Layout>
   );
 }

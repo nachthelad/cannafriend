@@ -3,7 +3,7 @@
   "description": "Registra tu inventario de cannabis",
   "addItem": "Agregar Artículo",
   "empty": "No hay artículos en el inventario",
-  "emptyDesc": "Comienza agregando tu primer artículo para rastrear tu alijo",
+  "emptyDesc": "Comienza agregando tu primer artículo para rastrear tu inventario",
   "update": "Actualizar Artículo",
   "save": "Guardar Artículo",
   "saved": "Artículo guardado",
@@ -31,5 +31,14 @@
     "g": "g",
     "ml": "ml",
     "units": "unidades"
-  }
+  },
+  "addItemDesc": "Agregar un nuevo artículo a tu inventario",
+  "selectType": "Selecciona un tipo",
+  "namePlaceholder": "Ej. Blue Dream",
+  "vendorPlaceholder": "Ej. Dispensario Local",
+  "notesPlaceholder": "Notas adicionales sobre este artículo...",
+  "addSuccess": "Artículo agregado",
+  "addSuccessDesc": "El artículo se agregó exitosamente a tu inventario",
+  "addError": "Error al agregar",
+  "addErrorDesc": "Hubo un error al agregar el artículo"
 }
