@@ -173,9 +173,10 @@ This document outlines prioritized tasks to improve page loading, UI quality, an
 - [x] Review and clean up unused CSS classes ✅
 - [x] Add proper TypeScript types for any remaining `any` types ✅
 
-## 🎉 Recent Code Quality Improvements (January 2025)
+## 🎉 Recent Code Quality Improvements (Sept 2025)
 
 ### ✅ TypeScript & ESLint Setup
+
 - **Fixed all TypeScript strict checking errors** - Resolved `useTranslation` hook usage issues across 4 files
 - **Set up comprehensive ESLint configuration** - Installed and configured ESLint with Next.js TypeScript rules
 - **Re-enabled strict checking in build** - TypeScript now enforces strict type checking during builds
@@ -183,14 +184,16 @@ This document outlines prioritized tasks to improve page loading, UI quality, an
 - **Build verification** - Confirmed project builds successfully with new quality checks enabled
 
 **Files Fixed:**
+
 - `app/journal/page.tsx` - Fixed `language` destructuring from useTranslation hook
 - `app/plants/[id]/add-log/page.tsx` - Fixed TypeScript hook usage
-- `app/plants/[id]/logs/page.tsx` - Fixed TypeScript hook usage  
+- `app/plants/[id]/logs/page.tsx` - Fixed TypeScript hook usage
 - `app/plants/new/page.tsx` - Fixed `language` usage in date formatting
 - `next.config.mjs` - Re-enabled TypeScript and ESLint checking
 - `.eslintrc.json` - Created comprehensive ESLint configuration
 
 ### ✅ Testing Framework & Component Cleanup
+
 - **Installed comprehensive testing setup** - Jest 30.x + React Testing Library + jsdom environment
 - **Created Jest configuration** - `jest.config.js` with Next.js integration and proper path mapping
 - **Set up test environment** - `jest.setup.js` with all necessary mocks for Next.js, Firebase, i18n
@@ -200,6 +203,7 @@ This document outlines prioritized tasks to improve page loading, UI quality, an
 - **Verified functionality** - All tests pass, build succeeds, theme provider works correctly
 
 **Files Created/Modified:**
+
 - `jest.config.js` - Next.js-integrated Jest configuration
 - `jest.setup.js` - Test environment setup with mocks
 - `__tests__/utils.test.ts` - Utility function tests
@@ -211,6 +215,7 @@ This document outlines prioritized tasks to improve page loading, UI quality, an
 ## 🎯 Next Priority Tasks (In Progress)
 
 ### High-Impact Development Improvements
+
 - [x] **Add custom hooks** - Extract repeated logic into reusable custom hooks for better code organization ✅
 - [x] **Set up GitHub Actions CI/CD** - Automated testing and deployment pipeline for better development workflow ✅
 - [x] **Standardize error handling** - Create consistent error handling patterns throughout the application ✅
@@ -273,7 +278,8 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 
 **Overall Project Completion**: ~87% of all listed tasks, with significant additional features implemented that weren't originally planned.
 
-### ✅ **Custom Hooks Implementation (January 2025)**
+### ✅ **Custom Hooks Implementation (Sept 2025)**
+
 - **Created comprehensive custom hooks system** - 7 reusable hooks for common patterns
 - **useFormAuth** - Unified authentication form handling with loading states and error handling
 - **useFirebaseCollection** - Firebase collection fetching with loading, error states, and realtime updates
@@ -287,6 +293,7 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 - **Centralized hook exports** - Created index.ts for easy importing from @/hooks
 
 **Files Created/Modified:**
+
 - `hooks/use-form-auth.ts` - Authentication form utilities
 - `hooks/use-firebase-collection.ts` - Firebase collection management
 - `hooks/use-firebase-document.ts` - Firebase document CRUD operations
@@ -299,21 +306,24 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 - `components/auth/signup-form.tsx` - Updated to use new hooks
 - `components/auth/login-form.tsx` - Updated to use new hooks
 
-### ✅ **GitHub Actions CI/CD Pipeline (January 2025) - SIMPLIFIED**
+### ✅ **GitHub Actions CI/CD Pipeline (Sept 2025) - SIMPLIFIED**
+
 **Issue**: Initially implemented a complex enterprise-level CI/CD pipeline that was overkill for a small webapp with no active users.
 
 **Solution**: Simplified to essential checks only, focusing on core quality assurance without unnecessary complexity.
 
 **Current CI Workflow** (`.github/workflows/ci.yml`):
+
 - **Install dependencies** - `pnpm install --frozen-lockfile`
-- **TypeScript checking** - `pnpm run typecheck` 
+- **TypeScript checking** - `pnpm run typecheck`
 - **Run tests** - `pnpm run test`
 - **Build verification** - `pnpm run build`
 
 **Removed Complex Features** (Over-engineering for current stage):
+
 - SonarCloud code quality analysis
 - Trivy security scanning
-- CodeQL security analysis  
+- CodeQL security analysis
 - Weekly security audits
 - Dependency review automation
 - Performance testing with Lighthouse
@@ -325,13 +335,15 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 **Philosophy**: Keep CI/CD simple until you have active users and team members. Focus on building features, not perfect infrastructure.
 
 **Files Removed/Simplified:**
+
 - Deleted `.github/workflows/code-quality.yml` - Complex quality analysis
 - Deleted `.github/workflows/dependency-review.yml` - Automated dependency reviews
 - Deleted `.github/workflows/release.yml` - Release automation
 - Deleted `sonar-project.properties` - SonarCloud configuration
 - Simplified `.github/workflows/ci.yml` - Essential checks only (38 lines vs 200+ lines)
 
-### ✅ **Standardized Error Handling (January 2025)**
+### ✅ **Standardized Error Handling (Sept 2025)**
+
 - **Centralized error handling system** - useErrorHandler hook for consistent error management
 - **Firebase error specialization** - Dedicated Firebase error handling with user-friendly messages
 - **Validation error handling** - Specialized form validation error processing
@@ -341,6 +353,7 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 - **Migration completed** - Updated all components to use standardized error handling
 
 **Error Handler Features:**
+
 - **handleError()** - Generic error handling with customizable options
 - **handleFirebaseError()** - Specialized Firebase Auth/Firestore error handling
 - **handleValidationError()** - Form validation error processing
@@ -348,6 +361,7 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 - **Context logging** - Enhanced debugging with operation context
 
 **Files Created/Modified:**
+
 - `docs/ERROR_HANDLING.md` - Comprehensive error handling documentation
 - `hooks/use-error-handler.ts` - (Enhanced) Central error handling hook
 - `components/auth/login-form.tsx` - Updated to use standardized error handling
@@ -356,7 +370,102 @@ This project has achieved exceptional progress with the majority of Priority 1-2
 - `app/plants/[id]/add-log/page.tsx` - Migrated from manual error handling
 
 **Supported Error Types:**
+
 - **Authentication errors** - Invalid credentials, user not found, weak password, rate limiting
 - **Firestore errors** - Permission denied, unavailable service, document not found
 - **Network errors** - Connection failures, timeout issues
 - **Validation errors** - Form validation failures with user-friendly messages
+
+### ✅ **Form Architecture Consolidation & Mobile Header Standardization (Sept 2025)**
+
+**Issue**: Duplicate form implementations and inconsistent mobile UI patterns across pages
+
+**Solution**: Single source of truth architecture and standardized mobile headers
+
+#### **Form Consolidation Completed:**
+
+- **Eliminated duplicate forms** - Removed `AddLogForm` component, consolidated to `/journal/new`
+- **Smart URL routing** - `/plants/[id]/add-log` redirects to `/journal/new?plantId=${id}&returnTo=plant`
+- **Improved navigation** - Context-aware back/cancel buttons return to originating page
+- **Better validation** - Zod schema validation with proper error display
+- **Enhanced UX** - Larger touch targets, improved calendar picker for mobile
+- **Translation fixes** - Fixed all namespace issues showing keys instead of translated text
+
+#### **Mobile Header Standardization Completed:**
+
+- **Consistent header pattern** - Applied to `/plants/[id]/logs`, `/journal/new` and others
+- **Mobile-desktop responsive** - `md:hidden` for mobile, `hidden md:block` for desktop
+- **Action button placement** - Moved floating buttons to header to avoid bottom navbar conflicts
+- **Standard layout**: Back button + Title/subtitle + Action button (e.g., Plus icon)
+- **Touch-friendly sizing** - Proper button sizes and spacing for mobile interaction
+
+**Files Modified:**
+
+- `app/plants/[id]/add-log/page.tsx` - Now redirects to journal/new with plant context
+- `app/journal/new/page.tsx` - Enhanced with smart navigation and mobile calendar
+- `app/plants/[id]/logs/page.tsx` - Added header-based Add button, removed floating button
+- `components/journal/add-log-form.tsx` - DELETED (eliminated duplicate)
+
+#### **Mobile UI Pattern Established:**
+
+```jsx
+{
+  /* Mobile Header */
+}
+<div className="md:hidden mb-4 p-4">
+  <div className="flex items-center gap-3 mb-4">
+    <Button variant="ghost" size="sm" onClick={handleBack} className="p-2">
+      <ArrowLeft className="h-5 w-5" />
+    </Button>
+    <div className="flex-1">
+      <h1 className="text-xl font-bold">{title}</h1>
+      <p className="text-sm text-muted-foreground">{subtitle}</p>
+    </div>
+    <Button size="icon" onClick={actionHandler}>
+      <ActionIcon className="h-5 w-5" />
+    </Button>
+  </div>
+</div>;
+```
+
+## 🎯 Next Priority: Mobile Header Standardization
+
+**URGENT: Apply consistent header pattern to remaining pages**
+
+The following pages still need mobile header standardization:
+
+### **🚨 HIGH PRIORITY - Mobile Header Updates Needed:**
+
+1. **Plants Pages**:
+
+   - [ ] `/plants/[id]` - Plant detail page needs header consistency
+   - [ ] `/plants/new` - New plant creation form
+   - [ ] `/plants` - Plant list page (if has actions in header)
+
+2. **Journal & Content Pages**:
+
+   - [ ] `/journal` - Main journal page (check if needs header actions)
+   - [ ] `/nutrients` - Nutrient management pages
+   - [ ] `/nutrients/new` - New nutrient form
+   - [ ] `/reminders` - Reminder management
+   - [ ] `/settings` - Settings page layout
+
+3. **Other Feature Pages**:
+   - [ ] `/stash` - Stash/consumption tracking
+   - [ ] `/strains` - Strain database pages
+   - [ ] `/ai-assistant` - AI chat interface
+
+### **🔍 AUDIT NEEDED:**
+
+- **Find pages with floating buttons** that conflict with bottom navbar
+- **Identify inconsistent header layouts** between mobile/desktop
+- **Check for translation namespace issues** in remaining pages
+- **Test touch targets and mobile interaction** across all pages
+
+### **📱 Mobile Header Standards to Apply:**
+
+- **Responsive breakpoints**: `md:hidden` / `hidden md:block`
+- **Touch targets**: Minimum 48px button heights
+- **Icon consistency**: `h-5 w-5` for mobile, `h-4 w-4` for desktop
+- **Layout pattern**: Back + Title/Subtitle + Action
+- **Spacing**: `p-4` mobile, `p-6` desktop padding

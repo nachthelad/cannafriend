@@ -232,6 +232,28 @@ pnpm dev             # Alternative dev command
 3. **Testing required** - Write tests for new components and hooks
 4. **Build must pass** - Always verify `npm run build` succeeds before committing
 
+### Code Consistency Standards
+
+**CRITICAL: Always Follow Existing Patterns**
+
+When editing files, you MUST follow the exact same patterns used in that file:
+
+1. **Route Constants**: Always use route constants from `lib/routes.ts` (e.g., `ROUTE_ADMIN`, `ROUTE_PLANTS`) instead of hardcoded strings like `"/admin"`
+2. **Import Patterns**: Follow the same import structure and grouping as existing code
+3. **Component Patterns**: Use the same props, styling, and structure as similar components in the file
+4. **Hook Usage**: Follow the same hook patterns and custom hook usage as existing code
+5. **Translation Patterns**: Use the same translation namespace and key patterns as existing code
+6. **Styling Patterns**: Follow existing className patterns and component composition
+
+**Examples of Following Patterns:**
+
+- If other buttons use `ROUTE_PLANTS`, use `ROUTE_ADMIN` not `"/admin"`
+- If other components use specific translation namespaces, use the same approach
+- If other functions use specific error handling, use the same patterns
+- If other hooks use specific custom hooks, use the same ones
+
+**This ensures code consistency and prevents introducing inconsistencies or breaking existing patterns.**
+
 ### ✅ GitHub Actions CI/CD (Simplified)
 
 **Issue Addressed**: Over-engineered CI/CD setup was too complex for a small webapp with no active users.
@@ -257,10 +279,165 @@ pnpm dev             # Alternative dev command
 
 **Philosophy**: Keep it simple until you have active users and team members. Focus on building features, not perfect CI/CD.
 
+## ✅ Form Architecture Consolidation (Sept 2025)
+
+### **Issue Addressed**: Duplicate form code and inconsistent translation namespacing
+
+**Problem**: Had duplicate form implementations for journal entry creation:
+
+- `components/journal/add-log-form.tsx` - Complex form with manual validation
+- `app/journal/new/page.tsx` - Superior form with Zod validation and better UX
+- Different translation namespace usage causing key display instead of translated text
+
+**Solution Implemented**: **Single Source of Truth Architecture**
+
+#### **✅ Consolidated Journal Entry Creation**
+
+**Before**:
+
+- **Two forms**: `AddLogForm` component + `/journal/new` page
+- **Different validation**: Manual validation vs Zod schema
+- **Inconsistent UX**: Different mobile experiences and error handling
+- **Translation issues**: Mixed namespace usage showing keys instead of text
+
+**After**:
+
+- **Single form**: Only `/journal/new` page with superior implementation
+- **Plant preselection**: URL parameters `?plantId=${id}&returnTo=plant`
+- **Smart navigation**: Returns to plant page when coming from plant context
+- **Consistent namespacing**: All translations use proper `{ ns: "namespace" }` syntax
+
+#### **✅ URL Flow Architecture**
+
+```
+/plants/[id]/add-log → (redirects to) → /journal/new?plantId=${id}&returnTo=plant
+```
+
+**Navigation Logic**:
+
+- **From plant page**: Returns to `/plants/${id}` after save/cancel/back
+- **From journal page**: Returns to `/journal` after save/cancel/back
+- **Seamless UX**: Users don't notice the redirect
+
+#### **✅ Mobile Header Standardization**
+
+**Implemented consistent header pattern across plant-related pages**:
+
+```jsx
+{
+  /* Mobile Header */
+}
+<div className="md:hidden mb-4 p-4">
+  <div className="flex items-center gap-3 mb-4">
+    <Button variant="ghost" size="sm" onClick={handleBack} className="p-2">
+      <ArrowLeft className="h-5 w-5" />
+    </Button>
+    <div className="flex-1">
+      <h1 className="text-xl font-bold">{title}</h1>
+      <p className="text-sm text-muted-foreground">{subtitle}</p>
+    </div>
+    <Button size="icon" onClick={actionHandler}>
+      <ActionIcon className="h-5 w-5" />
+    </Button>
+  </div>
+</div>;
+
+{
+  /* Desktop Header */
+}
+<div className="hidden md:block mb-6 p-6">
+  <div className="flex items-center gap-3 mb-4">
+    <Button variant="ghost" size="sm" onClick={handleBack}>
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      {t("back", { ns: "common" })}
+    </Button>
+  </div>
+  <div className="flex items-center justify-between mb-4">
+    <div>
+      <h1 className="text-3xl font-bold">{title}</h1>
+      <p className="text-muted-foreground">{subtitle}</p>
+    </div>
+    <Button size="icon" onClick={actionHandler}>
+      <ActionIcon className="h-5 w-5" />
+    </Button>
+  </div>
+</div>;
+```
+
+#### **✅ Translation Namespace Standards**
+
+**Fixed all translation calls to use explicit namespaces**:
+
+```jsx
+// ❌ Before - Shows keys instead of text
+t("logType.watering");
+t("journal.selectPlant");
+t("validation.required");
+
+// ✅ After - Shows translated text
+t("logType.watering", { ns: "journal" });
+t("selectPlant", { ns: "journal" });
+t("required", { ns: "validation" });
+```
+
+### **Benefits Achieved**:
+
+1. **Code Maintainability**: Single form to maintain instead of duplicates
+2. **Better UX**: Zod validation, larger touch targets, proper error display
+3. **Consistent Design**: Standardized headers across plant pages
+4. **Translation Reliability**: All keys display properly translated text
+5. **Smaller Bundles**: Eliminated duplicate form code
+6. **Mobile Optimization**: Buttons positioned correctly above bottom navbar
+
+### ✅ Constants Architecture (Sept 2025)
+
+**Issue Addressed**: Client components importing from server-only API routes causing build errors.
+
+**Problem**: Admin email constant was defined in server-only API route (`app/api/admin/users/route.ts`) but imported by client components (`app/admin/page.tsx`, `app/dashboard/page.tsx`), creating build errors due to `firebase-admin` "server-only" dependency chain.
+
+**Solution Implemented**: **Shared Constants Pattern**
+
+#### **Constants Architecture**:
+
+```typescript
+// lib/constants.ts - Shared constants for client & server
+export const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
+```
+
+**Import Pattern**:
+```typescript
+// ✅ Client components
+import { ADMIN_EMAIL } from "@/lib/constants";
+
+// ✅ Server components/API routes  
+import { ADMIN_EMAIL } from "@/lib/constants";
+```
+
+**Files Updated**:
+- **Created**: `lib/constants.ts` - Centralized constants file
+- **Updated**: `app/api/admin/users/route.ts` - Import from constants
+- **Updated**: `app/admin/page.tsx` - Fixed client-side import
+- **Updated**: `app/dashboard/page.tsx` - Fixed client-side import
+
+#### **Pattern for Future Constants**:
+
+When adding constants that need to be accessed by both client and server code:
+
+1. **Add to `lib/constants.ts`** - Never define in API routes
+2. **Import from constants** - Both client and server import from same file  
+3. **Avoid server-only dependencies** - Keep constants file clean of Firebase Admin, etc.
+
+**Common constants to move here**:
+- Configuration values used across components
+- Feature flags and toggles
+- Default values and limits
+- Email addresses and identifiers
+
 ### Current Priorities (Next Tasks)
 
-1. **Standardize error handling** - Create consistent error patterns across application
-2. **Address ESLint warnings** - Gradually fix the 240+ identified warnings
+1. **Standardize mobile headers** - Apply consistent header pattern to remaining pages
+2. **Move shared constants** - Identify and move other constants from server-only locations
+3. **Address ESLint warnings** - Gradually fix the 240+ identified warnings
 
 ## Common Issues & Solutions
 

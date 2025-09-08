@@ -190,6 +190,7 @@ function NewJournalPageContent() {
 
   // Get plant ID from URL params if provided
   const urlPlantId = searchParams.get("plantId");
+  const returnTo = searchParams.get("returnTo");
 
   // Create schema with translations
   const logFormSchema = useMemo(() => createLogFormSchema(t), [t]);
@@ -329,7 +330,12 @@ function NewJournalPageContent() {
         description: t("logForm.successDesc", { ns: "journal" }),
       });
 
-      router.push(ROUTE_JOURNAL);
+      // Redirect back to plant page if coming from there, otherwise to journal
+      if (returnTo === "plant" && urlPlantId) {
+        router.push(`/plants/${urlPlantId}`);
+      } else {
+        router.push(ROUTE_JOURNAL);
+      }
     } catch (error: any) {
       console.error("Error adding log:", error);
       toast({
@@ -356,18 +362,51 @@ function NewJournalPageContent() {
   return (
     <Layout>
       {/* Mobile Header */}
-      <div className="mb-6">
+      <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(ROUTE_JOURNAL)}
-            className="flex items-center gap-2 min-h-[48px] px-3"
+            onClick={() => {
+              // Go back to plant page if coming from there, otherwise to journal
+              if (returnTo === "plant" && urlPlantId) {
+                router.push(`/plants/${urlPlantId}`);
+              } else {
+                router.push(ROUTE_JOURNAL);
+              }
+            }}
+            className="p-2"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">
-              {t("back", { ns: "common" })}
-            </span>
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">
+              {t("logForm.title", { ns: "journal" })}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {t("logForm.description", { ns: "journal" })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              // Go back to plant page if coming from there, otherwise to journal
+              if (returnTo === "plant" && urlPlantId) {
+                router.push(`/plants/${urlPlantId}`);
+              } else {
+                router.push(ROUTE_JOURNAL);
+              }
+            }}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
           </Button>
         </div>
         <h1 className="text-3xl font-bold">
@@ -379,7 +418,7 @@ function NewJournalPageContent() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-2xl">
+      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-2xl px-4 md:px-6">
         <div className="space-y-6">
           {/* Plant Selection */}
           {plants.length > 1 && (
@@ -794,7 +833,14 @@ function NewJournalPageContent() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push(ROUTE_JOURNAL)}
+              onClick={() => {
+                // Go back to plant page if coming from there, otherwise to journal
+                if (returnTo === "plant" && urlPlantId) {
+                  router.push(`/plants/${urlPlantId}`);
+                } else {
+                  router.push(ROUTE_JOURNAL);
+                }
+              }}
               className="min-h-[48px] w-full sm:w-auto text-base font-medium"
               disabled={isLoading}
             >

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
+import { ADMIN_EMAIL } from "@/lib/constants";
 
 export const runtime = "nodejs";
-
-const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
 
 async function verifyAdmin(req: NextRequest) {
   const authHeader =
