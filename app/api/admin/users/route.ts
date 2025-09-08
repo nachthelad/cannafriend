@@ -3,7 +3,7 @@ import { adminAuth } from "@/lib/firebase-admin";
 
 export const runtime = "nodejs";
 
-const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
+export const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
 
 async function verifyAdmin(req: NextRequest) {
   const authHeader =

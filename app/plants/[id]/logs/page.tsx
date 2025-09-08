@@ -19,7 +19,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { Layout } from "@/components/layout";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import type { Plant, LogEntry } from "@/types";
@@ -30,7 +30,7 @@ export default function PlantLogsPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { t, i18n } = useTranslation(["plants", "common"]);
+  const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
@@ -148,33 +148,46 @@ export default function PlantLogsPage({
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold">
-                {t("journal.viewLogs")}
+                {t("viewLogs", { ns: "journal" })}
               </h1>
               <p className="text-sm text-muted-foreground">{plant.name}</p>
             </div>
+            <Button
+              size="icon"
+              onClick={() => router.push(`/plants/${id}/add-log`)}
+              className="ml-2"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
           </div>
         </div>
 
         {/* Desktop Header */}
         <div className="hidden md:block mb-6 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-            >
+            <Button variant="ghost" size="sm" onClick={handleBack}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("common.back")}
+              {t("back", { ns: "common" })}
             </Button>
           </div>
-          <h1 className="text-3xl font-bold">
-            {t("journal.viewLogs")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("journal.logsFor")} {plant.name}
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold">
+                {t("viewLogs", { ns: "journal" })}
+              </h1>
+              <p className="text-muted-foreground">
+                {t("logsFor", { ns: "journal" })} {plant.name}
+              </p>
+            </div>
+            <Button
+              size="icon"
+              onClick={() => router.push(`/plants/${id}/add-log`)}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Logs List */}
@@ -197,13 +210,13 @@ export default function PlantLogsPage({
                 </svg>
               </div>
               <h3 className="text-lg font-semibold mb-2">
-                {t("journal.noLogs")}
+                {t("noLogs", { ns: "journal" })}
               </h3>
-              <p className="text-muted-foreground mb-6">{t("journal.addFirstLog")}</p>
-              <Button
-                onClick={() => router.push(`/plants/${id}/add-log`)}
-              >
-                {t("journal.addLog")}
+              <p className="text-muted-foreground mb-6">
+                {t("addFirstLog", { ns: "journal" })}
+              </p>
+              <Button onClick={() => router.push(`/plants/${id}/add-log`)}>
+                {t("addLog", { ns: "journal" })}
               </Button>
             </div>
           ) : (
@@ -215,29 +228,6 @@ export default function PlantLogsPage({
           )}
         </div>
 
-        {/* Floating Add Button */}
-        {logs.length > 0 && (
-          <div className="fixed bottom-6 right-6">
-            <Button
-              className="rounded-full w-14 h-14 shadow-lg"
-              onClick={() => router.push(`/plants/${id}/add-log`)}
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            </Button>
-          </div>
-        )}
       </div>
     </Layout>
   );

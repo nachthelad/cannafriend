@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +9,7 @@ import {
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
+  ROUTE_ADMIN,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +30,7 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, AlertTriangle, Bell, Brain } from "lucide-react";
+import { Plus, AlertTriangle, Bell, Brain, Shield } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
@@ -37,6 +38,7 @@ import type { Plant, LogEntry } from "@/types";
 import { db } from "@/lib/firebase";
 import { collection } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
+import { ADMIN_EMAIL } from "@/app/api/admin/users/route";
 
 export default function DashboardPage() {
   const { t } = useTranslation([
@@ -67,6 +69,10 @@ export default function DashboardPage() {
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
   const [hasOverdue, setHasOverdue] = useState(false);
+  const isAdmin = useMemo(
+    () => (user?.email || "").toLowerCase() === ADMIN_EMAIL,
+    [user?.email]
+  );
   const [recentLogs, setRecentLogs] = useState<LogEntry[]>([]);
   const [nutrientMixesCount, setNutrientMixesCount] = useState<number>(0);
 
@@ -239,6 +245,7 @@ export default function DashboardPage() {
           nutrientMixesCount={nutrientMixesCount}
           hasOverdue={hasOverdue}
           isLoading={isLoading}
+          userEmail={user?.email || undefined}
         />
       </div>
 
@@ -362,6 +369,14 @@ export default function DashboardPage() {
                       <Link href={ROUTE_AI_ASSISTANT}>
                         <Brain className="h-4 w-4 mr-1" />{" "}
                         {t("title", { ns: "analyzePlant" })}
+                      </Link>
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button asChild variant="outline">
+                      <Link href={ROUTE_ADMIN}>
+                        <Shield className="h-4 w-4 mr-1" />
+                        Admin
                       </Link>
                     </Button>
                   )}

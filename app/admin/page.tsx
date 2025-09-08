@@ -10,6 +10,8 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { MobileAdmin } from "@/components/mobile/mobile-admin";
+import { ADMIN_EMAIL } from "@/app/api/admin/users/route";
 
 type ListedUser = {
   uid: string;
@@ -18,8 +20,6 @@ type ListedUser = {
   premium: boolean;
   createdAt?: number;
 };
-
-const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
 
 export default function AdminPage() {
   const { user, isLoading } = useAuthUser();
@@ -101,7 +101,20 @@ export default function AdminPage() {
 
   return (
     <Layout>
-      <div className="mx-auto max-w-5xl w-full p-4">
+      {/* Mobile Layout - only show on mobile */}
+      <div className="md:hidden px-4">
+        <MobileAdmin
+          users={users}
+          loading={loading}
+          sortDir={sortDir}
+          setSortDir={setSortDir}
+          fetchUsers={fetchUsers}
+          togglePremium={togglePremium}
+        />
+      </div>
+
+      {/* Desktop Layout - only show on desktop */}
+      <div className="hidden md:block mx-auto max-w-5xl w-full p-4">
         <Card>
           <CardHeader>
             <CardTitle>Admin – Users</CardTitle>

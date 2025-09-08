@@ -8,6 +8,7 @@ import {
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
+  ROUTE_ADMIN,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ import {
   FlaskConical,
   ArrowRight,
   TrendingUp,
+  Shield,
 } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -42,6 +44,7 @@ interface MobileDashboardProps {
   nutrientMixesCount: number;
   hasOverdue: boolean;
   isLoading: boolean;
+  userEmail?: string;
 }
 
 export function MobileDashboard({
@@ -50,10 +53,12 @@ export function MobileDashboard({
   nutrientMixesCount,
   hasOverdue,
   isLoading,
+  userEmail,
 }: MobileDashboardProps) {
   const { t } = useTranslation(["dashboard", "common", "nutrients", "journal", "nav", "reminders", "strains", "analyzePlant"]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
+  const isAdmin = userEmail?.toLowerCase() === "nacho.vent@gmail.com";
 
   if (isLoading) {
     return (
@@ -246,6 +251,13 @@ export function MobileDashboard({
                 icon={Leaf}
                 label={t("title", { ns: "strains" })}
                 href={ROUTE_STRAINS}
+              />
+            )}
+            {isAdmin && (
+              <QuickActionButton
+                icon={Shield}
+                label="Admin"
+                href={ROUTE_ADMIN}
               />
             )}
           </div>
