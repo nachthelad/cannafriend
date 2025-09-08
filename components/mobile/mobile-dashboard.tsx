@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  ROUTE_STRAINS,
+  ROUTE_SESSIONS,
   ROUTE_REMINDERS,
   ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
@@ -55,7 +55,7 @@ export function MobileDashboard({
   isLoading,
   userEmail,
 }: MobileDashboardProps) {
-  const { t } = useTranslation(["dashboard", "common", "nutrients", "journal", "nav", "reminders", "strains", "analyzePlant"]);
+  const { t } = useTranslation(["dashboard", "common", "nutrients", "journal", "nav", "reminders", "sessions", "analyzePlant"]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
   const isAdmin = userEmail?.toLowerCase() === "nacho.vent@gmail.com";
@@ -249,8 +249,8 @@ export function MobileDashboard({
             {roles?.consumer && (
               <QuickActionButton
                 icon={Leaf}
-                label={t("title", { ns: "strains" })}
-                href={ROUTE_STRAINS}
+                label={t("title", { ns: "sessions" })}
+                href={ROUTE_SESSIONS}
               />
             )}
             {isAdmin && (

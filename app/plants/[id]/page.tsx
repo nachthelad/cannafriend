@@ -581,7 +581,7 @@ export default function PlantPage({
                             }}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           >
-                            {t("strains.deleteConfirm")}
+                            {t("deleteConfirm", { ns: "sessions" })}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

@@ -84,9 +84,9 @@ export function ChatSidebar({
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return t("common.today");
+      return t("today", { ns: "common" });
     } else if (diffDays === 1) {
-      return t("common.yesterday");
+      return t("yesterday", { ns: "common" });
     } else if (diffDays < 7) {
       return `${diffDays} ${t("daysAgo", { ns: "common" })}`;
     } else {

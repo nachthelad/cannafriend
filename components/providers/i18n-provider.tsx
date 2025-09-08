@@ -26,8 +26,8 @@ import esReminders from "@/lib/locales/es/reminders.json";
 import enReminders from "@/lib/locales/en/reminders.json";
 import esNav from "@/lib/locales/es/nav.json";
 import enNav from "@/lib/locales/en/nav.json";
-import esStrains from "@/lib/locales/es/strains.json";
-import enStrains from "@/lib/locales/en/strains.json";
+import esSessions from "@/lib/locales/es/sessions.json";
+import enSessions from "@/lib/locales/en/sessions.json";
 import esAnalyzePlant from "@/lib/locales/es/analyzePlant.json";
 import enAnalyzePlant from "@/lib/locales/en/analyzePlant.json";
 import enStash from "@/lib/locales/en/stash.json";
@@ -55,7 +55,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       journal: esJournal,
       reminders: esReminders,
       nav: esNav,
-      strains: esStrains,
+      sessions: esSessions,
       analyzePlant: esAnalyzePlant,
       stash: esStash,
       landing: esLanding,
@@ -72,7 +72,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       journal: enJournal,
       reminders: enReminders,
       nav: enNav,
-      strains: enStrains,
+      sessions: enSessions,
       analyzePlant: enAnalyzePlant,
       stash: enStash,
       landing: enLanding,
@@ -100,7 +100,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       "journal",
       "reminders",
       "nav",
-      "strains",
+      "sessions",
       "analyzePlant",
       "landing",
       "premium",

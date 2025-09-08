@@ -5,15 +5,14 @@ import { useForm } from "react-hook-form";
 import type React from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { auth, db } from "@/lib/firebase";
-import { addDoc, collection } from "firebase/firestore";
-import { ROUTE_LOGIN, ROUTE_STRAINS } from "@/lib/routes";
+import { auth } from "@/lib/firebase";
+import { addDoc } from "firebase/firestore";
+import { ROUTE_LOGIN, ROUTE_SESSIONS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 import { ImageUpload } from "@/components/common/image-upload";
@@ -28,13 +27,6 @@ import {
 import { cn, formatDateObjectWithLocale } from "@/lib/utils";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
 import { es, enUS } from "date-fns/locale";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -111,7 +103,7 @@ export default function NewSessionPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleBack = () => {
-    router.push(ROUTE_STRAINS);
+    router.push(ROUTE_SESSIONS);
   };
 
   type SessionForm = {
@@ -160,7 +152,7 @@ export default function NewSessionPage() {
       toast({
         variant: "destructive",
         title: t("error", { ns: "common" }),
-        description: t("required", { ns: "strains" }),
+        description: t("required", { ns: "sessions" }),
       });
       return;
     }
@@ -198,8 +190,8 @@ export default function NewSessionPage() {
         photos: photos.length > 0 ? photos : null,
         date: dateISO,
       });
-      toast({ title: t("saved", { ns: "strains" }) });
-      router.push(ROUTE_STRAINS);
+      toast({ title: t("saved", { ns: "sessions" }) });
+      router.push(ROUTE_SESSIONS);
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -226,10 +218,10 @@ export default function NewSessionPage() {
           </Button>
           <div>
             <h1 className="text-xl font-bold">
-              {t("addSession", { ns: "strains" })}
+              {t("addSession", { ns: "sessions" })}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {t("addSessionDesc", { ns: "strains" })}
+              {t("addSessionDesc", { ns: "sessions" })}
             </p>
           </div>
         </div>
@@ -244,10 +236,10 @@ export default function NewSessionPage() {
           </Button>
         </div>
         <h1 className="text-3xl font-bold">
-          {t("addSession", { ns: "strains" })}
+          {t("addSession", { ns: "sessions" })}
         </h1>
         <p className="text-muted-foreground">
-          {t("addSessionDesc", { ns: "strains" })}
+          {t("addSessionDesc", { ns: "sessions" })}
         </p>
       </div>
 
@@ -256,14 +248,14 @@ export default function NewSessionPage() {
         <div className="space-y-6">
           <div className="space-y-3">
             <label htmlFor="strain" className="text-base font-medium">
-              {t("strain", { ns: "strains" })} *
+              {t("strain", { ns: "sessions" })} *
             </label>
             <Input
               id="strain"
               {...register("strain", {
-                required: t("required", { ns: "strains" }) as any,
+                required: t("required", { ns: "sessions" }) as any,
               })}
-              placeholder={t("strainPlaceholder", { ns: "strains" })}
+              placeholder={t("strainPlaceholder", { ns: "sessions" })}
               className="min-h-[48px] text-base"
             />
             {errors.strain && (
@@ -274,130 +266,128 @@ export default function NewSessionPage() {
           </div>
           <div className="space-y-3">
             <label className="text-base font-medium">
-              {t("logForm.date", { ns: "strains" })}
+              {t("logForm.date", { ns: "sessions" })}
             </label>
-                <div className="md:hidden">
-                  <MobileDatePicker
+            <div className="md:hidden">
+              <MobileDatePicker
+                selected={sessionDate}
+                onSelect={(d) =>
+                  d && setValue("date", d, { shouldDirty: true })
+                }
+                locale={t("language", { ns: "common" }) === "es" ? es : enUS}
+              />
+            </div>
+            <div className="hidden md:block">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal min-h-[48px] text-base"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {formatDateObjectWithLocale(sessionDate, "PPP")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <CalendarComponent
+                    mode="single"
                     selected={sessionDate}
                     onSelect={(d) =>
                       d && setValue("date", d, { shouldDirty: true })
                     }
-                    locale={t("language", { ns: "common" }) === "es" ? es : enUS}
+                    initialFocus
                   />
-                </div>
-                <div className="hidden md:block">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal min-h-[48px] text-base"
-                        )}
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {formatDateObjectWithLocale(sessionDate, "PPP")}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalendarComponent
-                        mode="single"
-                        selected={sessionDate}
-                        onSelect={(d) =>
-                          d && setValue("date", d, { shouldDirty: true })
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label className="text-base font-medium">
-                {t("startTime", { ns: "strains" })}
+                {t("startTime", { ns: "sessions" })}
               </label>
-                  <TimeField
-                    value={startTime}
-                    onChange={(v) =>
-                      setValue("startTime", v, { shouldDirty: true })
-                    }
-                  />
+              <TimeField
+                value={startTime}
+                onChange={(v) =>
+                  setValue("startTime", v, { shouldDirty: true })
+                }
+              />
             </div>
             <div className="space-y-3">
               <label className="text-base font-medium">
-                {t("endTime", { ns: "strains" })}
+                {t("endTime", { ns: "sessions" })}
               </label>
-                  <TimeField
-                    value={endTime}
-                    onChange={(v) =>
-                      setValue("endTime", v, { shouldDirty: true })
-                    }
-                  />
-                </div>
+              <TimeField
+                value={endTime}
+                onChange={(v) => setValue("endTime", v, { shouldDirty: true })}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
               <label htmlFor="method" className="text-base font-medium">
-                {t("method", { ns: "strains" })}
+                {t("method", { ns: "sessions" })}
               </label>
               <Input
                 id="method"
                 {...register("method")}
-                placeholder={t("methodPlaceholder", { ns: "strains" })}
+                placeholder={t("methodPlaceholder", { ns: "sessions" })}
                 className="min-h-[48px] text-base"
               />
             </div>
             <div className="space-y-3">
               <label htmlFor="amount" className="text-base font-medium">
-                {t("amount", { ns: "strains" })}
+                {t("amount", { ns: "sessions" })}
               </label>
               <Input
                 id="amount"
                 {...register("amount")}
-                placeholder={t("amountPlaceholder", { ns: "strains" })}
+                placeholder={t("amountPlaceholder", { ns: "sessions" })}
                 className="min-h-[48px] text-base"
               />
             </div>
           </div>
           <div className="space-y-3">
             <label htmlFor="notes" className="text-base font-medium">
-              {t("notes", { ns: "strains" })}
+              {t("notes", { ns: "sessions" })}
             </label>
             <Textarea
               id="notes"
               {...register("notes")}
-              placeholder={t("notesPlaceholder", { ns: "strains" })}
+              placeholder={t("notesPlaceholder", { ns: "sessions" })}
               className="min-h-[100px] text-base resize-none"
             />
           </div>
           <div className="space-y-3">
             <label className="text-base font-medium">
-              {t("photos", { ns: "strains" })}
+              {t("photos", { ns: "sessions" })}
             </label>
-                <ImageUpload
-                  onImagesChange={(newUrls) =>
-                    setPhotos((prev) => [...prev, ...newUrls])
-                  }
-                  maxSizeMB={5}
-                />
-                {photos.length > 0 && (
-                  <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {photos.map((url, idx) => (
-                      <div
-                        key={idx}
-                        className="relative w-full aspect-square overflow-hidden rounded-md border"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={url}
-                          alt={`photo ${idx + 1}`}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ))}
+            <ImageUpload
+              onImagesChange={(newUrls) =>
+                setPhotos((prev) => [...prev, ...newUrls])
+              }
+              maxSizeMB={5}
+            />
+            {photos.length > 0 && (
+              <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                {photos.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-full aspect-square overflow-hidden rounded-md border"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`photo ${idx + 1}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
-                )}
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Submit Buttons */}
@@ -425,7 +415,7 @@ export default function NewSessionPage() {
                   {t("saving", { ns: "common" })}
                 </span>
               ) : (
-                t("save", { ns: "strains" })
+                t("save", { ns: "sessions" })
               )}
             </Button>
           </div>
