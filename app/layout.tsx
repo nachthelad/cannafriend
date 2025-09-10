@@ -45,7 +45,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isProd = process.env.NODE_ENV === "production";
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
@@ -68,39 +67,21 @@ export default function RootLayout({
           sizes="32x32"
           href="/favicon-32x32.png"
         />
-        {isProd ? (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                // Temporarily disable SW for auth debugging
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
                 if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.getRegistrations().then(function(regs){
-                    regs.forEach(function(reg){ reg.unregister(); });
+                  window.addEventListener('load', function(){
+                    navigator.serviceWorker.register('/sw.js').catch(function(e){
+                      console.warn('SW registration failed', e);
+                    });
                   });
                 }
-                if (window.caches) {
-                  caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); });
-                }
-              `,
-            }}
-          />
-        ) : (
-          <script
-            // In development, ensure no SW/caches interfere with HMR
-            dangerouslySetInnerHTML={{
-              __html: `
-                if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.getRegistrations().then(function(regs){
-                    regs.forEach(function(reg){ reg.unregister(); });
-                  });
-                }
-                if (window.caches) {
-                  caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); });
-                }
-              `,
-            }}
-          />
-        )}
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <I18nProvider>

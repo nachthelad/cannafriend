@@ -5,7 +5,12 @@ import {
   setPersistence,
   browserLocalPersistence,
 } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
@@ -30,7 +35,23 @@ if (typeof window !== "undefined") {
     console.warn("Failed to set auth persistence", e);
   });
 }
-export const db = getFirestore(app);
+// Firestore with persistent local cache for offline support
+let _db: ReturnType<typeof getFirestore>;
+if (typeof window !== "undefined") {
+  try {
+    _db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch (e) {
+    // Fallback to default if initializeFirestore fails (e.g., older SDK)
+    _db = getFirestore(app);
+  }
+} else {
+  _db = getFirestore(app);
+}
+export const db = _db;
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 

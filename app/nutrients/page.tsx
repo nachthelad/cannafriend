@@ -12,6 +12,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -151,13 +162,27 @@ export default function NutrientsPage() {
                     >
                       {t("edit", { ns: "common" })}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(mix)}
-                    >
-                      {t("delete", { ns: "common" })}
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                          {t("delete", { ns: "common" })}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t("confirmDeleteTitle", { ns: "nutrients" })}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("confirmDeleteDesc", { ns: "nutrients" })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(mix)}>
+                            {t("delete", { ns: "common" })}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </CardTitle>
                 {mix.npk ? (

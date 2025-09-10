@@ -21,9 +21,9 @@ import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { Layout as AppLayout } from "@/components/layout";
+import { Layout } from "@/components/layout";
 import { ArrowLeft, Calendar, AlertCircle } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { FormSkeleton } from "@/components/skeletons/common-skeletons";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 
 import { auth, db } from "@/lib/firebase";
@@ -342,18 +342,18 @@ function NewJournalPageContent() {
 
   if (plantsLoading) {
     return (
-      <div>
-        <div className="flex items-center justify-center h-64">
-          <AnimatedLogo size={24} className="text-primary" duration={1.2} />
+      <Layout>
+        <div className="max-w-2xl mx-auto">
+          <FormSkeleton />
         </div>
-      </div>
+      </Layout>
     );
   }
 
   const handleFormSubmit = handleSubmit(onSubmit as any);
 
   return (
-    <div>
+    <Layout>
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
@@ -835,14 +835,9 @@ function NewJournalPageContent() {
               disabled={!logType || !selectedPlantId || isLoading}
               className="min-h-[48px] w-full sm:w-auto text-base font-medium"
             >
-              {isLoading ? (
-                <>
-                  <AnimatedLogo size={16} className="mr-2" duration={1.2} />
-                  {t("saving", { ns: "common" })}
-                </>
-              ) : (
-                t("logForm.save", { ns: "journal" })
-              )}
+              {isLoading
+                ? t("saving", { ns: "common" })
+                : t("logForm.save", { ns: "journal" })}
             </Button>
             <Button
               type="button"
@@ -863,7 +858,7 @@ function NewJournalPageContent() {
           </div>
         </div>
       </form>
-    </div>
+    </Layout>
   );
 }
 
