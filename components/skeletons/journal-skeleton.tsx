@@ -7,14 +7,14 @@ export function JournalSkeleton() {
   return (
     <div className="space-y-6">
       {/* Mobile-friendly header skeleton */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center overflow-x-hidden">
         <div>
           <Skeleton className="h-8 w-32 mb-2" />
-          <Skeleton className="h-5 w-56" />
+          <Skeleton className="h-5 w-40 sm:w-56" />
         </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-10 w-32" />
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Skeleton className="h-10 w-28 sm:w-24" />
+          <Skeleton className="h-10 w-36 sm:w-32" />
         </div>
       </div>
 
@@ -30,42 +30,24 @@ export function JournalSkeleton() {
 export function JournalEntrySkeleton() {
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          {/* Entry type icon */}
-          <div className="mt-1">
-            <Skeleton className="h-10 w-10 rounded-full" />
-          </div>
-          
-          <div className="flex-1 space-y-3">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-24" /> {/* Entry type */}
-                <Skeleton className="h-4 w-2 rounded-full" /> {/* Separator */}
-                <Skeleton className="h-4 w-32" /> {/* Plant name */}
+      <CardContent className="p-4 h-[77px]">
+        <div className="flex items-center gap-3 h-full">
+          <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-3 w-1 rounded-full" />
+                <Skeleton className="h-4 w-24" />
               </div>
-              <Skeleton className="h-4 w-20" /> {/* Date */}
+              <Skeleton className="h-3 w-16" />
             </div>
-
-            {/* Content */}
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-4/5" />
+            <div className="mt-2">
               <Skeleton className="h-4 w-3/5" />
             </div>
-
-            {/* Tags and metadata */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <Skeleton className="h-6 w-16 rounded-full" /> {/* Tag 1 */}
-                <Skeleton className="h-6 w-20 rounded-full" /> {/* Tag 2 */}
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-8 w-8 rounded-full" /> {/* Edit button */}
-                <Skeleton className="h-8 w-8 rounded-full" /> {/* More button */}
-              </div>
-            </div>
+          </div>
+          <div className="hidden sm:block">
+            <Skeleton className="h-8 w-8 rounded-full" />
           </div>
         </div>
       </CardContent>
@@ -82,13 +64,13 @@ export function JournalTimelineSkeleton() {
           {i < 5 && (
             <div className="absolute left-6 top-12 w-0.5 h-20 bg-gray-200 dark:bg-gray-700" />
           )}
-          
+
           <div className="flex gap-4">
             {/* Timeline dot */}
             <div className="relative">
               <Skeleton className="h-12 w-12 rounded-full" />
             </div>
-            
+
             {/* Content */}
             <div className="flex-1 pb-8">
               <Card>
