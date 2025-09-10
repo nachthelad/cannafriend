@@ -36,6 +36,7 @@ import {
   ROUTE_JOURNAL,
   ROUTE_REMINDERS,
   ROUTE_SETTINGS,
+  ROUTE_PREMIUM,
   ROUTE_STASH,
   ROUTE_NUTRIENTS,
   resolveHomePathForRoles,
@@ -142,9 +143,6 @@ export function Layout({ children }: LayoutProps) {
   const routes = baseRoutes.filter((r) => {
     if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
 
-    // AI Assistant is only available for premium users
-    if (r.href === ROUTE_AI_ASSISTANT && !isPremium) return false;
-
     const growerPaths: string[] = [
       ROUTE_DASHBOARD,
       ROUTE_PLANTS_NEW,
@@ -198,10 +196,14 @@ export function Layout({ children }: LayoutProps) {
                   : "hover:bg-accent hover:text-accent-foreground";
                 const gradientClasses =
                   "text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600";
+                const linkHref =
+                  route.href === ROUTE_AI_ASSISTANT && !isPremium
+                    ? ROUTE_PREMIUM
+                    : route.href;
                 return (
                   <Link
                     key={route.href}
-                    href={route.href}
+                    href={linkHref}
                     className={cn(
                       baseClasses,
                       isAI ? gradientClasses : defaultClasses

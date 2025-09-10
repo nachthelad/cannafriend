@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AddLogRedirectPage({
   params,
@@ -22,8 +23,8 @@ export default function AddLogRedirectPage({
   // Show loading while redirecting
   return (
     <Layout>
-      <div className="flex items-center justify-center h-64">
-        <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      <div className="p-6">
+        <Skeleton className="h-12 w-48" />
       </div>
     </Layout>
   );

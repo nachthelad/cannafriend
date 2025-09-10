@@ -14,15 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Calendar,
-  Clock,
-  Heart,
-} from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Plus, Pencil, Trash2, Calendar, Clock, Heart } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -153,7 +146,11 @@ export default function SessionsPage() {
       setFavoriteStrains((prev) =>
         isFav ? prev.filter((s) => s !== norm) : [...prev, norm]
       );
-      toast({ title: isFav ? t("favorites.removed", { ns: "sessions" }) : t("favorites.added", { ns: "sessions" }) });
+      toast({
+        title: isFav
+          ? t("favorites.removed", { ns: "sessions" })
+          : t("favorites.added", { ns: "sessions" }),
+      });
     } catch (e: any) {
       toast({
         variant: "destructive",
@@ -284,7 +281,8 @@ export default function SessionsPage() {
                 onClick={() => router.push(ROUTE_AI_ASSISTANT)}
                 className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500 hover:from-emerald-600 hover:via-green-700 hover:to-teal-600"
               >
-                <Brain className="mr-2 h-4 w-4" /> {t("aiConsumer.title", { ns: "sessions" })}
+                <Brain className="mr-2 h-4 w-4" />{" "}
+                {t("aiConsumer.title", { ns: "sessions" })}
               </Button>
             </div>
           ) : null}
@@ -309,7 +307,8 @@ export default function SessionsPage() {
             onClick={() => setShowFavoritesOnly((v) => !v)}
             className="hidden sm:inline-flex"
           >
-            <Heart className="mr-2 h-4 w-4" /> {t("favorites.filter", { ns: "sessions" })}
+            <Heart className="mr-2 h-4 w-4" />{" "}
+            {t("favorites.filter", { ns: "sessions" })}
           </Button>
           <Button
             onClick={() => setShowFavoritesOnly((v) => !v)}
@@ -323,14 +322,30 @@ export default function SessionsPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-9 w-28" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
         </div>
       ) : sessions.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>{t("noSessions", { ns: "sessions" })}</CardTitle>
-            <CardDescription>{t("noSessionsDesc", { ns: "sessions" })}</CardDescription>
+            <CardDescription>
+              {t("noSessionsDesc", { ns: "sessions" })}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => router.push(`${ROUTE_SESSIONS}/new`)}>
@@ -474,7 +489,9 @@ export default function SessionsPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("logForm.date", { ns: "sessions" })}</label>
+              <label className="text-sm font-medium">
+                {t("logForm.date", { ns: "sessions" })}
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -552,7 +569,9 @@ export default function SessionsPage() {
             <Button variant="outline" onClick={() => setEditOpen(false)}>
               {t("cancel", { ns: "common" })}
             </Button>
-            <Button onClick={saveEdit}>{t("update", { ns: "sessions" })}</Button>
+            <Button onClick={saveEdit}>
+              {t("update", { ns: "sessions" })}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

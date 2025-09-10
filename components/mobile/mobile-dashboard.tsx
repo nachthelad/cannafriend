@@ -33,7 +33,7 @@ import {
   TrendingUp,
   Shield,
 } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
@@ -62,8 +62,22 @@ export function MobileDashboard({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      <div className="space-y-4 p-4">
+        {/* Stats grid skeleton */}
+        <div className="grid grid-cols-2 gap-4">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        {/* Quick actions card skeleton */}
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-40" />
+          <div className="grid grid-cols-2 gap-3">
+            <Skeleton className="h-16 rounded-xl" />
+            <Skeleton className="h-16 rounded-xl" />
+            <Skeleton className="h-16 rounded-xl" />
+            <Skeleton className="h-16 rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }

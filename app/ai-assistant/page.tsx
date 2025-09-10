@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { usePremium } from "@/hooks/use-premium";
 import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { ROUTE_LOGIN } from "@/lib/routes";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
 
 export default function AIAssistantPage() {
   const { t } = useTranslation(["analyzePlant", "common"]);
@@ -17,7 +17,7 @@ export default function AIAssistantPage() {
   const { user, isLoading } = useAuthUser();
   const { isPremium } = usePremium();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   const handleToggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -31,9 +31,7 @@ export default function AIAssistantPage() {
   if (isLoading) {
     return (
       <AILayout>
-        <div className="flex justify-center items-center h-full">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
-        </div>
+        <AIChatSkeleton />
       </AILayout>
     );
   }
@@ -51,7 +49,11 @@ export default function AIAssistantPage() {
           </div>
         </div>
       ) : (
-        <UnifiedChat className="h-full" sidebarOpen={sidebarOpen} onToggleSidebar={handleToggleSidebar} />
+        <UnifiedChat
+          className="h-full"
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={handleToggleSidebar}
+        />
       )}
     </AILayout>
   );

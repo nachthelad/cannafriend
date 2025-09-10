@@ -31,7 +31,7 @@ import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import { Plus, AlertTriangle, Bell, Brain, Shield } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
@@ -252,8 +252,23 @@ export default function DashboardPage() {
       {/* Desktop Dashboard - only show on desktop */}
       <div className="hidden md:block">
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+          <div className="p-4 md:p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-8 w-40" />
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-24" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-40 w-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -274,7 +289,7 @@ export default function DashboardPage() {
                     <CardDescription>{plants.length} total</CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_PLANTS}>
+                    <Link prefetch href={ROUTE_PLANTS}>
                       {t("view", { ns: "common" })}
                     </Link>
                   </Button>
@@ -305,7 +320,7 @@ export default function DashboardPage() {
                     </CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_JOURNAL}>
+                    <Link prefetch href={ROUTE_JOURNAL}>
                       {t("view", { ns: "common" })}
                     </Link>
                   </Button>
@@ -325,7 +340,7 @@ export default function DashboardPage() {
                     </CardDescription>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={ROUTE_NUTRIENTS}>
+                    <Link prefetch href={ROUTE_NUTRIENTS}>
                       {t("view", { ns: "common" })}
                     </Link>
                   </Button>
@@ -347,17 +362,17 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                   <Button asChild>
-                    <Link href="/plants/new">
+                    <Link prefetch href="/plants/new">
                       {t("addPlant", { ns: "nav" })}
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href={ROUTE_REMINDERS}>
+                    <Link prefetch href={ROUTE_REMINDERS}>
                       {t("reminders", { ns: "dashboard" })}
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link href={ROUTE_JOURNAL}>
+                    <Link prefetch href={ROUTE_JOURNAL}>
                       {t("journal", { ns: "nav" })}
                     </Link>
                   </Button>
@@ -366,7 +381,7 @@ export default function DashboardPage() {
                       asChild
                       className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
                     >
-                      <Link href={ROUTE_AI_ASSISTANT}>
+                      <Link prefetch href={ROUTE_AI_ASSISTANT}>
                         <Brain className="h-4 w-4 mr-1" />{" "}
                         {t("title", { ns: "analyzePlant" })}
                       </Link>
@@ -374,7 +389,7 @@ export default function DashboardPage() {
                   )}
                   {isAdmin && (
                     <Button asChild variant="outline">
-                      <Link href={ROUTE_ADMIN}>
+                      <Link prefetch href={ROUTE_ADMIN}>
                         <Shield className="h-4 w-4 mr-1" />
                         Admin
                       </Link>

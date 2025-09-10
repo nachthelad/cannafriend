@@ -143,7 +143,9 @@ export function MobileJournalEntry({
   const getLogDetails = () => {
     switch (log.type) {
       case "watering":
-        return log.amount ? `${log.amount}ml${log.method ? ` (${t(`${log.method}`, { ns: "watering" })})` : ""}` : null;
+        return log.amount
+          ? `${log.amount}${log.unit ?? "ml"}${log.method ? ` (${t(`${log.method}`, { ns: "watering" })})` : ""}`
+          : null;
       case "feeding":
         return log.npk ? `${log.npk}${log.amount ? ` (${log.amount}ml/L)` : ""}` : null;
       case "training":

@@ -102,7 +102,7 @@ export function PlantCard({
             <Droplet className="h-3 w-3 mr-1" />
             {lastWatering ? (
               <span>
-                {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
+                {t("plantCard.lastWatering")}: {lastWatering.amount}{lastWatering.unit ?? "ml"} (
                 {t(`watering.${lastWatering.method}`, { ns: "journal" })})
               </span>
             ) : (
@@ -114,7 +114,7 @@ export function PlantCard({
             {lastFeeding ? (
               <span>
                 {t("plantCard.lastFeeding")}: {lastFeeding.npk} (
-                {lastFeeding.amount}ml/L)
+                {lastFeeding.amount}{lastFeeding.unit ?? "ml/L"})
               </span>
             ) : (
               <span>{t("plantCard.noFeedingRecords")}</span>

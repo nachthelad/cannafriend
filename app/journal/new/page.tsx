@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { Layout } from "@/components/layout";
+import { Layout as AppLayout } from "@/components/layout";
 import { ArrowLeft, Calendar, AlertCircle } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_JOURNAL } from "@/lib/routes";
@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
+import { AmountWithUnit } from "@/components/common/amount-with-unit";
 
 // Form validation schema - will be created with translations in component
 const createLogFormSchema = (t: any) =>
@@ -58,8 +59,10 @@ const createLogFormSchema = (t: any) =>
       notes: z.string().max(500, t("notesMaxLength", { ns: "validation" })),
       wateringAmount: z.string().optional(),
       wateringMethod: z.string().optional(),
+      wateringUnit: z.string().optional(),
       feedingNpk: z.string().optional(),
       feedingAmount: z.string().optional(),
+      feedingUnit: z.string().optional(),
       trainingMethod: z.string().optional(),
       temperature: z.string().optional(),
       humidity: z.string().optional(),
@@ -76,21 +79,6 @@ const createLogFormSchema = (t: any) =>
             message: t("waterAmountRequired", { ns: "validation" }),
             path: ["wateringAmount"],
           });
-        } else {
-          const amount = parseFloat(data.wateringAmount);
-          if (isNaN(amount) || amount <= 0) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: t("waterAmountInvalid", { ns: "validation" }),
-              path: ["wateringAmount"],
-            });
-          } else if (amount > 100) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: t("waterAmountTooLarge", { ns: "validation" }),
-              path: ["wateringAmount"],
-            });
-          }
         }
         if (!data.wateringMethod) {
           ctx.addIssue({
@@ -172,7 +160,8 @@ const createLogFormSchema = (t: any) =>
       }
     });
 
-type LogFormData = z.infer<ReturnType<typeof createLogFormSchema>>;
+type LogFormSchema = ReturnType<typeof createLogFormSchema>;
+type LogFormData = z.infer<LogFormSchema>;
 
 function NewJournalPageContent() {
   const { t } = useTranslation(["journal", "common", "validation"]);
@@ -273,6 +262,7 @@ function NewJournalPageContent() {
             ...logData,
             amount: Number.parseFloat(data.wateringAmount || "0"),
             method: data.wateringMethod,
+            unit: (data as any).wateringUnit || "ml",
           };
           break;
         case LOG_TYPES.FEEDING:
@@ -280,6 +270,7 @@ function NewJournalPageContent() {
             ...logData,
             npk: data.feedingNpk,
             amount: Number.parseFloat(data.feedingAmount || "0"),
+            unit: (data as any).feedingUnit || "ml/L",
           };
           break;
         case LOG_TYPES.TRAINING:
@@ -351,16 +342,18 @@ function NewJournalPageContent() {
 
   if (plantsLoading) {
     return (
-      <Layout>
+      <div>
         <div className="flex items-center justify-center h-64">
           <AnimatedLogo size={24} className="text-primary" duration={1.2} />
         </div>
-      </Layout>
+      </div>
     );
   }
 
+  const handleFormSubmit = handleSubmit(onSubmit as any);
+
   return (
-    <Layout>
+    <div>
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
@@ -418,7 +411,7 @@ function NewJournalPageContent() {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit as any)} className="max-w-2xl px-4 md:px-6">
+      <form onSubmit={handleFormSubmit} className="max-w-2xl px-4 md:px-6">
         <div className="space-y-6">
           {/* Plant Selection */}
           {plants.length > 1 && (
@@ -540,14 +533,25 @@ function NewJournalPageContent() {
                 >
                   {t("logForm.amount", { ns: "journal" })}
                 </Label>
-                <Input
-                  id="wateringAmount"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.1"
+                <AmountWithUnit
+                  inputId="wateringAmount"
                   placeholder="0.5"
-                  className="min-h-[48px] text-base"
-                  {...register("wateringAmount")}
+                  inputProps={{
+                    type: "number",
+                    inputMode: "decimal",
+                    step: 0.1 as any,
+                    className: "min-h-[48px] text-base",
+                    ...register("wateringAmount"),
+                  }}
+                  defaultUnit="ml"
+                  unitOptions={[
+                    { value: "ml" },
+                    { value: "L" },
+                    { value: "gal", label: "gal" },
+                  ]}
+                  onUnitChange={(value) =>
+                    setValue("wateringUnit", value, { shouldDirty: true })
+                  }
                 />
                 {errors.wateringAmount && (
                   <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
@@ -626,14 +630,24 @@ function NewJournalPageContent() {
                 >
                   {t("logForm.amount", { ns: "journal" })}
                 </Label>
-                <Input
-                  id="feedingAmount"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.1"
+                <AmountWithUnit
+                  inputId="feedingAmount"
                   placeholder="2.0"
-                  className="min-h-[48px] text-base"
-                  {...register("feedingAmount")}
+                  inputProps={{
+                    type: "number",
+                    inputMode: "decimal",
+                    step: 0.1 as any,
+                    className: "min-h-[48px] text-base",
+                    ...register("feedingAmount"),
+                  }}
+                  defaultUnit="ml/L"
+                  unitOptions={[
+                    { value: "ml/L" },
+                    { value: "g/L" },
+                  ]}
+                  onUnitChange={(value) =>
+                    setValue("feedingUnit", value, { shouldDirty: true })
+                  }
                 />
                 {errors.feedingAmount && (
                   <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
@@ -849,7 +863,7 @@ function NewJournalPageContent() {
           </div>
         </div>
       </form>
-    </Layout>
+    </div>
   );
 }
 

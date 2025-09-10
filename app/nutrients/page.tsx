@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore";
 import { Plus, X } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface NutrientMix {
   id: string;
@@ -92,8 +93,17 @@ export default function NutrientsPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-9 w-28" />
+          </div>
+          <Skeleton className="h-10 w-80" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
         </div>
       </Layout>
     );

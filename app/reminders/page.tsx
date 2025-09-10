@@ -10,8 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AnimatedLogo } from "@/components/common/animated-logo";
-import { db } from "@/lib/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { collection, getDocs, query } from "firebase/firestore";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -22,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 
 export default function RemindersPage() {
-  const { t } = useTranslation(["reminders", "common"]);
+  const { t } = useTranslation(["reminders", "common", "dashboard"]);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [plants, setPlants] = useState<Plant[]>([]);
@@ -53,8 +52,15 @@ export default function RemindersPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6 space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
         </div>
       </Layout>
     );

@@ -48,6 +48,7 @@ import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { usePremium } from "@/hooks/use-premium";
 import { Trash2, AlertTriangle, Crown, CreditCard } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -504,8 +505,13 @@ export default function SettingsPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="max-w-2xl mx-auto p-4 space-y-6">
+          <Skeleton className="h-9 w-48" />
+          <div className="space-y-4">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
         </div>
       </Layout>
     );

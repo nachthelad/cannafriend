@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -200,8 +201,16 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
 
   if (isLoading || authLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      <div className="space-y-4 p-4">
+        <div className="space-y-2 text-center">
+          <Skeleton className="h-7 w-48 mx-auto" />
+          <Skeleton className="h-4 w-64 mx-auto" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+        </div>
       </div>
     );
   }

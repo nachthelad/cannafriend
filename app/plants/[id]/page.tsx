@@ -54,6 +54,7 @@ import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import { Trash2, Plus, Star } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { PlantDetailSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -169,7 +170,7 @@ export default function PlantPage({
           id,
           "environment"
         );
-        const envQuery = query(envRef, orderBy("date", "asc"));
+        const envQuery = query(envRef, orderBy("date", "desc"));
         const envSnap = await getDocs(envQuery);
 
         const envData: EnvironmentData[] = [];
@@ -204,8 +205,8 @@ export default function PlantPage({
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6">
+          <PlantDetailSkeleton />
         </div>
       </Layout>
     );
@@ -337,9 +338,17 @@ export default function PlantPage({
   if (!plant) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("plantPage.notFound")}</CardTitle>
+            <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
+              {t("plantPage.backToDashboard")}
+            </Button>
+          </CardContent>
+        </Card>
       </Layout>
     );
   }

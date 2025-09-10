@@ -107,7 +107,7 @@ export function MobilePlantCard({
             {lastWatering ? (
               <span>
                 {t("plantCard.lastWatering", { ns: "plants" })}:{" "}
-                {lastWatering.amount}ml (
+                {lastWatering.amount}{lastWatering.unit ?? "ml"} (
                 {t(`watering.${lastWatering.method}`, { ns: "journal" })})
               </span>
             ) : (
@@ -119,7 +119,7 @@ export function MobilePlantCard({
             {lastFeeding ? (
               <span>
                 {t("plantCard.lastFeeding", { ns: "plants" })}:{" "}
-                {lastFeeding.npk} ({lastFeeding.amount}ml/L)
+                {lastFeeding.npk} ({lastFeeding.amount}{lastFeeding.unit ?? "ml/L"})
               </span>
             ) : (
               <span>{t("plantCard.noFeedingRecords", { ns: "plants" })}</span>

@@ -6,28 +6,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function JournalSkeleton() {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Mobile-friendly header skeleton */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div>
-          <Skeleton className="h-8 w-32 mb-2" /> {/* Title */}
-          <Skeleton className="h-5 w-56" /> {/* Description */}
+          <Skeleton className="h-8 w-32 mb-2" />
+          <Skeleton className="h-5 w-56" />
         </div>
         <div className="flex gap-2">
-          <Skeleton className="h-10 w-24" /> {/* Filter button */}
-          <Skeleton className="h-10 w-32" /> {/* Add entry button */}
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-16 rounded-full" />
-        ))}
-      </div>
-
-      {/* Journal entries */}
       <div className="space-y-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <JournalEntrySkeleton key={i} />
         ))}
       </div>
@@ -118,6 +110,43 @@ export function JournalTimelineSkeleton() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function JournalDesktopSkeleton() {
+  return (
+    <div className="grid gap-6 md:grid-cols-[320px_1fr]">
+      {/* Left column: Filters + calendar */}
+      <Card className="h-fit">
+        <CardHeader>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-56" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          {/* Calendar block */}
+          <div className="mt-2">
+            <Skeleton className="h-80 w-full rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Right column: Entries list */}
+      <div className="space-y-4">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <JournalEntrySkeleton key={i} />
+        ))}
+      </div>
     </div>
   );
 }

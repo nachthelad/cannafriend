@@ -2,6 +2,82 @@
 
 This document outlines prioritized tasks to improve page loading, UI quality, and overall application performance.
 
+## Proposed: Performance & PWA Optimization Roadmap
+
+These tasks focus on measurable page-speed wins, especially for PWA/offline usage. Each item is incremental and safe to roll out gradually.
+
+### Rendering & Routing (Next.js)
+
+- [ ] Prefer Server Components by default (reduce client JS) in `app/*`
+- [ ] Add streaming + Suspense boundaries with `loading.tsx` per route
+- [ ] Explicit caching: set `export const revalidate = 60` for ISR where safe
+- [ ] Use `dynamic = "force-static"` for static pages; `revalidateTag` on writes
+- [ ] Prefetch critical routes with `<Link prefetch>` and `router.prefetch()`
+- [ ] Defer non-critical UI with `next/dynamic({ ssr: false })` and `suspense: true`
+- [ ] Virtualize long lists (plants/journal) with `@tanstack/react-virtual`
+
+### Data & Firebase
+
+- [ ] Ensure modular SDK imports (tree-shake): `import { getFirestore } from 'firebase/firestore'`
+- [ ] Enable persistent local cache for offline: IndexedDB + tab sync
+  - Firestore v10+: `initializeFirestore(app, { localCache: persistentLocalCache(/*...*/), experimentalForceLongPolling: false })`
+- [ ] First render from cache, then server: `onSnapshot(..., { includeMetadataChanges: true })`
+- [ ] Add query limits, cursors, and composite indexes for lists
+- [ ] Batch writes with `writeBatch` and minimize N+1 reads
+- [ ] Move expensive aggregations to a server route or Cloud Function (counts, summaries)
+- [ ] Upload images with client-side resize (e.g., 1600px max) + thumbnail generation
+- [ ] Cache user/profile docs with SWR keys and background refresh
+
+### PWA Service Worker & Caching
+
+- [ ] Standardize on a single SW (remove duplicates) in `public/sw.ts|js`
+- [ ] Precache the app shell + top routes (`/`, `/plants`, `/journal`)
+- [ ] Runtime caching strategies:
+  - Images (Cloud Storage/remote): CacheFirst, 30 days, maxEntries ~200
+  - API/JSON (`/api/*`): StaleWhileRevalidate, 60s
+  - Translations JSON: StaleWhileRevalidate, 24h
+  - Next static assets (`_next/static`): CacheFirst, 1 year
+- [ ] Add navigation preload + offline fallback page at `app/offline/page.tsx`
+- [ ] Background Sync for failed POSTs to `/api/*` mutations
+
+### Bundles, Assets & Images
+
+- [ ] Audit bundles with `@next/bundle-analyzer` and cap budgets per page
+- [ ] Replace heavy libs where possible (date libs, icons, charts), prefer per-module imports
+- [ ] Use `next/image` everywhere with `sizes`, `placeholder="blur"`, AVIF/WebP
+- [ ] Define width/height to prevent CLS; compress public images on commit
+- [ ] Tree-shake Firebase and UI libs; avoid wildcard imports
+
+### Fonts & CSS
+
+- [ ] Switch to `next/font` with subsets and `display: swap`
+- [ ] Preload primary font weights only; avoid runtime Google CSS
+- [ ] Keep Tailwind clean (JIT purges); remove unused globals from `app/globals.css`
+
+### Internationalization
+
+- [ ] Load only required namespaces per route; lazy import dictionaries
+- [ ] Split large translation JSON files; compress and cache via SW
+
+### Edge & API Routes
+
+- [ ] Convert simple GET APIs to `runtime = 'edge'` for lower latency
+- [ ] Add cache headers (`Cache-Control: s-maxage=60, stale-while-revalidate=300`)
+- [ ] Use Next revalidation tags; revalidate on data writes
+
+### Monitoring & Budgets
+
+- [ ] Report Web Vitals via `instrumentation.ts` to console or Sentry
+- [ ] Add Lighthouse CI (optional) locally; keep CI simple but track scores manually
+- [ ] Define bundle-size budgets and fail PR locally if exceeded
+
+### Acceptance Criteria (sampling)
+
+- TTI/INP improved on mobile by ~20–30% on `/plants` and `/journal`
+- First meaningful content available offline for shell + last-viewed lists
+- No CLS > 0.02 on image-heavy views (fixed dimensions + placeholders)
+- Total JS per route <= 180–250KB gzipped after code splitting
+
 ## 🚀 Priority 1: Performance & Loading Optimization
 
 ### Bundle Size & Code Splitting
