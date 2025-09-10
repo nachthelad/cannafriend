@@ -39,7 +39,10 @@ import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
 import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Filter, Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { JournalSkeleton, JournalDesktopSkeleton } from "@/components/skeletons/journal-skeleton";
+import {
+  JournalSkeleton,
+  JournalDesktopSkeleton,
+} from "@/components/skeletons/journal-skeleton";
 import { parseISO, isSameDay } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
@@ -287,9 +290,9 @@ export default function JournalPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="p-4 md:p-6">
+        <div className="p-4 md:p-6 overflow-x-hidden">
           {/* Mobile skeleton */}
-          <div className="md:hidden">
+          <div className="md:hidden overflow-x-hidden overflow-y-hidden max-h-[100dvh]">
             <JournalSkeleton />
           </div>
           {/* Desktop skeleton mirrors filters + list layout */}

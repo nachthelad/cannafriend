@@ -261,13 +261,15 @@ export default function StashPage() {
       </div>
 
       {isLoading ? (
-        <div className="p-4 md:p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
+        <div className="p-4 md:p-6 space-y-4 overflow-x-hidden">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="space-y-2 w-full sm:w-auto">
               <Skeleton className="h-8 w-40" />
-              <Skeleton className="h-4 w-72" />
+              <Skeleton className="h-4 w-44 sm:w-72" />
             </div>
-            <Skeleton className="h-9 w-28" />
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Skeleton className="h-9 w-28" />
+            </div>
           </div>
           <div className="space-y-3">
             <Skeleton className="h-24 w-full" />
