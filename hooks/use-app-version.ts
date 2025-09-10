@@ -35,13 +35,15 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
         const data = (await res.json()) as VersionInfo;
         if (cancelled) return;
         setServer(data);
-        // Compare by version first, then fallback to buildTime
-        if (
-          (data.version && data.version !== current.version) ||
-          (!!data.buildTime && data.buildTime !== current.buildTime)
-        ) {
-          setUpdateAvailable(true);
-        }
+        // Prefer semantic version comparison; fallback to buildTime only if version missing
+        const versionDiffers = Boolean(
+          data.version && current.version && data.version !== current.version
+        );
+        const useBuildTimeFallback = !data.version || !current.version;
+        const buildTimeDiffers = Boolean(
+          useBuildTimeFallback && data.buildTime && data.buildTime !== current.buildTime
+        );
+        if (versionDiffers || buildTimeDiffers) setUpdateAvailable(true);
       } catch {
         // ignore network errors
       }
@@ -66,13 +68,37 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
     };
   }, [current.buildTime, current.version, pollIntervalMs]);
 
-  const reload = () => {
-    // Force a hard reload to ensure new assets are used
-    window.location.reload();
+  const reload = async () => {
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.update().catch(() => {})));
+        for (const reg of regs) {
+          const sw = reg.waiting || reg.installing || reg.active;
+          if (sw) {
+            sw.postMessage({ type: 'SKIP_WAITING' });
+          }
+        }
+        // Wait briefly for controller change
+        await new Promise<void>((resolve) => {
+          const t = setTimeout(() => resolve(), 500);
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            clearTimeout(t);
+            resolve();
+          }, { once: true });
+        });
+      }
+    } catch {
+      // ignore
+    } finally {
+      // Reload with cache-busting query to avoid stale caches/proxies
+      const url = new URL(window.location.href);
+      url.searchParams.set('_v', String(Date.now()));
+      window.location.replace(url.toString());
+    }
   };
 
   const dismiss = () => setUpdateAvailable(false);
 
   return { current, server, updateAvailable, reload, dismiss } as const;
 }
-

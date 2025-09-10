@@ -74,7 +74,15 @@ export default function RootLayout({
               (function(){
                 if ('serviceWorker' in navigator) {
                   window.addEventListener('load', function(){
-                    navigator.serviceWorker.register('/sw.js').catch(function(e){
+                    navigator.serviceWorker.register('/sw.js').then(function(reg){
+                      // Listen for skip waiting messages
+                      navigator.serviceWorker.addEventListener('message', function(event){
+                        if (event && event.data && event.data.type === 'RELOAD_PAGE') {
+                          location.reload();
+                        }
+                      });
+                      return reg;
+                    }).catch(function(e){
                       console.warn('SW registration failed', e);
                     });
                   });
