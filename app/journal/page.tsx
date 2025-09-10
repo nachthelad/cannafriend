@@ -66,6 +66,24 @@ export default function JournalPage() {
   const [loadingMoreLogs, setLoadingMoreLogs] = useState(false);
   const LOGS_PAGE_SIZE = 25;
 
+  // Prevent body/viewport scrolling while loading to avoid layout shift on mobile
+  useEffect(() => {
+    if (isLoading) {
+      try {
+        document.documentElement.classList.add('overflow-hidden');
+      } catch {}
+    } else {
+      try {
+        document.documentElement.classList.remove('overflow-hidden');
+      } catch {}
+    }
+    return () => {
+      try {
+        document.documentElement.classList.remove('overflow-hidden');
+      } catch {}
+    };
+  }, [isLoading]);
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) router.push(ROUTE_LOGIN);
@@ -291,9 +309,11 @@ export default function JournalPage() {
     return (
       <Layout>
         <div className="p-4 md:p-6 overflow-x-hidden">
-          {/* Mobile skeleton */}
-          <div className="md:hidden overflow-x-hidden overflow-y-hidden max-h-[100dvh]">
-            <JournalSkeleton />
+          {/* Mobile blocking overlay skeleton */}
+          <div className="md:hidden fixed inset-0 z-40 p-4 bg-background/95 backdrop-blur-sm overflow-hidden touch-none overscroll-none">
+            <div className="max-w-screen-sm mx-auto">
+              <JournalSkeleton />
+            </div>
           </div>
           {/* Desktop skeleton mirrors filters + list layout */}
           <div className="hidden md:block">
