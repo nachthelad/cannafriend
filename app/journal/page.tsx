@@ -32,21 +32,14 @@ import {
   type QueryDocumentSnapshot,
   type DocumentData,
 } from "firebase/firestore";
-import {
-  collection,
-  query,
-  getDocs,
-  orderBy,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { query, getDocs, orderBy, deleteDoc, doc } from "firebase/firestore";
 import { Layout } from "@/components/layout";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
 import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Filter, Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { JournalSkeleton, JournalDesktopSkeleton } from "@/components/skeletons/journal-skeleton";
 import { parseISO, isSameDay } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
@@ -294,8 +287,15 @@ export default function JournalPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6">
+          {/* Mobile skeleton */}
+          <div className="md:hidden">
+            <JournalSkeleton />
+          </div>
+          {/* Desktop skeleton mirrors filters + list layout */}
+          <div className="hidden md:block">
+            <JournalDesktopSkeleton />
+          </div>
         </div>
       </Layout>
     );
@@ -321,140 +321,160 @@ export default function JournalPage() {
       {/* Desktop Journal */}
       <div className="hidden md:block">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">{t("title", { ns: "journal" })}</h1>
-          <p className="text-muted-foreground">{t("description", { ns: "journal" })}</p>
+          <h1 className="text-3xl font-bold">
+            {t("title", { ns: "journal" })}
+          </h1>
+          <p className="text-muted-foreground">
+            {t("description", { ns: "journal" })}
+          </p>
         </div>
 
-      <div className="grid gap-6 md:grid-cols-[320px_1fr]">
-        {/* Left column: Filters + calendar */}
-        <Card className="md:sticky md:top-4 h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Filter className="mr-2 h-4 w-4" />
-              {t("filters.title", { ns: "journal" })}
-            </CardTitle>
-            <CardDescription>{t("filtersDesc", { ns: "journal" })}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t("filterByPlant", { ns: "journal" })}
-              </label>
-              <Select value={selectedPlant} onValueChange={setSelectedPlant}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("selectPlant", { ns: "journal" })} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("allPlants", { ns: "journal" })}</SelectItem>
-                  {plants.map((plant) => (
-                    <SelectItem key={plant.id} value={plant.id}>
-                      {plant.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t("filterByType", { ns: "journal" })}
-              </label>
-              <Select
-                value={selectedLogType}
-                onValueChange={setSelectedLogType}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("selectType", { ns: "journal" })} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("allTypes", { ns: "journal" })}</SelectItem>
-                  <SelectItem value="watering">
-                    {t("logType.watering", { ns: "journal" })}
-                  </SelectItem>
-                  <SelectItem value="feeding">
-                    {t("logType.feeding", { ns: "journal" })}
-                  </SelectItem>
-                  <SelectItem value="training">
-                    {t("logType.training", { ns: "journal" })}
-                  </SelectItem>
-                  <SelectItem value="environment">
-                    {t("logType.environment", { ns: "journal" })}
-                  </SelectItem>
-                  <SelectItem value="flowering">
-                    {t("logType.flowering", { ns: "journal" })}
-                  </SelectItem>
-                  <SelectItem value="note">{t("logType.note", { ns: "journal" })}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t("filterByDate", { ns: "journal" })}
-              </label>
-              <MobileDatePicker
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                locale={getCalendarLocale()}
-              />
-              {/* Calendar markers dot via CSS: inject data-has-logs flag per day via DOM attribute hook */}
-              {selectedDate && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedDate(undefined)}
-                  className="w-full"
-                >
-                  {t("clearDate", { ns: "journal" })}
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        {/* Right column: Logs List */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
+        <div className="grid gap-6 md:grid-cols-[320px_1fr]">
+          {/* Left column: Filters + calendar */}
+          <Card className="md:sticky md:top-4 h-fit">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Filter className="mr-2 h-4 w-4" />
+                {t("filters.title", { ns: "journal" })}
+              </CardTitle>
               <CardDescription>
-                {filteredLogs.length} {t("logsFound", { ns: "journal" })}
+                {t("filtersDesc", { ns: "journal" })}
               </CardDescription>
-            </div>
-            <Button 
-              size="icon" 
-              aria-label="Add log"
-              onClick={() => router.push("/journal/new")}
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <JournalEntries
-              logs={filteredLogs}
-              showPlantName={true}
-              onDelete={handleDeleteLog}
-            />
-            {hasMoreLogs && (
-              <div className="flex justify-center mt-4">
-                <Button
-                  variant="outline"
-                  onClick={loadMoreLogs}
-                  disabled={loadingMoreLogs}
-                >
-                  {loadingMoreLogs ? (
-                    <>
-                      <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />{" "}
-                      {t("loading", { ns: "common" })}
-                    </>
-                  ) : (
-                    t("loadMore", { ns: "common" })
-                  )}
-                </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("filterByPlant", { ns: "journal" })}
+                </label>
+                <Select value={selectedPlant} onValueChange={setSelectedPlant}>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t("selectPlant", { ns: "journal" })}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("allPlants", { ns: "journal" })}
+                    </SelectItem>
+                    {plants.map((plant) => (
+                      <SelectItem key={plant.id} value={plant.id}>
+                        {plant.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("filterByType", { ns: "journal" })}
+                </label>
+                <Select
+                  value={selectedLogType}
+                  onValueChange={setSelectedLogType}
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t("selectType", { ns: "journal" })}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("allTypes", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="watering">
+                      {t("logType.watering", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="feeding">
+                      {t("logType.feeding", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="training">
+                      {t("logType.training", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="environment">
+                      {t("logType.environment", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="flowering">
+                      {t("logType.flowering", { ns: "journal" })}
+                    </SelectItem>
+                    <SelectItem value="note">
+                      {t("logType.note", { ns: "journal" })}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {t("filterByDate", { ns: "journal" })}
+                </label>
+                <MobileDatePicker
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  locale={getCalendarLocale()}
+                />
+                {/* Calendar markers dot via CSS: inject data-has-logs flag per day via DOM attribute hook */}
+                {selectedDate && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedDate(undefined)}
+                    className="w-full"
+                  >
+                    {t("clearDate", { ns: "journal" })}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          {/* Right column: Logs List */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
+                <CardDescription>
+                  {filteredLogs.length} {t("logsFound", { ns: "journal" })}
+                </CardDescription>
+              </div>
+              <Button
+                size="icon"
+                aria-label="Add log"
+                onClick={() => router.push("/journal/new")}
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <JournalEntries
+                logs={filteredLogs}
+                showPlantName={true}
+                onDelete={handleDeleteLog}
+              />
+              {hasMoreLogs && (
+                <div className="flex justify-center mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={loadMoreLogs}
+                    disabled={loadingMoreLogs}
+                  >
+                    {loadingMoreLogs ? (
+                      <>
+                        <AnimatedLogo
+                          size={16}
+                          className="mr-2 text-primary"
+                          duration={1.2}
+                        />{" "}
+                        {t("loading", { ns: "common" })}
+                      </>
+                    ) : (
+                      t("loadMore", { ns: "common" })
+                    )}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Layout>
   );

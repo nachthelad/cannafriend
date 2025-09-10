@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
 import { SimplePlantCard } from "@/components/mobile/simple-plant-card";
@@ -147,8 +148,25 @@ export function MobilePlantList({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      <div className="space-y-4 p-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-9 w-9 rounded-md" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-11 flex-1" />
+          <Skeleton className="h-11 w-11" />
+          <Skeleton className="h-11 w-24" />
+          <Skeleton className="h-11 w-24" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-28 w-full rounded-lg" />
+          <Skeleton className="h-28 w-full rounded-lg" />
+          <Skeleton className="h-28 w-full rounded-lg" />
+        </div>
       </div>
     );
   }

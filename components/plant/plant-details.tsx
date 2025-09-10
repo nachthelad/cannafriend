@@ -169,7 +169,7 @@ export function PlantDetails({
               <Droplet className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastWatering
-                  ? `${lastWatering.amount}ml (${t(
+                  ? `${lastWatering.amount}${lastWatering.unit ?? "ml"} (${t(
                       `watering.${lastWatering.method}`,
                       { ns: "journal" }
                     )})`
@@ -186,7 +186,7 @@ export function PlantDetails({
               <Zap className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastFeeding
-                  ? `${lastFeeding.npk} (${lastFeeding.amount}ml/L)`
+                  ? `${lastFeeding.npk} (${lastFeeding.amount}${lastFeeding.unit ?? "ml/L"})`
                   : t("plantPage.noFeedingRecords")}
               </span>
             </div>

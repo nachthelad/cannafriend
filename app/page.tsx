@@ -1,19 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
-import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
-import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
+// Defer heavy marketing views to reduce initial JS and split per-viewport
+const MobileLandingView = dynamic(
+  () =>
+    import("@/components/marketing/mobile-landing-view").then(
+      (m) => m.MobileLandingView
+    ),
+  { ssr: false, loading: () => <div className="p-8" /> }
+);
+const DesktopLandingView = dynamic(
+  () =>
+    import("@/components/marketing/desktop-landing-view").then(
+      (m) => m.DesktopLandingView
+    ),
+  { ssr: false, loading: () => <div className="p-8" /> }
+);
 import { useTranslation } from "react-i18next";
 
-import { AnimatedLogo } from "@/components/common/animated-logo";
 
 export default function Home() {
   const router = useRouter();
@@ -145,11 +158,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
         <div className="flex flex-col items-center">
-          <AnimatedLogo
-            size={64}
-            className="text-primary mb-4"
-            duration={1.5}
-          />
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent mb-4" />
           <p className="text-lg font-medium text-foreground">
             {t("loading", { ns: "common" })}
           </p>
@@ -172,20 +181,24 @@ export default function Home() {
 
       {/* Mobile Layout - Direct Login Screen */}
       <div className="block lg:hidden">
-        <MobileLandingView />
+        <Suspense fallback={<div className="p-8" />}>
+          <MobileLandingView />
+        </Suspense>
       </div>
 
       {/* Desktop Layout - Marketing Page */}
       <div className="hidden lg:block">
-        <DesktopLandingView
-          isLoggedIn={isLoggedIn}
-          loginOpen={loginOpen}
-          onLoginOpenChange={setLoginOpen}
-          onLoginClick={handleDesktopLoginClick}
-          onAuthStart={() => {}}
-          deferredPrompt={deferredPrompt}
-          onInstallPWA={handleInstallPWA}
-        />
+        <Suspense fallback={<div className="p-8" />}>
+          <DesktopLandingView
+            isLoggedIn={isLoggedIn}
+            loginOpen={loginOpen}
+            onLoginOpenChange={setLoginOpen}
+            onLoginClick={handleDesktopLoginClick}
+            onAuthStart={() => {}}
+            deferredPrompt={deferredPrompt}
+            onInstallPWA={handleInstallPWA}
+          />
+        </Suspense>
       </div>
 
       {/* Cookie consent banner */}

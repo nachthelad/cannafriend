@@ -20,7 +20,8 @@ import {
 } from "firebase/firestore";
 import { Layout } from "@/components/layout";
 import { ArrowLeft, Plus } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+// AnimatedLogo removed from page-level loading state; using skeleton
+import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import type { Plant, LogEntry } from "@/types";
 
@@ -111,8 +112,8 @@ export default function PlantLogsPage({
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex justify-center items-center h-64">
-          <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+        <div className="p-4 md:p-6">
+          <JournalSkeleton />
         </div>
       </Layout>
     );

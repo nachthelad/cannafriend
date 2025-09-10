@@ -26,6 +26,7 @@ export interface LogEntry {
   // Watering specific
   amount?: number;
   method?: WateringMethod;
+  unit?: string; // e.g., ml, L, gal
 
   // Feeding specific
   npk?: string;

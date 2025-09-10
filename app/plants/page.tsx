@@ -26,7 +26,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { Plus } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { PlantListSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
 import { MobilePlantList } from "@/components/mobile/mobile-plant-list";
@@ -183,8 +183,8 @@ export default function PlantsListPage() {
       {/* Desktop Plant List - only show on desktop */}
       <div className="hidden md:block">
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+          <div className="p-4 md:p-6">
+            <PlantListSkeleton />
           </div>
         ) : (
           <>
@@ -247,19 +247,15 @@ export default function PlantsListPage() {
                   onClick={loadMore}
                   disabled={isLoadingMore}
                 >
-                  {isLoadingMore ? (
-                    <>
-                      <AnimatedLogo
-                        size={16}
-                        className="mr-2 text-primary"
-                        duration={1.2}
-                      />{" "}
-                      {t("loading", { ns: "common" })}
-                    </>
-                  ) : (
-                    t("loadMore", { ns: "common" })
-                  )}
-                </Button>
+          {isLoadingMore ? (
+            <>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent mr-2" />
+              {t("loading", { ns: "common" })}
+            </>
+          ) : (
+            t("loadMore", { ns: "common" })
+          )}
+        </Button>
               </div>
             )}
           </>

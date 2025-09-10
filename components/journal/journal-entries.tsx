@@ -57,11 +57,11 @@ export function JournalEntries({
   const getLogTitle = (log: LogEntry) => {
     switch (log.type) {
       case "watering":
-        return `${t("logType.watering", { ns: "journal" })} - ${log.amount}ml (${t(
+        return `${t("logType.watering", { ns: "journal" })} - ${log.amount}${log.unit ? log.unit : "ml"} (${t(
           `watering.${log.method}`, { ns: "journal" }
         )})`;
       case "feeding":
-        return `${t("logType.feeding", { ns: "journal" })} - ${log.npk} (${log.amount}ml/L)`;
+        return `${t("logType.feeding", { ns: "journal" })} - ${log.npk} (${log.amount}${log.unit ? log.unit : "ml/L"})`;
       case "training":
         return `${t("logType.training", { ns: "journal" })} - ${t(`training.${log.method}`, { ns: "journal" })}`;
       case "environment":

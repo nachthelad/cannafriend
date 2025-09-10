@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
+import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import { useRouter } from "next/navigation";
 import {
   Filter,
@@ -24,6 +24,7 @@ import {
   SortDesc,
 } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Skeleton } from "@/components/ui/skeleton";
 import { parseISO, isSameDay, format } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import type { Plant, LogEntry } from "@/types";
@@ -173,8 +174,24 @@ export function MobileJournal({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <AnimatedLogo size={32} className="text-primary" duration={1.5} />
+      <div className="space-y-4 p-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <Skeleton className="h-9 w-9 rounded-md" />
+        </div>
+        <Skeleton className="h-11 w-full" />
+        <div className="flex gap-2">
+          <Skeleton className="h-11 w-32" />
+          <Skeleton className="h-11 flex-1" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+        </div>
       </div>
     );
   }
@@ -464,13 +481,15 @@ export function MobileJournal({
             <DialogTitle>{t("selectDate", { ns: "journal" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <MobileDatePicker
+            <CalendarComponent
+              mode="single"
               selected={selectedDate}
               onSelect={(date) => {
                 setSelectedDate(date);
                 setShowCalendar(false);
               }}
               locale={getCalendarLocale()}
+              className="rounded-md border w-full"
             />
             {selectedDate && (
               <Button

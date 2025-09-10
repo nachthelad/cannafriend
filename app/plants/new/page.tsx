@@ -5,15 +5,8 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_PLANTS } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -25,7 +18,7 @@ import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { Calendar } from "lucide-react";
+import { Calendar, ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
@@ -37,6 +30,8 @@ import {
 import { cn } from "@/lib/utils";
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
+import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
+import { es, enUS } from "date-fns/locale";
 import {
   SEED_TYPES,
   GROW_TYPES,
@@ -143,19 +138,49 @@ export default function NewPlantPage() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("newPlant.title", { ns: "plants" })}</CardTitle>
-            <CardDescription>{t("newPlant.description", { ns: "plants" })}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={rhfHandleSubmit(onSubmit)} className="space-y-6">
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(ROUTE_PLANTS)}
+            className="p-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">{t("newPlant.title", { ns: "plants" })}</h1>
+            <p className="text-sm text-muted-foreground">
+              {t("newPlant.description", { ns: "plants" })}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => router.push(ROUTE_PLANTS)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
+          </Button>
+        </div>
+        <h1 className="text-3xl font-bold">{t("newPlant.title", { ns: "plants" })}</h1>
+        <p className="text-muted-foreground">{t("newPlant.description", { ns: "plants" })}</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={rhfHandleSubmit(onSubmit)} className="max-w-2xl px-4 md:px-6">
+        <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">{t("newPlant.name", { ns: "plants" })}</Label>
+                <label htmlFor="name" className="text-base font-medium">
+                  {t("newPlant.name", { ns: "plants" })}
+                </label>
                 <Input
                   id="name"
                   placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
+                  className="min-h-[48px] text-base"
                   {...register("name", {
                     validate: (v) =>
                       (v && v.trim().length > 0) ||
@@ -249,37 +274,46 @@ export default function NewPlantPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.plantingDate", { ns: "plants" })}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !plantingDate && "text-muted-foreground"
-                      )}
-                    >
-                      <Calendar className="mr-2 h-4 w-4" />
-                      {plantingDate ? (
-                        formatDateObjectWithLocale(
-                          plantingDate,
-                          "PPP",
-                          i18n.language
-                        )
-                      ) : (
-                        <span>{t("newPlant.pickDate", { ns: "plants" })}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <CalendarComponent
-                      mode="single"
-                      selected={plantingDate}
-                      onSelect={setPlantingDate}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <label className="text-base font-medium">
+                  {t("newPlant.plantingDate", { ns: "plants" })}
+                </label>
+                <div className="md:hidden">
+                  <MobileDatePicker
+                    selected={plantingDate}
+                    onSelect={(d) => d && setPlantingDate(d)}
+                    locale={t("language", { ns: "common" }) === "es" ? es : enUS}
+                  />
+                </div>
+                <div className="hidden md:block">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal min-h-[48px] text-base",
+                          !plantingDate && "text-muted-foreground"
+                        )}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {plantingDate
+                          ? formatDateObjectWithLocale(
+                              plantingDate,
+                              "PPP",
+                              i18n.language
+                            )
+                          : t("newPlant.pickDate", { ns: "plants" })}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent
+                        mode="single"
+                        selected={plantingDate}
+                        onSelect={setPlantingDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
 
               {growType &&
@@ -313,37 +347,77 @@ export default function NewPlantPage() {
                 )}
 
               <div className="space-y-2">
-                <Label htmlFor="seedBank">{t("newPlant.seedBank", { ns: "plants" })}</Label>
+                <label htmlFor="seedBank" className="text-base font-medium">
+                  {t("newPlant.seedBank", { ns: "plants" })}
+                </label>
                 <Input
                   id="seedBank"
                   placeholder={t("newPlant.seedBankPlaceholder", { ns: "plants" })}
+                  className="min-h-[48px] text-base"
                   {...register("seedBank")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>{t("newPlant.photos", { ns: "plants" })}</Label>
+                <label className="text-base font-medium">
+                  {t("newPlant.photos", { ns: "plants" })}
+                </label>
                 <ImageUpload
                   onImagesChange={setPhotos}
                   maxImages={DEFAULT_MAX_IMAGES}
                   maxSizeMB={DEFAULT_MAX_SIZE_MB}
                 />
+                {photos.length > 0 && (
+                  <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {photos.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-full aspect-square overflow-hidden rounded-md border"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`photo ${idx + 1}`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
-                    {t("newPlant.loading", { ns: "plants" })}
-                  </>
-                ) : (
-                  t("newPlant.submit", { ns: "plants" })
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+              {/* Submit Buttons */}
+              <div className="flex gap-3 pt-4 pb-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(ROUTE_PLANTS)}
+                  className="flex-1 min-h-[48px] text-base"
+                >
+                  {t("cancel", { ns: "common" })}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 min-h-[48px] text-base"
+                >
+                  {isLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <AnimatedLogo
+                        size={16}
+                        className="text-primary-foreground"
+                        duration={1.2}
+                      />
+                      {t("newPlant.loading", { ns: "plants" })}
+                    </span>
+                  ) : (
+                    t("newPlant.submit", { ns: "plants" })
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
     </Layout>
   );
 }
