@@ -184,6 +184,12 @@
     "invalidFileType": "Invalid file type",
     "uploadFailed": "Upload failed"
   },
+  "updates": {
+    "title": "Update available",
+    "description": "A new version of the app is available. Please update to continue.",
+    "reload": "Update now",
+    "later": "Later"
+  },
   "settings": {
     "title": "Settings",
     "account": "Account",
@@ -213,7 +219,8 @@
     "deleteError": "Couldn't delete account",
     "reauthRequired": "Please reauthenticate and try again.",
     "accountDeleted": "Account deleted",
-    "accountDeletedDesc": "Your account and data were removed"
+    "accountDeletedDesc": "Your account and data were removed",
+    "appVersion": "App version"
   },
   "cookies": {
     "title": "Cookies",

@@ -20,3 +20,5 @@ export { useErrorHandler } from './use-error-handler'
 
 // Toast notifications
 export { useToast } from './use-toast'
+// App versioning
+export { useAppVersion } from './use-app-version'

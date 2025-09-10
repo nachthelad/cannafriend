@@ -1,4 +1,11 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -6,6 +13,10 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_APP_VERSION: pkg.version,
+    NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+  },
   eslint: {
     ignoreDuringBuilds: true, // Keep ESLint enabled but non-blocking
     dirs: ['app', 'components', 'lib', 'hooks'],
