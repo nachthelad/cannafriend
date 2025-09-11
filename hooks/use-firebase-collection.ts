@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { 
   collection, 
   getDocs, 
@@ -62,8 +62,14 @@ export function useFirebaseCollection<T extends DocumentData>(
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchData = async () => {
-    if (!enabled || !user) {
+  // Resolve path only when safe to avoid constructing invalid collection refs
+  const resolvedPath = useMemo(() => {
+    if (!enabled || !user) return null
+    return collectionPath.replace('{userId}', user.uid)
+  }, [collectionPath, enabled, user])
+
+  const fetchData = useCallback(async () => {
+    if (!enabled || !user || !resolvedPath) {
       setLoading(false)
       return
     }
@@ -72,9 +78,7 @@ export function useFirebaseCollection<T extends DocumentData>(
       setLoading(true)
       setError(null)
 
-      // Replace {userId} placeholder in path
-      const path = collectionPath.replace('{userId}', user.uid)
-      const collectionRef = collection(db, path)
+      const collectionRef = collection(db, resolvedPath)
       
       let queryRef: Query = collectionRef
       if (constraints.length > 0) {
@@ -96,16 +100,15 @@ export function useFirebaseCollection<T extends DocumentData>(
     } finally {
       setLoading(false)
     }
-  }
+  }, [enabled, user, resolvedPath, constraints])
 
-  const setupRealtimeListener = () => {
-    if (!enabled || !user) return
+  const setupRealtimeListener = useCallback(() => {
+    if (!enabled || !user || !resolvedPath) return
 
     try {
       setError(null)
       
-      const path = collectionPath.replace('{userId}', user.uid)
-      const collectionRef = collection(db, path)
+      const collectionRef = collection(db, resolvedPath)
       
       let queryRef: Query = collectionRef
       if (constraints.length > 0) {
@@ -133,7 +136,7 @@ export function useFirebaseCollection<T extends DocumentData>(
       setError(unwrapError(err, 'Failed to setup realtime listener'))
       setLoading(false)
     }
-  }
+  }, [enabled, user, resolvedPath, constraints])
 
   useEffect(() => {
     if (!enabled) {
@@ -147,7 +150,7 @@ export function useFirebaseCollection<T extends DocumentData>(
     } else {
       fetchData()
     }
-  }, [collectionPath, JSON.stringify(constraints), realtime, enabled, user?.uid])
+  }, [resolvedPath, JSON.stringify(constraints), realtime, enabled, user?.uid, setupRealtimeListener, fetchData])
 
   return {
     data,
