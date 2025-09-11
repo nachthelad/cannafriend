@@ -175,22 +175,6 @@ export function MobilePlantList({
     <div className="space-y-4">
       {/* Mobile Header */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{t("yourPlants", { ns: "dashboard" })}</h1>
-            <p className="text-sm text-muted-foreground">
-              {filteredAndSortedPlants.length} {t("total", { ns: "plants" })}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => router.push(ROUTE_PLANTS_NEW)}
-            className="shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-
         {/* Search and Controls */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
@@ -281,7 +265,9 @@ export function MobilePlantList({
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                 }
               >
-                {sortOrder === "asc" ? t("sort.descending", { ns: "plants" }) : t("sort.ascending", { ns: "plants" })}
+                {sortOrder === "asc"
+                  ? t("sort.descending", { ns: "plants" })
+                  : t("sort.ascending", { ns: "plants" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -352,7 +338,8 @@ export function MobilePlantList({
             {!search && activeFiltersCount === 0 && (
               <Button asChild>
                 <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                  <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
+                  <Plus className="h-4 w-4 mr-2" />{" "}
+                  {t("addPlant", { ns: "dashboard" })}
                 </Button>
               </Button>
             )}
@@ -362,10 +349,7 @@ export function MobilePlantList({
 
       {/* Infinite Scroll Trigger */}
       {hasMore && (
-        <div
-          ref={loadMoreCallbackRef}
-          className="flex justify-center py-6"
-        >
+        <div ref={loadMoreCallbackRef} className="flex justify-center py-6">
           {isLoadingMore && (
             <AnimatedLogo size={24} className="text-primary" duration={1.2} />
           )}

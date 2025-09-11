@@ -53,12 +53,12 @@ This tracker lists the remaining work first (prioritized), followed by a consoli
 - [ ] Define and enforce bundle-size budgets
 
 ### Mobile Header Standardization (Remaining)
-- [ ] `/plants/[id]` - Plant detail page header pass
-- [ ] `/plants` - List header actions review
-- [ ] `/nutrients` and `/nutrients/new` - Apply standard header
-- [ ] `/reminders` - Header consistency
-- [ ] `/settings` - Header consistency
-- [ ] `/stash` - Header consistency
+- [x] `/plants/[id]` - Plant detail page header pass
+- [x] `/plants` - List header actions review
+- [x] `/nutrients` and `/nutrients/new` - Apply standard header
+- [x] `/reminders` - Header consistency
+- [x] `/settings` - Header consistency
+- [x] `/stash` - Header consistency
 - [ ] `/ai-assistant` - Confirm desktop/mobile header UX
 
 ---

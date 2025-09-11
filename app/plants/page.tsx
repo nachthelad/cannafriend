@@ -25,7 +25,7 @@ import {
   type QueryDocumentSnapshot,
   type DocumentData,
 } from "firebase/firestore";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { PlantListSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import type { Plant, LogEntry } from "@/types";
 import { PlantCard } from "@/components/plant/plant-card";
@@ -54,6 +54,7 @@ export default function PlantsListPage() {
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const PAGE_SIZE = 12;
+  const handleBack = () => router.back();
 
   useEffect(() => {
     if (authLoading) return;
@@ -164,6 +165,22 @@ export default function PlantsListPage() {
 
   return (
     <Layout>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={handleBack} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">{t("yourPlants", { ns: "dashboard" })}</h1>
+            <p className="text-sm text-muted-foreground">{t("managementDesc", { ns: "plants" })}</p>
+          </div>
+          <Button size="icon" onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+            <Plus className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+
       {/* Mobile Plant List - only show on mobile */}
       <div className="md:hidden">
         {isLoading ? (
@@ -188,19 +205,23 @@ export default function PlantsListPage() {
           </div>
         ) : (
           <>
-            <div className="mb-6 flex items-center justify-between gap-3">
-              <div>
-                <h1 className="text-3xl font-bold">
-                  {t("yourPlants", { ns: "dashboard" })}
-                </h1>
-                <p className="text-muted-foreground">
-                  {t("managementDesc", { ns: "plants" })}
-                </p>
+            {/* Desktop Header */}
+            <div className="hidden md:block mb-6 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Button variant="ghost" size="sm" onClick={handleBack}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("back", { ns: "common" })}
+                </Button>
               </div>
-              <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
-                <Plus className="h-4 w-4 mr-2" />{" "}
-                {t("addPlant", { ns: "dashboard" })}
-              </Button>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold">{t("yourPlants", { ns: "dashboard" })}</h1>
+                  <p className="text-muted-foreground">{t("managementDesc", { ns: "plants" })}</p>
+                </div>
+                <Button onClick={() => router.push(ROUTE_PLANTS_NEW)}>
+                  <Plus className="h-4 w-4 mr-2" /> {t("addPlant", { ns: "dashboard" })}
+                </Button>
+              </div>
             </div>
 
             <div className="mb-4">

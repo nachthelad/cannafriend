@@ -41,7 +41,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -122,14 +122,39 @@ export default function NutrientsPage() {
 
   return (
     <Layout>
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("description")}</p>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => router.back()} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">{t("title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("description")}</p>
+          </div>
+          <Button size="icon" onClick={() => router.push(`/nutrients/new`)}>
+            <Plus className="h-5 w-5" />
+          </Button>
         </div>
-        <Button onClick={() => router.push("/nutrients/new")}>
-          <Plus className="h-4 w-4 mr-2" /> {t("addMix")}
-        </Button>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
+          </Button>
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
+            <p className="text-muted-foreground">{t("description")}</p>
+          </div>
+          <Button onClick={() => router.push(`/nutrients/new`)}>
+            <Plus className="h-4 w-4 mr-2" /> {t("addMix")}
+          </Button>
+        </div>
       </div>
 
       <div className="mb-4">
