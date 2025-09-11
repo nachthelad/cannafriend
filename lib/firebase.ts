@@ -13,16 +13,7 @@ import {
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD3h9y5eaTigtS5KK1oBcYlpvtITMtrH8Q",
-  authDomain: "cannafriend-7899f.firebaseapp.com",
-  projectId: "cannafriend-7899f",
-  storageBucket: "cannafriend-7899f.firebasestorage.app",
-  messagingSenderId: "670182976",
-  appId: "1:670182976:web:fda8c96ad5a8e9a4d9f9a5",
-  measurementId: "G-6KKBWF76CX",
-};
+import { firebaseConfig } from "@/lib/env";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

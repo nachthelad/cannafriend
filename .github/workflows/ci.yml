@@ -9,6 +9,18 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    env:
+      # Public Firebase client vars required by lib/env.ts during build
+      NEXT_PUBLIC_FIREBASE_API_KEY: ci-placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ci-placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ci-placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "1234567890"
+      NEXT_PUBLIC_FIREBASE_APP_ID: 1:1234567890:web:abcdef0123456789
+      NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-PLACEHOLDER
+      NEXT_PUBLIC_FIREBASE_VAPID_KEY: BPLACEHOLDER
+      # Avoid build failing on font download in CI
+      NEXT_FONT_IGNORE_ERRORS: "1"
     
     steps:
     - name: Checkout code

@@ -584,7 +584,7 @@
 
 **Previous State:**
 
-- **Two Separate AI Systems**: `/api/analyze-plant` (grower image analysis) + `/api/ai-consumer` (consumer text chat)
+- **Unified AI System**: Single `/api/unified-chat` route supports both text and image inputs
 - **Role-based UI**: Different interfaces for growers vs consumers
 - **Complex Navigation**: Multiple AI entry points depending on user role
 - **Separate Data Models**: Different Firestore collections and message formats
@@ -608,9 +608,8 @@
 
 **Files Removed:**
 
-- `app/analyze-plant/page.tsx` - Old plant analysis page
-- `app/ai-consumer/page.tsx` - Old consumer chat page
-- `app/api/ai-consumer/route.ts` - Old consumer chat API
+- `app/ai-assistant/page.tsx` - Unified AI assistant page
+- (Removed) Old consumer chat page and API were replaced by unified chat
 
 **Files Updated:**
 
