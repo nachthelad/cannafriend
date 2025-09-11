@@ -52,7 +52,7 @@ const EnvironmentChart = dynamic(
 );
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
-import { Trash2, Plus, Star } from "lucide-react";
+import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { PlantDetailSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import {
@@ -73,6 +73,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
+import { ROUTE_JOURNAL } from "@/lib/routes";
 import { addDoc, updateDoc } from "firebase/firestore";
 
 export default function PlantPage({
@@ -111,6 +112,9 @@ export default function PlantPage({
   const { roles } = useUserRoles();
   const userId = user?.uid ?? null;
   const [isDeleting, setIsDeleting] = useState(false);
+  const handleBack = () => {
+    router.back();
+  };
   const recomputeLasts = (logsData: LogEntry[]) => {
     const wateringLogs = logsData.filter((log) => log.type === "watering");
     const feedingLogs = logsData.filter((log) => log.type === "feeding");
@@ -374,45 +378,17 @@ export default function PlantPage({
 
       {/* Desktop Plant Page */}
       <div className="hidden md:block">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div className="flex items-start justify-between w-full">
+        {/* Desktop Header */}
+        <div className="hidden md:block mb-6 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Button variant="ghost" size="sm" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              {t("back", { ns: "common" })}
+            </Button>
+          </div>
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-bold">{plant.name}</h1>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label="Delete plant"
-                      className="shrink-0 hover:bg-transparent"
-                    >
-                      <Trash2 className="h-5 w-5 text-red-600" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {t("plant.deleteTitle")}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("plant.deleteDesc")}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel disabled={isDeleting}>
-                        {t("common.cancel")}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleDeletePlant}
-                        disabled={isDeleting}
-                      >
-                        {t("plant.deleteConfirm")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              <h1 className="text-3xl font-bold">{plant.name}</h1>
               <div className="mt-1">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -426,6 +402,46 @@ export default function PlantPage({
                     : t("newPlant.photoperiodic")}
                 </span>
               </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="icon"
+                aria-label="Add log"
+                onClick={() => router.push(`${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`)}
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Delete plant"
+                    className="shrink-0 hover:bg-transparent"
+                  >
+                    <Trash2 className="h-5 w-5 text-red-600" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("plant.deleteTitle")}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("plant.deleteDesc")}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>
+                      {t("common.cancel")}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeletePlant}
+                      disabled={isDeleting}
+                    >
+                      {t("plant.deleteConfirm")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
@@ -638,7 +654,7 @@ export default function PlantPage({
             <Button
               size="icon"
               aria-label="Add log"
-              onClick={() => router.push(`/journal/new?plantId=${id}`)}
+              onClick={() => router.push(`${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`)}
             >
               <Plus className="h-5 w-5" />
             </Button>

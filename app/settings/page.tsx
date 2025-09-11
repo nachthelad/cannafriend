@@ -51,7 +51,7 @@ import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { usePremium } from "@/hooks/use-premium";
-import { Trash2, AlertTriangle, Crown, CreditCard } from "lucide-react";
+import { Trash2, AlertTriangle, Crown, CreditCard, ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -525,8 +525,33 @@ export default function SettingsPage() {
 
   return (
     <Layout>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-2">
+          <Button variant="ghost" size="sm" onClick={() => router.back()} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">{t("settings.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("settings.accountDesc")}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
+          </Button>
+        </div>
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-3xl font-bold">{t("settings.title")}</h1>
+        </div>
+      </div>
+
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">{t("settings.title")}</h1>
 
         <div className="space-y-6">
           {/* Account summary */}

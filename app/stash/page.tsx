@@ -36,7 +36,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -217,6 +217,8 @@ export default function StashPage() {
       setSaving(false);
     }
   };
+
+  const handleBack = () => router.back();
 
   const removeItem = async (id: string) => {
     if (!userId) return;

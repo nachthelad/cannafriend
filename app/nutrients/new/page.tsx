@@ -60,16 +60,29 @@ export default function NewNutrientPage() {
   return (
     <Layout>
       {/* Mobile Header */}
-      <div className="mb-6">
+      <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
           <Button
             variant="ghost"
             size="sm" 
             onClick={() => router.push(ROUTE_NUTRIENTS)}
-            className="flex items-center gap-2 min-h-[48px] px-3"
+            className="p-2"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">{t("back", { ns: "common" })}</span>
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold">{t("new")}</h1>
+            <p className="text-sm text-muted-foreground">{t("newDesc")}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => router.push(ROUTE_NUTRIENTS)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
           </Button>
         </div>
         <h1 className="text-3xl font-bold">{t("new")}</h1>
