@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { 
   doc, 
   getDoc, 
@@ -73,12 +73,20 @@ export function useFirebaseDocument<T extends DocumentData>(
   const [error, setError] = useState<string | null>(null)
   const [exists, setExists] = useState(false)
 
-  // Replace {userId} placeholder in path
-  const resolvedPath = documentPath.replace('{userId}', user?.uid || '')
-  const docRef = doc(db, resolvedPath) as DocumentReference<T>
+  // Replace {userId} placeholder in path. Avoid constructing invalid paths
+  // when the user is not yet available or the hook is disabled.
+  const resolvedPath = useMemo(() => {
+    if (!enabled || !user) return null
+    return documentPath.replace('{userId}', user.uid)
+  }, [documentPath, enabled, user])
+
+  const docRef = useMemo(() => {
+    if (!resolvedPath) return null
+    return doc(db, resolvedPath) as DocumentReference<T>
+  }, [resolvedPath])
 
   const fetchData = useCallback(async () => {
-    if (!enabled || !user) {
+    if (!enabled || !user || !docRef) {
       setLoading(false)
       return
     }
@@ -105,7 +113,7 @@ export function useFirebaseDocument<T extends DocumentData>(
   }, [docRef, enabled, user])
 
   const setupRealtimeListener = useCallback(() => {
-    if (!enabled || !user) return
+    if (!enabled || !user || !docRef) return
 
     try {
       setError(null)
@@ -134,6 +142,7 @@ export function useFirebaseDocument<T extends DocumentData>(
 
   const create = useCallback(async (data: T, options?: SetOptions) => {
     if (!user) throw new Error('User not authenticated')
+    if (!docRef) throw new Error('Document reference not available')
     
     try {
       await setDoc(docRef, data, options || {})
@@ -149,6 +158,7 @@ export function useFirebaseDocument<T extends DocumentData>(
 
   const update = useCallback(async (data: UpdateData<T>) => {
     if (!user) throw new Error('User not authenticated')
+    if (!docRef) throw new Error('Document reference not available')
     
     try {
       await updateDoc(docRef, data)
@@ -164,6 +174,7 @@ export function useFirebaseDocument<T extends DocumentData>(
 
   const remove = useCallback(async () => {
     if (!user) throw new Error('User not authenticated')
+    if (!docRef) throw new Error('Document reference not available')
     
     try {
       await deleteDoc(docRef)
