@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -23,9 +24,9 @@ export async function POST(req: NextRequest) {
     await adminAuth().setCustomUserClaims(decoded.uid, claims);
 
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "sync_failed" },
+      { error: unwrapError(err, "sync_failed") },
       { status: 500 }
     );
   }

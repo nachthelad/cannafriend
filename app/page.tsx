@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
-import { doc, getDoc } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
 // Defer heavy marketing views to reduce initial JS and split per-viewport
@@ -26,7 +26,7 @@ const DesktopLandingView = dynamic(
   { ssr: false, loading: () => <div className="p-8" /> }
 );
 import { useTranslation } from "react-i18next";
-
+import type { BeforeInstallPromptEvent, Roles, UserProfile } from "@/types";
 
 export default function Home() {
   const router = useRouter();
@@ -40,7 +40,8 @@ export default function Home() {
   // UI state
   const [loginOpen, setLoginOpen] = useState(false);
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
 
   // AdSense should only load on desktop public marketing view
   const shouldLoadAds = !isLoggedIn && !loginOpen && hasConsent === true;
@@ -55,13 +56,16 @@ export default function Home() {
 
         // User is logged in, redirect to appropriate home page
         try {
-          const snap = await getDoc(userDoc(user.uid));
+          const snap = await getDoc(userDoc<UserProfile>(user.uid));
           if (!snap.exists()) {
             router.push(ROUTE_ONBOARDING);
             return;
           }
-          const data = snap.data() as any;
-          const roles = data?.roles || { grower: true, consumer: false };
+          const data = snap.data();
+          const roles: Roles = data?.roles || {
+            grower: true,
+            consumer: false,
+          };
           router.push(resolveHomePathForRoles(roles));
           return;
         } catch (error: any) {
@@ -82,7 +86,7 @@ export default function Home() {
 
   // PWA Install prompt handling
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };
@@ -129,13 +133,16 @@ export default function Home() {
       return;
     }
     try {
-      const snap = await getDoc(userDoc(user.uid));
+      const snap = await getDoc(userDoc<UserProfile>(user.uid));
       if (!snap.exists()) {
         router.push(ROUTE_ONBOARDING);
         return;
       }
-      const data = snap.data() as any;
-      const roles = data?.roles || { grower: true, consumer: false };
+      const data = snap.data();
+      const roles: Roles = data?.roles || {
+        grower: true,
+        consumer: false,
+      };
       router.push(resolveHomePathForRoles(roles));
     } catch {
       router.push(resolveHomePathForRoles({ grower: true, consumer: false }));

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -44,8 +45,8 @@ async function setPremiumByEmail(payerEmail: string, premium: boolean) {
     claims.premium = premium;
     await adminAuth().setCustomUserClaims(user.uid, claims);
     return { ok: true as const };
-  } catch (e: any) {
-    return { ok: false as const, error: e?.message || "user_update_failed" };
+  } catch (err: unknown) {
+    return { ok: false as const, error: unwrapError(err, "user_update_failed") };
   }
 }
 
@@ -81,9 +82,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
     return NextResponse.json({ ok: true, premium: grant });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "webhook_error" },
+      { error: unwrapError(err, "webhook_error") },
       { status: 500 }
     );
   }
@@ -123,9 +124,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 500 });
     }
     return NextResponse.json({ ok: true, premium: grant });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "webhook_error" },
+      { error: unwrapError(err, "webhook_error") },
       { status: 500 }
     );
   }

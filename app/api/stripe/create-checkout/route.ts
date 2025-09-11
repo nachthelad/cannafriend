@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
+import { isUserPremium } from "@/lib/auth";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    // Initialize Stripe (runtime only)
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2025-08-27.basil",
-    });
-
     // Import Firebase Admin at runtime
     const { adminAuth } = await import("@/lib/firebase-admin");
 
@@ -29,15 +25,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is already premium
-    const isPremium = Boolean((user.customClaims as any)?.premium);
+    const isPremium = isUserPremium(user);
     if (isPremium) {
       return NextResponse.json(
         { error: "already_premium", message: "User already has an active premium subscription" },
         { status: 409 } // Conflict
       );
     }
-
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Use existing Stripe Payment Link
     const stripePaymentLink = "https://buy.stripe.com/cNibJ37LpfHIfnx3aJcZa00";
@@ -47,10 +41,9 @@ export async function POST(req: NextRequest) {
       checkout_url: stripePaymentLink,
       session_id: null, // Not applicable for payment links
     });
-  } catch (error: any) {
-    console.error("Stripe checkout creation error:", error);
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: "checkout_creation_failed", message: error.message },
+      { error: "checkout_creation_failed", message: unwrapError(err) },
       { status: 500 }
     );
   }

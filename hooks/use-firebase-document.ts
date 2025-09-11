@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useAuthUser } from './use-auth-user'
+import { unwrapError } from '@/lib/errors'
 
 interface UseFirebaseDocumentOptions {
   realtime?: boolean
@@ -96,9 +97,8 @@ export function useFirebaseDocument<T extends DocumentData>(
         setData(null)
         setExists(false)
       }
-    } catch (err: any) {
-      setError(err?.message || 'Failed to fetch document')
-      console.error('Firebase document fetch error:', err)
+    } catch (err: unknown) {
+      setError(unwrapError(err, 'Failed to fetch document'))
     } finally {
       setLoading(false)
     }
@@ -120,15 +120,14 @@ export function useFirebaseDocument<T extends DocumentData>(
           setExists(false)
         }
         setLoading(false)
-      }, (err) => {
-        setError(err?.message || 'Realtime listener error')
-        console.error('Firebase realtime error:', err)
+      }, (err: unknown) => {
+        setError(unwrapError(err, 'Realtime listener error'))
         setLoading(false)
       })
 
       return unsubscribe
-    } catch (err: any) {
-      setError(err?.message || 'Failed to setup realtime listener')
+    } catch (err: unknown) {
+      setError(unwrapError(err, 'Failed to setup realtime listener'))
       setLoading(false)
     }
   }, [docRef, enabled, user])
@@ -141,10 +140,9 @@ export function useFirebaseDocument<T extends DocumentData>(
       if (!realtime) {
         await fetchData()
       }
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to create document'
+    } catch (err: unknown) {
+      const errorMessage = unwrapError(err, 'Failed to create document')
       setError(errorMessage)
-      console.error('Firebase document create error:', err)
       throw new Error(errorMessage)
     }
   }, [docRef, user, realtime, fetchData])
@@ -157,10 +155,9 @@ export function useFirebaseDocument<T extends DocumentData>(
       if (!realtime) {
         await fetchData()
       }
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to update document'
+    } catch (err: unknown) {
+      const errorMessage = unwrapError(err, 'Failed to update document')
       setError(errorMessage)
-      console.error('Firebase document update error:', err)
       throw new Error(errorMessage)
     }
   }, [docRef, user, realtime, fetchData])
@@ -174,10 +171,9 @@ export function useFirebaseDocument<T extends DocumentData>(
         setData(null)
         setExists(false)
       }
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Failed to delete document'
+    } catch (err: unknown) {
+      const errorMessage = unwrapError(err, 'Failed to delete document')
       setError(errorMessage)
-      console.error('Firebase document delete error:', err)
       throw new Error(errorMessage)
     }
   }, [docRef, user, realtime])

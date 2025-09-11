@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { unwrapError } from '@/lib/errors'
 
 interface AsyncState<T> {
   data: T | null
@@ -48,10 +49,9 @@ export function useAsync<T>(
       const data = await asyncFunction(...args)
       setState({ data, loading: false, error: null })
       return data
-    } catch (error: any) {
-      const errorMessage = error?.message || 'An error occurred'
+    } catch (err: unknown) {
+      const errorMessage = unwrapError(err, 'An error occurred')
       setState({ data: null, loading: false, error: errorMessage })
-      console.error('Async operation failed:', error)
       return null
     }
   }, [asyncFunction])

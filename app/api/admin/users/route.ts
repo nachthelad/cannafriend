@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
 import { ADMIN_EMAIL } from "@/lib/constants";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -17,8 +18,8 @@ async function verifyAdmin(req: NextRequest) {
       return { ok: false as const, error: "forbidden" };
     }
     return { ok: true as const };
-  } catch (e: any) {
-    return { ok: false as const, error: e?.message || "invalid_token" };
+  } catch (err: unknown) {
+    return { ok: false as const, error: unwrapError(err, "invalid_token") };
   }
 }
 
@@ -48,9 +49,9 @@ export async function GET(req: NextRequest) {
         : 0,
     }));
     return NextResponse.json({ users });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "list_failed" },
+      { error: unwrapError(err, "list_failed") },
       { status: 500 }
     );
   }
@@ -73,9 +74,9 @@ export async function PATCH(req: NextRequest) {
     claims.premium = body.premium;
     await adminAuth().setCustomUserClaims(body.uid, claims);
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "update_failed" },
+      { error: unwrapError(err, "update_failed") },
       { status: 500 }
     );
   }

@@ -1,21 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth, db } from "@/lib/firebase";
-import { getDoc, onSnapshot } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import { onSnapshot } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
-
-export type UserRoles = {
-  grower: boolean;
-  consumer: boolean;
-};
+import type { Roles, UserProfile } from "@/types";
 
 export function useUserRoles(): {
-  roles: UserRoles | null;
+  roles: Roles | null;
   isLoading: boolean;
 } {
-  const [roles, setRoles] = useState<UserRoles | null>(null);
+  const [roles, setRoles] = useState<Roles | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -23,7 +19,7 @@ export function useUserRoles(): {
     try {
       const raw = sessionStorage.getItem("cf_user_roles");
       if (raw) {
-        const cached = JSON.parse(raw) as UserRoles;
+        const cached = JSON.parse(raw) as Roles;
         setRoles(cached);
         setIsLoading(false);
       }
@@ -49,12 +45,12 @@ export function useUserRoles(): {
       // Real-time subscribe to roles to reflect updates instantly
       try {
         unsubUserDoc = onSnapshot(
-          userDoc(user.uid),
+          userDoc<UserProfile>(user.uid),
           (snap) => {
-            const data = snap.exists() ? snap.data() : {};
-            const userRoles: UserRoles = {
-              grower: Boolean((data as any)?.roles?.grower ?? false),
-              consumer: Boolean((data as any)?.roles?.consumer ?? false),
+            const data = snap.data();
+            const userRoles: Roles = {
+              grower: Boolean(data?.roles?.grower ?? false),
+              consumer: Boolean(data?.roles?.consumer ?? false),
             };
             setRoles(userRoles);
             if (typeof window !== "undefined") {

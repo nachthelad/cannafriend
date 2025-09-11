@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -11,8 +12,8 @@ async function setPremiumByEmail(email: string, premium: boolean) {
     claims.premium = premium;
     await adminAuth().setCustomUserClaims(user.uid, claims);
     return { ok: true as const };
-  } catch (e: any) {
-    return { ok: false as const, error: e?.message || "user_update_failed" };
+  } catch (err: unknown) {
+    return { ok: false as const, error: unwrapError(err, "user_update_failed") };
   }
 }
 
@@ -40,8 +41,8 @@ export async function POST(req: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
-    } catch (err: any) {
-      console.error(`Webhook signature verification failed:`, err.message);
+    } catch (err: unknown) {
+      console.error(`Webhook signature verification failed:`, unwrapError(err));
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
@@ -127,10 +128,9 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Webhook processed successfully: ${event.type}`);
     return NextResponse.json({ received: true, processed: event.type });
-  } catch (error: any) {
-    console.error('❌ Stripe webhook error:', error);
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: "webhook_error", message: error.message },
+      { error: "webhook_error", message: unwrapError(err) },
       { status: 500 }
     );
   }

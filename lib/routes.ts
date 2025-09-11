@@ -1,4 +1,5 @@
 // Centralized app routes and role-based home resolution
+import type { Roles } from "@/types";
 
 export const ROUTE_LOGIN = "/login" as const;
 export const ROUTE_DASHBOARD = "/dashboard" as const;
@@ -39,7 +40,7 @@ export type AppPath =
   | typeof ROUTE_HOME
   | string;
 
-export type Roles = { grower: boolean; consumer: boolean };
+export type { Roles } from "@/types";
 
 export function resolveHomePathForRoles(
   roles: Roles | null | undefined

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isUserPremium } from "@/lib/auth";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is already premium
-    const isPremium = Boolean((user.customClaims as any)?.premium);
+    const isPremium = isUserPremium(user);
     if (isPremium) {
       return NextResponse.json(
         { error: "already_premium", message: "User already has an active premium subscription" },
@@ -95,10 +97,12 @@ export async function POST(req: NextRequest) {
       // sandbox_init_point: mpData.sandbox_init_point, // Removed for production
     });
 
-  } catch (error: any) {
-    console.error("MercadoPago subscription creation error:", error);
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: "subscription_creation_failed", message: error.message },
+      {
+        error: "subscription_creation_failed",
+        message: unwrapError(err),
+      },
       { status: 500 }
     );
   }

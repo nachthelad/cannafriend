@@ -1,8 +1,9 @@
 import { db } from "@/lib/firebase";
-import { collection, doc } from "firebase/firestore";
+import { collection, doc, type DocumentData, type DocumentReference } from "firebase/firestore";
 
 export const usersCol = () => collection(db, "users");
-export const userDoc = (uid: string) => doc(db, "users", uid);
+export const userDoc = <T = DocumentData>(uid: string): DocumentReference<T> =>
+  doc(db, "users", uid) as DocumentReference<T>;
 
 export const plantsCol = (uid: string) =>
   collection(db, "users", uid, "plants");

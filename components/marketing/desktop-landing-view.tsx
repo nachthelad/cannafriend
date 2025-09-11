@@ -10,6 +10,7 @@ import { LandingFooter } from "@/components/marketing/landing-footer";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import Logo from "@/components/common/logo";
+import type { BeforeInstallPromptEvent } from "@/types";
 
 interface DesktopLandingViewProps {
   isLoggedIn: boolean;
@@ -17,7 +18,7 @@ interface DesktopLandingViewProps {
   onLoginOpenChange: (open: boolean) => void;
   onLoginClick: () => void;
   onAuthStart?: () => void;
-  deferredPrompt: any;
+  deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
 }
 

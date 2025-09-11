@@ -7,15 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
-import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { buildNutrientMixPath } from "@/lib/firebase-config";
+import { useFirebaseDocument } from "@/hooks";
 import { Layout } from "@/components/layout";
 import { ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
+import type { NutrientMix as NutrientMixBase } from "@/types";
 
 export default function EditNutrientPage({
   params,
@@ -24,44 +22,48 @@ export default function EditNutrientPage({
 }) {
   const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
-  const { user } = useAuthUser();
   const { toast } = useToast();
-  const userId = user?.uid ?? null;
   const { id: mixId } = use(params);
+
+  type EditableNutrientMix = Omit<NutrientMixBase, "npk" | "notes"> & {
+    npk?: string | null;
+    notes?: string | null;
+  };
+
+  const {
+    data: mix,
+    loading,
+    exists,
+    update,
+  } = useFirebaseDocument<EditableNutrientMix>(
+    `users/{userId}/nutrientMixes/${mixId}`,
+    { enabled: !!mixId }
+  );
 
   const [name, setName] = useState("");
   const [npk, setNpk] = useState("");
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchMix = async () => {
-      if (!userId) return;
-      try {
-        const ref = doc(db, buildNutrientMixPath(userId, mixId));
-        const snap = await getDoc(ref);
-        if (!snap.exists()) {
-          router.push(ROUTE_NUTRIENTS);
-          return;
-        }
-        const data = snap.data() as any;
-        setName(data.name || "");
-        setNpk(data.npk || "");
-        setNotes(data.notes || "");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMix();
-  }, [userId, mixId, router]);
+    if (mix) {
+      setName(mix.name || "");
+      setNpk(mix.npk || "");
+      setNotes(mix.notes || "");
+    }
+  }, [mix]);
+
+  useEffect(() => {
+    if (!loading && !exists) {
+      router.push(ROUTE_NUTRIENTS);
+    }
+  }, [loading, exists, router]);
 
   const handleSave = async () => {
-    if (!userId || !name.trim()) return;
+    if (!name.trim()) return;
     setSaving(true);
     try {
-      const ref = doc(db, buildNutrientMixPath(userId, mixId));
-      await updateDoc(ref, {
+      await update({
         name: name.trim(),
         npk: npk.trim() || null,
         notes: notes.trim() || null,
@@ -113,7 +115,11 @@ export default function EditNutrientPage({
       {/* Desktop Header */}
       <div className="hidden md:block mb-6 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push(ROUTE_NUTRIENTS)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(ROUTE_NUTRIENTS)}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("back", { ns: "common" })}
           </Button>
