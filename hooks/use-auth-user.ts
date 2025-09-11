@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
+import { unwrapError } from "@/lib/errors";
 
 export function useAuthUser() {
   const [user, setUser] = useState<User | null>(null);
@@ -16,26 +17,30 @@ export function useAuthUser() {
           try {
             await u.getIdToken(true); // Force refresh token
             setUser(u);
-          } catch (tokenError: any) {
+          } catch (tokenError: unknown) {
             // Token invalid, clear user state
-            console.warn('Token invalid, clearing user state:', tokenError.code);
+            const code = (tokenError as any)?.code;
+            console.warn('Token invalid, clearing user state:', code);
+            unwrapError(tokenError);
             setUser(null);
-            
+
             // Clear auth state if token was revoked
-            if (tokenError.code === 'auth/user-token-expired' || 
-                tokenError.code === 'auth/token-expired') {
+            if (
+              code === 'auth/user-token-expired' ||
+              code === 'auth/token-expired'
+            ) {
               try {
                 await auth.signOut();
-              } catch (signOutError) {
-                console.warn('Error signing out:', signOutError);
+              } catch (signOutError: unknown) {
+                console.warn('Error signing out:', unwrapError(signOutError));
               }
             }
           }
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error('Auth state change error:', error);
+      } catch (err: unknown) {
+        console.error('Auth state change error:', unwrapError(err));
         setUser(null);
       } finally {
         setIsLoading(false);

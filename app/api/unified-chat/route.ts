@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, ensureAdminApp } from "@/lib/firebase-admin";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
 import { getFirestore } from "firebase-admin/firestore";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
     let decoded: any;
     try {
       decoded = await adminAuth().verifyIdToken(idToken);
-    } catch {
+    } catch (err: unknown) {
+      unwrapError(err);
       return NextResponse.json({ error: "invalid_auth" }, { status: 401 });
     }
 
@@ -178,19 +180,18 @@ export async function POST(req: NextRequest) {
       };
 
       await chatRef.set(chatData, { merge: true });
-    } catch (error) {
+    } catch (err: unknown) {
       // Database error shouldn't break the response
-      console.error("Error saving chat:", error);
+      console.error("Error saving chat:", unwrapError(err));
     }
 
     return NextResponse.json({
       response: content,
       sessionId: currentSessionId,
     });
-  } catch (e: any) {
-    console.error("Unified chat API error:", e);
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "Unexpected error" },
+      { error: unwrapError(err, "Unexpected error") },
       { status: 500 }
     );
   }

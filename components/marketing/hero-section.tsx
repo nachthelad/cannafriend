@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Download, PlayCircle, Leaf, Camera, Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
+import type { BeforeInstallPromptEvent } from "@/types";
 
 interface HeroSectionProps {
   onLoginClick: () => void;
-  deferredPrompt: any;
+  deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
   isLoggedIn: boolean;
 }

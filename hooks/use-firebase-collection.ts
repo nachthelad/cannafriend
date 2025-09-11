@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import { useAuthUser } from './use-auth-user'
+import { unwrapError } from '@/lib/errors'
 
 interface UseFirebaseCollectionOptions {
   constraints?: QueryConstraint[]
@@ -90,9 +91,8 @@ export function useFirebaseCollection<T extends DocumentData>(
       })
 
       setData(documents)
-    } catch (err: any) {
-      setError(err?.message || 'Failed to fetch data')
-      console.error('Firebase collection fetch error:', err)
+    } catch (err: unknown) {
+      setError(unwrapError(err, 'Failed to fetch data'))
     } finally {
       setLoading(false)
     }
@@ -123,15 +123,14 @@ export function useFirebaseCollection<T extends DocumentData>(
 
         setData(documents)
         setLoading(false)
-      }, (err) => {
-        setError(err?.message || 'Realtime listener error')
-        console.error('Firebase realtime error:', err)
+      }, (err: unknown) => {
+        setError(unwrapError(err, 'Realtime listener error'))
         setLoading(false)
       })
 
       return unsubscribe
-    } catch (err: any) {
-      setError(err?.message || 'Failed to setup realtime listener')
+    } catch (err: unknown) {
+      setError(unwrapError(err, 'Failed to setup realtime listener'))
       setLoading(false)
     }
   }

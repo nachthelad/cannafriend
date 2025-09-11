@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isUserPremium } from "@/lib/auth";
+import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user is premium
-    const isPremium = Boolean((user.customClaims as any)?.premium);
+    const isPremium = isUserPremium(user);
     if (!isPremium) {
       return NextResponse.json(
         { error: "not_premium", message: "User does not have an active premium subscription" },
@@ -52,10 +54,9 @@ export async function POST(req: NextRequest) {
       note: "Due to MercadoPago API limitations, automatic subscription cancellation requires the preapproval ID. Your premium access has been revoked immediately.",
     });
 
-  } catch (error: any) {
-    console.error("MercadoPago cancellation error:", error);
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: "cancellation_failed", message: error.message },
+      { error: "cancellation_failed", message: unwrapError(err) },
       { status: 500 }
     );
   }

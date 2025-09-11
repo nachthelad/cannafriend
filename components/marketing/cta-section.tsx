@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, PlayCircle, Smartphone, Leaf, Shield, Zap } from "lucide-react";
+import type { BeforeInstallPromptEvent } from "@/types";
 
 interface CTASectionProps {
   onLoginClick: () => void;
-  deferredPrompt: any;
+  deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
   isLoggedIn: boolean;
 }

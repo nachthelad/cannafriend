@@ -5,7 +5,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { ROUTE_LOGIN, ROUTE_DASHBOARD } from "@/lib/routes";
+import { ROUTE_LOGIN } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,13 +25,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { auth, db } from "@/lib/firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import { setDoc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
+import type { Roles, UserProfile } from "@/types";
 
 export default function OnboardingPage() {
   const { t } = useTranslation("onboarding");
@@ -40,7 +41,7 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false);
   type OnboardingForm = {
     timezone: string;
-    roles: { grower: boolean; consumer: boolean };
+    roles: Roles;
   };
   const {
     register,
@@ -73,7 +74,7 @@ export default function OnboardingPage() {
 
     try {
       await setDoc(
-        userDoc(userId),
+        userDoc<UserProfile>(userId),
         {
           timezone: data.timezone,
           roles: {
@@ -92,9 +93,12 @@ export default function OnboardingPage() {
 
       // Decide next route based on user roles
       try {
-        const snap = await getDoc(userDoc(userId));
-        const data = snap.exists() ? (snap.data() as any) : {};
-        const roles = (data as any)?.roles || { grower: true, consumer: false };
+        const snap = await getDoc(userDoc<UserProfile>(userId));
+        const data = snap.data();
+        const roles: Roles = data?.roles || {
+          grower: true,
+          consumer: false,
+        };
         router.push(resolveHomePathForRoles(roles));
       } catch {
         // Fallback to dashboard if roles cannot be determined

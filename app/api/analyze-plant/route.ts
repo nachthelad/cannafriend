@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase-admin";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
+import { unwrapError } from "@/lib/errors";
 
 // We import from openai if available; otherwise, use fetch to the REST endpoint.
 // Using edge-friendly approach with fetch to avoid bundling issues.
@@ -25,7 +26,8 @@ export async function POST(req: NextRequest) {
     let decoded: any;
     try {
       decoded = await adminAuth().verifyIdToken(idToken);
-    } catch {
+    } catch (err: unknown) {
+      unwrapError(err);
       return NextResponse.json({ error: "invalid_auth" }, { status: 401 });
     }
     if (
@@ -220,9 +222,9 @@ export async function POST(req: NextRequest) {
     const content = data?.choices?.[0]?.message?.content ?? "";
 
     return NextResponse.json({ content });
-  } catch (e: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
-      { error: e?.message || "Unexpected error" },
+      { error: unwrapError(err, "Unexpected error") },
       { status: 500 }
     );
   }
