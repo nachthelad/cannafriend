@@ -121,3 +121,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Minimal typography styles for rendered Markdown (chat, docs) */
+.prose {
+  color: var(--foreground);
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0.75rem 0 0.5rem;
+}
+.prose h1 { font-size: 1.5rem; }
+.prose h2 { font-size: 1.25rem; }
+.prose h3 { font-size: 1.125rem; }
+.prose p { margin: 0.5rem 0; }
+.prose ul { list-style: disc; padding-left: 1.25rem; margin: 0.5rem 0; }
+.prose ol { list-style: decimal; padding-left: 1.25rem; margin: 0.5rem 0; }
+.prose li { margin: 0.25rem 0; }
+.prose strong { font-weight: 600; }
+.prose code {
+  background: color-mix(in oklab, var(--muted) 85%, transparent);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+.prose pre {
+  background: var(--muted);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow: auto;
+}
+.dark .prose pre { background: color-mix(in oklab, var(--muted) 60%, transparent); }
