@@ -11,7 +11,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "autolog:major": "node ./scripts/autolog.mjs major",
+    "autolog:mid": "node ./scripts/autolog.mjs mid",
+    "autolog:minor": "node ./scripts/autolog.mjs minor"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

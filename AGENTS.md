@@ -6,6 +6,28 @@ This document consolidates and preserves all guidance from `CLAUDE.md`, lightly 
 
 Cannafriend is a comprehensive cannabis growing and consumption tracking application built with Next.js, React, and Firebase.
 
+## Registro Automático de Actualizaciones
+
+Para mantener documentadas las actualizaciones sin olvidos, el repositorio incluye un flujo de “autolog” que escribe entradas en `UPDATES.md` con un nivel: major, mid o minor.
+
+- Archivo de salida: `UPDATES.md`.
+- Niveles admitidos y cómo determinarlos:
+  - major: commits `feat!` o subject conteniendo `[major]`
+  - mid: commits `feat` o subject conteniendo `[mid]`
+  - minor: commits `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci` o subject `[minor]`
+- Activar hook de git (opcional):
+  - `git config core.hooksPath .githooks`
+  - El hook `commit-msg` detecta el nivel por el subject y registra automáticamente en `UPDATES.md`.
+- Uso manual por script:
+  - `npm run autolog:major -- "Descripción"`
+  - `npm run autolog:mid -- "Descripción"`
+  - `npm run autolog:minor -- "Descripción"`
+
+Notas:
+
+- El script inserta la entrada al inicio de la sección marcada por `<!-- AUTOLOG:START --> ... <!-- AUTOLOG:END -->` de `UPDATES.md`.
+- Puedes deshabilitar el hook sin afectar los scripts manuales.
+
 ## Recent Major Updates (January 2025)
 
 ### Custom Hooks System Implementation
@@ -340,7 +362,7 @@ When editing files, you MUST follow the exact same patterns used in that file:
       <ActionIcon className="h-5 w-5" />
     </Button>
   </div>
-  </div>;
+</div>;
 
 {
   /* Desktop Header */
@@ -361,7 +383,7 @@ When editing files, you MUST follow the exact same patterns used in that file:
       <ActionIcon className="h-5 w-5" />
     </Button>
   </div>
-  </div>;
+</div>;
 ```
 
 #### Translation Namespace Standards
@@ -480,7 +502,6 @@ When adding constants that need to be accessed by both client and server code:
   - Terms now include: eligibility and cannabis-law compliance, no medical/legal advice, acceptable use + prohibited conduct, user content ownership with limited license to operate the service, premium subscriptions/payments, IP, disclaimers, limitation of liability, termination, changes, and contact.
   - Contact email on policy pages uses `DEV_EMAIL` (see constants) rather than `ADMIN_EMAIL`.
 
-
 ## Navigation & Headers (Sept 2025)
 
 - Role‑aware back behavior (grower → dashboard, consumer‑only → sessions) applied to:
@@ -491,14 +512,12 @@ When adding constants that need to be accessed by both client and server code:
   - `app/reminders/page.tsx`
 - Intentional exceptions: detail views keep context back (e.g., `app/plants/[id]`, `app/plants/[id]/logs`).
 
-
 ## Route Constants Additions (Sept 2025)
 
 - Added explicit “new” route constants to avoid hardcoded strings and ensure consistency with existing patterns:
   - `ROUTE_NUTRIENTS_NEW = "/nutrients/new"`
   - `ROUTE_STASH_NEW = "/stash/new"`
 - Updated pages to use these constants instead of inline path strings.
-
 
 ## Constants Updates (Sept 2025)
 
@@ -507,7 +526,6 @@ When adding constants that need to be accessed by both client and server code:
   - `DEV_EMAIL = "nachthelad.dev@gmail.com"` for policy and developer contact.
 - `components/mobile/mobile-dashboard.tsx` now checks admin via `ADMIN_EMAIL` constant (no hardcoded email).
 - Privacy and Terms pages use `DEV_EMAIL` for contact.
-
 
 ## Build & Verification
 
