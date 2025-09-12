@@ -6,5 +6,6 @@
   "dashboard": "Dashboard",
   "addPlant": "Add Plant",
   "settings": "Settings",
-  "signOut": "Sign Out"
+  "signOut": "Sign Out",
+  "stash": "Inventory"
 }

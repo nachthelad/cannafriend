@@ -6,5 +6,6 @@
   "dashboard": "Panel",
   "addPlant": "Agregar Planta",
   "settings": "Configuración",
-  "signOut": "Cerrar Sesión"
+  "signOut": "Cerrar Sesión",
+  "stash": "Inventario"
 }

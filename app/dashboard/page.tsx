@@ -10,6 +10,7 @@ import {
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
   ROUTE_ADMIN,
+  ROUTE_STASH,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -372,8 +373,8 @@ export default function DashboardPage() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link prefetch href={ROUTE_JOURNAL}>
-                      {t("journal", { ns: "nav" })}
+                    <Link prefetch href={ROUTE_STASH}>
+                      {t("stash.title", { ns: "common" })}
                     </Link>
                   </Button>
                   {isPremium && (
