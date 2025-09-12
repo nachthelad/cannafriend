@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROUTE_LOGIN, ROUTE_STASH, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_STASH, ROUTE_STASH_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { db } from "@/lib/firebase";
 import {
@@ -106,7 +106,7 @@ export default function StashPage() {
 
   const openNew = () => {
     // Always redirect to dedicated page for better UX and consistency
-    router.push(`${ROUTE_STASH}/new`);
+    router.push(ROUTE_STASH_NEW);
   };
 
   const openEdit = (item: StashItem) => {
