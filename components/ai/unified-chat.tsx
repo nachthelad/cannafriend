@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -17,10 +18,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
 import { ChatInput } from "@/components/ai/chat-input";
-import {
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 interface UnifiedMessage {
@@ -64,6 +62,22 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Subscribe to live updates for the selected session so subsequent
+  // messages persist and are reflected in the UI reliably.
+  useEffect(() => {
+    if (!user?.uid || !currentSessionId) return;
+    const unsub = onSnapshot(
+      doc(db, "users", user.uid, "aiChats", currentSessionId),
+      (snap) => {
+        const data = snap.data() as { messages?: UnifiedMessage[] } | undefined;
+        if (data?.messages && Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        }
+      }
+    );
+    return () => unsub();
+  }, [user?.uid, currentSessionId]);
 
   const handleSendMessage = async () => {
     if (!input.trim() && images.length === 0) return;
@@ -297,7 +311,13 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
                         ))}
                       </div>
                     )}
-                    <div className="whitespace-pre-wrap">{message.content}</div>
+                    {message.role === "assistant" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <div className="whitespace-pre-wrap">{message.content}</div>
+                    )}
                   </div>
                 </div>
               ))}

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Auto-log to UPDATES.md based on Conventional Commit subject
+# Enable with: git config core.hooksPath .githooks
+
+MSG_FILE="$1"
+if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
+  exit 0
+fi
+
+SUBJECT=$(head -n1 "$MSG_FILE")
+
+# Determine level
+LEVEL=""
+case "$SUBJECT" in
+  *"[major]"*|*"[MAJOR]"*|feat!*) LEVEL=major ;;
+  *"[mid]"*|*"[MID]"*|feat*) LEVEL=mid ;;
+  *"[minor]"*|*"[MINOR]"*|fix*|refactor*|perf*|docs*|test*|chore*|ci*) LEVEL=minor ;;
+  *) LEVEL="" ;;
+esac
+
+if [ -z "$LEVEL" ]; then
+  exit 0
+fi
+
+# Derive description (strip type(scope): prefix if present)
+DESC="$SUBJECT"
+if echo "$DESC" | grep -E '^[a-z]+(\([^)]+\))?:' >/dev/null 2>&1; then
+  DESC=$(echo "$DESC" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
+fi
+
+node ./scripts/autolog.mjs "$LEVEL" "$DESC" >/dev/null 2>&1 || true
+exit 0
