@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# No-op: we perform autolog + version bump in pre-commit to ensure staging.
+exit 0

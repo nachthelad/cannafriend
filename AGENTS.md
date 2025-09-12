@@ -15,9 +15,10 @@ Para mantener documentadas las actualizaciones sin olvidos, el repositorio inclu
   - major: commits `feat!` o subject conteniendo `[major]`
   - mid: commits `feat` o subject conteniendo `[mid]`
   - minor: commits `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci` o subject `[minor]`
-- Activar hook de git (opcional):
+- Activar hooks de git (opcional):
   - `git config core.hooksPath .githooks`
-  - El hook `commit-msg` detecta el nivel por el subject y registra automáticamente en `UPDATES.md`.
+  - Se usa `prepare-commit-msg` para registrar y además “stagear” `UPDATES.md` antes de finalizar el commit, así queda incluido automáticamente.
+  - El hook `commit-msg` queda como no-op.
 - Uso manual por script:
   - `npm run autolog:major -- "Descripción"`
   - `npm run autolog:mid -- "Descripción"`

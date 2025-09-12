@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Runs before the commit is created. We:
+# - Detect level from commit message subject (.git/COMMIT_EDITMSG)
+# - Append to UPDATES.md
+# - Bump package.json version
+# - Stage changed files so they are included in the same commit
+
+MSG_FILE=".git/COMMIT_EDITMSG"
+if [ ! -f "$MSG_FILE" ]; then
+  # Some tools write message later; nothing to do
+  exit 0
+fi
+
+SUBJECT=$(head -n1 "$MSG_FILE")
+
+# Determine level
+LEVEL=""
+case "$SUBJECT" in
+  *"[major]"*|*"[MAJOR]"*|feat!*) LEVEL=major ;;
+  *"[mid]"*|*"[MID]"*|feat*) LEVEL=mid ;;
+  *"[minor]"*|*"[MINOR]"*|fix*|refactor*|perf*|docs*|test*|chore*|ci*) LEVEL=minor ;;
+  *) LEVEL="" ;;
+esac
+
+[ -z "$LEVEL" ] && exit 0
+
+# Derive description (strip type(scope): prefix if present)
+DESC="$SUBJECT"
+if echo "$DESC" | grep -E '^[a-z]+(\([^)]+\))?:' >/dev/null 2>&1; then
+  DESC=$(echo "$DESC" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
+fi
+
+node ./scripts/autolog.mjs "$LEVEL" "$DESC" >/dev/null 2>&1 || true
+node ./scripts/autoversion.mjs "$LEVEL" >/dev/null 2>&1 || true
+
+git add UPDATES.md package.json >/dev/null 2>&1 || true
+exit 0
+

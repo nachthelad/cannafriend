@@ -1,6 +1,6 @@
 {
   "name": "cannafriend",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -14,7 +14,10 @@
     "typecheck": "tsc --noEmit",
     "autolog:major": "node ./scripts/autolog.mjs major",
     "autolog:mid": "node ./scripts/autolog.mjs mid",
-    "autolog:minor": "node ./scripts/autolog.mjs minor"
+    "autolog:minor": "node ./scripts/autolog.mjs minor",
+    "version:major": "node ./scripts/autoversion.mjs major",
+    "version:mid": "node ./scripts/autoversion.mjs mid",
+    "version:minor": "node ./scripts/autoversion.mjs minor"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
