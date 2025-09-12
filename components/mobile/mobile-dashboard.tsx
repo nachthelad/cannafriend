@@ -38,6 +38,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
+import { ADMIN_EMAIL } from "@/lib/constants";
 
 interface MobileDashboardProps {
   plants: Plant[];
@@ -68,7 +69,7 @@ export function MobileDashboard({
   ]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
-  const isAdmin = userEmail?.toLowerCase() === "nacho.vent@gmail.com";
+  const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   if (isLoading) {
     return (

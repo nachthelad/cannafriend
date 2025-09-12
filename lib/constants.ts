@@ -3,3 +3,4 @@
  */
 
 export const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
+export const DEV_EMAIL = "nachthelad.dev@gmail.com" as const;
