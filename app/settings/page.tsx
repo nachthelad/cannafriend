@@ -8,7 +8,9 @@ import {
   ROUTE_PRIVACY,
   ROUTE_TERMS,
   ROUTE_PREMIUM,
+  resolveHomePathForRoles,
 } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -74,6 +76,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { isPremium } = usePremium();
+  const { roles } = useUserRoles();
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
@@ -528,7 +531,7 @@ export default function SettingsPage() {
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-2">
-          <Button variant="ghost" size="sm" onClick={() => router.back()} className="p-2">
+          <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))} className="p-2">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
@@ -541,7 +544,7 @@ export default function SettingsPage() {
       {/* Desktop Header */}
       <div className="hidden md:block mb-6 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+          <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("back", { ns: "common" })}
           </Button>

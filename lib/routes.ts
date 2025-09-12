@@ -15,6 +15,7 @@ export const ROUTE_JOURNAL = "/journal" as const;
 export const ROUTE_REMINDERS = "/reminders" as const;
 export const ROUTE_STASH = "/stash" as const;
 export const ROUTE_NUTRIENTS = "/nutrients" as const;
+export const ROUTE_NUTRIENTS_NEW = "/nutrients/new" as const;
 export const ROUTE_PRIVACY = "/privacy" as const;
 export const ROUTE_TERMS = "/terms" as const;
 export const ROUTE_ADMIN = "/admin" as const;
@@ -34,6 +35,7 @@ export type AppPath =
   | typeof ROUTE_REMINDERS
   | typeof ROUTE_STASH
   | typeof ROUTE_NUTRIENTS
+  | typeof ROUTE_NUTRIENTS_NEW
   | typeof ROUTE_PRIVACY
   | typeof ROUTE_TERMS
   | typeof ROUTE_ADMIN

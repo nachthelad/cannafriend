@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_LOGIN, ROUTE_NUTRIENTS_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
   buildNutrientMixesPath,
@@ -57,6 +58,7 @@ export default function NutrientsPage() {
   const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const userId = user?.uid ?? null;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -125,14 +127,19 @@ export default function NutrientsPage() {
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.back()} className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.replace(resolveHomePathForRoles(roles))}
+            className="p-2"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
             <h1 className="text-xl font-bold">{t("title")}</h1>
             <p className="text-sm text-muted-foreground">{t("description")}</p>
           </div>
-          <Button size="icon" onClick={() => router.push(`/nutrients/new`)}>
+          <Button size="icon" onClick={() => router.push(ROUTE_NUTRIENTS_NEW)}>
             <Plus className="h-5 w-5" />
           </Button>
         </div>
@@ -141,7 +148,11 @@ export default function NutrientsPage() {
       {/* Desktop Header */}
       <div className="hidden md:block mb-6 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.replace(resolveHomePathForRoles(roles))}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("back", { ns: "common" })}
           </Button>
@@ -151,7 +162,7 @@ export default function NutrientsPage() {
             <h1 className="text-3xl font-bold">{t("title")}</h1>
             <p className="text-muted-foreground">{t("description")}</p>
           </div>
-          <Button onClick={() => router.push(`/nutrients/new`)}>
+          <Button onClick={() => router.push(ROUTE_NUTRIENTS_NEW)}>
             <Plus className="h-4 w-4 mr-2" /> {t("addMix")}
           </Button>
         </div>

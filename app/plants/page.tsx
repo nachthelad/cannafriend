@@ -14,7 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { ROUTE_LOGIN, ROUTE_PLANTS_NEW } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_PLANTS_NEW, resolveHomePathForRoles } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, logsCol } from "@/lib/paths";
 import {
   query,
@@ -38,6 +39,7 @@ export default function PlantsListPage() {
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
   const [isLoading, setIsLoading] = useState(true);
+  const { roles } = useUserRoles();
   const [plants, setPlants] = useState<Plant[]>([]);
   const [lastWaterings, setLastWaterings] = useState<Record<string, LogEntry>>(
     {}
@@ -54,7 +56,7 @@ export default function PlantsListPage() {
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const PAGE_SIZE = 12;
-  const handleBack = () => router.back();
+  const handleBack = () => router.replace(resolveHomePathForRoles(roles));
 
   useEffect(() => {
     if (authLoading) return;
