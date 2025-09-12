@@ -25,7 +25,8 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ROUTE_LOGIN, ROUTE_STASH } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_STASH, ROUTE_STASH_NEW, resolveHomePathForRoles } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { db } from "@/lib/firebase";
 import {
   addDoc,
@@ -65,6 +66,7 @@ export default function StashPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const userId = user?.uid ?? null;
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState<StashItem[]>([]);
@@ -104,7 +106,7 @@ export default function StashPage() {
 
   const openNew = () => {
     // Always redirect to dedicated page for better UX and consistency
-    router.push(`${ROUTE_STASH}/new`);
+    router.push(ROUTE_STASH_NEW);
   };
 
   const openEdit = (item: StashItem) => {
@@ -218,7 +220,7 @@ export default function StashPage() {
     }
   };
 
-  const handleBack = () => router.back();
+  const handleBack = () => router.replace(resolveHomePathForRoles(roles));
 
   const removeItem = async (id: string) => {
     if (!userId) return;
@@ -237,28 +239,44 @@ export default function StashPage() {
 
   return (
     <Layout>
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-3xl font-bold">{t("title", { ns: "stash" })}</h1>
-          <p className="text-muted-foreground mt-1">
-            {t("description", { ns: "stash" })}
-          </p>
+      {/* Mobile Header */}
+      <div className="md:hidden mb-4 p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={handleBack} className="p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">{t("title", { ns: "stash" })}</h1>
+            <p className="text-sm text-muted-foreground">
+              {t("description", { ns: "stash" })}
+            </p>
+          </div>
+          <Button
+            size="icon"
+            onClick={openNew}
+            aria-label={t("addItem", { ns: "stash" })}
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
         </div>
-        <div className="shrink-0">
-          <div className="hidden sm:block">
-            <Button onClick={openNew}>
-              <Plus className="mr-2 h-4 w-4" /> {t("addItem", { ns: "stash" })}
-            </Button>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:block mb-6 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {t("back", { ns: "common" })}
+          </Button>
+        </div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t("title", { ns: "stash" })}</h1>
+            <p className="text-muted-foreground">{t("description", { ns: "stash" })}</p>
           </div>
-          <div className="sm:hidden">
-            <Button
-              onClick={openNew}
-              aria-label={t("addItem", { ns: "stash" })}
-              className="h-9 w-9 p-0"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          </div>
+          <Button onClick={openNew}>
+            <Plus className="h-4 w-4 mr-2" /> {t("addItem", { ns: "stash" })}
+          </Button>
         </div>
       </div>
 

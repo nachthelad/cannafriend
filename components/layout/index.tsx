@@ -48,7 +48,13 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { t } = useTranslation(["nav", "common", "dashboard", "sessions", "analyzePlant"]);
+  const { t } = useTranslation([
+    "nav",
+    "common",
+    "dashboard",
+    "sessions",
+    "analyzePlant",
+  ]);
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -108,7 +114,7 @@ export function Layout({ children }: LayoutProps) {
     },
     {
       href: ROUTE_STASH,
-      label: t("stash.title", { ns: "common" }),
+      label: t("stash", { ns: "nav" }),
       icon: Package,
     },
     {

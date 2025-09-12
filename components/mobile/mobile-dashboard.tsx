@@ -9,6 +9,7 @@ import {
   ROUTE_JOURNAL,
   ROUTE_NUTRIENTS,
   ROUTE_ADMIN,
+  ROUTE_STASH,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,6 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { ReminderSystem } from "@/components/plant/reminder-system";
-import { JournalEntries } from "@/components/journal/journal-entries";
 import {
   Plus,
   AlertTriangle,
@@ -32,11 +32,13 @@ import {
   ArrowRight,
   TrendingUp,
   Shield,
+  Box,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
+import { ADMIN_EMAIL } from "@/lib/constants";
 
 interface MobileDashboardProps {
   plants: Plant[];
@@ -55,10 +57,19 @@ export function MobileDashboard({
   isLoading,
   userEmail,
 }: MobileDashboardProps) {
-  const { t } = useTranslation(["dashboard", "common", "nutrients", "journal", "nav", "reminders", "sessions", "analyzePlant"]);
+  const { t } = useTranslation([
+    "dashboard",
+    "common",
+    "nutrients",
+    "journal",
+    "nav",
+    "reminders",
+    "sessions",
+    "analyzePlant",
+  ]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
-  const isAdmin = userEmail?.toLowerCase() === "nacho.vent@gmail.com";
+  const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   if (isLoading) {
     return (
@@ -113,7 +124,8 @@ export function MobileDashboard({
         </div>
         {href && (
           <div className="flex items-center mt-2 text-xs text-primary">
-            {t("view", { ns: "common" })} <ArrowRight className="h-3 w-3 ml-1" />
+            {t("view", { ns: "common" })}{" "}
+            <ArrowRight className="h-3 w-3 ml-1" />
           </div>
         )}
       </div>
@@ -178,7 +190,9 @@ export function MobileDashboard({
                 size="sm"
                 className="border-orange-200 text-orange-700 hover:bg-orange-100"
               >
-                <Link href={ROUTE_REMINDERS}>{t("view", { ns: "common" })}</Link>
+                <Link href={ROUTE_REMINDERS}>
+                  {t("view", { ns: "common" })}
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -229,16 +243,18 @@ export function MobileDashboard({
             <Plus className="h-5 w-5" />
             {t("quickActions", { ns: "dashboard" })}
           </CardTitle>
-          <CardDescription>{t("quickActionsDesc", { ns: "dashboard" })}</CardDescription>
+          <CardDescription>
+            {t("quickActionsDesc", { ns: "dashboard" })}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3">
             {roles?.grower && (
               <>
                 <QuickActionButton
-                  icon={Calendar}
-                  label={t("journal", { ns: "nav" })}
-                  href={ROUTE_JOURNAL}
+                  icon={Box}
+                  label={t("stash", { ns: "nav" })}
+                  href={ROUTE_STASH}
                 />
                 <QuickActionButton
                   icon={FlaskConical}
@@ -278,35 +294,14 @@ export function MobileDashboard({
         </CardContent>
       </Card>
 
-      {/* Recent journal entries - mobile optimized */}
-      {/* {recentLogs.length > 0 && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <div>
-              <CardTitle>{t("journal.recentLogs")}</CardTitle>
-              <CardDescription>{t("dashboard.latestActivity")}</CardDescription>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link href={ROUTE_JOURNAL}>
-                {t("common.view")} <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <JournalEntries
-              logs={recentLogs.slice(0, 3)}
-              showPlantName={true}
-            />
-          </CardContent>
-        </Card>
-      )} */}
-
       {/* Empty state for new users */}
       {plants.length === 0 && (
         <Card className="text-center py-8">
           <CardContent>
             <Leaf className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <CardTitle className="mb-2">{t("noPlants", { ns: "dashboard" })}</CardTitle>
+            <CardTitle className="mb-2">
+              {t("noPlants", { ns: "dashboard" })}
+            </CardTitle>
             <CardDescription className="mb-6">
               {t("startGrowingJourney", { ns: "dashboard" })}
             </CardDescription>

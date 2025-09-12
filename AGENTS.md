@@ -473,3 +473,44 @@ When adding constants that need to be accessed by both client and server code:
 - Ensure mocks are properly configured in `jest.setup.js`
 - Follow patterns in existing `__tests__/` directory
 
+## Legal & Policy Updates (Sept 2025)
+
+- Expanded privacy and terms pages to reflect actual app behavior and platform requirements:
+  - Privacy now covers: data collected (account, roles, content, images, minimal device data, subscription metadata), purposes, legal bases (EEA/UK), third parties (Firebase, Stripe/MercadoPago, OAuth), international transfers, data security, cookies/localStorage/PWA caches, push notifications, AI features, data retention, user rights, children/age limits, changes, and contact.
+  - Terms now include: eligibility and cannabis-law compliance, no medical/legal advice, acceptable use + prohibited conduct, user content ownership with limited license to operate the service, premium subscriptions/payments, IP, disclaimers, limitation of liability, termination, changes, and contact.
+  - Contact email on policy pages uses `DEV_EMAIL` (see constants) rather than `ADMIN_EMAIL`.
+
+
+## Navigation & Headers (Sept 2025)
+
+- Role‑aware back behavior (grower → dashboard, consumer‑only → sessions) applied to:
+  - `app/nutrients/page.tsx`
+  - `app/stash/page.tsx` (also added standardized mobile/desktop headers)
+  - `app/plants/page.tsx`
+  - `app/settings/page.tsx`
+  - `app/reminders/page.tsx`
+- Intentional exceptions: detail views keep context back (e.g., `app/plants/[id]`, `app/plants/[id]/logs`).
+
+
+## Route Constants Additions (Sept 2025)
+
+- Added explicit “new” route constants to avoid hardcoded strings and ensure consistency with existing patterns:
+  - `ROUTE_NUTRIENTS_NEW = "/nutrients/new"`
+  - `ROUTE_STASH_NEW = "/stash/new"`
+- Updated pages to use these constants instead of inline path strings.
+
+
+## Constants Updates (Sept 2025)
+
+- `lib/constants.ts` now exposes:
+  - `ADMIN_EMAIL = "nacho.vent@gmail.com"` for admin features and checks.
+  - `DEV_EMAIL = "nachthelad.dev@gmail.com"` for policy and developer contact.
+- `components/mobile/mobile-dashboard.tsx` now checks admin via `ADMIN_EMAIL` constant (no hardcoded email).
+- Privacy and Terms pages use `DEV_EMAIL` for contact.
+
+
+## Build & Verification
+
+- TypeScript strict checks pass (`npm run typecheck`).
+- Production build verified (`npm run build`).
+- i18n: Pages render bilingual content inline (English/Spanish) without new JSON keys; future work could move expanded text to locales if desired.

@@ -112,7 +112,7 @@
     "changes": "Cambios en esta política",
     "changesDesc": "Podemos actualizar esta política. Publicaremos los cambios con una fecha actualizada.",
     "contact": "Contacto",
-    "contactDesc": "¿Preguntas? Escríbenos a nachthelad.dev@gmail.com"
+    "contactDesc": "¿Preguntas? Escríbenos a "
   },
   "terms": {
     "title": "Términos",
@@ -130,7 +130,7 @@
     "changes": "Cambios en los términos",
     "changesDesc": "Podemos actualizar estos términos. El uso continuo implica aceptación de los términos actualizados.",
     "contact": "Contacto",
-    "contactDesc": "Para preguntas sobre estos términos, escribe a nachthelad.dev@gmail.com"
+    "contactDesc": "Para preguntas sobre estos términos, escribe a"
   },
   "stash": {
     "title": "Inventario"

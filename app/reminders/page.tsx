@@ -13,7 +13,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { collection, getDocs, query } from "firebase/firestore";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
@@ -28,6 +29,7 @@ export default function RemindersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [plants, setPlants] = useState<Plant[]>([]);
   const { user, isLoading: authLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const userId = user?.uid ?? null;
 
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function RemindersPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.back()}
+            onClick={() => router.replace(resolveHomePathForRoles(roles))}
             className="p-2"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -102,7 +104,7 @@ export default function RemindersPage() {
         {/* Desktop Header */}
         <div className="hidden md:block mb-6 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("back", { ns: "common" })}
             </Button>
