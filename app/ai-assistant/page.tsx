@@ -22,6 +22,14 @@ export default function AIAssistantPage() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Open sidebar by default on desktop only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+      if (isDesktop) setSidebarOpen(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(ROUTE_LOGIN);
