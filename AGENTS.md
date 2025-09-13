@@ -8,26 +8,33 @@ Cannafriend is a comprehensive cannabis growing and consumption tracking applica
 
 ## Registro Automático de Actualizaciones
 
-Para mantener documentadas las actualizaciones sin olvidos, el repositorio incluye un flujo de “autolog” que escribe entradas en `UPDATES.md` con un nivel: major, mid o minor.
+Para evitar olvidos al documentar cambios, el repo incluye:
 
-- Archivo de salida: `UPDATES.md`.
-- Niveles admitidos y cómo determinarlos:
-  - major: commits `feat!` o subject conteniendo `[major]`
-  - mid: commits `feat` o subject conteniendo `[mid]`
-  - minor: commits `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci` o subject `[minor]`
-- Activar hooks de git (opcional):
-  - `git config core.hooksPath .githooks`
-  - Se usa `prepare-commit-msg` para registrar y además “stagear” `UPDATES.md` antes de finalizar el commit, así queda incluido automáticamente.
-  - El hook `commit-msg` queda como no-op.
-- Uso manual por script:
+- Autolog: registra entradas en `UPDATES.md` con nivel major/mid/minor.
+- Auto-versionado: incrementa `package.json` según el nivel (major, mid, minor).
+
+Configuración y uso
+- Archivo de salida: `UPDATES.md` (AGENTS.md no recibe entradas automáticas).
+- Niveles y cómo detectarlos en el subject del commit:
+  - major: `feat!` o texto que contenga `[major]`
+  - mid: `feat` o texto que contenga `[mid]`
+  - minor: `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci` o `[minor]`
+- Hooks de Git (recomendado):
+  - Activar: `git config core.hooksPath .githooks`
+  - `pre-commit`: corre autolog y bump de versión; hace `git add UPDATES.md package.json` para que entren en el mismo commit.
+  - `prepare-commit-msg` y `commit-msg`: no-op.
+- Versionado automático (scripts):
+  - Interno: `scripts/autoversion.mjs`
+  - Reglas: major → +1.0.0, mid → +0.1.0, minor → +0.0.1
+  - Manual: `npm run version:major|mid|minor`
+- Registro manual (si no usas hooks):
   - `npm run autolog:major -- "Descripción"`
   - `npm run autolog:mid -- "Descripción"`
   - `npm run autolog:minor -- "Descripción"`
 
-Notas:
-
-- El script inserta la entrada al inicio de la sección marcada por `<!-- AUTOLOG:START --> ... <!-- AUTOLOG:END -->` de `UPDATES.md`.
-- Puedes deshabilitar el hook sin afectar los scripts manuales.
+Notas
+- Autolog inserta entradas al inicio de la sección `<!-- AUTOLOG:START --> … <!-- AUTOLOG:END -->` en `UPDATES.md`.
+- Si tu cliente/IDE omite hooks, usa los scripts manuales y hace stage de archivos antes de commitear.
 
 ## Recent Major Updates (January 2025)
 
@@ -205,6 +212,47 @@ pnpm dev              # Alternative dev command
 - **Marketing Components**: Use `landing` namespace
 - **App Components**: Use feature-specific namespaces
 - **Shared UI**: Use `common` namespace
+
+## AI Assistant (/ai-assistant) Layout
+
+The AI assistant consists of a responsive chat layout with a persistent sidebar and a unified chat view.
+
+### Main Pieces
+- `app/ai-assistant/page.tsx`: Protects route, opens the chat sidebar by default on desktop (≥768px), closed on mobile.
+- `components/ai/unified-chat.tsx`: Chat area, message list, composer, image upload modal. Closes the sidebar after selecting a chat on mobile only.
+- `components/ai/chat-sidebar.tsx`: Sidebar with history, actions, and search. Uses `ChatListItem` for each chat row.
+- `components/ai/chat-list-item.tsx`: Reusable row that handles selection, inline rename, and menu actions consistently for mobile/desktop.
+
+### Sidebar Behavior
+- Header: Cannafriend logo aligned left, close button on the right.
+- Actions: “Nuevo chat” and “Buscar” appear stacked under the header (full‑width, left‑aligned). In minimized desktop state, only two icons are shown (new chat, search).
+- Mobile panel: slide‑over; selecting a chat closes the panel. Desktop stays open.
+- Desktop list: borderless rows, compact spacing to reduce vertical footprint.
+
+### Chat Rows (ChatListItem)
+- Selection: Clicking the row opens the chat when not editing; keyboard Enter/Space also work.
+- Menu: “Renombrar” and “Eliminar” (uses Radix `onSelect` so the menu closes automatically).
+- Inline rename: Triggered only via menu. Uses `InlineEdit` with `forceEdit` and a stable `key` to re‑mount reliably.
+- Editing UX: When the row is selected and in edit mode, the input forces `bg-background` with a subtle ring to contrast against the selected row background.
+
+### Delete Confirmation
+- Deleting a chat shows a confirmation dialog. If the current chat is deleted, the view resets to a new chat.
+
+### Search
+- “Buscar” opens a modal with an input that filters chats in real time.
+- Results are grouped by date (Hoy, Ayer, or local date). Selecting a result opens the chat and closes the modal.
+
+### InlineEdit Enhancements
+- New props: `forceEdit`, `clickToEdit` (to disable click‑to‑edit and allow menu‑driven editing), `onStartEdit`, `onCancel`.
+- Cursor moves to the end on enter; save/cancel stop propagation to avoid navigating.
+- If the value doesn’t change, `onCancel` is called so parent state (e.g., `editingId`) resets properly.
+
+### Compact Chat Area
+- Reduced paddings/gaps in message list and composer for better density on mobile and desktop.
+
+### Consistency Notes
+- No nested buttons inside chat rows; mobile rows use `<div role="button">` to avoid hydration issues.
+- All text is translated using established namespaces; new labels reuse `common` keys (`rename`, `search`).
 
 ### PWA Features
 

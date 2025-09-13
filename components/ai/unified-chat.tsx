@@ -169,7 +169,13 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
         const data = chatDoc.data();
         setMessages(data.messages || []);
         setCurrentSessionId(sessionId);
-        onToggleSidebar && sidebarOpen && onToggleSidebar(); // Close sidebar on mobile after selection
+        // Close sidebar after selecting a session on mobile only
+        if (typeof window !== "undefined") {
+          const isMobile = window.matchMedia("(max-width: 767px)").matches;
+          if (isMobile && onToggleSidebar && sidebarOpen) {
+            onToggleSidebar();
+          }
+        }
       }
     } catch (error) {
       console.error("Error loading chat session:", error);
@@ -205,9 +211,9 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
         {/* Chat Content */}
         {messages.length === 0 ? (
           /* Centered Welcome State - ChatGPT Style */
-          <div className="flex-1 flex flex-col items-center justify-center p-4 pb-32 md:pb-4">
+          <div className="flex-1 flex flex-col items-center justify-center p-3 pb-20 md:pb-4">
             <div className="text-center mb-8 text-muted-foreground max-w-md">
-              <p className="text-lg mb-6">
+              <p className="text-base mb-4">
                 {t("helpText", { ns: "analyzePlant" })}
               </p>
             </div>
@@ -216,7 +222,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
             <div className="w-full max-w-2xl">
               {/* Image Preview */}
               {images.length > 0 && (
-                <div className="mb-4">
+                <div className="mb-3">
                   <div className="flex gap-2 overflow-x-auto justify-center">
                     {images.map((img, index) => (
                       <div key={index} className="relative flex-shrink-0">
@@ -259,12 +265,12 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
           /* Message View - Standard Chat Layout */
           <>
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {messages.map((message, index) => (
                 <div
                   key={index}
                   className={cn(
-                    "flex gap-3 max-w-3xl",
+                    "flex gap-2.5 max-w-3xl",
                     message.role === "user"
                       ? "ml-auto flex-row-reverse"
                       : "mr-auto"
@@ -272,22 +278,22 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
                 >
                   <div
                     className={cn(
-                      "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
+                      "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center",
                       message.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted"
                     )}
                   >
                     {message.role === "user" ? (
-                      <User className="h-4 w-4" />
+                      <User className="h-3.5 w-3.5" />
                     ) : (
-                      <Brain className="h-4 w-4" />
+                      <Brain className="h-3.5 w-3.5" />
                     )}
                   </div>
 
                   <div
                     className={cn(
-                      "flex-1 rounded-lg p-4 prose prose-sm max-w-none",
+                      "flex-1 rounded-lg p-3 prose prose-sm max-w-none",
                       message.role === "user"
                         ? "bg-gray-100 dark:bg-gray-800 text-foreground"
                         : "bg-muted"
@@ -342,7 +348,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
 
             {/* Image Preview - Only in message mode */}
             {images.length > 0 && (
-              <div className="border-t p-4">
+              <div className="border-t p-3">
                 <div className="flex gap-2 overflow-x-auto">
                   {images.map((img, index) => (
                     <div key={index} className="relative flex-shrink-0">
@@ -370,7 +376,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
             )}
 
             {/* Input - Bottom position */}
-            <div className="border-t p-4">
+            <div className="border-t p-3">
               <ChatInput
                 ref={inputRef}
                 value={input}

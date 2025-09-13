@@ -1,0 +1,81 @@
+Para mantener documentadas las actualizaciones sin olvidos, el repositorio incluye un flujo de “autolog” que escribe entradas en `UPDATES.md` con un nivel: major, mid o minor.
+
+- Archivo de salida: `UPDATES.md`.
+- Niveles admitidos y cómo determinarlos:
+  - major: commits `feat!` o subject conteniendo `[major]`
+  - mid: commits `feat` o subject conteniendo `[mid]`
+  - minor: commits `fix`, `refactor`, `perf`, `docs`, `test`, `chore`, `ci` o subject `[minor]`
+- Activar hooks de git (opcional):
+  - `git config core.hooksPath .githooks`
+  - Se usa `prepare-commit-msg` para registrar y además “stagear” `UPDATES.md` antes de finalizar el commit, así queda incluido automáticamente.
+  - El hook `commit-msg` queda como no-op.
+- Uso manual por script:
+  - `npm run autolog:major -- "Descripción"`
+  - `npm run autolog:mid -- "Descripción"`
+  - `npm run autolog:minor -- "Descripción"`
+
+Notas:
+
+- El script inserta la entrada al inicio de la sección marcada por `<!-- AUTOLOG:START --> ... <!-- AUTOLOG:END -->` de `UPDATES.md`.
+- Puedes deshabilitar el hook sin afectar los scripts manuales.
+
+## Recent Major Updates (January 2025)
+
+### Custom Hooks System Implementation
+
+**Issue Addressed**: Repeated logic patterns across components leading to code duplication and maintenance overhead.
+
+**Solution Implemented**: Created comprehensive custom hooks system to extract common patterns into reusable utilities.
+
+#### Custom Hooks Created:
+
+1. **useFormAuth** - Authentication form handling with loading states and error management
+2. **useFirebaseCollection** - Firebase collection fetching with loading, error states, and realtime updates
+3. **useFirebaseDocument** - Single Firebase document CRUD operations
+4. **useAsync** - Generic async operation handler with loading/error states
+5. **useToggle** - Boolean state management (password visibility, modals, etc.)
+6. **useLoadingSteps** - Multi-step loading state management for complex operations
+7. **usePagination** - Complete pagination logic and navigation
+8. **useLocalStorage** - Type-safe localStorage management with SSR safety
+
+**Usage Pattern**:
+
+```typescript
+// Import from centralized index
+import { useFormAuth, useToggle, useLoadingSteps } from "@/hooks";
+
+// Use in components
+const { form, t, toast, handleFirebaseError } = useFormAuth<SignupFormData>({
+  defaultValues: { email: "", password: "", confirmPassword: "" },
+});
+const { value: showPassword, toggle: togglePassword } = useToggle();
+const { isLoading, startLoading, setStep, stopLoading } = useLoadingSteps();
+```
+
+### TypeScript & ESLint Configuration
+
+**Completed**: Fixed all TypeScript strict checking errors and set up comprehensive ESLint configuration.
+
+**Files Modified**:
+
+- Fixed `useTranslation` hook usage in 4 files (journal, plants pages)
+- Re-enabled TypeScript strict checking in `next.config.mjs`
+- Created comprehensive `.eslintrc.json` configuration
+- 240+ ESLint warnings identified and made non-blocking
+
+### Testing Framework Setup
+
+**Completed**: Full Jest + React Testing Library integration with comprehensive configuration.
+
+**Testing Stack**:
+
+- **Jest 30.x** with Next.js integration
+- **React Testing Library** for component testing
+- **jsdom** environment for DOM testing
+- **Coverage reporting** with detailed HTML reports
+- **Pre-configured mocks** for Next.js, Firebase, and i18n
+
+**Test Commands**:
+
+```bash
+npm run test          # Run all tests
