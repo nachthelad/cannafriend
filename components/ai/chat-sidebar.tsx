@@ -7,8 +7,46 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useTranslation } from "react-i18next";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { MessageSquare, Plus, X, Menu, Brain, Clock } from "lucide-react";
+import {
+  MessageSquare,
+  X,
+  Menu,
+  Clock,
+  Trash2,
+  MoreHorizontal,
+  SquarePen,
+  Pencil,
+  Search as SearchIcon,
+} from "lucide-react";
+import Logo from "@/components/common/logo";
+import ChatListItem from "@/components/ai/chat-list-item";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 interface ChatSession {
   id: string;
@@ -38,6 +76,14 @@ export function ChatSidebar({
   const { user } = useAuthUser();
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<ChatSession | null>(
+    null
+  );
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showSearchDialog, setShowSearchDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadChatHistory = async () => {
     if (!user?.uid) return;
@@ -97,80 +143,84 @@ export function ChatSidebar({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-background border-r">
       {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
-            <h2 className="font-semibold">
-              {t("chatHistory", { ns: "analyzePlant" })}
-            </h2>
-          </div>
+      <div className="p-3 border-b">
+        <div className="flex items-center justify-between">
+          <Logo size={24} className="text-primary ml-1.5" />
           <Button variant="ghost" size="icon" onClick={onToggle}>
             <X className="h-4 w-4" />
           </Button>
         </div>
-
-        <Button
-          onClick={onNewChat}
-          className="w-full flex items-center gap-2"
-          variant="outline"
-        >
-          <Plus className="h-4 w-4" />
-          {t("newChat", { ns: "analyzePlant" })}
-        </Button>
+        <div className="mt-3">
+          <Button
+            onClick={onNewChat}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2.5 gap-2 w-full justify-start"
+          >
+            <SquarePen className="h-4 w-4" />
+            <span className="text-sm">
+              {t("newChat", { ns: "analyzePlant" })}
+            </span>
+          </Button>
+        </div>
+        <div className="mt-2">
+          <Button
+            onClick={() => setShowSearchDialog(true)}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2.5 gap-2 w-full justify-start"
+          >
+            <SearchIcon className="h-4 w-4" />
+            <span className="text-sm">{t("search", { ns: "common" })}</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Chat List */}
+      {/* Chat List (mobile dense variant) */}
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading ? (
           <div className="space-y-2">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />
+              <div key={i} className="h-10 bg-muted rounded-md animate-pulse" />
             ))}
           </div>
         ) : chatSessions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">{t("noChats", { ns: "analyzePlant" })}</p>
+            <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
+            <p className="text-xs">{t("noChats", { ns: "analyzePlant" })}</p>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1 md:hidden">
             {chatSessions.map((session) => (
-              <Card
+              <ChatListItem
                 key={session.id}
-                className={cn(
-                  "cursor-pointer transition-colors hover:bg-accent",
-                  currentSessionId === session.id && "bg-accent border-primary"
-                )}
-                onClick={() => onSessionSelect(session.id)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">
-                        {session.title}
-                      </h3>
-                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatDate(session.lastUpdated)}</span>
-                      </div>
-                    </div>
-                    <div className="ml-2">
-                      {session.chatType === "plant-analysis" ? (
-                        <div
-                          className="w-2 h-2 rounded-full bg-green-500"
-                          title="Plant Analysis"
-                        />
-                      ) : (
-                        <div
-                          className="w-2 h-2 rounded-full bg-blue-500"
-                          title="Consumer Chat"
-                        />
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                session={session}
+                active={currentSessionId === session.id}
+                variant="mobile"
+                editingId={editingId}
+                setEditingId={setEditingId}
+                onSelect={onSessionSelect}
+                onRename={async (id, newTitle) => {
+                  if (!user?.uid) return;
+                  await updateDoc(doc(db, "users", user.uid, "aiChats", id), {
+                    title: newTitle,
+                  });
+                  setChatSessions((prev) =>
+                    prev.map((s) =>
+                      s.id === id ? { ...s, title: newTitle } : s
+                    )
+                  );
+                }}
+                onDelete={(id) => {
+                  setSelectedSession({
+                    id,
+                    title: session.title,
+                    lastUpdated: session.lastUpdated,
+                    chatType: "consumer",
+                  });
+                  setShowDeleteDialog(true);
+                }}
+              />
             ))}
           </div>
         )}
@@ -201,12 +251,7 @@ export function ChatSidebar({
           <div className="flex items-center justify-between">
             {isOpen ? (
               <>
-                <div className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-primary flex-shrink-0" />
-                  <h2 className="font-semibold text-sm">
-                    {t("chatHistory", { ns: "analyzePlant" })}
-                  </h2>
-                </div>
+                <Logo size={22} className="text-primary flex-shrink-0 ml-1.5" />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -228,16 +273,29 @@ export function ChatSidebar({
               </Button>
             )}
           </div>
-
           {isOpen && (
-            <Button
-              onClick={onNewChat}
-              className="w-full flex items-center gap-2 mt-3 h-9 text-sm"
-              variant="outline"
-            >
-              <Plus className="h-4 w-4" />
-              {t("newChat", { ns: "analyzePlant" })}
-            </Button>
+            <div className="mt-3 flex flex-col gap-2">
+              <Button
+                onClick={onNewChat}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2.5 gap-2 w-full justify-start"
+              >
+                <SquarePen className="h-4 w-4" />
+                <span className="text-sm">
+                  {t("newChat", { ns: "analyzePlant" })}
+                </span>
+              </Button>
+              <Button
+                onClick={() => setShowSearchDialog(true)}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2.5 gap-2 w-full justify-start"
+              >
+                <SearchIcon className="h-4 w-4" />
+                <span className="text-sm">{t("search", { ns: "common" })}</span>
+              </Button>
+            </div>
           )}
         </div>
 
@@ -249,7 +307,7 @@ export function ChatSidebar({
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-14 bg-muted rounded-lg animate-pulse"
+                    className="h-10 bg-muted rounded-lg animate-pulse"
                   />
                 ))}
               </div>
@@ -263,50 +321,44 @@ export function ChatSidebar({
             ) : (
               <div className="space-y-1">
                 {chatSessions.map((session) => (
-                  <Card
-                    key={session.id}
-                    className={cn(
-                      "cursor-pointer transition-colors hover:bg-accent p-0",
-                      currentSessionId === session.id &&
-                        "bg-accent border-primary"
-                    )}
-                    onClick={() => onSessionSelect(session.id)}
-                  >
-                    <CardContent className="p-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-xs truncate">
-                            {session.title}
-                          </h3>
-                          <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span className="text-xs">
-                              {formatDate(session.lastUpdated)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="ml-2">
-                          {session.chatType === "plant-analysis" ? (
-                            <div
-                              className="w-2 h-2 rounded-full bg-green-500"
-                              title="Plant Analysis"
-                            />
-                          ) : (
-                            <div
-                              className="w-2 h-2 rounded-full bg-blue-500"
-                              title="Consumer Chat"
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div key={session.id} className="border-0 rounded-md">
+                    <ChatListItem
+                      session={session}
+                      active={currentSessionId === session.id}
+                      variant="desktop"
+                      editingId={editingId}
+                      setEditingId={setEditingId}
+                      onSelect={onSessionSelect}
+                      onRename={async (id, newTitle) => {
+                        if (!user?.uid) return;
+                        await updateDoc(
+                          doc(db, "users", user.uid, "aiChats", id),
+                          { title: newTitle }
+                        );
+                        setChatSessions((prev) =>
+                          prev.map((s) =>
+                            s.id === id ? { ...s, title: newTitle } : s
+                          )
+                        );
+                      }}
+                      onDelete={(id) => {
+                        const s = chatSessions.find((c) => c.id === id)!;
+                        setSelectedSession({
+                          id,
+                          title: s.title,
+                          lastUpdated: s.lastUpdated,
+                          chatType: "consumer",
+                        });
+                        setShowDeleteDialog(true);
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
             )}
           </div>
         ) : (
-          // Minimized state - show only new chat button
+          // Minimized state - show only action icons
           <div className="flex flex-col items-center p-2 gap-2">
             <Button
               onClick={onNewChat}
@@ -315,29 +367,17 @@ export function ChatSidebar({
               className="h-10 w-10"
               title={t("newChat", { ns: "analyzePlant" })}
             >
-              <Plus className="h-5 w-5" />
+              <SquarePen className="h-5 w-5" />
             </Button>
-            {chatSessions.slice(0, 5).map((session, index) => (
-              <Button
-                key={session.id}
-                onClick={() => onSessionSelect(session.id)}
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-8 w-8 relative",
-                  currentSessionId === session.id && "bg-accent"
-                )}
-                title={session.title}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  {session.chatType === "plant-analysis" ? (
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  ) : (
-                    <div className="w-3 h-3 rounded-full bg-blue-500" />
-                  )}
-                </div>
-              </Button>
-            ))}
+            <Button
+              onClick={() => setShowSearchDialog(true)}
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10"
+              title={t("search", { ns: "common" })}
+            >
+              <SearchIcon className="h-5 w-5" />
+            </Button>
           </div>
         )}
       </div>
@@ -351,6 +391,124 @@ export function ChatSidebar({
       >
         {sidebarContent}
       </div>
+
+      {/* Search Dialog */}
+      <Dialog open={showSearchDialog} onOpenChange={setShowSearchDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("search", { ns: "common" })}</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("search", { ns: "common" })}
+          />
+          <div className="max-h-80 overflow-auto mt-2 space-y-3">
+            {(() => {
+              const groups = new Map<
+                string,
+                { label: string; items: ChatSession[] }
+              >();
+              const add = (key: string, label: string, item: ChatSession) => {
+                const g = groups.get(key) || { label, items: [] };
+                g.items.push(item);
+                groups.set(key, g);
+              };
+              const filtered = chatSessions.filter((s) =>
+                searchQuery.trim()
+                  ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
+                  : true
+              );
+              for (const s of filtered) {
+                const d = new Date(s.lastUpdated);
+                const today = new Date();
+                const days = Math.floor(
+                  (today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
+                );
+                let key = d.toDateString();
+                let label = d.toLocaleDateString();
+                if (days === 0) {
+                  key = "today";
+                  label = t("today", { ns: "common" });
+                } else if (days === 1) {
+                  key = "yesterday";
+                  label = t("yesterday", { ns: "common" });
+                }
+                add(key, label, s);
+              }
+              return Array.from(groups.entries()).map(([key, g]) => (
+                <div key={key}>
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">
+                    {g.label}
+                  </div>
+                  <div className="space-y-1">
+                    {g.items.map((session) => (
+                      <button
+                        key={session.id}
+                        onClick={() => {
+                          onSessionSelect(session.id);
+                          setShowSearchDialog(false);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-md hover:bg-accent"
+                      >
+                        <div className="font-medium truncate">
+                          {session.title}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(session.lastUpdated).toLocaleTimeString()}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("settings.confirmDelete", { ns: "common" })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("settings.confirmDeleteDesc", { ns: "common" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("cancel", { ns: "common" })}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={async () => {
+                if (!user?.uid || !selectedSession) return;
+                try {
+                  await deleteDoc(
+                    doc(db, "users", user.uid, "aiChats", selectedSession.id)
+                  );
+                  setChatSessions((prev) =>
+                    prev.filter((s) => s.id !== selectedSession.id)
+                  );
+                  if (currentSessionId === selectedSession.id) {
+                    onNewChat();
+                  }
+                } finally {
+                  setShowDeleteDialog(false);
+                  setSelectedSession(null);
+                }
+              }}
+            >
+              {t("delete", { ns: "common" })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Inline renaming only; no rename modal */}
     </>
   );
 }
