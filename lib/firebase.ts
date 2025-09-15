@@ -50,10 +50,16 @@ export const googleProvider = new GoogleAuthProvider();
 let analytics: any = null;
 if (typeof window !== "undefined") {
   try {
-    const { getAnalytics } = require("firebase/analytics");
-    analytics = getAnalytics(app);
-  } catch (error) {
-    console.warn("Analytics not available:", error);
+    const { getAnalytics, isSupported } = require("firebase/analytics");
+    isSupported().then((supported: boolean) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+      }
+    }).catch(() => {
+      // Analytics not supported
+    });
+  } catch (e) {
+    // Analytics not available
   }
 }
 
