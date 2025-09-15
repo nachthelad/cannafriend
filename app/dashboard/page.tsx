@@ -367,12 +367,12 @@ export default function DashboardPage() {
                       {t("addPlant", { ns: "nav" })}
                     </Link>
                   </Button>
-                  <Button asChild variant="outline">
+                  <Button asChild>
                     <Link prefetch href={ROUTE_REMINDERS}>
                       {t("reminders", { ns: "dashboard" })}
                     </Link>
                   </Button>
-                  <Button asChild variant="outline">
+                  <Button asChild>
                     <Link prefetch href={ROUTE_STASH}>
                       {t("stash.title", { ns: "common" })}
                     </Link>
@@ -389,7 +389,7 @@ export default function DashboardPage() {
                     </Button>
                   )}
                   {isAdmin && (
-                    <Button asChild variant="outline">
+                    <Button asChild>
                       <Link prefetch href={ROUTE_ADMIN}>
                         <Shield className="h-4 w-4 mr-1" />
                         Admin
