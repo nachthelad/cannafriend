@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: improve keyword detection for more intuitive plant conversations — 2025-09-15
+
 - [MINOR]: enhance admin page with UID copy functionality and layout improvements — 2025-09-15
 - [MINOR]: enhance subscription creation and error handling — 2025-09-15
 - [MID]: show premium subscription details with remaining time and recurring status; add MP subscription-status API; unify admin search; docs updated; build ok — 2025-09-15

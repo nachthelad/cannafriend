@@ -17,6 +17,7 @@ import {
   orderBy,
   limit,
   onSnapshot,
+  deleteDoc,
 } from "firebase/firestore";
 import { Layout } from "@/components/layout";
 import { ArrowLeft, Plus } from "lucide-react";
@@ -97,16 +98,23 @@ export default function PlantLogsPage({
   }, [userId, id, plant]);
 
   const handleBack = () => {
-    router.back();
+    router.push(`/plants/${id}`);
   };
 
   const handleDeleteLog = async (log: LogEntry) => {
-    // This would typically delete the log from Firestore
-    // For now, just show success message
-    toast({
-      title: t("journal.deleted"),
-      description: t("journal.deletedDesc"),
-    });
+    if (!userId || !log.id) return;
+    try {
+      await deleteDoc(
+        doc(db, "users", userId, "plants", id, "logs", log.id)
+      );
+      setLogs((prev) => prev.filter((l) => l.id !== log.id));
+      toast({
+        title: t("deleted", { ns: "journal" }),
+        description: t("deletedDesc", { ns: "journal" }),
+      });
+    } catch (error: any) {
+      handleFirebaseError(error, "delete log");
+    }
   };
 
   if (isLoading) {

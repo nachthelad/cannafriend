@@ -24,6 +24,8 @@ import {
   Camera,
   Menu,
   FileText,
+  Trash2,
+  Star,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,11 +33,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { differenceInDays, parseISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import { InlineEdit } from "@/components/common/inline-edit";
 import { updateDoc, doc } from "firebase/firestore";
 import { plantDoc } from "@/lib/paths";
+import { ROUTE_PLANTS } from "@/lib/routes";
 
 interface MobilePlantPageProps {
   plant: Plant;
@@ -45,6 +59,8 @@ interface MobilePlantPageProps {
   lastTraining?: LogEntry;
   lastEnvironment?: LogEntry;
   onAddPhoto?: (plant: Plant) => void;
+  onRemovePhoto?: (index: number) => void;
+  onSetCoverPhoto?: (photoUrl: string) => void;
   onUpdate?: (patch: Partial<Plant>) => void;
   language: string;
 }
@@ -57,6 +73,8 @@ export function MobilePlantPage({
   lastTraining,
   lastEnvironment,
   onAddPhoto,
+  onRemovePhoto,
+  onSetCoverPhoto,
   onUpdate,
   language,
 }: MobilePlantPageProps) {
@@ -66,6 +84,7 @@ export function MobilePlantPage({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Get all available images (coverPhoto + photos)
   const allImages = [
@@ -81,7 +100,7 @@ export function MobilePlantPage({
     : 0;
 
   const handleBack = () => {
-    router.back();
+    router.push(ROUTE_PLANTS);
   };
 
   const handlePrevImage = () => {
@@ -171,7 +190,7 @@ export function MobilePlantPage({
             >
               <ArrowLeft className="h-5 w-5 text-white" />
             </Button>
-            <DropdownMenu>
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -193,6 +212,80 @@ export function MobilePlantPage({
                     <Camera className="h-4 w-4 mr-2" />
                     {t("photos.addPhotos", { ns: "plants" })}
                   </DropdownMenuItem>
+                )}
+                {onSetCoverPhoto && allImages.length > 0 && allImages[currentImageIndex] !== plant.coverPhoto && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        className="text-yellow-400 hover:bg-slate-700 hover:text-yellow-300"
+                      >
+                        <Star className="h-4 w-4 mr-2" />
+                        {t("photos.setAsCover", { ns: "plants" })}
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-slate-800 border-slate-700">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-slate-200">
+                          {t("photos.setCoverConfirmTitle", { ns: "plants" })}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                          {t("photos.setCoverConfirmDesc", { ns: "plants" })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                          {t("cancel", { ns: "common" })}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            onSetCoverPhoto(allImages[currentImageIndex]);
+                            setMenuOpen(false);
+                          }}
+                          className="bg-yellow-600 text-white hover:bg-yellow-700"
+                        >
+                          {t("photos.setAsCover", { ns: "plants" })}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+                {onRemovePhoto && allImages.length > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
+                        className="text-red-400 hover:bg-slate-700 hover:text-red-300"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {t("photos.deletePhoto", { ns: "plants" })}
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-slate-800 border-slate-700">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-slate-200">
+                          {t("photos.removeConfirmTitle", { ns: "plants" })}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-slate-400">
+                          {t("photos.removeConfirmDesc", { ns: "plants" })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                          {t("cancel", { ns: "common" })}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => {
+                            onRemovePhoto(currentImageIndex);
+                            setMenuOpen(false);
+                          }}
+                          className="bg-red-600 text-white hover:bg-red-700"
+                        >
+                          {t("delete", { ns: "common" })}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -316,17 +409,23 @@ export function MobilePlantPage({
                     </span>
                   </div>
                 )}
-                {lastEnvironment?.ph && (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                    <span className="text-white font-bold">
-                      {t("plantPage.ph", { ns: "plants" })}:{" "}
-                      {lastEnvironment.ph}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
+
+            {/* pH Row */}
+            {lastEnvironment?.ph !== undefined && (
+              <div className="space-y-2">
+                <div className="text-xs text-slate-400 font-medium uppercase">
+                  {t("plantPage.ph", { ns: "plants" })}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                  <span className="text-white font-bold">
+                    {lastEnvironment.ph}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -472,6 +571,46 @@ export function MobilePlantPage({
               className="max-w-full max-h-full object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
+            {/* Delete button in full screen */}
+            {onRemovePhoto && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/20 p-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Trash2 className="h-5 w-5 text-white" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-slate-800 border-slate-700">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-slate-200">
+                      {t("photos.removeConfirmTitle", { ns: "plants" })}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-slate-400">
+                      {t("photos.removeConfirmDesc", { ns: "plants" })}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                      {t("cancel", { ns: "common" })}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        onRemovePhoto(currentImageIndex);
+                        setShowFullImage(false);
+                      }}
+                      className="bg-red-600 text-white hover:bg-red-700"
+                    >
+                      {t("delete", { ns: "common" })}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
             {/* Counter in full screen */}
             {hasMultipleImages && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-2 bg-black/60 backdrop-blur-sm rounded-full">
