@@ -97,6 +97,11 @@ function isApprovedPayment(status?: string) {
   return s === "approved" || s === "authorized"; // treat authorized as valid
 }
 
+function isRevokedPayment(status?: string) {
+  const s = (status || "").toLowerCase();
+  return s === "refunded" || s === "charged_back" || s === "cancelled";
+}
+
 async function fetchAuthorizedPayment(id: string): Promise<AuthorizedPayment> {
   const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
   if (!token) throw new Error("Missing MERCADOPAGO_ACCESS_TOKEN env var");
@@ -126,6 +131,32 @@ async function fetchAuthorizedPayment(id: string): Promise<AuthorizedPayment> {
   } as AuthorizedPayment;
 }
 
+async function revokePremiumByUid(uid: string) {
+  try {
+    const user = await adminAuth().getUser(uid);
+    const claims = { ...(user.customClaims || {}) } as Record<string, unknown>;
+    (claims as any).premium = false;
+    delete (claims as any).premium_until;
+    await adminAuth().setCustomUserClaims(uid, claims);
+    return { ok: true as const };
+  } catch (err: unknown) {
+    return { ok: false as const, error: unwrapError(err, "user_update_failed") };
+  }
+}
+
+async function revokePremiumByEmail(email: string) {
+  try {
+    const user = await adminAuth().getUserByEmail(email);
+    const claims = { ...(user.customClaims || {}) } as Record<string, unknown>;
+    (claims as any).premium = false;
+    delete (claims as any).premium_until;
+    await adminAuth().setCustomUserClaims(user.uid, claims);
+    return { ok: true as const };
+  } catch (err: unknown) {
+    return { ok: false as const, error: unwrapError(err, "user_update_failed") };
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const search = req.nextUrl.searchParams;
@@ -137,21 +168,34 @@ export async function GET(req: NextRequest) {
 
     if (t === "authorized_payment" || t === "payment") {
       const pay = await fetchAuthorizedPayment(id);
-      if (!isApprovedPayment(pay.status)) {
-        return NextResponse.json({ ignored: true, reason: "payment_not_approved" });
-      }
-      // Prefer UID from external_reference via preapproval or payment payload, else fallback to payer email
-      if (pay.external_reference) {
-        const until = Date.now() + 31 * 24 * 60 * 60 * 1000; // 31 days
-        const result = await setPremiumUntilByUid(pay.external_reference, until);
+      if (isApprovedPayment(pay.status)) {
+        // Grant premium
+        if (pay.external_reference) {
+          const until = Date.now() + 31 * 24 * 60 * 60 * 1000; // 31 days
+          const result = await setPremiumUntilByUid(pay.external_reference, until);
+          if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+          return NextResponse.json({ ok: true, premium: true, until });
+        }
+        const email = pay.payer?.email;
+        if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
+        const result = await setPremiumByEmail(email, true);
         if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
-        return NextResponse.json({ ok: true, premium: true, until });
+        return NextResponse.json({ ok: true, premium: true });
       }
-      const email = pay.payer?.email;
-      if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
-      const result = await setPremiumByEmail(email, true);
-      if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
-      return NextResponse.json({ ok: true, premium: true });
+      if (isRevokedPayment(pay.status)) {
+        // Revoke premium on refund/chargeback/cancelled
+        if (pay.external_reference) {
+          const result = await revokePremiumByUid(pay.external_reference);
+          if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+          return NextResponse.json({ ok: true, premium: false, revoked: true });
+        }
+        const email = pay.payer?.email;
+        if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
+        const result = await revokePremiumByEmail(email);
+        if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+        return NextResponse.json({ ok: true, premium: false, revoked: true });
+      }
+      return NextResponse.json({ ignored: true, reason: "payment_not_approved" });
     }
 
     if (t !== "preapproval") {
@@ -210,20 +254,32 @@ export async function POST(req: NextRequest) {
 
     if (finalType === "authorized_payment" || finalType === "payment") {
       const pay = await fetchAuthorizedPayment(finalId);
-      if (!isApprovedPayment(pay.status)) {
-        return NextResponse.json({ ignored: true, reason: "payment_not_approved" });
-      }
-      if (pay.external_reference) {
-        const until = Date.now() + 31 * 24 * 60 * 60 * 1000; // 31 days
-        const result = await setPremiumUntilByUid(pay.external_reference, until);
+      if (isApprovedPayment(pay.status)) {
+        if (pay.external_reference) {
+          const until = Date.now() + 31 * 24 * 60 * 60 * 1000; // 31 days
+          const result = await setPremiumUntilByUid(pay.external_reference, until);
+          if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+          return NextResponse.json({ ok: true, premium: true, until });
+        }
+        const email = pay.payer?.email;
+        if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
+        const result = await setPremiumByEmail(email, true);
         if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
-        return NextResponse.json({ ok: true, premium: true, until });
+        return NextResponse.json({ ok: true, premium: true });
       }
-      const email = pay.payer?.email;
-      if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
-      const result = await setPremiumByEmail(email, true);
-      if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
-      return NextResponse.json({ ok: true, premium: true });
+      if (isRevokedPayment(pay.status)) {
+        if (pay.external_reference) {
+          const result = await revokePremiumByUid(pay.external_reference);
+          if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+          return NextResponse.json({ ok: true, premium: false, revoked: true });
+        }
+        const email = pay.payer?.email;
+        if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
+        const result = await revokePremiumByEmail(email);
+        if (!result.ok) return NextResponse.json({ error: result.error }, { status: 500 });
+        return NextResponse.json({ ok: true, premium: false, revoked: true });
+      }
+      return NextResponse.json({ ignored: true, reason: "payment_not_approved" });
     }
 
     if (finalType !== "preapproval") {
