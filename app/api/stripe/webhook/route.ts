@@ -122,6 +122,43 @@ export async function POST(req: NextRequest) {
         break;
       }
       
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge;
+        
+        if (charge.customer && typeof charge.customer === 'string') {
+          const customer = await stripe.customers.retrieve(charge.customer) as Stripe.Customer;
+          if (customer.email) {
+            const result = await setPremiumByEmail(customer.email, false);
+            if (!result.ok) {
+              console.error('Failed to revoke premium status on refund:', result.error);
+            } else {
+              console.log('Premium revoked due to refund for customer:', customer.email);
+            }
+          }
+        }
+        break;
+      }
+      
+      case 'charge.dispute.closed': {
+        const dispute = event.data.object as Stripe.Dispute;
+        
+        if (dispute.status === 'lost' && dispute.charge && typeof dispute.charge === 'string') {
+          const charge = await stripe.charges.retrieve(dispute.charge);
+          if (charge.customer && typeof charge.customer === 'string') {
+            const customer = await stripe.customers.retrieve(charge.customer) as Stripe.Customer;
+            if (customer.email) {
+              const result = await setPremiumByEmail(customer.email, false);
+              if (!result.ok) {
+                console.error('Failed to revoke premium status on dispute loss:', result.error);
+              } else {
+                console.log('Premium revoked due to lost dispute for customer:', customer.email);
+              }
+            }
+          }
+        }
+        break;
+      }
+      
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }

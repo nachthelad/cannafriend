@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Crown, User, Mail, Calendar } from "lucide-react";
+import { RefreshCw, Crown, User, Mail, Calendar, Copy, Hash } from "lucide-react";
 
 type ListedUser = {
   uid: string;
@@ -21,6 +21,7 @@ interface MobileAdminProps {
   setSortDir: (dir: "newest" | "oldest") => void;
   fetchUsers: () => void;
   togglePremium: (user: ListedUser, premium: boolean) => void;
+  copyToClipboard: (text: string, label?: string) => void;
 }
 
 export function MobileAdmin({
@@ -30,6 +31,7 @@ export function MobileAdmin({
   setSortDir,
   fetchUsers,
   togglePremium,
+  copyToClipboard,
 }: MobileAdminProps) {
   const sortedUsers = [...users].sort((a, b) => {
     const ca = a.createdAt || 0;
@@ -65,6 +67,20 @@ export function MobileAdmin({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Mail className="h-3.5 w-3.5" />
             <span className="truncate">{user.email || "No email"}</span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Hash className="h-3.5 w-3.5" />
+            <span className="font-mono text-xs truncate flex-1">{user.uid}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-2 py-0 h-6"
+              onClick={() => copyToClipboard(user.uid)}
+              title="Copy UID"
+            >
+              <Copy className="h-3 w-3" />
+            </Button>
           </div>
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

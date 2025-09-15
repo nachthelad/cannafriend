@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { MobileAdmin } from "@/components/mobile/mobile-admin";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
+import { Copy } from "lucide-react";
 
 type ListedUser = {
   uid: string;
@@ -107,7 +108,6 @@ export default function AdminPage() {
     external_reference?: string;
     date?: string | null;
   };
-  const [qEmail, setQEmail] = useState("");
   const [qUid, setQUid] = useState("");
   const [qStatus, setQStatus] = useState("");
   const [qScope, setQScope] = useState<"all" | "payments" | "preapproval">("all");
@@ -120,7 +120,7 @@ export default function AdminPage() {
     try {
       const token = await auth.currentUser.getIdToken();
       const params = new URLSearchParams();
-      if (qEmail) params.set("payer_email", qEmail);
+      // Email filter disabled; search by UID only for reliability
       if (qUid) params.set("external_reference", qUid);
       if (qStatus) params.set("status", qStatus);
       if (qScope && qScope !== "all") params.set("scope", qScope);
@@ -155,6 +155,11 @@ export default function AdminPage() {
     }
   };
 
+  const copyToClipboard = (text: string, label: string = "UID") => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copiado", description: `${label} copiado al portapapeles` });
+  };
+
   if (isLoading || !isAdmin) {
     return null;
   }
@@ -170,6 +175,7 @@ export default function AdminPage() {
           setSortDir={setSortDir}
           fetchUsers={fetchUsers}
           togglePremium={togglePremium}
+          copyToClipboard={copyToClipboard}
         />
 
         {/* MP Search (Mobile) */}
@@ -180,11 +186,6 @@ export default function AdminPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
-                <Input
-                  placeholder="Email del pagador"
-                  value={qEmail}
-                  onChange={(e) => setQEmail(e.target.value)}
-                />
                 <Input
                   placeholder="UID (external_reference)"
                   value={qUid}
@@ -229,90 +230,94 @@ export default function AdminPage() {
       </div>
 
       {/* Desktop Layout - only show on desktop */}
-      <div className="hidden md:block mx-auto max-w-5xl w-full p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Admin - Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between mb-4 gap-4">
-              <div className="text-sm text-muted-foreground">
-                Only visible to {ADMIN_EMAIL}
-              </div>
-              <div className="flex items-center gap-2">
-                <label className="text-sm">Sort:</label>
-                <select
-                  className="border rounded px-2 py-1 text-sm bg-background"
-                  value={sortDir}
-                  onChange={(e) => setSortDir(e.target.value as any)}
-                >
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                </select>
-                <Button
-                  variant="secondary"
-                  disabled={loading}
-                  onClick={fetchUsers}
-                >
-                  Refresh
-                </Button>
-              </div>
+      <div className="hidden md:block w-full p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Admin - Users</h1>
+          <div className="flex items-center justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              Only visible to {ADMIN_EMAIL}
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left border-b">
-                    <th className="py-2 pr-4">Email</th>
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">Registered</th>
-                    <th className="py-2">Premium</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[...users]
-                    .sort((a, b) => {
-                      const ca = a.createdAt || 0;
-                      const cb = b.createdAt || 0;
-                      return sortDir === "newest" ? cb - ca : ca - cb;
-                    })
-                    .map((u) => (
-                      <tr key={u.uid} className="border-b last:border-0">
-                        <td className="py-2 pr-4">{u.email || "—"}</td>
-                        <td className="py-2 pr-4">{u.displayName || "—"}</td>
-                        <td className="py-2 pr-4">
-                          {u.createdAt
-                            ? new Date(u.createdAt).toLocaleDateString()
-                            : "—"}
-                        </td>
-                        <td className="py-2">
-                          <Switch
-                            checked={u.premium}
-                            onCheckedChange={(val) => togglePremium(u, val)}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+            <div className="flex items-center gap-2">
+              <label className="text-sm">Sort:</label>
+              <select
+                className="border rounded px-2 py-1 text-sm bg-background"
+                value={sortDir}
+                onChange={(e) => setSortDir(e.target.value as any)}
+              >
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+              <Button
+                variant="secondary"
+                disabled={loading}
+                onClick={fetchUsers}
+              >
+                Refresh
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+        
+        <div className="bg-background border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left border-b bg-muted/50">
+                  <th className="py-3 px-4 font-medium">Email</th>
+                  <th className="py-3 px-4 font-medium">Name</th>
+                  <th className="py-3 px-4 font-medium">UID</th>
+                  <th className="py-3 px-4 font-medium">Registered</th>
+                  <th className="py-3 px-4 font-medium">Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...users]
+                  .sort((a, b) => {
+                    const ca = a.createdAt || 0;
+                    const cb = b.createdAt || 0;
+                    return sortDir === "newest" ? cb - ca : ca - cb;
+                  })
+                  .map((u) => (
+                    <tr key={u.uid} className="border-b last:border-0 hover:bg-muted/30">
+                      <td className="py-3 px-4">{u.email || "—"}</td>
+                      <td className="py-3 px-4">{u.displayName || "-"}</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs select-all">{u.uid}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="px-2 py-0 h-7"
+                            onClick={() => copyToClipboard(u.uid)}
+                            title="Copy UID"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        {u.createdAt
+                          ? new Date(u.createdAt).toLocaleDateString()
+                          : "—"}
+                      </td>
+                      <td className="py-3 px-4">
+                        <Switch
+                          checked={u.premium}
+                          onCheckedChange={(val) => togglePremium(u, val)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* MercadoPago - Búsqueda unificada */}
-        <Card className="mt-4">
-          <CardHeader>
-            <CardTitle>MercadoPago - Búsqueda unificada</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">MercadoPago - Búsqueda unificada</h2>
             <div className="flex flex-wrap items-end gap-2 mb-4">
-              <div className="flex-1 min-w-[220px]">
-                <label className="text-xs text-muted-foreground">Email</label>
-                <Input
-                  placeholder="payer_email"
-                  value={qEmail}
-                  onChange={(e) => setQEmail(e.target.value)}
-                />
-              </div>
+              {/* Email filter intentionally removed; use UID */}
               <div className="flex-1 min-w-[220px]">
                 <label className="text-xs text-muted-foreground">UID (external_reference)</label>
                 <Input
@@ -355,30 +360,31 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {uniItems.length > 0 && (
+          {uniItems.length > 0 && (
+            <div className="bg-background border rounded-lg overflow-hidden mt-4">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left border-b">
-                      <th className="py-2 pr-4">Tipo</th>
-                      <th className="py-2 pr-4">ID</th>
-                      <th className="py-2 pr-4">Estado</th>
-                      <th className="py-2 pr-4">Email</th>
-                      <th className="py-2 pr-4">UID</th>
-                      <th className="py-2 pr-4">Fecha</th>
-                      <th className="py-2">Acciones</th>
+                    <tr className="text-left border-b bg-muted/50">
+                      <th className="py-3 px-4 font-medium">Tipo</th>
+                      <th className="py-3 px-4 font-medium">ID</th>
+                      <th className="py-3 px-4 font-medium">Estado</th>
+                      <th className="py-3 px-4 font-medium">Email</th>
+                      <th className="py-3 px-4 font-medium">UID</th>
+                      <th className="py-3 px-4 font-medium">Fecha</th>
+                      <th className="py-3 px-4 font-medium">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {uniItems.map((it) => (
-                      <tr key={`${it.type}:${it.id}`} className="border-b last:border-0">
-                        <td className="py-2 pr-4">{it.type}</td>
-                        <td className="py-2 pr-4 font-mono text-xs">{it.id}</td>
-                        <td className="py-2 pr-4">{it.status || "-"}</td>
-                        <td className="py-2 pr-4">{it.payer_email || "-"}</td>
-                        <td className="py-2 pr-4">{it.external_reference || "-"}</td>
-                        <td className="py-2 pr-4">{it.date ? new Date(it.date).toLocaleString() : "-"}</td>
-                        <td className="py-2">
+                      <tr key={`${it.type}:${it.id}`} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-3 px-4">{it.type}</td>
+                        <td className="py-3 px-4 font-mono text-xs">{it.id}</td>
+                        <td className="py-3 px-4">{it.status || "-"}</td>
+                        <td className="py-3 px-4">{it.payer_email || "-"}</td>
+                        <td className="py-3 px-4">{it.external_reference || "-"}</td>
+                        <td className="py-3 px-4">{it.date ? new Date(it.date).toLocaleString() : "-"}</td>
+                        <td className="py-3 px-4">
                           <Button size="sm" onClick={() => reprocessUnified(it)} disabled={uniLoading}>
                             Reprocesar
                           </Button>
@@ -388,13 +394,9 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        
-
-        
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );
