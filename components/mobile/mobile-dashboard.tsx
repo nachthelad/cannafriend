@@ -65,7 +65,7 @@ export function MobileDashboard({
     "nav",
     "reminders",
     "sessions",
-    "analyzePlant",
+    "aiAssistant",
   ]);
   const { roles } = useUserRoles();
   const { isPremium } = usePremium();
@@ -269,7 +269,7 @@ export function MobileDashboard({
                 {isPremium && (
                   <QuickActionButton
                     icon={Brain}
-                    label={t("title", { ns: "analyzePlant" })}
+                    label={t("title", { ns: "aiAssistant" })}
                     href={ROUTE_AI_ASSISTANT}
                     isPremiumFeature
                   />

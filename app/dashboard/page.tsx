@@ -49,7 +49,7 @@ export default function DashboardPage() {
     "journal",
     "nutrients",
     "nav",
-    "analyzePlant",
+    "aiAssistant",
   ]);
   const { roles } = useUserRoles();
   const router = useRouter();
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                     >
                       <Link prefetch href={ROUTE_AI_ASSISTANT}>
                         <Brain className="h-4 w-4 mr-1" />{" "}
-                        {t("title", { ns: "analyzePlant" })}
+                        {t("title", { ns: "aiAssistant" })}
                       </Link>
                     </Button>
                   )}

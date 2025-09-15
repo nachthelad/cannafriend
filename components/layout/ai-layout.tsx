@@ -16,7 +16,7 @@ interface AILayoutProps {
 }
 
 export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
-  const { t } = useTranslation(["nav", "common", "analyzePlant"]);
+  const { t } = useTranslation(["nav", "common", "aiAssistant"]);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -42,7 +42,7 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
         </Button>
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-lg">{t("assistant", { ns: "analyzePlant" })}</span>
+          <span className="font-semibold text-lg">{t("assistant", { ns: "aiAssistant" })}</span>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
           <div className="w-px h-6 bg-border" />
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-lg">{t("assistant", { ns: "analyzePlant" })}</span>
+            <span className="font-semibold text-lg">{t("assistant", { ns: "aiAssistant" })}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">

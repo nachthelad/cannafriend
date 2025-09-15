@@ -6,7 +6,7 @@ import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import Logo from "@/components/common/logo";
 
 export function LandingFooter() {
-  const { t } = useTranslation(["landing", "common", "analyzePlant"]);
+  const { t } = useTranslation(["landing", "common", "aiAssistant"]);
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-border/50">
@@ -34,7 +34,7 @@ export function LandingFooter() {
               <li>{t("features.management.title", { ns: "landing" })}</li>
               <li>{t("features.journal.title", { ns: "landing" })}</li>
               <li>{t("features.gallery.title", { ns: "landing" })}</li>
-              <li>{t("title", { ns: "analyzePlant" })}</li>
+              <li>{t("title", { ns: "aiAssistant" })}</li>
               <li>{t("features.reminders.title", { ns: "landing" })}</li>
             </ul>
           </div>

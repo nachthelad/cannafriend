@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: remove outline variant from buttons and update analytics initialization logic — 2025-09-15
 - [MINOR]: update Content Security Policy and enhance mobile styling for dashboard and plant pages — 2025-09-15
 
 - [MINOR]: improve keyword detection for more intuitive plant conversations — 2025-09-15

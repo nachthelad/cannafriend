@@ -36,7 +36,7 @@ interface UnifiedChatProps {
 }
 
 export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggleSidebar }: UnifiedChatProps) {
-  const { t } = useTranslation(["analyzePlant", "common"]);
+  const { t } = useTranslation(["aiAssistant", "common"]);
   const { toast } = useToast();
   const { user } = useAuthUser();
   const [messages, setMessages] = useState<UnifiedMessage[]>([]);
@@ -132,7 +132,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("error", { ns: "analyzePlant" }),
+        title: t("error", { ns: "aiAssistant" }),
         description: error.message,
       });
     } finally {
@@ -181,7 +181,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
       console.error("Error loading chat session:", error);
       toast({
         variant: "destructive",
-        title: t("error", { ns: "analyzePlant" }),
+        title: t("error", { ns: "aiAssistant" }),
         description: "Failed to load chat session",
       });
     }
@@ -214,7 +214,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
           <div className="flex-1 flex flex-col items-center justify-center p-3 pb-20 md:pb-4">
             <div className="text-center mb-8 text-muted-foreground max-w-md">
               <p className="text-base mb-4">
-                {t("helpText", { ns: "analyzePlant" })}
+                {t("helpText", { ns: "aiAssistant" })}
               </p>
             </div>
 
@@ -397,7 +397,7 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">
-                    {t("uploadPhoto", { ns: "analyzePlant" })}
+                    {t("uploadPhoto", { ns: "aiAssistant" })}
                   </h3>
                   <Button
                     size="icon"
