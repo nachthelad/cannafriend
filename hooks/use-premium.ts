@@ -37,7 +37,11 @@ export function usePremium() {
       try {
         if (user) {
           const token = await user.getIdTokenResult(true);
-          hasClaim = Boolean((token.claims as any)?.premium);
+          const claims = token.claims as any;
+          const boolPremium = Boolean(claims?.premium);
+          const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+          const timePremium = until > Date.now();
+          hasClaim = Boolean(boolPremium || timePremium);
         }
       } catch {}
       localPremium = readLocal();
