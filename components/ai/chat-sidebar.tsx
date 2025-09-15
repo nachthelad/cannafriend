@@ -72,7 +72,7 @@ export function ChatSidebar({
   onNewChat,
   className,
 }: ChatSidebarProps) {
-  const { t } = useTranslation(["analyzePlant", "common"]);
+  const { t } = useTranslation(["aiAssistant", "common"]);
   const { user } = useAuthUser();
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -159,7 +159,7 @@ export function ChatSidebar({
           >
             <SquarePen className="h-4 w-4" />
             <span className="text-sm">
-              {t("newChat", { ns: "analyzePlant" })}
+              {t("newChat", { ns: "aiAssistant" })}
             </span>
           </Button>
         </div>
@@ -187,7 +187,7 @@ export function ChatSidebar({
         ) : chatSessions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
-            <p className="text-xs">{t("noChats", { ns: "analyzePlant" })}</p>
+            <p className="text-xs">{t("noChats", { ns: "aiAssistant" })}</p>
           </div>
         ) : (
           <div className="space-y-1 md:hidden">
@@ -267,7 +267,7 @@ export function ChatSidebar({
                 size="icon"
                 onClick={onToggle}
                 className="h-8 w-8 mx-auto"
-                title={t("chatHistory", { ns: "analyzePlant" })}
+                title={t("chatHistory", { ns: "aiAssistant" })}
               >
                 <MessageSquare className="h-5 w-5" />
               </Button>
@@ -283,7 +283,7 @@ export function ChatSidebar({
               >
                 <SquarePen className="h-4 w-4" />
                 <span className="text-sm">
-                  {t("newChat", { ns: "analyzePlant" })}
+                  {t("newChat", { ns: "aiAssistant" })}
                 </span>
               </Button>
               <Button
@@ -315,7 +315,7 @@ export function ChatSidebar({
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
                 <p className="text-xs">
-                  {t("noChats", { ns: "analyzePlant" })}
+                  {t("noChats", { ns: "aiAssistant" })}
                 </p>
               </div>
             ) : (
@@ -365,7 +365,7 @@ export function ChatSidebar({
               variant="ghost"
               size="icon"
               className="h-10 w-10"
-              title={t("newChat", { ns: "analyzePlant" })}
+              title={t("newChat", { ns: "aiAssistant" })}
             >
               <SquarePen className="h-5 w-5" />
             </Button>

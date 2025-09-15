@@ -31,7 +31,7 @@ export function DesktopLandingView({
   deferredPrompt,
   onInstallPWA,
 }: DesktopLandingViewProps) {
-  const { t } = useTranslation(["common", "nav", "auth", "analyzePlant"]);
+  const { t } = useTranslation(["common", "nav", "auth", "aiAssistant"]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -70,7 +70,7 @@ export function DesktopLandingView({
                 }}
                 className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors cursor-pointer"
               >
-                {t("assistant", { ns: "analyzePlant" })}
+                {t("assistant", { ns: "aiAssistant" })}
               </button>
             </nav>
 

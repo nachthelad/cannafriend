@@ -12,7 +12,7 @@ import { ROUTE_LOGIN } from "@/lib/routes";
 import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
 
 export default function AIAssistantPage() {
-  const { t } = useTranslation(["analyzePlant", "common"]);
+  const { t } = useTranslation(["aiAssistant", "common"]);
   const router = useRouter();
   const { user, isLoading } = useAuthUser();
   const { isPremium } = usePremium();

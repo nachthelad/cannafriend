@@ -53,7 +53,7 @@ export function Layout({ children }: LayoutProps) {
     "common",
     "dashboard",
     "sessions",
-    "analyzePlant",
+    "aiAssistant",
   ]);
   const pathname = usePathname();
   const router = useRouter();
@@ -134,7 +134,7 @@ export function Layout({ children }: LayoutProps) {
     },
     {
       href: ROUTE_AI_ASSISTANT,
-      label: t("assistant", { ns: "analyzePlant" }),
+      label: t("assistant", { ns: "aiAssistant" }),
       icon: Brain,
     },
     {

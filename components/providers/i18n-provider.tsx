@@ -28,8 +28,8 @@ import esNav from "@/lib/locales/es/nav.json";
 import enNav from "@/lib/locales/en/nav.json";
 import esSessions from "@/lib/locales/es/sessions.json";
 import enSessions from "@/lib/locales/en/sessions.json";
-import esAnalyzePlant from "@/lib/locales/es/analyzePlant.json";
-import enAnalyzePlant from "@/lib/locales/en/analyzePlant.json";
+import esAiAssistant from "@/lib/locales/es/aiAssistant.json";
+import enAiAssistant from "@/lib/locales/en/aiAssistant.json";
 import enStash from "@/lib/locales/en/stash.json";
 import esStash from "@/lib/locales/es/stash.json";
 import enLanding from "@/lib/locales/en/landing.json";
@@ -56,7 +56,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       reminders: esReminders,
       nav: esNav,
       sessions: esSessions,
-      analyzePlant: esAnalyzePlant,
+      aiAssistant: esAiAssistant,
       stash: esStash,
       landing: esLanding,
       premium: esPremium,
@@ -73,7 +73,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       reminders: enReminders,
       nav: enNav,
       sessions: enSessions,
-      analyzePlant: enAnalyzePlant,
+      aiAssistant: enAiAssistant,
       stash: enStash,
       landing: enLanding,
       premium: enPremium,
@@ -101,7 +101,7 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       "reminders",
       "nav",
       "sessions",
-      "analyzePlant",
+      "aiAssistant",
       "landing",
       "premium",
     ],
