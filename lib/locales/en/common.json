@@ -314,6 +314,10 @@
     "cancelledDesc": "Your premium subscription has been cancelled successfully",
     "cancelError": "Error cancelling subscription",
     "alreadyCancelled": "You don't have an active subscription to cancel",
-    "mercadopagoNote": "For MercadoPago subscriptions, you can also cancel from your MercadoPago account"
+    "mercadopagoNote": "For MercadoPago subscriptions, you can also cancel from your MercadoPago account",
+    "recurring": "Recurring",
+    "oneTime": "One-time",
+    "expires": "Expires",
+    "lastPayment": "Last payment"
   }
 }

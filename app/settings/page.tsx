@@ -838,22 +838,22 @@ export default function SettingsPage() {
                         <span className="font-medium">{t("status")}:</span>{" "}
                         <span>
                           {subDetails.recurring === true
-                            ? "Recurring"
+                            ? t("subscription.recurring")
                             : subDetails.preapproval_status
                             ? subDetails.preapproval_status
-                            : "One-time"}
+                            : t("subscription.oneTime")}
                         </span>
                       </div>
                       {typeof subDetails.premium_until === "number" && (
                         <div>
-                          <span className="font-medium">Vence:</span>{" "}
+                          <span className="font-medium">{t("subscription.expires")}:</span>{" "}
                           {new Date(subDetails.premium_until).toLocaleString()}
                           {" "}({formatRemaining(subDetails.remaining_ms)})
                         </div>
                       )}
                       {subDetails.last_payment?.date_approved && (
                         <div>
-                          <span className="font-medium">Último pago:</span>{" "}
+                          <span className="font-medium">{t("subscription.lastPayment")}:</span>{" "}
                           {new Date(
                             subDetails.last_payment.date_approved
                           ).toLocaleString()}

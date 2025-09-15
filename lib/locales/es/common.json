@@ -252,6 +252,10 @@
     "cancelledDesc": "Tu suscripción premium ha sido cancelada exitosamente",
     "cancelError": "Error al cancelar",
     "alreadyCancelled": "No tienes una suscripción activa para cancelar",
-    "mercadopagoNote": "Para suscripciones de MercadoPago, también puedes cancelar desde tu cuenta de MercadoPago"
+    "mercadopagoNote": "Para suscripciones de MercadoPago, también puedes cancelar desde tu cuenta de MercadoPago",
+    "recurring": "Recurrente",
+    "oneTime": "Pago único",
+    "expires": "Vence",
+    "lastPayment": "Último pago"
   }
 }
