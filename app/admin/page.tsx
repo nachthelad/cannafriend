@@ -10,8 +10,10 @@ import { Layout } from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MobileAdmin } from "@/components/mobile/mobile-admin";
 import { ADMIN_EMAIL } from "@/lib/constants";
+import { useToast } from "@/hooks/use-toast";
 
 type ListedUser = {
   uid: string;
@@ -28,6 +30,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<ListedUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [sortDir, setSortDir] = useState<"newest" | "oldest">("newest");
+  const { toast } = useToast();
   const isAdmin = useMemo(
     () => (user?.email || "").toLowerCase() === ADMIN_EMAIL,
     [user?.email]
@@ -95,6 +98,63 @@ export default function AdminPage() {
     }
   };
 
+  // MercadoPago unified search (payments + preapprovals)
+  type UnifiedItem = {
+    type: "payment" | "preapproval";
+    id: string;
+    status?: string;
+    payer_email?: string;
+    external_reference?: string;
+    date?: string | null;
+  };
+  const [qEmail, setQEmail] = useState("");
+  const [qUid, setQUid] = useState("");
+  const [qStatus, setQStatus] = useState("");
+  const [qScope, setQScope] = useState<"all" | "payments" | "preapproval">("all");
+  const [uniLoading, setUniLoading] = useState(false);
+  const [uniItems, setUniItems] = useState<UnifiedItem[]>([]);
+
+  const searchUnified = async () => {
+    if (!auth.currentUser) return;
+    setUniLoading(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const params = new URLSearchParams();
+      if (qEmail) params.set("payer_email", qEmail);
+      if (qUid) params.set("external_reference", qUid);
+      if (qStatus) params.set("status", qStatus);
+      if (qScope && qScope !== "all") params.set("scope", qScope);
+      const res = await fetch(`/api/mercadopago/admin/unified-search?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "search_failed");
+      setUniItems((data?.items || []) as UnifiedItem[]);
+      if ((data?.items || []).length === 0) {
+        toast({ title: "Sin resultados", description: "No se encontraron resultados" });
+      }
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e?.message || String(e) });
+    } finally {
+      setUniLoading(false);
+    }
+  };
+
+  const reprocessUnified = async (it: UnifiedItem) => {
+    setUniLoading(true);
+    try {
+      const res = await fetch(`/api/mercadopago/webhook?type=${encodeURIComponent(it.type)}&id=${encodeURIComponent(it.id)}`);
+      const data = await res.json();
+      if (!res.ok || data?.error) throw new Error(data?.error || "reprocess_failed");
+      toast({ title: "Reprocesado", description: `premium: ${data?.premium ? "true" : "false"}` });
+      await fetchUsers();
+    } catch (e: any) {
+      toast({ variant: "destructive", title: "Error", description: e?.message || String(e) });
+    } finally {
+      setUniLoading(false);
+    }
+  };
+
   if (isLoading || !isAdmin) {
     return null;
   }
@@ -111,13 +171,68 @@ export default function AdminPage() {
           fetchUsers={fetchUsers}
           togglePremium={togglePremium}
         />
+
+        {/* MP Search (Mobile) */}
+        <div className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>MercadoPago - Buscar suscripción</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <Input
+                  placeholder="Email del pagador"
+                  value={qEmail}
+                  onChange={(e) => setQEmail(e.target.value)}
+                />
+                <Input
+                  placeholder="UID (external_reference)"
+                  value={qUid}
+                  onChange={(e) => setQUid(e.target.value)}
+                />
+                <select
+                  className="border rounded px-2 py-2 text-sm w-full bg-background"
+                  value={qStatus}
+                  onChange={(e) => setQStatus(e.target.value)}
+                >
+                  <option value="">Estado (cualquiera)</option>
+                  <option value="authorized">authorized</option>
+                  <option value="active">active</option>
+                  <option value="paused">paused</option>
+                  <option value="cancelled">cancelled</option>
+                </select>
+                <Button onClick={searchUnified} disabled={uniLoading} className="w-full">
+                  {uniLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+
+              {uniItems.length > 0 && (
+                <div className="space-y-2">
+                  {uniItems.map((it) => (
+                    <div key={it.id} className="border rounded p-2">
+                      <div className="text-xs text-muted-foreground">ID: {it.id}</div>
+                      <div className="text-sm">Estado: {it.status || "-"}</div>
+                      <div className="text-xs">Email: {it.payer_email || "-"}</div>
+                      <div className="text-xs">UID: {it.external_reference || "-"}</div>
+                      <div className="mt-2 flex gap-2">
+                        <Button size="sm" onClick={() => reprocessUnified(it)} disabled={uniLoading}>
+                          Reprocesar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Desktop Layout - only show on desktop */}
       <div className="hidden md:block mx-auto max-w-5xl w-full p-4">
         <Card>
           <CardHeader>
-            <CardTitle>Admin – Users</CardTitle>
+            <CardTitle>Admin - Users</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-4 gap-4">
@@ -182,6 +297,104 @@ export default function AdminPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* MercadoPago - Búsqueda unificada */}
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>MercadoPago - Búsqueda unificada</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-end gap-2 mb-4">
+              <div className="flex-1 min-w-[220px]">
+                <label className="text-xs text-muted-foreground">Email</label>
+                <Input
+                  placeholder="payer_email"
+                  value={qEmail}
+                  onChange={(e) => setQEmail(e.target.value)}
+                />
+              </div>
+              <div className="flex-1 min-w-[220px]">
+                <label className="text-xs text-muted-foreground">UID (external_reference)</label>
+                <Input
+                  placeholder="uid"
+                  value={qUid}
+                  onChange={(e) => setQUid(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Estado</label>
+                <select
+                  className="border rounded px-2 py-2 text-sm w-full bg-background"
+                  value={qStatus}
+                  onChange={(e) => setQStatus(e.target.value)}
+                >
+                  <option value="">(cualquiera)</option>
+                  <option value="approved">approved</option>
+                  <option value="authorized">authorized</option>
+                  <option value="active">active</option>
+                  <option value="paused">paused</option>
+                  <option value="cancelled">cancelled</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Fuente</label>
+                <select
+                  className="border rounded px-2 py-2 text-sm w-full bg-background"
+                  value={qScope}
+                  onChange={(e) => setQScope(e.target.value as any)}
+                >
+                  <option value="all">Todos</option>
+                  <option value="payments">Pagos</option>
+                  <option value="preapproval">Suscripciones</option>
+                </select>
+              </div>
+              <div>
+                <Button onClick={searchUnified} disabled={uniLoading}>
+                  {uniLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+            </div>
+
+            {uniItems.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left border-b">
+                      <th className="py-2 pr-4">Tipo</th>
+                      <th className="py-2 pr-4">ID</th>
+                      <th className="py-2 pr-4">Estado</th>
+                      <th className="py-2 pr-4">Email</th>
+                      <th className="py-2 pr-4">UID</th>
+                      <th className="py-2 pr-4">Fecha</th>
+                      <th className="py-2">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uniItems.map((it) => (
+                      <tr key={`${it.type}:${it.id}`} className="border-b last:border-0">
+                        <td className="py-2 pr-4">{it.type}</td>
+                        <td className="py-2 pr-4 font-mono text-xs">{it.id}</td>
+                        <td className="py-2 pr-4">{it.status || "-"}</td>
+                        <td className="py-2 pr-4">{it.payer_email || "-"}</td>
+                        <td className="py-2 pr-4">{it.external_reference || "-"}</td>
+                        <td className="py-2 pr-4">{it.date ? new Date(it.date).toLocaleString() : "-"}</td>
+                        <td className="py-2">
+                          <Button size="sm" onClick={() => reprocessUnified(it)} disabled={uniLoading}>
+                            Reprocesar
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        
+
+        
       </div>
     </Layout>
   );

@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Crown, CreditCard, Banknote } from "lucide-react";
 
@@ -25,6 +25,29 @@ export default function PremiumPage() {
   const { user } = useAuthUser();
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
+
+  // After returning from MercadoPago, force-sync custom claims and refresh token
+  useEffect(() => {
+    const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const status = search?.get("status");
+    if (status === "completed" && user) {
+      (async () => {
+        try {
+          const token = await user.getIdToken();
+          await fetch("/api/mercadopago/sync-claims", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          // Force refresh local token to pick up latest claims
+          await user.getIdToken(true);
+        } catch {
+          // no-op; hook will eventually pick up claim via normal refresh
+        }
+      })();
+    }
+  }, [user]);
 
   const handleStripePayment = async () => {
     if (!user) return;

@@ -29,6 +29,26 @@ Your complete cannabis cultivation companion. A modern PWA designed for growers 
 - **Dynamic Language Switching**: Seamless experience in both Spanish and English
 
 #### 📱 Premium Features
+
+### Payments & Premium (Stripe / MercadoPago)
+
+- Premium access is controlled via Firebase custom claims.
+- Automatic granting via webhooks:
+  - Stripe: `app/api/stripe/webhook/route.ts` marks `premium: true` for active subscriptions; revokes on cancellation.
+  - MercadoPago: `app/api/mercadopago/webhook/route.ts` supports both:
+    - `payment`/`authorized_payment` approved → grants premium and sets `premium_until` ≈ 31 days.
+    - `preapproval` active/authorized → grants premium. Cancelled/paused does not auto‑revoke; access expires by `premium_until` or admin toggle.
+- Client reads premium via `hooks/use-premium.ts` (checks `premium` or `premium_until > now`).
+- After returning from MercadoPago, `/premium?status=completed` triggers claim sync and token refresh.
+
+Configuration
+- Env var: `MERCADOPAGO_ACCESS_TOKEN` (production token APP_USR‑…)
+- Webhook URL (MercadoPago): `https://www.cannafriend.app/api/mercadopago/webhook`
+- For Stripe, configure your webhook secret and price ID per your account.
+
+Admin Tools
+- Unified search at `/admin` lets you search MercadoPago payments and subscriptions by email or UID (`external_reference`), view status/date, and Reprocess to grant premium if appropriate.
+
 
 - **AI Access Control**: Advanced AI features available for authorized users
 - **Enhanced Dashboard**: Premium users get additional insights and features

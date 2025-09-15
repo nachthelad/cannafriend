@@ -39,15 +39,22 @@ export async function GET(req: NextRequest) {
 
   try {
     const list = await adminAuth().listUsers(1000);
-    const users = list.users.map((u: AdminUserSource) => ({
-      uid: u.uid,
-      email: u.email,
-      displayName: u.displayName,
-      premium: Boolean((u.customClaims as any)?.premium),
-      createdAt: u.metadata?.creationTime
-        ? new Date(u.metadata.creationTime).getTime()
-        : 0,
-    }));
+    const now = Date.now();
+    const users = list.users.map((u: AdminUserSource) => {
+      const claims = (u.customClaims as any) || {};
+      const boolPremium = Boolean(claims?.premium);
+      const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+      const timePremium = until > now;
+      return {
+        uid: u.uid,
+        email: u.email ?? null,
+        displayName: u.displayName ?? null,
+        premium: Boolean(boolPremium || timePremium),
+        createdAt: u.metadata?.creationTime
+          ? new Date(u.metadata.creationTime).getTime()
+          : 0,
+      };
+    });
     return NextResponse.json({ users });
   } catch (err: unknown) {
     return NextResponse.json(
@@ -72,6 +79,10 @@ export async function PATCH(req: NextRequest) {
     const user = await adminAuth().getUser(body.uid);
     const claims = { ...(user.customClaims || {}) } as Record<string, unknown>;
     claims.premium = body.premium;
+    if (!body.premium) {
+      // Clear time-based premium if admin revokes
+      delete (claims as any).premium_until;
+    }
     await adminAuth().setCustomUserClaims(body.uid, claims);
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
