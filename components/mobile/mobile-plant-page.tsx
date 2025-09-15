@@ -202,76 +202,78 @@ export function MobilePlantPage({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="bg-slate-800 border-slate-700"
+                className="bg-popover border-border"
               >
                 {onAddPhoto && (
                   <DropdownMenuItem
                     onClick={() => onAddPhoto(plant)}
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-popover-foreground hover:bg-accent"
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     {t("photos.addPhotos", { ns: "plants" })}
                   </DropdownMenuItem>
                 )}
-                {onSetCoverPhoto && allImages.length > 0 && allImages[currentImageIndex] !== plant.coverPhoto && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        onSelect={(e) => e.preventDefault()}
-                        className="text-yellow-400 hover:bg-slate-700 hover:text-yellow-300"
-                      >
-                        <Star className="h-4 w-4 mr-2" />
-                        {t("photos.setAsCover", { ns: "plants" })}
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-slate-200">
-                          {t("photos.setCoverConfirmTitle", { ns: "plants" })}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                          {t("photos.setCoverConfirmDesc", { ns: "plants" })}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
-                          {t("cancel", { ns: "common" })}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            onSetCoverPhoto(allImages[currentImageIndex]);
-                            setMenuOpen(false);
-                          }}
-                          className="bg-yellow-600 text-white hover:bg-yellow-700"
+                {onSetCoverPhoto &&
+                  allImages.length > 0 &&
+                  allImages[currentImageIndex] !== plant.coverPhoto && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-yellow-400 hover:bg-accent hover:text-yellow-300"
                         >
+                          <Star className="h-4 w-4 mr-2" />
                           {t("photos.setAsCover", { ns: "plants" })}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-popover border-border">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-popover-foreground">
+                            {t("photos.setCoverConfirmTitle", { ns: "plants" })}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-muted-foreground">
+                            {t("photos.setCoverConfirmDesc", { ns: "plants" })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-accent text-accent-foreground hover:bg-muted">
+                            {t("cancel", { ns: "common" })}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              onSetCoverPhoto(allImages[currentImageIndex]);
+                              setMenuOpen(false);
+                            }}
+                            className="bg-yellow-600 text-white hover:bg-yellow-700"
+                          >
+                            {t("photos.setAsCover", { ns: "plants" })}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 {onRemovePhoto && allImages.length > 0 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <DropdownMenuItem
                         onSelect={(e) => e.preventDefault()}
-                        className="text-red-400 hover:bg-slate-700 hover:text-red-300"
+                        className="text-red-400 hover:bg-accent hover:text-red-300"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         {t("photos.deletePhoto", { ns: "plants" })}
                       </DropdownMenuItem>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
+                    <AlertDialogContent className="bg-popover border-border">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-slate-200">
+                        <AlertDialogTitle className="text-popover-foreground">
                           {t("photos.removeConfirmTitle", { ns: "plants" })}
                         </AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
+                        <AlertDialogDescription className="text-muted-foreground">
                           {t("photos.removeConfirmDesc", { ns: "plants" })}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                        <AlertDialogCancel className="bg-accent text-accent-foreground hover:bg-muted">
                           {t("cancel", { ns: "common" })}
                         </AlertDialogCancel>
                         <AlertDialogAction
@@ -383,7 +385,7 @@ export function MobilePlantPage({
 
             {/* Lighting Row */}
             <div className="space-y-2">
-              <div className="text-xs text-slate-400 font-medium uppercase">
+              <div className="text-xs text-muted-foreground font-medium uppercase">
                 {t("plantPage.lighting", { ns: "plants" })}
               </div>
               <div className="flex items-center space-x-2">
@@ -396,7 +398,7 @@ export function MobilePlantPage({
 
             {/* Nutrients Row */}
             <div className="space-y-2">
-              <div className="text-xs text-slate-400 font-medium uppercase">
+              <div className="text-xs text-muted-foreground font-medium uppercase">
                 {t("plantPage.nutrients", { ns: "plants" })}
               </div>
               <div className="space-y-2">
@@ -415,7 +417,7 @@ export function MobilePlantPage({
             {/* pH Row */}
             {lastEnvironment?.ph !== undefined && (
               <div className="space-y-2">
-                <div className="text-xs text-slate-400 font-medium uppercase">
+                <div className="text-xs text-muted-foreground font-medium uppercase">
                   {t("plantPage.ph", { ns: "plants" })}
                 </div>
                 <div className="flex items-center space-x-2">
@@ -432,9 +434,8 @@ export function MobilePlantPage({
         {/* Quick Actions */}
         <div className="flex items-center justify-center space-x-4 pt-4">
           <Button
-            variant="outline"
             size="sm"
-            className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 flex-1 h-12"
+            className="border-border hover:bg-accent flex-1 h-12"
             onClick={() => router.push(`/plants/${plant.id}/logs`)}
           >
             <FileText className="h-4 w-4 mr-2" />
@@ -452,7 +453,7 @@ export function MobilePlantPage({
         {/* Plant Info */}
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {t("plantPage.seedType", { ns: "plants" })}
             </span>
             <div className="text-white font-medium">
@@ -474,16 +475,16 @@ export function MobilePlantPage({
                       : t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-popover border-border">
                   <SelectItem
                     value="autoflowering"
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-popover-foreground hover:bg-accent"
                   >
                     {t("seedType.autoflowering", { ns: "plants" })}
                   </SelectItem>
                   <SelectItem
                     value="photoperiodic"
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-popover-foreground hover:bg-accent"
                   >
                     {t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectItem>
@@ -492,7 +493,7 @@ export function MobilePlantPage({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {t("plantPage.growType", { ns: "plants" })}
             </span>
             <div className="text-white font-medium">
@@ -512,16 +513,16 @@ export function MobilePlantPage({
                       : t("growType.outdoor", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectContent className="bg-popover border-border">
                   <SelectItem
                     value="indoor"
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-popover-foreground hover:bg-accent"
                   >
                     {t("growType.indoor", { ns: "plants" })}
                   </SelectItem>
                   <SelectItem
                     value="outdoor"
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-popover-foreground hover:bg-accent"
                   >
                     {t("growType.outdoor", { ns: "plants" })}
                   </SelectItem>
@@ -530,7 +531,7 @@ export function MobilePlantPage({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {t("plantPage.seedBank", { ns: "plants" })}
             </span>
             <div className="text-white font-medium flex-1 text-right">
@@ -584,17 +585,17 @@ export function MobilePlantPage({
                     <Trash2 className="h-5 w-5 text-white" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-slate-800 border-slate-700">
+                <AlertDialogContent className="bg-popover border-border">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-slate-200">
+                    <AlertDialogTitle className="text-popover-foreground">
                       {t("photos.removeConfirmTitle", { ns: "plants" })}
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="text-slate-400">
+                    <AlertDialogDescription className="text-muted-foreground">
                       {t("photos.removeConfirmDesc", { ns: "plants" })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                    <AlertDialogCancel className="bg-accent text-accent-foreground hover:bg-muted">
                       {t("cancel", { ns: "common" })}
                     </AlertDialogCancel>
                     <AlertDialogAction

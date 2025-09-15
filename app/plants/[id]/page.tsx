@@ -320,7 +320,7 @@ export default function PlantPage({
     const isRemovingCover = photoToRemove === plant?.coverPhoto;
 
     try {
-      let newPhotos = photos.filter(p => p !== photoToRemove);
+      let newPhotos = photos.filter((p) => p !== photoToRemove);
       let newCoverPhoto = plant?.coverPhoto;
 
       // If removing cover photo, set new cover
@@ -331,7 +331,7 @@ export default function PlantPage({
       // Update the document
       await updateDoc(plantDocRef(userId, id), {
         photos: newPhotos,
-        ...(isRemovingCover && { coverPhoto: newCoverPhoto })
+        ...(isRemovingCover && { coverPhoto: newCoverPhoto }),
       });
 
       // Update local state
@@ -343,11 +343,15 @@ export default function PlantPage({
       }
 
       // Update plant state
-      setPlant(prev => prev ? {
-        ...prev,
-        photos: newPhotos,
-        coverPhoto: newCoverPhoto
-      } : null);
+      setPlant((prev) =>
+        prev
+          ? {
+              ...prev,
+              photos: newPhotos,
+              coverPhoto: newCoverPhoto,
+            }
+          : null
+      );
 
       toast({
         title: t("photos.removeSuccess", { ns: "plants" }),
@@ -358,7 +362,6 @@ export default function PlantPage({
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -376,7 +379,7 @@ export default function PlantPage({
       });
       setCoverPhoto(photoUrl);
       setSelectedPhoto(photoUrl);
-      setPlant(prev => prev ? { ...prev, coverPhoto: photoUrl } : null);
+      setPlant((prev) => (prev ? { ...prev, coverPhoto: photoUrl } : null));
       toast({
         title: t("photos.coverPhotoSet", { ns: "plants" }),
         description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
@@ -406,7 +409,6 @@ export default function PlantPage({
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -556,11 +558,7 @@ export default function PlantPage({
                   ? t("photos.photo", { ns: "plants" })
                   : t("photos.photos", { ns: "plants" })}
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowUpload(true)}
-              >
+              <Button size="sm" onClick={() => setShowUpload(true)}>
                 <Plus className="mr-2 h-4 w-4" />{" "}
                 {t("photos.addPhotos", { ns: "plants" })}
               </Button>

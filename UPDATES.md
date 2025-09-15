@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: updated mobile photo deletion and cover photo seletion — 2025-09-15
 - [MINOR]: improve keyword detection for more intuitive plant conversations — 2025-09-15
 
 - [MINOR]: enhance admin page with UID copy functionality and layout improvements — 2025-09-15

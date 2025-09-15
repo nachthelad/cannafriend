@@ -207,7 +207,7 @@ export function MobileDashboard({
           value={plants.length}
           href={ROUTE_PLANTS}
           color="text-green-600"
-          bgColor="bg-green-50 dark:bg-green-950/20"
+          bgColor="bg-green-50 dark:bg-green-900/50"
         />
         <StatCard
           icon={Calendar}
@@ -215,7 +215,7 @@ export function MobileDashboard({
           value={recentLogs.length}
           href={ROUTE_JOURNAL}
           color="text-blue-600"
-          bgColor="bg-blue-50 dark:bg-blue-950/20"
+          bgColor="bg-blue-50 dark:bg-blue-900/50"
         />
         {roles?.grower && (
           <StatCard
@@ -224,7 +224,7 @@ export function MobileDashboard({
             value={nutrientMixesCount}
             href={ROUTE_NUTRIENTS}
             color="text-purple-600"
-            bgColor="bg-purple-50 dark:bg-purple-950/20"
+            bgColor="bg-purple-50 dark:bg-purple-900/50"
           />
         )}
         <StatCard
@@ -232,7 +232,7 @@ export function MobileDashboard({
           label={t("growth", { ns: "dashboard" })}
           value={t("active", { ns: "dashboard" })}
           color="text-emerald-600"
-          bgColor="bg-emerald-50 dark:bg-emerald-950/20"
+          bgColor="bg-emerald-50 dark:bg-emerald-900/50"
         />
       </div>
 

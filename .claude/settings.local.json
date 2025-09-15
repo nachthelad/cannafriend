@@ -15,7 +15,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm run build:*)",
       "Bash(git checkout:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
