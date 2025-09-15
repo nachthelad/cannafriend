@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: show premium subscription details with remaining time and recurring status; add MP subscription-status API; unify admin search; docs updated; build ok — 2025-09-15
 - [MID]: MP premium auto-grant + unified admin search; docs and build verified — 2025-09-15
 - [MID]: enhance admin page with unified MercadoPago search functionality — 2025-09-15
 - [MID]: enhance AI assistant layout and chat functionality — 2025-09-15
