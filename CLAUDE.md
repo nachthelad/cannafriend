@@ -433,11 +433,67 @@ When adding constants that need to be accessed by both client and server code:
 - Default values and limits
 - Email addresses and identifiers
 
+### ✅ AI Assistant Context Improvements (Sept 2025)
+
+**Issue Addressed**: AI assistant rejecting valid cannabis-related questions due to insufficient keyword detection and lack of conversation context awareness.
+
+**Problem**:
+- AI would reject questions like "la planta está caída, fertilizante Mantra Nitro" despite being clearly cannabis-related
+- After establishing cannabis context, subsequent plant questions (temperature, humidity, watering) were rejected
+- Only ~25 keywords were recognized, missing common plant care terms
+
+**Solution Implemented**: **Enhanced Keyword Detection & Context Awareness**
+
+**Changes Made**:
+1. **Expanded keywords**: From 25 to 300+ terms including environment, nutrients, problems, equipment
+2. **Context memory**: If "cannabis"/"cultivo" mentioned anywhere in conversation, plant terms become valid
+3. **Specific brands**: Added "mantra", "nitro", "monstruoso" and other fertilizer names
+4. **Environmental terms**: "temperatura", "humedad", "indoor", "grados", "celsius"
+
+**Files Updated**:
+- **Modified**: `app/api/unified-chat/route.ts` - Enhanced `isCannabisRelated()` and added `isContextuallyOnTopic()`
+
 ### Current Priorities (Next Tasks)
 
 1. **Standardize mobile headers** - Apply consistent header pattern to remaining pages
 2. **Move shared constants** - Identify and move other constants from server-only locations
 3. **Address ESLint warnings** - Gradually fix the 240+ identified warnings
+
+## Commit Naming Conventions
+
+**IMPORTANT: When suggesting commit names, consider the actual impact and user experience, not just code changes.**
+
+### Commit Type Guidelines:
+
+- **`fix(component)`** - Solves existing user experience issues, bugs, or problems
+  - Use when: Users report something not working as expected
+  - Example: AI rejecting valid questions, translations not showing, forms failing
+
+- **`feat(component)`** - Adds completely new functionality or major features
+  - Use when: Adding new pages, new user-facing features, new integrations
+  - Avoid for: Improvements to existing functionality
+
+- **`enhance(component)`** - Improves existing functionality without fixing bugs
+  - Use when: Performance improvements, better UX for working features
+
+- **`chore(component)`** - Internal improvements with no user-facing impact
+  - Use when: Code refactoring, dependency updates, build improvements
+
+### Examples from Recent Work:
+
+✅ **Correct**: `fix(ai): improve keyword detection for more intuitive plant conversations`
+- Reason: Solves user problem where AI rejected valid questions
+
+❌ **Incorrect**: `feat(ai): enhance keyword detection and context awareness`
+- Reason: This fixes an existing issue, doesn't add new functionality
+
+✅ **Correct**: `fix(forms): consolidate journal entry creation to single form`
+- Reason: Fixes duplicate forms causing inconsistent UX
+
+✅ **Correct**: `feat(admin): add unified MercadoPago search functionality`
+- Reason: Completely new admin feature
+
+**Philosophy**: Think about the user experience impact, not the technical implementation. If it solves a problem users were having, it's a `fix`.
 
 ## Common Issues & Solutions
 

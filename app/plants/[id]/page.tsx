@@ -18,7 +18,11 @@ import { useTranslation } from "react-i18next";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import {
+  ROUTE_LOGIN,
+  ROUTE_PLANTS,
+  resolveHomePathForRoles,
+} from "@/lib/routes";
 import { plantDoc as plantDocRef, logsCol } from "@/lib/paths";
 import {
   doc,
@@ -90,16 +94,20 @@ export default function PlantPage({
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [environmentData, setEnvironmentData] = useState<EnvironmentData[]>([]);
 
-  // Get latest environment data as a LogEntry-like object for mobile components
-  const lastEnvironment =
-    environmentData.length > 0
-      ? ({
-          temperature: environmentData[0].temperature,
-          humidity: environmentData[0].humidity,
-          ph: environmentData[0].ph,
-          date: environmentData[0].date,
-        } as LogEntry)
-      : undefined;
+  // Get latest environment data from journal logs (not deleted)
+  const getLastEnvironmentFromLogs = (logsData: LogEntry[]) => {
+    const environmentLogs = logsData.filter(
+      (log) =>
+        log.type === "environment" &&
+        log.temperature != null &&
+        log.humidity != null
+    );
+    return environmentLogs.length > 0 ? environmentLogs[0] : undefined;
+  };
+
+  const [lastEnvironmentFromLogs, setLastEnvironmentFromLogs] = useState<
+    LogEntry | undefined
+  >();
   const [photos, setPhotos] = useState<string[]>([]);
   const [coverPhoto, setCoverPhoto] = useState<string>("");
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
@@ -113,7 +121,7 @@ export default function PlantPage({
   const userId = user?.uid ?? null;
   const [isDeleting, setIsDeleting] = useState(false);
   const handleBack = () => {
-    router.back();
+    router.push(ROUTE_PLANTS);
   };
   const recomputeLasts = (logsData: LogEntry[]) => {
     const wateringLogs = logsData.filter((log) => log.type === "watering");
@@ -164,6 +172,9 @@ export default function PlantPage({
         setLogs(logsData);
 
         recomputeLasts(logsData);
+
+        // Update environment data from logs
+        setLastEnvironmentFromLogs(getLastEnvironmentFromLogs(logsData));
 
         // Fetch environment data
         const envRef = collection(
@@ -282,6 +293,7 @@ export default function PlantPage({
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
       recomputeLasts(updated);
+      setLastEnvironmentFromLogs(getLastEnvironmentFromLogs(updated));
       toast({
         title: t("journal.deleted"),
         description: t("journal.deletedDesc"),
@@ -297,21 +309,82 @@ export default function PlantPage({
 
   const handleRemovePhoto = async (index: number) => {
     if (!userId) return;
-    const newPhotos = photos.filter((_, i) => i !== index);
+
+    // Get all available images (same logic as mobile component)
+    const allImages = [
+      ...(plant?.coverPhoto ? [plant.coverPhoto] : []),
+      ...(photos || []),
+    ].filter((img, i, arr) => arr.indexOf(img) === i);
+
+    const photoToRemove = allImages[index];
+    const isRemovingCover = photoToRemove === plant?.coverPhoto;
+
     try {
-      await updateDoc(plantDocRef(userId, id), { photos: newPhotos });
-      setPhotos(newPhotos);
-      if (selectedPhoto === photos[index]) {
-        setSelectedPhoto(newPhotos[0] || coverPhoto || "");
+      let newPhotos = photos.filter(p => p !== photoToRemove);
+      let newCoverPhoto = plant?.coverPhoto;
+
+      // If removing cover photo, set new cover
+      if (isRemovingCover) {
+        newCoverPhoto = newPhotos[0] || "";
       }
+
+      // Update the document
+      await updateDoc(plantDocRef(userId, id), {
+        photos: newPhotos,
+        ...(isRemovingCover && { coverPhoto: newCoverPhoto })
+      });
+
+      // Update local state
+      setPhotos(newPhotos);
+      setCoverPhoto(newCoverPhoto || "");
+
+      if (selectedPhoto === photoToRemove) {
+        setSelectedPhoto(newCoverPhoto || newPhotos[0] || "");
+      }
+
+      // Update plant state
+      setPlant(prev => prev ? {
+        ...prev,
+        photos: newPhotos,
+        coverPhoto: newCoverPhoto
+      } : null);
+
       toast({
         title: t("photos.removeSuccess", { ns: "plants" }),
         description: t("photos.photoRemoved", { ns: "plants" }),
       });
+
+      // Refresh page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: t("photos.removeError", { ns: "plants" }),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleSetCoverPhoto = async (photoUrl: string) => {
+    if (!userId) return;
+    try {
+      await updateDoc(plantDocRef(userId, id), {
+        coverPhoto: photoUrl,
+      });
+      setCoverPhoto(photoUrl);
+      setSelectedPhoto(photoUrl);
+      setPlant(prev => prev ? { ...prev, coverPhoto: photoUrl } : null);
+      toast({
+        title: t("photos.coverPhotoSet", { ns: "plants" }),
+        description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("photos.coverPhotoError", { ns: "plants" }),
         description: error.message,
       });
     }
@@ -328,6 +401,12 @@ export default function PlantPage({
         title: t("photos.uploadSuccess", { ns: "plants" }),
         description: t("photos.photosUpdated", { ns: "plants" }),
       });
+
+      // Refresh page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -367,8 +446,10 @@ export default function PlantPage({
           lastWatering={lastWatering || undefined}
           lastFeeding={lastFeeding || undefined}
           lastTraining={lastTraining || undefined}
-          lastEnvironment={lastEnvironment}
+          lastEnvironment={lastEnvironmentFromLogs}
           onAddPhoto={() => setShowUpload(true)}
+          onRemovePhoto={handleRemovePhoto}
+          onSetCoverPhoto={handleSetCoverPhoto}
           onUpdate={(patch) =>
             setPlant((prev) => (prev ? { ...prev, ...patch } : null))
           }
@@ -407,7 +488,11 @@ export default function PlantPage({
               <Button
                 size="icon"
                 aria-label="Add log"
-                onClick={() => router.push(`${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`)}
+                onClick={() =>
+                  router.push(
+                    `${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`
+                  )
+                }
               >
                 <Plus className="h-5 w-5" />
               </Button>
@@ -424,14 +509,16 @@ export default function PlantPage({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>{t("plant.deleteTitle")}</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {t("plant.deleteTitle")}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
                       {t("plant.deleteDesc")}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel disabled={isDeleting}>
-                      {t("common.cancel")}
+                      {t("cancel", { ns: "settings" })}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeletePlant}
@@ -654,7 +741,9 @@ export default function PlantPage({
             <Button
               size="icon"
               aria-label="Add log"
-              onClick={() => router.push(`${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`)}
+              onClick={() =>
+                router.push(`${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`)
+              }
             >
               <Plus className="h-5 w-5" />
             </Button>
