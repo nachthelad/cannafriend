@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: MP premium auto-grant + unified admin search; docs and build verified — 2025-09-15
+- [MID]: enhance admin page with unified MercadoPago search functionality — 2025-09-15
 - [MID]: enhance AI assistant layout and chat functionality — 2025-09-15
 - [MID]: add version bump scripts to package.json for automated versioning — 2025-09-13
 - [MINOR]: [MINOR]: update UPDATES.md to reflect recent changes in AGENTS.md and logging system — 2025-09-12 — 2025-09-12
