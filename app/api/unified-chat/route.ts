@@ -102,16 +102,46 @@ export async function POST(req: NextRequest) {
     const isCannabisRelated = (text: string) => {
       const t = (text || "").toLowerCase();
       const kw = [
-        // ES
-        "cannabis", "marihuana", "marihuanna", "hierba", "porro", "porros", "fumada", "vapeo", "vaporizador", "cacho", "cogollo", "flor", "resina", "hachis", "cultivo", "plantas", "planta",
+        // ES - Cannabis terms
+        "cannabis", "marihuana", "marihuanna", "hierba", "porro", "porros", "fumada", "vapeo", "vaporizador", "cacho", "cogollo", "flor", "resina", "hachis",
+        // ES - Growing terms
+        "cultivo", "plantas", "planta", "cultivar", "crecer", "crecimiento", "jardin", "indoor", "exterior", "maceta", "tierra", "suelo",
         "indica", "sativa", "hibrida", "cep", "cepa", "semillas", "germinacion", "vegetativa", "floracion", "cosecha", "curado", "secado",
-        "thc", "cbd", "terpenos", "dosificacion", "dose", "dosis", "consumo", "tolerancia", "tolerancia",
-        "riego", "sustrato", "ph", "ec", "nutrientes", "abono", "fertilizante", "luz", "led", "ppm", "plaga", "deficiencia",
-        // EN
-        "weed", "marijuana", "hemp", "joint", "bong", "vape", "strain", "flower", "nug", "bud",
-        "grow", "growing", "cultivation", "seed", "germination", "veg", "flowering", "harvest", "dry", "cure",
-        "thc", "cbd", "terpene", "dose", "dosage", "consumption", "tolerance",
-        "watering", "substrate", "soil", "coco", "ph", "ec", "nutrient", "fertilizer", "light", "led", "ppm", "pest", "deficiency"
+        // ES - Nutrients & care
+        "riego", "regar", "agua", "sustrato", "ph", "ec", "nutrientes", "abono", "fertilizante", "fertilizantes", "nitrogeno", "fosforo", "potasio",
+        "mantra", "nitroso", "monstruoso", "bio", "organico", "quimico", "liquido", "solido", "foliar",
+        // ES - Environment & conditions
+        "luz", "led", "temperatura", "humedad", "ventilacion", "aire", "clima", "ambiente", "grados", "celsius", "calor", "frio",
+        "ppm", "tds", "conductividad", "medidor", "sensor", "termometro", "higrometro",
+        // ES - Problems & solutions
+        "plaga", "plagas", "insecto", "insectos", "hongos", "hongo", "deficiencia", "carencia", "exceso", "quemadura", "amarilla", "marchita", "caida", "seca", "problema", "enfermedad",
+        // ES - General plant terms
+        "hojas", "hoja", "tallo", "raiz", "raices", "ramas", "rama", "brote", "brotes", "yema", "yemas",
+        // ES - Consumption
+        "thc", "cbd", "terpenos", "dosificacion", "dose", "dosis", "consumo", "tolerancia", "efecto", "efectos",
+        // ES - Equipment
+        "indoor", "outdoor", "carpa", "reflector", "extractor", "intractor", "timer", "temporizador", "macetas", "contenedor",
+
+        // EN - Cannabis terms
+        "weed", "marijuana", "hemp", "joint", "bong", "vape", "strain", "flower", "nug", "bud", "ganja", "pot",
+        // EN - Growing terms
+        "grow", "growing", "cultivation", "plant", "plants", "garden", "indoor", "outdoor", "pot", "container", "soil", "dirt",
+        "seed", "seeds", "germination", "veg", "vegetative", "flowering", "bloom", "harvest", "dry", "cure", "trim",
+        // EN - Nutrients & care
+        "watering", "water", "feeding", "feed", "substrate", "medium", "coco", "perlite", "vermiculite",
+        "ph", "ec", "ppm", "tds", "nutrient", "nutrients", "fertilizer", "nitrogen", "phosphorus", "potassium", "npk",
+        "organic", "synthetic", "liquid", "powder", "foliar", "supplement",
+        // EN - Environment & conditions
+        "light", "lights", "led", "hps", "cfl", "temperature", "humidity", "ventilation", "airflow", "climate", "environment",
+        "degrees", "celsius", "fahrenheit", "hot", "cold", "warm", "cool", "rh", "vpd",
+        // EN - Problems & solutions
+        "pest", "pests", "bug", "bugs", "mold", "mildew", "fungus", "deficiency", "toxicity", "burn", "yellow", "yellowing", "wilting", "drooping", "problem", "issue",
+        // EN - General plant terms
+        "leaves", "leaf", "stem", "stems", "root", "roots", "branch", "branches", "node", "nodes", "shoot", "shoots",
+        // EN - Consumption
+        "thc", "cbd", "terpene", "terpenes", "dose", "dosage", "consumption", "tolerance", "effect", "effects", "high",
+        // EN - Equipment
+        "tent", "reflector", "fan", "exhaust", "intake", "timer", "meter", "monitor", "hygrometer", "thermometer"
       ];
       return kw.some((k) => t.includes(k));
     };
@@ -168,7 +198,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const onTopic = (!latestHasImages && isCannabisRelated(latestMessage.content || "")) || (latestHasImages && imagesLookOnTopic);
+    // Enhanced context detection - check multiple messages for context
+    const isContextuallyOnTopic = (messages: ChatRequest["messages"]) => {
+      // If any message in the conversation mentioned cannabis explicitly, consider subsequent messages on-topic
+      const hasExplicitCannabisContext = messages.some(msg => {
+        const t = (msg.content || "").toLowerCase();
+        return ["cannabis", "marihuana", "marihuanna", "hierba", "weed", "marijuana", "cultivo", "grow", "growing"].some(k => t.includes(k));
+      });
+
+      // If we have cannabis context and current message has plant-related terms, it's on-topic
+      if (hasExplicitCannabisContext) {
+        const currentText = (latestMessage.content || "").toLowerCase();
+        const plantTerms = [
+          "planta", "plantas", "plant", "plants", "tierra", "suelo", "soil", "riego", "water", "agua", "fertilizante", "fertilizer", "nutrientes", "nutrients",
+          "temperatura", "temperature", "humedad", "humidity", "luz", "light", "hojas", "leaves", "seca", "dry", "caida", "drooping", "problema", "problem"
+        ];
+        return plantTerms.some(term => currentText.includes(term));
+      }
+
+      return false;
+    };
+
+    const onTopic = (!latestHasImages && (isCannabisRelated(latestMessage.content || "") || isContextuallyOnTopic(messages))) || (latestHasImages && imagesLookOnTopic);
 
     if (!onTopic) {
       // Refuse without calling OpenAI; persist conversation as usual
