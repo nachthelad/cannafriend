@@ -104,8 +104,8 @@ export default function PremiumPage() {
 
       const data = await response.json();
 
-      if (data.success && data.init_point) {
-        window.location.href = data.init_point;
+      if (data.success && (data.checkout_url || data.init_point)) {
+        window.location.href = data.checkout_url || data.init_point;
       } else if (data.error === "already_premium") {
         toast({
           variant: "destructive",
@@ -114,7 +114,8 @@ export default function PremiumPage() {
         });
         return;
       } else {
-        throw new Error(data.error || "Failed to create subscription");
+        const detail = typeof data?.details === "string" ? ` (${data.details.slice(0,180)})` : "";
+        throw new Error((data.error || "Failed to create subscription") + detail);
       }
     } catch (error: any) {
       toast({

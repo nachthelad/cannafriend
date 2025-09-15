@@ -96,6 +96,45 @@ export default function SettingsPage() {
     roles: { grower: true, consumer: false },
   });
 
+  // Subscription status details (only fetched when premium)
+  const [subDetails, setSubDetails] = useState<{
+    premium: boolean;
+    premium_until: number | null;
+    remaining_ms: number | null;
+    recurring: boolean | null;
+    preapproval_status: string | null;
+    last_payment?: { id: string; status?: string; date_approved?: string } | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        if (!isPremium || !auth.currentUser) return;
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch("/api/mercadopago/subscription-status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || "status_failed");
+        setSubDetails(data);
+      } catch (e) {
+        // Non-blocking; just log
+        console.warn("Failed to fetch subscription status", e);
+      }
+    };
+    fetchStatus();
+  }, [isPremium]);
+
+  const formatRemaining = (ms?: number | null) => {
+    if (!ms || ms <= 0) return t("inactive");
+    const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+    const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    if (days > 0) return `${days}d ${hours}h`;
+    const mins = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+    if (hours > 0) return `${hours}h ${mins}m`;
+    return `${mins}m`;
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -792,9 +831,38 @@ export default function SettingsPage() {
                 </p>
               )}
               {isPremium && (
-                <p className="text-sm text-muted-foreground mt-3">
-                  {t("subscription.mercadopagoNote")}
-                </p>
+                <div className="text-sm text-muted-foreground mt-3 space-y-1">
+                  {subDetails && (
+                    <>
+                      <div>
+                        <span className="font-medium">{t("status")}:</span>{" "}
+                        <span>
+                          {subDetails.recurring === true
+                            ? t("subscription.recurring")
+                            : subDetails.preapproval_status
+                            ? subDetails.preapproval_status
+                            : t("subscription.oneTime")}
+                        </span>
+                      </div>
+                      {typeof subDetails.premium_until === "number" && (
+                        <div>
+                          <span className="font-medium">{t("subscription.expires")}:</span>{" "}
+                          {new Date(subDetails.premium_until).toLocaleString()}
+                          {" "}({formatRemaining(subDetails.remaining_ms)})
+                        </div>
+                      )}
+                      {subDetails.last_payment?.date_approved && (
+                        <div>
+                          <span className="font-medium">{t("subscription.lastPayment")}:</span>{" "}
+                          {new Date(
+                            subDetails.last_payment.date_approved
+                          ).toLocaleString()}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <div>{t("subscription.mercadopagoNote")}</div>
+                </div>
               )}
             </CardContent>
           </Card>
