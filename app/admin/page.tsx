@@ -110,9 +110,29 @@ export default function AdminPage() {
   };
   const [qUid, setQUid] = useState("");
   const [qStatus, setQStatus] = useState("");
-  const [qScope, setQScope] = useState<"all" | "payments" | "preapproval">("all");
+  const [qScope, setQScope] = useState<"all" | "payments" | "preapproval">(
+    "all"
+  );
   const [uniLoading, setUniLoading] = useState(false);
   const [uniItems, setUniItems] = useState<UnifiedItem[]>([]);
+
+  // Stripe search
+  type StripeItem = {
+    type: "payment" | "subscription";
+    id: string;
+    status?: string;
+    customer_email?: string;
+    customer_id?: string;
+    amount?: number;
+    currency?: string;
+    date?: string;
+  };
+  const [stripeEmail, setStripeEmail] = useState("");
+  const [stripeScope, setStripeScope] = useState<
+    "all" | "payments" | "subscriptions"
+  >("all");
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripeItems, setStripeItems] = useState<StripeItem[]>([]);
 
   const searchUnified = async () => {
     if (!auth.currentUser) return;
@@ -124,17 +144,27 @@ export default function AdminPage() {
       if (qUid) params.set("external_reference", qUid);
       if (qStatus) params.set("status", qStatus);
       if (qScope && qScope !== "all") params.set("scope", qScope);
-      const res = await fetch(`/api/mercadopago/admin/unified-search?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `/api/mercadopago/admin/unified-search?${params.toString()}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "search_failed");
       setUniItems((data?.items || []) as UnifiedItem[]);
       if ((data?.items || []).length === 0) {
-        toast({ title: "Sin resultados", description: "No se encontraron resultados" });
+        toast({
+          title: "Sin resultados",
+          description: "No se encontraron resultados",
+        });
       }
     } catch (e: any) {
-      toast({ variant: "destructive", title: "Error", description: e?.message || String(e) });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: e?.message || String(e),
+      });
     } finally {
       setUniLoading(false);
     }
@@ -143,13 +173,25 @@ export default function AdminPage() {
   const reprocessUnified = async (it: UnifiedItem) => {
     setUniLoading(true);
     try {
-      const res = await fetch(`/api/mercadopago/webhook?type=${encodeURIComponent(it.type)}&id=${encodeURIComponent(it.id)}`);
+      const res = await fetch(
+        `/api/mercadopago/webhook?type=${encodeURIComponent(
+          it.type
+        )}&id=${encodeURIComponent(it.id)}`
+      );
       const data = await res.json();
-      if (!res.ok || data?.error) throw new Error(data?.error || "reprocess_failed");
-      toast({ title: "Reprocesado", description: `premium: ${data?.premium ? "true" : "false"}` });
+      if (!res.ok || data?.error)
+        throw new Error(data?.error || "reprocess_failed");
+      toast({
+        title: "Reprocesado",
+        description: `premium: ${data?.premium ? "true" : "false"}`,
+      });
       await fetchUsers();
     } catch (e: any) {
-      toast({ variant: "destructive", title: "Error", description: e?.message || String(e) });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: e?.message || String(e),
+      });
     } finally {
       setUniLoading(false);
     }
@@ -157,7 +199,74 @@ export default function AdminPage() {
 
   const copyToClipboard = (text: string, label: string = "UID") => {
     navigator.clipboard.writeText(text);
-    toast({ title: "Copiado", description: `${label} copiado al portapapeles` });
+    toast({
+      title: "Copiado",
+      description: `${label} copiado al portapapeles`,
+    });
+  };
+
+  const searchStripe = async () => {
+    if (!auth.currentUser || !stripeEmail) return;
+    setStripeLoading(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const params = new URLSearchParams();
+      params.set("email", stripeEmail);
+      if (stripeScope && stripeScope !== "all")
+        params.set("scope", stripeScope);
+      const res = await fetch(`/api/stripe/admin/search?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "search_failed");
+      setStripeItems((data?.items || []) as StripeItem[]);
+      if ((data?.items || []).length === 0) {
+        toast({
+          title: "Sin resultados",
+          description: "No se encontraron resultados en Stripe",
+        });
+      }
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: e?.message || String(e),
+      });
+    } finally {
+      setStripeLoading(false);
+    }
+  };
+
+  const reprocessStripe = async (it: StripeItem) => {
+    if (!auth.currentUser) return;
+    setStripeLoading(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(`/api/stripe/admin/reprocess`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ type: it.type, id: it.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || data?.error)
+        throw new Error(data?.error || "reprocess_failed");
+      toast({
+        title: "Reprocesado",
+        description: `premium: ${data?.premium ? "true" : "false"}`,
+      });
+      await fetchUsers();
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: e?.message || String(e),
+      });
+    } finally {
+      setStripeLoading(false);
+    }
   };
 
   if (isLoading || !isAdmin) {
@@ -202,7 +311,11 @@ export default function AdminPage() {
                   <option value="paused">paused</option>
                   <option value="cancelled">cancelled</option>
                 </select>
-                <Button onClick={searchUnified} disabled={uniLoading} className="w-full">
+                <Button
+                  onClick={searchUnified}
+                  disabled={uniLoading}
+                  className="w-full"
+                >
                   {uniLoading ? "Buscando..." : "Buscar"}
                 </Button>
               </div>
@@ -211,12 +324,88 @@ export default function AdminPage() {
                 <div className="space-y-2">
                   {uniItems.map((it) => (
                     <div key={it.id} className="border rounded p-2">
-                      <div className="text-xs text-muted-foreground">ID: {it.id}</div>
+                      <div className="text-xs text-muted-foreground">
+                        ID: {it.id}
+                      </div>
                       <div className="text-sm">Estado: {it.status || "-"}</div>
-                      <div className="text-xs">Email: {it.payer_email || "-"}</div>
-                      <div className="text-xs">UID: {it.external_reference || "-"}</div>
+                      <div className="text-xs">
+                        Email: {it.payer_email || "-"}
+                      </div>
+                      <div className="text-xs">
+                        UID: {it.external_reference || "-"}
+                      </div>
                       <div className="mt-2 flex gap-2">
-                        <Button size="sm" onClick={() => reprocessUnified(it)} disabled={uniLoading}>
+                        <Button
+                          size="sm"
+                          onClick={() => reprocessUnified(it)}
+                          disabled={uniLoading}
+                        >
+                          Reprocesar
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stripe Search (Mobile) */}
+        <div className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Stripe - Buscar pagos</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                <Input
+                  placeholder="Email del cliente"
+                  value={stripeEmail}
+                  onChange={(e) => setStripeEmail(e.target.value)}
+                />
+                <select
+                  className="border rounded px-2 py-2 text-sm w-full bg-background"
+                  value={stripeScope}
+                  onChange={(e) => setStripeScope(e.target.value as any)}
+                >
+                  <option value="all">Todos</option>
+                  <option value="payments">Pagos</option>
+                  <option value="subscriptions">Suscripciones</option>
+                </select>
+                <Button
+                  onClick={searchStripe}
+                  disabled={stripeLoading || !stripeEmail}
+                  className="w-full"
+                >
+                  {stripeLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+
+              {stripeItems.length > 0 && (
+                <div className="space-y-2">
+                  {stripeItems.map((it) => (
+                    <div key={it.id} className="border rounded p-2">
+                      <div className="text-xs text-muted-foreground">
+                        ID: {it.id}
+                      </div>
+                      <div className="text-sm">Tipo: {it.type}</div>
+                      <div className="text-sm">Estado: {it.status || "-"}</div>
+                      <div className="text-xs">
+                        Email: {it.customer_email || "-"}
+                      </div>
+                      <div className="text-xs">
+                        Monto:{" "}
+                        {it.amount && it.currency
+                          ? `${it.amount / 100} ${it.currency.toUpperCase()}`
+                          : "-"}
+                      </div>
+                      <div className="mt-2 flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => reprocessStripe(it)}
+                          disabled={stripeLoading}
+                        >
                           Reprocesar
                         </Button>
                       </div>
@@ -257,7 +446,7 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-background border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -278,12 +467,17 @@ export default function AdminPage() {
                     return sortDir === "newest" ? cb - ca : ca - cb;
                   })
                   .map((u) => (
-                    <tr key={u.uid} className="border-b last:border-0 hover:bg-muted/30">
+                    <tr
+                      key={u.uid}
+                      className="border-b last:border-0 hover:bg-muted/30"
+                    >
                       <td className="py-3 px-4">{u.email || "—"}</td>
                       <td className="py-3 px-4">{u.displayName || "-"}</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs select-all">{u.uid}</span>
+                          <span className="font-mono text-xs select-all">
+                            {u.uid}
+                          </span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -315,50 +509,54 @@ export default function AdminPage() {
 
         {/* MercadoPago - Búsqueda unificada */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">MercadoPago - Búsqueda unificada</h2>
-            <div className="flex flex-wrap items-end gap-2 mb-4">
-              {/* Email filter intentionally removed; use UID */}
-              <div className="flex-1 min-w-[220px]">
-                <label className="text-xs text-muted-foreground">UID (external_reference)</label>
-                <Input
-                  placeholder="uid"
-                  value={qUid}
-                  onChange={(e) => setQUid(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Estado</label>
-                <select
-                  className="border rounded px-2 py-2 text-sm w-full bg-background"
-                  value={qStatus}
-                  onChange={(e) => setQStatus(e.target.value)}
-                >
-                  <option value="">(cualquiera)</option>
-                  <option value="approved">approved</option>
-                  <option value="authorized">authorized</option>
-                  <option value="active">active</option>
-                  <option value="paused">paused</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">Fuente</label>
-                <select
-                  className="border rounded px-2 py-2 text-sm w-full bg-background"
-                  value={qScope}
-                  onChange={(e) => setQScope(e.target.value as any)}
-                >
-                  <option value="all">Todos</option>
-                  <option value="payments">Pagos</option>
-                  <option value="preapproval">Suscripciones</option>
-                </select>
-              </div>
-              <div>
-                <Button onClick={searchUnified} disabled={uniLoading}>
-                  {uniLoading ? "Buscando..." : "Buscar"}
-                </Button>
-              </div>
+          <h2 className="text-xl font-semibold mb-4">
+            MercadoPago - Búsqueda unificada
+          </h2>
+          <div className="flex flex-wrap items-end gap-2 mb-4">
+            {/* Email filter intentionally removed; use UID */}
+            <div className="flex-1 min-w-[220px]">
+              <label className="text-xs text-muted-foreground">
+                UID (external_reference)
+              </label>
+              <Input
+                placeholder="uid"
+                value={qUid}
+                onChange={(e) => setQUid(e.target.value)}
+              />
             </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Estado</label>
+              <select
+                className="border rounded px-2 py-2 text-sm w-full bg-background"
+                value={qStatus}
+                onChange={(e) => setQStatus(e.target.value)}
+              >
+                <option value="">(cualquiera)</option>
+                <option value="approved">approved</option>
+                <option value="authorized">authorized</option>
+                <option value="active">active</option>
+                <option value="paused">paused</option>
+                <option value="cancelled">cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Fuente</label>
+              <select
+                className="border rounded px-2 py-2 text-sm w-full bg-background"
+                value={qScope}
+                onChange={(e) => setQScope(e.target.value as any)}
+              >
+                <option value="all">Todos</option>
+                <option value="payments">Pagos</option>
+                <option value="preapproval">Suscripciones</option>
+              </select>
+            </div>
+            <div>
+              <Button onClick={searchUnified} disabled={uniLoading}>
+                {uniLoading ? "Buscando..." : "Buscar"}
+              </Button>
+            </div>
+          </div>
 
           {uniItems.length > 0 && (
             <div className="bg-background border rounded-lg overflow-hidden mt-4">
@@ -377,15 +575,117 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {uniItems.map((it) => (
-                      <tr key={`${it.type}:${it.id}`} className="border-b last:border-0 hover:bg-muted/30">
+                      <tr
+                        key={`${it.type}:${it.id}`}
+                        className="border-b last:border-0 hover:bg-muted/30"
+                      >
                         <td className="py-3 px-4">{it.type}</td>
                         <td className="py-3 px-4 font-mono text-xs">{it.id}</td>
                         <td className="py-3 px-4">{it.status || "-"}</td>
                         <td className="py-3 px-4">{it.payer_email || "-"}</td>
-                        <td className="py-3 px-4">{it.external_reference || "-"}</td>
-                        <td className="py-3 px-4">{it.date ? new Date(it.date).toLocaleString() : "-"}</td>
                         <td className="py-3 px-4">
-                          <Button size="sm" onClick={() => reprocessUnified(it)} disabled={uniLoading}>
+                          {it.external_reference || "-"}
+                        </td>
+                        <td className="py-3 px-4">
+                          {it.date ? new Date(it.date).toLocaleString() : "-"}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Button
+                            size="sm"
+                            onClick={() => reprocessUnified(it)}
+                            disabled={uniLoading}
+                          >
+                            Reprocesar
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Stripe - Búsqueda */}
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">
+            Stripe - Búsqueda de pagos
+          </h2>
+          <div className="flex flex-wrap items-end gap-2 mb-4">
+            <div className="flex-1 min-w-[220px]">
+              <label className="text-xs text-muted-foreground">
+                Email del cliente
+              </label>
+              <Input
+                placeholder="email@ejemplo.com"
+                value={stripeEmail}
+                onChange={(e) => setStripeEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Tipo</label>
+              <select
+                className="border rounded px-2 py-2 text-sm w-full bg-background"
+                value={stripeScope}
+                onChange={(e) => setStripeScope(e.target.value as any)}
+              >
+                <option value="all">Todos</option>
+                <option value="payments">Pagos</option>
+                <option value="subscriptions">Suscripciones</option>
+              </select>
+            </div>
+            <div>
+              <Button
+                onClick={searchStripe}
+                disabled={stripeLoading || !stripeEmail}
+              >
+                {stripeLoading ? "Buscando..." : "Buscar"}
+              </Button>
+            </div>
+          </div>
+
+          {stripeItems.length > 0 && (
+            <div className="bg-background border rounded-lg overflow-hidden mt-4">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left border-b bg-muted/50">
+                      <th className="py-3 px-4 font-medium">Tipo</th>
+                      <th className="py-3 px-4 font-medium">ID</th>
+                      <th className="py-3 px-4 font-medium">Estado</th>
+                      <th className="py-3 px-4 font-medium">Email</th>
+                      <th className="py-3 px-4 font-medium">Monto</th>
+                      <th className="py-3 px-4 font-medium">Fecha</th>
+                      <th className="py-3 px-4 font-medium">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stripeItems.map((it) => (
+                      <tr
+                        key={it.id}
+                        className="border-b last:border-0 hover:bg-muted/30"
+                      >
+                        <td className="py-3 px-4">{it.type}</td>
+                        <td className="py-3 px-4 font-mono text-xs">{it.id}</td>
+                        <td className="py-3 px-4">{it.status || "-"}</td>
+                        <td className="py-3 px-4">
+                          {it.customer_email || "-"}
+                        </td>
+                        <td className="py-3 px-4">
+                          {it.amount && it.currency
+                            ? `${it.amount / 100} ${it.currency.toUpperCase()}`
+                            : "-"}
+                        </td>
+                        <td className="py-3 px-4">
+                          {it.date ? new Date(it.date).toLocaleString() : "-"}
+                        </td>
+                        <td className="py-3 px-4">
+                          <Button
+                            size="sm"
+                            onClick={() => reprocessStripe(it)}
+                            disabled={stripeLoading}
+                          >
                             Reprocesar
                           </Button>
                         </td>
