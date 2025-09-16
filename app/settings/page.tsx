@@ -53,7 +53,13 @@ import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { usePremium } from "@/hooks/use-premium";
-import { Trash2, AlertTriangle, Crown, CreditCard, ArrowLeft } from "lucide-react";
+import {
+  Trash2,
+  AlertTriangle,
+  Crown,
+  CreditCard,
+  ArrowLeft,
+} from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -103,7 +109,11 @@ export default function SettingsPage() {
     remaining_ms: number | null;
     recurring: boolean | null;
     preapproval_status: string | null;
-    last_payment?: { id: string; status?: string; date_approved?: string } | null;
+    last_payment?: {
+      id: string;
+      status?: string;
+      date_approved?: string;
+    } | null;
   } | null>(null);
 
   useEffect(() => {
@@ -570,12 +580,19 @@ export default function SettingsPage() {
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-2">
-          <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))} className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.replace(resolveHomePathForRoles(roles))}
+            className="p-2"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-xl font-bold">{t("settings.title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("settings.accountDesc")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("settings.accountDesc")}
+            </p>
           </div>
         </div>
       </div>
@@ -583,7 +600,11 @@ export default function SettingsPage() {
       {/* Desktop Header */}
       <div className="hidden md:block mb-6 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.replace(resolveHomePathForRoles(roles))}
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("back", { ns: "common" })}
           </Button>
@@ -594,7 +615,6 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto">
-
         <div className="space-y-6">
           {/* Account summary */}
           <Card>
@@ -846,14 +866,18 @@ export default function SettingsPage() {
                       </div>
                       {typeof subDetails.premium_until === "number" && (
                         <div>
-                          <span className="font-medium">{t("subscription.expires")}:</span>{" "}
-                          {new Date(subDetails.premium_until).toLocaleString()}
-                          {" "}({formatRemaining(subDetails.remaining_ms)})
+                          <span className="font-medium">
+                            {t("subscription.expires")}:
+                          </span>{" "}
+                          {new Date(subDetails.premium_until).toLocaleString()}{" "}
+                          ({formatRemaining(subDetails.remaining_ms)})
                         </div>
                       )}
                       {subDetails.last_payment?.date_approved && (
                         <div>
-                          <span className="font-medium">{t("subscription.lastPayment")}:</span>{" "}
+                          <span className="font-medium">
+                            {t("subscription.lastPayment")}:
+                          </span>{" "}
                           {new Date(
                             subDetails.last_payment.date_approved
                           ).toLocaleString()}
@@ -886,15 +910,15 @@ export default function SettingsPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle className="flex items-center">
                       <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />
-                      {t("settings.confirmDelete")}
+                      {t("settings.confirmDelete", { ns: "common" })}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t("settings.confirmDeleteDesc")}
+                      {t("settings.confirmDeleteDesc", { ns: "common" })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>
-                      {t("settings.cancel")}
+                      {t("cancel", { ns: "common" })}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeleteAccount}

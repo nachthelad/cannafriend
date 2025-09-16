@@ -1,65 +1,68 @@
 // Firestore Security Rules
 rules_version = '2';
 service cloud.firestore {
+  function isOwner(userId) {
+    return request.auth != null && request.auth.uid == userId;
+  }
+
   match /databases/{database}/documents {
 
     match /users/{userId} {
       // User can read/write own user doc
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
 
       // Plants
       match /plants/{plantId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
 
         match /logs/{logId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read, write: if isOwner(userId);
         }
 
         match /environment/{envId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read, write: if isOwner(userId);
         }
       }
 
       // Sessions
       match /sessions/{sessionId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
 
       // Reminders
       match /reminders/{reminderId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
-      
+
       // Nutrient mixes
       match /nutrientMixes/{mixId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
 
       // Stash
       match /stash/{itemId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
 
       // AI chats (unified)
-               match /aiChats/{chatId} {
-                 allow read, write: if request.auth != null && request.auth.uid 
-        == userId;
-             }
+      match /aiChats/{chatId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Archive
     match /archived_users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
 
       match /plants/{plantId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
         match /logs/{logId} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read, write: if isOwner(userId);
         }
       }
 
       match /reminders/{reminderId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
       }
     }
     // Collection group access for logs (needed for collectionGroup queries)

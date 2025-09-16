@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update translation namespaces and remove analyzePlant references — 2025-09-16
+
 - [MINOR]: remove outline variant from buttons and update analytics initialization logic — 2025-09-15
 - [MINOR]: update Content Security Policy and enhance mobile styling for dashboard and plant pages — 2025-09-15
 

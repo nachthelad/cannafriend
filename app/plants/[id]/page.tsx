@@ -320,7 +320,7 @@ export default function PlantPage({
     const isRemovingCover = photoToRemove === plant?.coverPhoto;
 
     try {
-      let newPhotos = photos.filter(p => p !== photoToRemove);
+      let newPhotos = photos.filter((p) => p !== photoToRemove);
       let newCoverPhoto = plant?.coverPhoto;
 
       // If removing cover photo, set new cover
@@ -331,7 +331,7 @@ export default function PlantPage({
       // Update the document
       await updateDoc(plantDocRef(userId, id), {
         photos: newPhotos,
-        ...(isRemovingCover && { coverPhoto: newCoverPhoto })
+        ...(isRemovingCover && { coverPhoto: newCoverPhoto }),
       });
 
       // Update local state
@@ -343,11 +343,15 @@ export default function PlantPage({
       }
 
       // Update plant state
-      setPlant(prev => prev ? {
-        ...prev,
-        photos: newPhotos,
-        coverPhoto: newCoverPhoto
-      } : null);
+      setPlant((prev) =>
+        prev
+          ? {
+              ...prev,
+              photos: newPhotos,
+              coverPhoto: newCoverPhoto,
+            }
+          : null
+      );
 
       toast({
         title: t("photos.removeSuccess", { ns: "plants" }),
@@ -358,7 +362,6 @@ export default function PlantPage({
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -376,7 +379,7 @@ export default function PlantPage({
       });
       setCoverPhoto(photoUrl);
       setSelectedPhoto(photoUrl);
-      setPlant(prev => prev ? { ...prev, coverPhoto: photoUrl } : null);
+      setPlant((prev) => (prev ? { ...prev, coverPhoto: photoUrl } : null));
       toast({
         title: t("photos.coverPhotoSet", { ns: "plants" }),
         description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
@@ -406,7 +409,6 @@ export default function PlantPage({
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -485,17 +487,6 @@ export default function PlantPage({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                size="icon"
-                aria-label="Add log"
-                onClick={() =>
-                  router.push(
-                    `${ROUTE_JOURNAL}/new?plantId=${id}&returnTo=plant`
-                  )
-                }
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -510,21 +501,21 @@ export default function PlantPage({
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>
-                      {t("plant.deleteTitle")}
+                      {t("deleteTitle", { ns: "plants" })}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t("plant.deleteDesc")}
+                      {t("deleteDesc", { ns: "plants" })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel disabled={isDeleting}>
-                      {t("cancel", { ns: "settings" })}
+                      {t("cancel", { ns: "common" })}
                     </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={handleDeletePlant}
                       disabled={isDeleting}
                     >
-                      {t("plant.deleteConfirm")}
+                      {t("deleteConfirm", { ns: "plants" })}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -676,15 +667,15 @@ export default function PlantPage({
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            {t("settings.confirmDelete")}
+                            {t("settings.confirmDelete", { ns: "common" })}
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            {t("settings.confirmDeleteDesc")}
+                            {t("settings.confirmDeleteDesc", { ns: "common" })}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>
-                            {t("settings.cancel")}
+                            {t("cancel", { ns: "common" })}
                           </AlertDialogCancel>
                           <AlertDialogAction
                             onClick={(e) => {
