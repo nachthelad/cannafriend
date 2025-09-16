@@ -107,16 +107,3 @@ A: CannaFriend is designed for personal cultivation tracking. For commercial ope
 5. **Try AI**: Upload a plant photo for instant analysis
 6. **Install PWA**: Add to home screen for app-like experience
 
-### 🛠️ Setup
-
-1. Copy `.env.example` to `.env` and fill in your Firebase credentials:
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
-   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-2. Install dependencies with `npm install` (or your preferred package manager).
-3. Start the development server with `npm run dev`.
-
