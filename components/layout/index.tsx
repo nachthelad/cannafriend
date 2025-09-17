@@ -59,7 +59,12 @@ export function Layout({ children }: LayoutProps) {
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { roles, isLoading: rolesLoading } = useUserRoles();
+  const [hasHydrated, setHasHydrated] = useState(false);
   const homeHref = resolveHomePathForRoles(roles);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -184,7 +189,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
           <div className="space-y-1">
-            {rolesLoading ? (
+            {!hasHydrated || rolesLoading || !roles ? (
               <>
                 <Skeleton className="h-9 w-full" />
                 <Skeleton className="h-9 w-full" />
@@ -239,7 +244,7 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex flex-1 flex-col">
         {/* Page content */}
         <main className="flex-1 overflow-auto p-4 pb-41 md:pb-6 md:p-6">
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <div className="mx-auto">{children}</div>
         </main>
         {/* Mobile bottom navigation */}
         <MobileBottomNav />

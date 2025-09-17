@@ -15,13 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -32,6 +25,8 @@ import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
+import { TimezoneSelect } from "@/components/common/timezone-select";
+import { RoleSelector } from "@/components/common/role-selector";
 import type { Roles, UserProfile } from "@/types";
 
 export default function OnboardingPage() {
@@ -49,11 +44,12 @@ export default function OnboardingPage() {
     formState: { errors },
     setValue,
     watch,
-    reset,
   } = useForm<OnboardingForm>({
     defaultValues: { timezone: "", roles: { grower: true, consumer: false } },
   });
   const [userId, setUserId] = useState<string | null>(null);
+  const timezoneValue = watch("timezone") || "";
+  const rolesValue = watch("roles") || { grower: true, consumer: false };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -115,19 +111,6 @@ export default function OnboardingPage() {
     }
   };
 
-  const timezones = [
-    "America/Argentina/Buenos_Aires",
-    "America/Mexico_City",
-    "America/Bogota",
-    "America/Santiago",
-    "America/Lima",
-    "Europe/Madrid",
-    "America/New_York",
-    "America/Los_Angeles",
-    "Europe/London",
-    "Europe/Paris",
-  ];
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md border-0 shadow-xl dark:shadow-2xl">
@@ -152,23 +135,17 @@ export default function OnboardingPage() {
                 {...register("timezone", {
                   required: t("selectTimezone") as string,
                 })}
-                value={watch("timezone") || ""}
+                value={timezoneValue}
               />
-              <Select
-                value={watch("timezone")}
-                onValueChange={(v) => setValue("timezone", v)}
-              >
-                <SelectTrigger id="timezone">
-                  <SelectValue placeholder={t("selectTimezone")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {timezones.map((tz) => (
-                    <SelectItem key={tz} value={tz}>
-                      {tz}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <TimezoneSelect
+                id="timezone"
+                value={timezoneValue}
+                onChange={(value) =>
+                  setValue("timezone", value, { shouldValidate: true })
+                }
+                placeholder={t("selectTimezone")}
+                triggerClassName="w-full"
+              />
               {errors.timezone && (
                 <p className="text-xs text-destructive">
                   {String(errors.timezone.message)}
@@ -178,30 +155,16 @@ export default function OnboardingPage() {
 
             <div className="space-y-2">
               <Label>{t("roles")}</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={watch("roles.grower")}
-                    onChange={(e) => setValue("roles.grower", e.target.checked)}
-                  />
-                  <span>{t("grower")}</span>
-                </label>
-                <label className="flex items-center gap-2 border rounded-md p-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={watch("roles.consumer")}
-                    onChange={(e) =>
-                      setValue("roles.consumer", e.target.checked)
-                    }
-                  />
-                  <span>{t("consumer")}</span>
-                </label>
-              </div>
+              <RoleSelector
+                value={rolesValue}
+                onChange={(nextRoles) =>
+                  setValue("roles", nextRoles, { shouldValidate: true })
+                }
+                growerLabel={t("grower")}
+                consumerLabel={t("consumer")}
+              />
               {(() => {
-                const r = watch("roles");
+                const r = rolesValue;
                 if (!r?.grower && !r?.consumer) {
                   return (
                     <p className="text-xs text-destructive">
@@ -212,10 +175,15 @@ export default function OnboardingPage() {
                 return null;
               })()}
             </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
+                  <AnimatedLogo
+                    size={16}
+                    className="mr-2 text-primary"
+                    duration={1.2}
+                  />
                   {t("loading")}
                 </>
               ) : (
