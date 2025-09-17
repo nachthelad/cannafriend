@@ -8,6 +8,79 @@ Cannafriend is a comprehensive cannabis growing and consumption tracking applica
 
 ## Recent Major Updates (January 2025)
 
+### ✅ Suspense Data Loading Architecture (Sept 2025)
+
+**Issue Addressed**: Redundant `isLoading` states throughout the application causing duplicate loading logic and maintenance overhead.
+
+**Problem**: Multiple components had complex loading states that duplicated functionality now handled by Suspense boundaries:
+- Journal page had 140+ lines of loading logic including data fetching, pagination, and skeletons
+- Mobile components received `isLoading` props but used containers with Suspense
+- Pages had auth loading skeletons that duplicated Suspense component skeletons
+
+**Solution Implemented**: **Suspense-First Data Loading Pattern**
+
+#### **Architecture Overview**:
+
+```typescript
+// Suspense utility pattern
+import { getSuspenseResource } from "@/lib/suspense-utils";
+
+function DataComponent({ userId }: { userId: string }) {
+  const cacheKey = `data-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () => fetchData(userId));
+  const data = resource.read(); // Suspends component until data ready
+
+  return <div>{/* Render with data */}</div>;
+}
+
+// Wrapper with Suspense boundary
+export function Component(props) {
+  return (
+    <Suspense fallback={<ProperSkeleton />}>
+      <DataComponent {...props} />
+    </Suspense>
+  );
+}
+```
+
+#### **Components Updated**:
+
+1. **Journal System**:
+   - `app/journal/page.tsx` - Removed 140+ lines of loading logic
+   - `components/mobile/mobile-journal.tsx` - Converted to Suspense pattern
+   - `components/journal/journal-grid.tsx` - Already using Suspense
+
+2. **Page Components**:
+   - `app/stash/page.tsx` - Removed auth loading skeleton (15 lines)
+   - `app/nutrients/page.tsx` - Removed auth loading skeleton (17 lines)
+   - `app/plants/page.tsx` - Uses containers with Suspense
+
+3. **Container Components** (already implemented):
+   - `components/dashboard/dashboard-container.tsx`
+   - `components/plant/plant-grid.tsx`
+   - `components/plant/mobile-plant-container.tsx`
+   - `components/stash/stash-container.tsx`
+   - `components/nutrients/nutrients-container.tsx`
+
+#### **Benefits Achieved**:
+
+- **Reduced bundle size** - Eliminated ~170 lines of duplicate loading code
+- **Simplified state management** - Data fetching handled by Suspense utilities
+- **Better UX** - Proper skeletons from Suspense instead of generic loaders
+- **Code consistency** - All data-heavy components use same pattern
+- **Maintainability** - Single source of truth for data fetching per component
+
+#### **Suspense Pattern Rules**:
+
+1. **Data Loading**: Use `getSuspenseResource` + Suspense boundaries for all Firebase data fetching
+2. **Auth Loading**: Keep `useAuthUser` loading states - different from data loading
+3. **Form Loading**: Keep form submission loading - user action feedback
+4. **Component Loading**: Keep component-specific operations (file uploads, etc.)
+
+**IMPORTANT**: When adding new data-fetching components, always use the Suspense pattern instead of `useState` + `useEffect` + `isLoading`.
+
+## Recent Major Updates (January 2025)
+
 ### ✅ Custom Hooks System Implementation
 
 **Issue Addressed**: Repeated logic patterns across components leading to code duplication and maintenance overhead.
@@ -244,6 +317,7 @@ When editing files, you MUST follow the exact same patterns used in that file:
 4. **Hook Usage**: Follow the same hook patterns and custom hook usage as existing code
 5. **Translation Patterns**: Use the same translation namespace and key patterns as existing code
 6. **Styling Patterns**: Follow existing className patterns and component composition
+
 
 **Examples of Following Patterns:**
 

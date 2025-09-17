@@ -12,10 +12,10 @@ This tracker lists the remaining work first (prioritized), followed by a consoli
 - [x] Background Sync for failed POSTs to `/api/*`
 
 ### Rendering & Routing (Next.js)
-- [ ] Prefer Server Components by default where viable
-- [ ] Add Suspense streaming boundaries around heavy subtrees
-- [ ] Add explicit ISR where safe (`export const revalidate = 60`), and tag-based revalidation on writes
-- [ ] Virtualize long lists (plants/journal) with `@tanstack/react-virtual`
+- [x] Prefer Server Components by default where viable
+- [x] Add Suspense streaming boundaries around heavy subtrees
+- [x] Add explicit ISR where safe (`export const revalidate = 60`), and tag-based revalidation on writes
+- [x] Virtualize long lists (plants/journal) with `@tanstack/react-virtual`
 
 ### Data & Firebase
 - [ ] Ensure modular SDK imports everywhere (tree-shake)
