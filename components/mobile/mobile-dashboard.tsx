@@ -89,9 +89,19 @@ export function MobileDashboard({
             <Skeleton className="h-16 rounded-xl" />
           </div>
         </div>
+        {/* Recent plants skeleton */}
+        <div className="space-y-3">
+          <Skeleton className="h-6 w-40" />
+          <div className="space-y-3">
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
+            <Skeleton className="h-20 rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }
+
 
   // Mobile-optimized stats cards
   const StatCard = ({

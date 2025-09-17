@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,22 +18,17 @@ import {
   Plus,
   Calendar,
   X,
-  ChevronDown,
   Search,
   SortAsc,
   SortDesc,
 } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
-import { Skeleton } from "@/components/ui/skeleton";
-import { parseISO, isSameDay, format } from "date-fns";
+import { format, parseISO, isSameDay } from "date-fns";
 import { es, enUS } from "date-fns/locale";
-import type { Plant, LogEntry } from "@/types";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -42,36 +37,88 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { JournalEntries } from "@/components/journal/journal-entries";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { getSuspenseResource } from "@/lib/suspense-utils";
+import { db } from "@/lib/firebase";
+import { plantsCol, logsCol } from "@/lib/paths";
+import { query, getDocs, orderBy, collectionGroup, where, limit } from "firebase/firestore";
+import type { Plant, LogEntry } from "@/types";
+import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
+import { JournalEntries } from "@/components/journal/journal-entries";
 
 interface MobileJournalProps {
+  userId: string;
+  language: string;
+}
+
+interface JournalData {
   logs: LogEntry[];
   plants: Plant[];
-  isLoading: boolean;
-  hasMoreLogs: boolean;
-  loadingMoreLogs: boolean;
-  onLoadMore: () => void;
-  onDeleteLog: (log: LogEntry) => void;
-  onLogSuccess: (newLog: LogEntry) => void;
-  language: string;
+}
+
+async function fetchJournalData(userId: string): Promise<JournalData> {
+  // Fetch plants
+  const plantsQueryRef = query(plantsCol(userId));
+  const plantsSnap = await getDocs(plantsQueryRef);
+  const plants: Plant[] = [];
+  plantsSnap.forEach((docSnap) => {
+    plants.push({ id: docSnap.id, ...docSnap.data() } as Plant);
+  });
+
+  // Fetch logs using collectionGroup
+  const logsGroup = collectionGroup(db, "logs");
+  const cgQuery = query(
+    logsGroup,
+    where("userId", "==", userId),
+    orderBy("date", "desc"),
+    limit(50)
+  );
+
+  let logs: LogEntry[] = [];
+  try {
+    const cgSnap = await getDocs(cgQuery);
+    cgSnap.forEach((docSnap) => {
+      const data = docSnap.data() as any;
+      const plantName = plants.find((p) => p.id === data.plantId)?.name;
+      logs.push({ id: docSnap.id, ...data, plantName } as LogEntry);
+    });
+  } catch (e) {
+    // Fallback: fetch per-plant if collectionGroup fails
+    for (const plant of plants) {
+      const lq = query(
+        logsCol(userId, plant.id),
+        orderBy("date", "desc"),
+        limit(20)
+      );
+      const ls = await getDocs(lq);
+      ls.forEach((docSnap) => {
+        logs.push({
+          id: docSnap.id,
+          ...(docSnap.data() as any),
+          plantId: plant.id,
+          plantName: plant.name,
+        } as LogEntry);
+      });
+    }
+  }
+
+  // Sort by date (newest first)
+  logs.sort(
+    (a, b) =>
+      new Date(b.date as string).getTime() -
+      new Date(a.date as string).getTime()
+  );
+
+  return { logs, plants };
 }
 
 type SortBy = "date" | "type" | "plant";
 type SortOrder = "asc" | "desc";
 
-export function MobileJournal({
-  logs,
-  plants,
-  isLoading,
-  hasMoreLogs,
-  loadingMoreLogs,
-  onLoadMore,
-  onDeleteLog,
-  onLogSuccess,
-  language,
-}: MobileJournalProps) {
+function MobileJournalContent({ userId, language }: MobileJournalProps) {
+  const cacheKey = `mobile-journal-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () => fetchJournalData(userId));
+  const { logs, plants } = resource.read();
   const { t } = useTranslation(["journal", "common"]);
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -83,21 +130,6 @@ export function MobileJournal({
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [showCalendar, setShowCalendar] = useState(false);
 
-  // Infinite scroll
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreCallbackRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (loadingMoreLogs) return;
-      if (observerRef.current) observerRef.current.disconnect();
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0]?.isIntersecting && hasMoreLogs && !loadingMoreLogs) {
-          onLoadMore();
-        }
-      });
-      if (node) observerRef.current.observe(node);
-    },
-    [loadingMoreLogs, hasMoreLogs, onLoadMore]
-  );
 
   // Filter and sort logs
   const filteredAndSortedLogs = logs
@@ -172,29 +204,6 @@ export function MobileJournal({
   };
 
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4 p-4">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-7 w-40" />
-            <Skeleton className="h-4 w-48" />
-          </div>
-          <Skeleton className="h-9 w-9 rounded-md" />
-        </div>
-        <Skeleton className="h-11 w-full" />
-        <div className="flex gap-2">
-          <Skeleton className="h-11 w-32" />
-          <Skeleton className="h-11 flex-1" />
-        </div>
-        <div className="space-y-3">
-          <Skeleton className="h-20 w-full rounded-lg" />
-          <Skeleton className="h-20 w-full rounded-lg" />
-          <Skeleton className="h-20 w-full rounded-lg" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -365,17 +374,8 @@ export function MobileJournal({
           <JournalEntries
             logs={filteredAndSortedLogs}
             showPlantName={true}
-            onDelete={onDeleteLog}
+            onDelete={() => {}}
           />
-          
-          {/* Infinite Scroll Trigger */}
-          {hasMoreLogs && (
-            <div ref={loadMoreCallbackRef} className="flex justify-center py-6">
-              {loadingMoreLogs && (
-                <AnimatedLogo size={24} className="text-primary" duration={1.2} />
-              )}
-            </div>
-          )}
         </div>
       ) : (
         <Card className="text-center py-8">
@@ -508,5 +508,13 @@ export function MobileJournal({
       </Dialog>
 
     </div>
+  );
+}
+
+export function MobileJournal(props: MobileJournalProps) {
+  return (
+    <Suspense fallback={<JournalSkeleton />}>
+      <MobileJournalContent {...props} />
+    </Suspense>
   );
 }

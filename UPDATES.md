@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: implement Firestore and Storage rules with ownership checks — 2025-09-17
 - [MINOR]: update translation namespaces and remove analyzePlant references — 2025-09-16
 
 - [MINOR]: remove outline variant from buttons and update analytics initialization logic — 2025-09-15

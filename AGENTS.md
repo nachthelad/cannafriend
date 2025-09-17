@@ -38,6 +38,75 @@ Notas
 
 ## Recent Major Updates (January 2025)
 
+### Suspense Data Loading Architecture (Sept 2025)
+
+**Issue Addressed**: Redundant `isLoading` states throughout the application causing duplicate loading logic and maintenance overhead.
+
+**Solution Implemented**: Suspense-First Data Loading Pattern
+
+#### Architecture Pattern:
+
+**REQUIRED**: All new data-fetching components MUST use this Suspense pattern instead of `useState` + `useEffect` + `isLoading`:
+
+```typescript
+// 1. Create data fetching function
+async function fetchComponentData(userId: string): Promise<DataType> {
+  // Firebase queries here
+  return data;
+}
+
+// 2. Component with Suspense resource
+function ComponentContent({ userId }: Props) {
+  const cacheKey = `component-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () => fetchComponentData(userId));
+  const data = resource.read(); // Suspends until ready
+
+  return <div>{/* Render with data */}</div>;
+}
+
+// 3. Export with Suspense boundary
+export function Component(props: Props) {
+  return (
+    <Suspense fallback={<ComponentSkeleton />}>
+      <ComponentContent {...props} />
+    </Suspense>
+  );
+}
+```
+
+#### Implementation Files:
+
+**Utilities**:
+- `lib/suspense-utils.ts` - `getSuspenseResource`, `createSuspenseResource`, cache management
+- `lib/suspense-cache.ts` - Cache invalidation helpers (`invalidatePlantsCache`, `invalidateJournalCache`)
+
+**Components Using Suspense** (follow these patterns):
+- `components/dashboard/dashboard-container.tsx`
+- `components/journal/journal-grid.tsx`
+- `components/plant/plant-grid.tsx`
+- `components/plant/mobile-plant-container.tsx`
+- `components/stash/stash-container.tsx`
+- `components/nutrients/nutrients-container.tsx`
+- `components/mobile/mobile-journal.tsx`
+
+#### Loading State Rules:
+
+1. **Data Loading**: Use Suspense pattern - NO `isLoading` states for Firebase data
+2. **Auth Loading**: Keep `useAuthUser().isLoading` - different purpose
+3. **Form Loading**: Keep form submission states - user feedback
+4. **File Uploads**: Keep component-specific loading - user operations
+
+#### Benefits:
+
+- **Cleaner code** - No duplicate loading logic
+- **Better UX** - Proper skeletons instead of generic loaders
+- **Consistent patterns** - All data components work the same way
+- **Cache management** - Built-in caching and invalidation
+
+**CRITICAL**: Never create new components with `useState` + `useEffect` + `isLoading` for data fetching. Always use the Suspense pattern.
+
+## Recent Major Updates (January 2025)
+
 ### Custom Hooks System Implementation
 
 **Issue Addressed**: Repeated logic patterns across components leading to code duplication and maintenance overhead.
@@ -324,6 +393,7 @@ When editing files, you MUST follow the exact same patterns used in that file:
 - If other hooks use specific custom hooks, use the same ones
 
 **This ensures code consistency and prevents introducing inconsistencies or breaking existing patterns.**
+
 
 ### GitHub Actions CI/CD (Simplified)
 
