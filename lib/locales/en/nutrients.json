@@ -12,6 +12,7 @@
   "npkPlaceholder": "e.g: 3-1-2",
   "notes": "Notes",
   "notesPlaceholder": "Usage instructions, dosage, etc.",
+  "searchPlaceholder": "Search",
   "added": "Mix added",
   "addedDesc": "Mix has been added successfully",
   "addError": "Error adding mix"

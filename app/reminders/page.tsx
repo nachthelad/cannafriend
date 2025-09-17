@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { collection, getDocs, query } from "firebase/firestore";
+import { getDocs, query } from "firebase/firestore";
 import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol } from "@/lib/paths";
@@ -22,56 +22,37 @@ import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { getSuspenseResource } from "@/lib/suspense-utils";
 
-export default function RemindersPage() {
+interface RemindersData {
+  plants: Plant[];
+}
+
+async function fetchRemindersData(userId: string): Promise<RemindersData> {
+  const remindersQuery = query(plantsCol(userId));
+  const snapshot = await getDocs(remindersQuery);
+  const plants: Plant[] = [];
+
+  snapshot.forEach((doc) => {
+    plants.push({ id: doc.id, ...doc.data() } as Plant);
+  });
+
+  return { plants };
+}
+
+function RemindersContent({ userId }: { userId: string }) {
   const { t } = useTranslation(["reminders", "common", "dashboard"]);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [plants, setPlants] = useState<Plant[]>([]);
-  const { user, isLoading: authLoading } = useAuthUser();
   const { roles } = useUserRoles();
-  const userId = user?.uid ?? null;
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user) router.push(ROUTE_LOGIN);
-  }, [authLoading, user, router]);
-
-  useEffect(() => {
-    const fetchPlants = async () => {
-      if (!userId) return;
-      try {
-        const q = query(plantsCol(userId));
-        const snap = await getDocs(q);
-        const list: Plant[] = [];
-        snap.forEach((d) => list.push({ id: d.id, ...d.data() } as Plant));
-        setPlants(list);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    if (userId) void fetchPlants();
-  }, [userId]);
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="p-4 md:p-6 space-y-4">
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-80" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const cacheKey = `reminders-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchRemindersData(userId)
+  );
+  const { plants } = resource.read();
 
   return (
-    <Layout>
+    <>
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-4">
@@ -96,7 +77,7 @@ export default function RemindersPage() {
 
       {/* Mobile View */}
       <div className="md:hidden">
-        <MobileReminders showHeader={false} />
+        <MobileReminders userId={userId} initialPlants={plants} showHeader={false} />
       </div>
 
       {/* Desktop View */}
@@ -104,7 +85,11 @@ export default function RemindersPage() {
         {/* Desktop Header */}
         <div className="hidden md:block mb-6 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Button variant="ghost" size="sm" onClick={() => router.replace(resolveHomePathForRoles(roles))}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.replace(resolveHomePathForRoles(roles))}
+            >
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("back", { ns: "common" })}
             </Button>
@@ -137,6 +122,58 @@ export default function RemindersPage() {
           </Card>
         )}
       </div>
+    </>
+  );
+}
+
+export default function RemindersPage() {
+  const { user, isLoading: authLoading } = useAuthUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+    if (!user) {
+      router.push(ROUTE_LOGIN);
+    }
+  }, [authLoading, user, router]);
+
+  const fallback = (
+    <div className="p-4 md:p-6">
+      <RemindersSkeleton />
+    </div>
+  );
+
+  if (authLoading || !user) {
+    return (
+      <Layout>
+        {fallback}
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <Suspense fallback={fallback}>
+        <RemindersContent userId={user.uid} />
+      </Suspense>
     </Layout>
   );
 }
+
+function RemindersSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-80" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    </div>
+  );
+}
+

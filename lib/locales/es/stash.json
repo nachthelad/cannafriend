@@ -40,5 +40,7 @@
   "addSuccess": "Artículo agregado",
   "addSuccessDesc": "El artículo se agregó exitosamente a tu inventario",
   "addError": "Error al agregar",
-  "addErrorDesc": "Hubo un error al agregar el artículo"
+  "addErrorDesc": "Hubo un error al agregar el artículo",
+  "deleted": "Eliminado",
+  "itemDeleted": "El item ha sido eliminado"
 }

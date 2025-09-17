@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: remove redundant isLoading states now handled by Suspense boundaries — 2025-09-17
+
 - [MID]: implement Firestore and Storage rules with ownership checks — 2025-09-17
 - [MINOR]: update translation namespaces and remove analyzePlant references — 2025-09-16
 

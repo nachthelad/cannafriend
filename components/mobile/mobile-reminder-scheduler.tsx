@@ -275,31 +275,6 @@ export function MobileReminderScheduler({
   if (isOpen) {
     return (
       <Layout>
-        {/* Mobile Header */}
-        <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="flex items-center gap-2 min-h-[48px] px-3"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span className="md:inline hidden">
-              {t("back", { ns: "common" })}
-            </span>
-          </Button>
-          <div className="flex items-center gap-3 mb-4"></div>
-          <div className="flex items-center gap-2 mb-2">
-            <Bell className="h-5 w-5" />
-            <h1 className="text-3xl font-bold">
-              {t("addReminder", { ns: "reminders" })}
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
-            {t("addReminderDesc", { ns: "reminders" })}
-          </p>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl">
           <div className="space-y-6">

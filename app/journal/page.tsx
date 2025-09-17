@@ -35,14 +35,12 @@ export default function JournalPage() {
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
 
-
   useEffect(() => {
     if (authLoading) return;
     if (!user) router.push(ROUTE_LOGIN);
   }, [authLoading, user, router]);
 
   const getCalendarLocale = () => (i18n.language === "es" ? es : enUS);
-
 
   return (
     <Layout>
@@ -70,15 +68,9 @@ export default function JournalPage() {
                 <Filter className="mr-2 h-4 w-4" />
                 {t("filters.title", { ns: "journal" })}
               </CardTitle>
-              <CardDescription>
-                {t("filtersDesc", { ns: "journal" })}
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("filterByDate", { ns: "journal" })}
-                </label>
                 <MobileDatePicker
                   selected={undefined}
                   onSelect={() => {}}
@@ -92,9 +84,6 @@ export default function JournalPage() {
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div>
                 <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
-                <CardDescription>
-                  {t("logsDescription", { ns: "journal" })}
-                </CardDescription>
               </div>
               <Button
                 size="icon"

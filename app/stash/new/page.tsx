@@ -26,6 +26,7 @@ import { ROUTE_STASH } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import { addDoc } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
+import { clearSuspenseCache } from "@/lib/suspense-utils";
 
 // Form validation schema
 const createStashFormSchema = (t: any) =>
@@ -95,18 +96,27 @@ function NewStashPageContent() {
 
     setIsLoading(true);
     try {
-      const stashData = {
+      const stashData: Record<string, string> = {
         name: data.name.trim(),
         type: data.type,
         amount: data.amount.trim(),
         unit: data.unit,
-        thc: data.thc?.trim() || undefined,
-        cbd: data.cbd?.trim() || undefined,
-        vendor: data.vendor?.trim() || undefined,
-        price: data.price?.trim() || undefined,
-        notes: data.notes?.trim() || undefined,
         addedAt: new Date().toISOString(),
       };
+
+      const optionalFields: Record<string, string | undefined> = {
+        thc: data.thc?.trim(),
+        cbd: data.cbd?.trim(),
+        vendor: data.vendor?.trim(),
+        price: data.price?.trim(),
+        notes: data.notes?.trim(),
+      };
+
+      Object.entries(optionalFields).forEach(([key, value]) => {
+        if (value && value.length > 0) {
+          stashData[key] = value;
+        }
+      });
 
       const stashRef = stashCol(user.uid);
       await addDoc(stashRef, stashData);
@@ -116,6 +126,7 @@ function NewStashPageContent() {
         description: t("addSuccessDesc", { ns: "stash" }),
       });
 
+      clearSuspenseCache(`stash-${user.uid}`);
       router.push(ROUTE_STASH);
     } catch (error: any) {
       console.error("Error adding stash item:", error);
@@ -407,3 +418,4 @@ export default function NewStashPage() {
     </Suspense>
   );
 }
+

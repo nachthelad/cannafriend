@@ -14,6 +14,7 @@ Para evitar olvidos al documentar cambios, el repo incluye:
 - Auto-versionado: incrementa `package.json` según el nivel (major, mid, minor).
 
 Configuración y uso
+
 - Archivo de salida: `UPDATES.md` (AGENTS.md no recibe entradas automáticas).
 - Niveles y cómo detectarlos en el subject del commit:
   - major: `feat!` o texto que contenga `[major]`
@@ -33,10 +34,11 @@ Configuración y uso
   - `npm run autolog:minor -- "Descripción"`
 
 Notas
+
 - Autolog inserta entradas al inicio de la sección `<!-- AUTOLOG:START --> … <!-- AUTOLOG:END -->` en `UPDATES.md`.
 - Si tu cliente/IDE omite hooks, usa los scripts manuales y hace stage de archivos antes de commitear.
 
-## Recent Major Updates (January 2025)
+## Recent Major Updates (Sept 2025)
 
 ### Suspense Data Loading Architecture (Sept 2025)
 
@@ -58,7 +60,9 @@ async function fetchComponentData(userId: string): Promise<DataType> {
 // 2. Component with Suspense resource
 function ComponentContent({ userId }: Props) {
   const cacheKey = `component-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchComponentData(userId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchComponentData(userId)
+  );
   const data = resource.read(); // Suspends until ready
 
   return <div>{/* Render with data */}</div>;
@@ -77,10 +81,12 @@ export function Component(props: Props) {
 #### Implementation Files:
 
 **Utilities**:
+
 - `lib/suspense-utils.ts` - `getSuspenseResource`, `createSuspenseResource`, cache management
 - `lib/suspense-cache.ts` - Cache invalidation helpers (`invalidatePlantsCache`, `invalidateJournalCache`)
 
 **Components Using Suspense** (follow these patterns):
+
 - `components/dashboard/dashboard-container.tsx`
 - `components/journal/journal-grid.tsx`
 - `components/plant/plant-grid.tsx`
@@ -287,39 +293,47 @@ pnpm dev              # Alternative dev command
 The AI assistant consists of a responsive chat layout with a persistent sidebar and a unified chat view.
 
 ### Main Pieces
+
 - `app/ai-assistant/page.tsx`: Protects route, opens the chat sidebar by default on desktop (≥768px), closed on mobile.
 - `components/ai/unified-chat.tsx`: Chat area, message list, composer, image upload modal. Closes the sidebar after selecting a chat on mobile only.
 - `components/ai/chat-sidebar.tsx`: Sidebar with history, actions, and search. Uses `ChatListItem` for each chat row.
 - `components/ai/chat-list-item.tsx`: Reusable row that handles selection, inline rename, and menu actions consistently for mobile/desktop.
 
 ### Sidebar Behavior
+
 - Header: Cannafriend logo aligned left, close button on the right.
 - Actions: “Nuevo chat” and “Buscar” appear stacked under the header (full‑width, left‑aligned). In minimized desktop state, only two icons are shown (new chat, search).
 - Mobile panel: slide‑over; selecting a chat closes the panel. Desktop stays open.
 - Desktop list: borderless rows, compact spacing to reduce vertical footprint.
 
 ### Chat Rows (ChatListItem)
+
 - Selection: Clicking the row opens the chat when not editing; keyboard Enter/Space also work.
 - Menu: “Renombrar” and “Eliminar” (uses Radix `onSelect` so the menu closes automatically).
 - Inline rename: Triggered only via menu. Uses `InlineEdit` with `forceEdit` and a stable `key` to re‑mount reliably.
 - Editing UX: When the row is selected and in edit mode, the input forces `bg-background` with a subtle ring to contrast against the selected row background.
 
 ### Delete Confirmation
+
 - Deleting a chat shows a confirmation dialog. If the current chat is deleted, the view resets to a new chat.
 
 ### Search
+
 - “Buscar” opens a modal with an input that filters chats in real time.
 - Results are grouped by date (Hoy, Ayer, or local date). Selecting a result opens the chat and closes the modal.
 
 ### InlineEdit Enhancements
+
 - New props: `forceEdit`, `clickToEdit` (to disable click‑to‑edit and allow menu‑driven editing), `onStartEdit`, `onCancel`.
 - Cursor moves to the end on enter; save/cancel stop propagation to avoid navigating.
 - If the value doesn’t change, `onCancel` is called so parent state (e.g., `editingId`) resets properly.
 
 ### Compact Chat Area
+
 - Reduced paddings/gaps in message list and composer for better density on mobile and desktop.
 
 ### Consistency Notes
+
 - No nested buttons inside chat rows; mobile rows use `<div role="button">` to avoid hydration issues.
 - All text is translated using established namespaces; new labels reuse `common` keys (`rename`, `search`).
 
@@ -393,7 +407,6 @@ When editing files, you MUST follow the exact same patterns used in that file:
 - If other hooks use specific custom hooks, use the same ones
 
 **This ensures code consistency and prevents introducing inconsistencies or breaking existing patterns.**
-
 
 ### GitHub Actions CI/CD (Simplified)
 

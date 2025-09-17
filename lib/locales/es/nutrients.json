@@ -12,6 +12,7 @@
   "npkPlaceholder": "Ej: 3-1-2",
   "notes": "Notas",
   "notesPlaceholder": "Instrucciones de uso, dosis, etc.",
+  "searchPlaceholder": "Buscar",
   "added": "Mezcla agregada",
   "addedDesc": "La mezcla ha sido agregada exitosamente",
   "addError": "Error al agregar mezcla"
