@@ -8,7 +8,6 @@
   "error": "Error loading journal",
   "deleted": "Log deleted",
   "deletedDesc": "The log entry has been deleted",
-  "filtersDesc": "Filter your journal entries",
   "filterByPlant": "Filter by Plant",
   "selectPlant": "Select a plant",
   "allPlants": "All Plants",
@@ -70,7 +69,7 @@
   },
   "sort": {
     "byDate": "Sort by Date",
-    "byType": "Sort by Type", 
+    "byType": "Sort by Type",
     "byPlant": "Sort by Plant",
     "ascending": "Ascending",
     "descending": "Descending"

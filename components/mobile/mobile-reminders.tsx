@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { useAuthUser } from "@/hooks/use-auth-user";
-import { auth, db } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
@@ -22,7 +19,8 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { plantsCol } from "@/lib/paths";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_PLANTS_NEW } from "@/lib/routes";
+import { getSuspenseResource } from "@/lib/suspense-utils";
 import { MobileReminderCards } from "./mobile-reminder-cards";
 import { MobileReminderScheduler } from "./mobile-reminder-scheduler";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
@@ -36,7 +34,7 @@ interface Reminder {
   type: "watering" | "feeding" | "training" | "custom";
   title: string;
   description: string;
-  interval: number; // days
+  interval: number;
   lastReminder: string;
   nextReminder: string;
   isActive: boolean;
@@ -44,93 +42,129 @@ interface Reminder {
 }
 
 interface MobileRemindersProps {
+  userId: string;
+  initialPlants?: Plant[];
   showHeader?: boolean;
 }
 
-export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
+interface MobileRemindersContentProps extends MobileRemindersProps {
+  showHeader: boolean;
+}
+
+interface MobileRemindersData {
+  plants: Plant[];
+  reminders: Reminder[];
+}
+
+function MobileRemindersSkeleton({ showHeader }: { showHeader: boolean }) {
+  return (
+    <div className="space-y-6">
+      {showHeader && (
+        <div className="text-center space-y-2">
+          <Skeleton className="h-8 w-48 mx-auto" />
+          <Skeleton className="h-4 w-56 mx-auto" />
+        </div>
+      )}
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+async function fetchMobileRemindersData(
+  userId: string,
+  initialPlants?: Plant[]
+): Promise<MobileRemindersData> {
+  const remindersRef = collection(db, "users", userId, "reminders");
+  const remindersSnapshot = await getDocs(query(remindersRef));
+  const reminders: Reminder[] = [];
+
+  remindersSnapshot.forEach((docSnapshot) => {
+    reminders.push({ id: docSnapshot.id, ...docSnapshot.data() } as Reminder);
+  });
+
+  if (initialPlants) {
+    return { reminders, plants: [...initialPlants] };
+  }
+
+  const plantsSnapshot = await getDocs(query(plantsCol(userId)));
+  const plants: Plant[] = [];
+  plantsSnapshot.forEach((docSnapshot) => {
+    plants.push({ id: docSnapshot.id, ...docSnapshot.data() } as Plant);
+  });
+
+  return { reminders, plants };
+}
+
+function MobileRemindersContent({
+  userId,
+  initialPlants,
+  showHeader,
+}: MobileRemindersContentProps) {
   const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const router = useRouter();
-  const { user, isLoading: authLoading } = useAuthUser();
-  const userId = user?.uid ?? null;
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [plants, setPlants] = useState<Plant[]>([]);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const cacheKey = `mobile-reminders-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchMobileRemindersData(userId, initialPlants)
+  );
+  const { reminders: initialReminders, plants } = resource.read();
+
+  const [reminders, setReminders] = useState<Reminder[]>(
+    () => initialReminders
+  );
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) router.push(ROUTE_LOGIN);
-  }, [authLoading, user, router]);
-
-  useEffect(() => {
-    const fetchPlants = async () => {
-      if (!userId) return;
-      try {
-        const q = query(plantsCol(userId));
-        const snap = await getDocs(q);
-        const list: Plant[] = [];
-        snap.forEach((d) => list.push({ id: d.id, ...d.data() } as Plant));
-        setPlants(list);
-      } catch (error: any) {
-        handleFirebaseError(error, "fetching plants");
-      }
-    };
-    if (userId) void fetchPlants();
-  }, [userId, handleFirebaseError]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const remindersRef = collection(db, "users", userId, "reminders");
-    const q = query(remindersRef);
+    const remindersCollection = collection(db, "users", userId, "reminders");
+    const remindersQuery = query(remindersCollection);
 
     const unsubscribe = onSnapshot(
-      q,
+      remindersQuery,
       (querySnapshot) => {
         const remindersData: Reminder[] = [];
-        querySnapshot.forEach((doc) => {
-          remindersData.push({ id: doc.id, ...doc.data() } as Reminder);
+        querySnapshot.forEach((docSnapshot) => {
+          remindersData.push({
+            id: docSnapshot.id,
+            ...docSnapshot.data(),
+          } as Reminder);
         });
         setReminders(remindersData);
-        setIsLoading(false);
       },
       (error) => {
-        console.error("Error fetching reminders:", error);
-        setIsLoading(false);
+        handleFirebaseError(error, "listening to reminders");
       }
     );
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, handleFirebaseError]);
 
   const handleComplete = async (reminderId: string, intervalDays: number) => {
-    if (!auth.currentUser) return;
     try {
       const now = new Date();
       const next = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
-      const reminderRef = doc(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "reminders",
-        reminderId
-      );
+      const reminderRef = doc(db, "users", userId, "reminders", reminderId);
       await updateDoc(reminderRef, {
         lastReminder: now.toISOString(),
         nextReminder: next.toISOString(),
       });
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "marking reminder done");
     }
   };
 
   const handleSnooze = async (reminderId: string, hours: number) => {
-    if (!auth.currentUser) return;
     try {
       const reminder = reminders.find((r) => r.id === reminderId);
       if (!reminder) return;
@@ -139,18 +173,11 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
       const snoozeTime = new Date(
         currentNext.getTime() + hours * 60 * 60 * 1000
       );
-
-      const reminderRef = doc(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "reminders",
-        reminderId
-      );
+      const reminderRef = doc(db, "users", userId, "reminders", reminderId);
       await updateDoc(reminderRef, {
         nextReminder: snoozeTime.toISOString(),
       });
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "snoozing reminder");
     }
   };
@@ -161,17 +188,10 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
   };
 
   const handleDelete = async (reminderId: string) => {
-    if (!auth.currentUser) return;
     try {
-      const reminderRef = doc(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "reminders",
-        reminderId
-      );
+      const reminderRef = doc(db, "users", userId, "reminders", reminderId);
       await deleteDoc(reminderRef);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "deleting reminder");
     }
   };
@@ -199,22 +219,6 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
     return next >= now && next <= dueSoonThreshold;
   }).length;
 
-  if (isLoading || authLoading) {
-    return (
-      <div className="space-y-4 p-4">
-        <div className="space-y-2 text-center">
-          <Skeleton className="h-7 w-48 mx-auto" />
-          <Skeleton className="h-4 w-64 mx-auto" />
-        </div>
-        <div className="space-y-3">
-          <Skeleton className="h-20 w-full rounded-lg" />
-          <Skeleton className="h-20 w-full rounded-lg" />
-          <Skeleton className="h-20 w-full rounded-lg" />
-        </div>
-      </div>
-    );
-  }
-
   if (plants.length === 0) {
     return (
       <div className="space-y-6">
@@ -239,7 +243,7 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
               {t("noPlantsHint", { ns: "reminders" })}
             </p>
             <Button
-              onClick={() => router.push("/plants/new")}
+              onClick={() => router.push(ROUTE_PLANTS_NEW)}
               className="min-h-[48px]"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -262,7 +266,6 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
             {t("pageDescription", { ns: "reminders" })}
           </p>
 
-          {/* Status Summary */}
           <div className="flex justify-center gap-3 pt-2">
             {overdueCount > 0 && (
               <Badge variant="destructive" className="text-xs">
@@ -283,7 +286,6 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
         </div>
       )}
 
-      {/* Add Reminder Button / Scheduler */}
       <MobileReminderScheduler
         plants={plants}
         onReminderAdded={handleReminderAdded}
@@ -291,7 +293,6 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
         onOpenChange={handleSchedulerOpenChange}
       />
 
-      {/* Reminder Cards */}
       {!isSchedulerOpen &&
         (reminders.length > 0 ? (
           <MobileReminderCards
@@ -319,7 +320,6 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
           </Card>
         ))}
 
-      {/* Edit Reminder Dialog */}
       <EditReminderDialog
         reminder={editingReminder}
         plants={plants}
@@ -328,5 +328,21 @@ export function MobileReminders({ showHeader = true }: MobileRemindersProps) {
         onReminderUpdated={handleReminderUpdated}
       />
     </div>
+  );
+}
+
+export function MobileReminders({
+  userId,
+  initialPlants,
+  showHeader = true,
+}: MobileRemindersProps) {
+  return (
+    <Suspense fallback={<MobileRemindersSkeleton showHeader={showHeader} />}>
+      <MobileRemindersContent
+        userId={userId}
+        initialPlants={initialPlants}
+        showHeader={showHeader}
+      />
+    </Suspense>
   );
 }

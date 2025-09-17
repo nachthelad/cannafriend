@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import type React from "react";
 import { useRouter } from "next/navigation";
-import { ROUTE_AI_ASSISTANT, ROUTE_SESSIONS } from "@/lib/routes";
+import {
+  ROUTE_AI_ASSISTANT,
+  ROUTE_SESSIONS,
+  ROUTE_LOGIN,
+} from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import {
   Card,
@@ -14,21 +18,21 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Pencil, Trash2, Calendar, Clock, Heart } from "lucide-react";
+import { Plus, Pencil, Trash2, Calendar, Clock, Heart, Brain } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { db } from "@/lib/firebase";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { ROUTE_LOGIN } from "@/lib/routes";
 import { sessionsCol, userDoc } from "@/lib/paths";
 import {
-  collection,
   getDocs,
   query,
   doc,
   updateDoc,
   deleteDoc,
+  arrayUnion,
+  arrayRemove,
+  getDoc,
 } from "firebase/firestore";
-import { arrayUnion, arrayRemove, getDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRoles } from "@/hooks/use-user-roles";
@@ -41,7 +45,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn, formatDateObjectWithLocale } from "@/lib/utils";
-import { Brain } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +54,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/common/image-upload";
+import { getSuspenseResource } from "@/lib/suspense-utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,15 +79,59 @@ type Session = {
   endTime?: string | null;
   photos?: string[] | null;
 };
+interface SessionsData {
+  sessions: Session[];
+  favoriteStrains: string[];
+}
 
-export default function SessionsPage() {
+interface SessionsContentProps {
+  userId: string;
+}
+
+async function fetchSessionsData(userId: string): Promise<SessionsData> {
+  const ref = sessionsCol(userId);
+  const q = query(ref);
+  const snapshot = await getDocs(q);
+  const sessions: Session[] = [];
+
+  snapshot.forEach((docSnapshot) => {
+    sessions.push({ id: docSnapshot.id, ...(docSnapshot.data() as any) });
+  });
+
+  sessions.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  let favoriteStrains: string[] = [];
+  const favoritesSnapshot = await getDoc(userDoc(userId));
+  if (favoritesSnapshot.exists()) {
+    favoriteStrains =
+      ((favoritesSnapshot.data() as any)?.favoriteStrains as string[]) || [];
+  }
+
+  return { sessions, favoriteStrains };
+}
+function SessionsContent({ userId }: SessionsContentProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const { user, isLoading: authLoading } = useAuthUser();
-  const userId = user?.uid ?? null;
+  const { roles } = useUserRoles();
+  const { isPremium } = usePremium();
+
+  const cacheKey = `sessions-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchSessionsData(userId)
+  );
+  const {
+    sessions: initialSessions,
+    favoriteStrains: initialFavoriteStrains,
+  } = resource.read();
+
+  const [sessions, setSessions] = useState<Session[]>(initialSessions);
+  const [favoriteStrains, setFavoriteStrains] = useState<string[]>(
+    initialFavoriteStrains
+  );
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editSession, setEditSession] = useState<Session | null>(null);
   const [editNotes, setEditNotes] = useState("");
@@ -92,47 +140,25 @@ export default function SessionsPage() {
   const [editStartTime, setEditStartTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
   const [editPhotos, setEditPhotos] = useState<string[]>([]);
-  const { roles } = useUserRoles();
-  const { isPremium } = usePremium();
-  const [favoriteStrains, setFavoriteStrains] = useState<string[]>([]);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  const previousSessionsRef = useRef<Session[] | null>(null);
+  const previousFavoritesRef = useRef<string[] | null>(null);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user) router.push(ROUTE_LOGIN);
-  }, [authLoading, user, router]);
+    if (previousSessionsRef.current === initialSessions) {
+      return;
+    }
+    previousSessionsRef.current = initialSessions;
+    setSessions(initialSessions);
+  }, [initialSessions]);
 
   useEffect(() => {
-    const fetchSessions = async () => {
-      if (!userId) return;
-      try {
-        const ref = sessionsCol(userId);
-        const q = query(ref);
-        const snap = await getDocs(q);
-        const list: Session[] = [];
-        snap.forEach((d) => list.push({ id: d.id, ...(d.data() as any) }));
-        list.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        setSessions(list);
-        // load favorites
-        const uSnap = await getDoc(userDoc(userId));
-        setFavoriteStrains(
-          ((uSnap.data() as any)?.favoriteStrains as string[]) || []
-        );
-      } catch (e: any) {
-        toast({
-          variant: "destructive",
-          title: t("error", { ns: "common" }),
-          description: e?.message || String(e),
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    if (userId) void fetchSessions();
-  }, [userId]);
-
+    if (previousFavoritesRef.current === initialFavoriteStrains) {
+      return;
+    }
+    previousFavoritesRef.current = initialFavoriteStrains;
+    setFavoriteStrains(initialFavoriteStrains);
+  }, [initialFavoriteStrains]);
   const normalizeStrain = (name: string) => name.trim().toLowerCase();
 
   const toggleFavorite = async (strainName: string) => {
@@ -259,7 +285,7 @@ export default function SessionsPage() {
   };
 
   return (
-    <Layout>
+    <>
       <div className="mb-6 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center">
@@ -321,25 +347,7 @@ export default function SessionsPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="p-4 md:p-6 space-y-4 overflow-x-hidden">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="space-y-2 w-full sm:w-auto">
-              <Skeleton className="h-8 w-40" />
-              <Skeleton className="h-4 w-44 sm:w-72" />
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Skeleton className="h-9 w-28" />
-              <Skeleton className="h-9 w-9 rounded-md" />
-            </div>
-          </div>
-          <div className="space-y-3">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-          </div>
-        </div>
-      ) : sessions.length === 0 ? (
+      {sessions.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>{t("noSessions", { ns: "sessions" })}</CardTitle>
@@ -575,7 +583,7 @@ export default function SessionsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Layout>
+    </>
   );
 }
 
@@ -640,3 +648,70 @@ function TimeField({
     </div>
   );
 }
+export default function SessionsPage() {
+  const { user, isLoading: authLoading } = useAuthUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+    if (!user) {
+      router.push(ROUTE_LOGIN);
+    }
+  }, [authLoading, user, router]);
+
+  const fallback = <SessionsSkeleton />;
+
+  if (authLoading || !user) {
+    return (
+      <Layout>
+        {fallback}
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <Suspense fallback={fallback}>
+        <SessionsContent userId={user.uid} />
+      </Suspense>
+    </Layout>
+  );
+}
+
+function SessionsSkeleton() {
+  return (
+    <div className="p-4 md:p-6 space-y-4 overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="space-y-2 w-full sm:w-auto">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-4 w-44 sm:w-72" />
+        </div>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Skeleton className="h-9 w-28" />
+          <Skeleton className="h-9 w-9 rounded-md" />
+        </div>
+      </div>
+      <div className="space-y-3">
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

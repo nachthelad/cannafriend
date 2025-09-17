@@ -5,48 +5,51 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { unwrapError } from "@/lib/errors";
 
+let cachedUser: User | null = null;
+
 export function useAuthUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => cachedUser);
+  const [isLoading, setIsLoading] = useState(() => cachedUser == null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       try {
-        // If we have a user but token is invalid, clear the state
         if (u) {
           try {
-            await u.getIdToken(true); // Force refresh token
+            await u.getIdToken(true);
+            cachedUser = u;
             setUser(u);
           } catch (tokenError: unknown) {
-            // Token invalid, clear user state
             const code = (tokenError as any)?.code;
-            console.warn('Token invalid, clearing user state:', code);
+            console.warn("Token invalid, clearing user state:", code);
             unwrapError(tokenError);
+            cachedUser = null;
             setUser(null);
 
-            // Clear auth state if token was revoked
             if (
-              code === 'auth/user-token-expired' ||
-              code === 'auth/token-expired'
+              code === "auth/user-token-expired" ||
+              code === "auth/token-expired"
             ) {
               try {
                 await auth.signOut();
               } catch (signOutError: unknown) {
-                console.warn('Error signing out:', unwrapError(signOutError));
+                console.warn("Error signing out:", unwrapError(signOutError));
               }
             }
           }
         } else {
+          cachedUser = null;
           setUser(null);
         }
       } catch (err: unknown) {
-        console.error('Auth state change error:', unwrapError(err));
+        console.error("Auth state change error:", unwrapError(err));
+        cachedUser = null;
         setUser(null);
       } finally {
         setIsLoading(false);
       }
     });
-    
+
     return () => unsub();
   }, []);
 

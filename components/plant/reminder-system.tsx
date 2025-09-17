@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
@@ -385,15 +386,7 @@ export function ReminderSystem({
   }, [overdueReminders.length, overdueToastShown, t, toast, showOnlyOverdue]);
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex justify-center items-center h-32">
-          <div className="text-muted-foreground">
-            {t("loading", { ns: "reminders" })}
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <ReminderSystemSkeleton showOnlyOverdue={showOnlyOverdue} />;
   }
 
   if (showOnlyOverdue) {
@@ -781,3 +774,38 @@ export function ReminderSystem({
     </div>
   );
 }
+
+
+function ReminderSystemSkeleton({ showOnlyOverdue }: { showOnlyOverdue: boolean }) {
+  if (showOnlyOverdue) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-32 mb-2" />
+          <Skeleton className="h-4 w-48" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-20 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-64" />
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-40 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-24 w-full" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+

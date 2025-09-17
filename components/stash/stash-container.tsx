@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Layout } from "@/components/layout";
 import {
   Card,
@@ -32,6 +32,7 @@ import {
   getDocs,
   query,
   updateDoc,
+  deleteField,
 } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
 import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
@@ -82,20 +83,23 @@ function StashContent({ userId }: StashContainerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { roles } = useUserRoles();
-  const [items, setItems] = useState<StashItem[]>([]);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editing, setEditing] = useState<StashItem | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  // Get stash data from Suspense
   const cacheKey = `stash-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchStashData(userId));
   const { items: initialItems } = resource.read();
 
-  // Initialize local state from Suspense data
-  if (items.length === 0 && initialItems.length > 0) {
+  const [items, setItems] = useState<StashItem[]>(initialItems);
+  const previousItemsRef = useRef<StashItem[] | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editing, setEditing] = useState<StashItem | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (previousItemsRef.current === initialItems) {
+      return;
+    }
+    previousItemsRef.current = initialItems;
     setItems(initialItems);
-  }
+  }, [initialItems]);
 
   type StashForm = {
     name: string;
@@ -109,6 +113,32 @@ function StashContent({ userId }: StashContainerProps) {
     notes?: string;
   };
 
+  const buildUpdatePayload = (form: StashForm) => {
+    const payload: Record<string, any> = {
+      name: form.name.trim(),
+      type: form.type,
+      amount: form.amount.trim(),
+      unit: form.unit,
+    };
+
+    const optionalFields: Record<string, string | undefined> = {
+      thc: form.thc?.trim(),
+      cbd: form.cbd?.trim(),
+      vendor: form.vendor?.trim(),
+      price: form.price?.trim(),
+      notes: form.notes?.trim(),
+    };
+
+    Object.entries(optionalFields).forEach(([key, value]) => {
+      if (value && value.length > 0) {
+        payload[key] = value;
+      } else {
+        payload[key] = deleteField();
+      }
+    });
+
+    return payload;
+  };
   const {
     register,
     handleSubmit,
@@ -168,12 +198,13 @@ function StashContent({ userId }: StashContainerProps) {
     setSaving(true);
     try {
       const itemRef = doc(db, stashCol(userId).path, editing.id);
-      await updateDoc(itemRef, { ...data });
+      const payload = buildUpdatePayload(data);
+      await updateDoc(itemRef, payload);
       await fetchItems();
       closeEdit();
       toast({
         title: t("updated", { ns: "common" }),
-        description: t("itemUpdated"),
+        description: t("updatedDesc", { ns: "stash" }),
       });
     } catch (e: any) {
       toast({
@@ -193,8 +224,8 @@ function StashContent({ userId }: StashContainerProps) {
       await deleteDoc(itemRef);
       await fetchItems();
       toast({
-        title: t("deleted", { ns: "common" }),
-        description: t("itemDeleted"),
+        title: t("deleted", { ns: "stash" }),
+        description: t("itemDeleted", { ns: "stash" }),
       });
     } catch (e: any) {
       toast({
@@ -274,11 +305,11 @@ function StashContent({ userId }: StashContainerProps) {
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold mb-2">{t("noItems")}</h3>
-            <p className="text-muted-foreground mb-6">{t("noItemsDesc")}</p>
+            <h3 className="text-lg font-semibold mb-2">{t("empty")}</h3>
+            <p className="text-muted-foreground mb-6">{t("emptyDesc")}</p>
             <Button onClick={openNew}>
               <Plus className="h-4 w-4 mr-2" />
-              {t("addFirstItem")}
+              {t("addItem")}
             </Button>
           </div>
         ) : (
@@ -310,7 +341,7 @@ function StashContent({ userId }: StashContainerProps) {
                     </div>
                   </div>
                   <CardDescription className="capitalize">
-                    {t(`type.${item.type}`, { ns: "stash" })}
+                    {t(`types.${item.type}`, { ns: "stash" })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -326,13 +357,17 @@ function StashContent({ userId }: StashContainerProps) {
                   )}
                   {item.thc && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">THC:</span>
+                      <span className="text-sm text-muted-foreground">
+                        THC:
+                      </span>
                       <span className="text-sm">{item.thc}%</span>
                     </div>
                   )}
                   {item.cbd && (
                     <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">CBD:</span>
+                      <span className="text-sm text-muted-foreground">
+                        CBD:
+                      </span>
                       <span className="text-sm">{item.cbd}%</span>
                     </div>
                   )}
@@ -381,7 +416,9 @@ function StashContent({ userId }: StashContainerProps) {
                 placeholder={t("namePlaceholder")}
               />
               {errors.name && (
-                <p className="text-destructive text-sm mt-1">{t("required", { ns: "common" })}</p>
+                <p className="text-destructive text-sm mt-1">
+                  {t("required", { ns: "common" })}
+                </p>
               )}
             </div>
 
@@ -397,9 +434,11 @@ function StashContent({ userId }: StashContainerProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="flower">{t("type.flower")}</SelectItem>
-                  <SelectItem value="concentrate">{t("type.concentrate")}</SelectItem>
-                  <SelectItem value="edible">{t("type.edible")}</SelectItem>
+                  <SelectItem value="flower">{t("types.flower")}</SelectItem>
+                  <SelectItem value="concentrate">
+                    {t("types.concentrate")}
+                  </SelectItem>
+                  <SelectItem value="edible">{t("types.edible")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -488,7 +527,9 @@ function StashContent({ userId }: StashContainerProps) {
                 {t("cancel", { ns: "common" })}
               </Button>
               <Button type="submit" disabled={saving}>
-                {saving ? t("saving", { ns: "common" }) : t("save", { ns: "common" })}
+                {saving
+                  ? t("saving", { ns: "common" })
+                  : t("save", { ns: "common" })}
               </Button>
             </DialogFooter>
           </form>

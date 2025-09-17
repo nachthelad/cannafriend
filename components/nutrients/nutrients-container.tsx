@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,17 +75,20 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
   const router = useRouter();
   const { roles } = useUserRoles();
   const [search, setSearch] = useState("");
-  const [mixes, setMixes] = useState<NutrientMix[]>([]);
-
-  // Get nutrients data from Suspense
   const cacheKey = `nutrients-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchNutrientsData(userId));
   const { mixes: initialMixes } = resource.read();
 
-  // Initialize local state from Suspense data
-  if (mixes.length === 0 && initialMixes.length > 0) {
+  const [mixes, setMixes] = useState<NutrientMix[]>(initialMixes);
+  const previousMixesRef = useRef<NutrientMix[] | null>(null);
+
+  useEffect(() => {
+    if (previousMixesRef.current === initialMixes) {
+      return;
+    }
+    previousMixesRef.current = initialMixes;
     setMixes(initialMixes);
-  }
+  }, [initialMixes]);
 
   const filtered = useMemo(() => {
     const currentMixes = mixes.length > 0 ? mixes : initialMixes;
@@ -297,3 +300,4 @@ export function NutrientsContainer({ userId }: NutrientsContainerProps) {
     </Suspense>
   );
 }
+

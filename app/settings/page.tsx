@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuthUser } from "@/hooks/use-auth-user";
 import {
   ROUTE_LOGIN,
   ROUTE_PRIVACY,
@@ -41,7 +42,7 @@ import {
   collection,
   getDocs,
 } from "firebase/firestore";
-import { onAuthStateChanged, deleteUser, signOut } from "firebase/auth";
+import { deleteUser, signOut } from "firebase/auth";
 import {
   userDoc,
   plantsCol,
@@ -53,6 +54,7 @@ import { ref as storageRef, deleteObject, listAll } from "firebase/storage";
 import { Layout } from "@/components/layout";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { usePremium } from "@/hooks/use-premium";
+import { getSuspenseResource } from "@/lib/suspense-utils";
 import {
   Trash2,
   AlertTriangle,
@@ -74,7 +76,91 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function SettingsPage() {
+type UserRoleFlags = {
+  grower: boolean;
+  consumer: boolean;
+};
+
+type UserSettingsState = {
+  timezone: string;
+  darkMode: boolean;
+  email?: string;
+  providerId?: string;
+  roles?: UserRoleFlags;
+};
+
+interface SubscriptionDetails {
+  premium: boolean;
+  premium_until: number | null;
+  remaining_ms: number | null;
+  recurring: boolean | null;
+  preapproval_status: string | null;
+  last_payment?: {
+    id: string;
+    status?: string;
+    date_approved?: string;
+  } | null;
+}
+
+interface SettingsData {
+  settings: UserSettingsState;
+  subscription: SubscriptionDetails | null;
+}
+
+interface SettingsContentProps {
+  userId: string;
+}
+
+async function fetchSettingsData(
+  userId: string,
+  isPremium: boolean
+): Promise<SettingsData> {
+  const userRef = userDoc(userId);
+  const userSnap = await getDoc(userRef);
+
+  let timezone = "";
+  let darkMode = true;
+  let roles: UserRoleFlags = { grower: true, consumer: false };
+
+  if (userSnap.exists()) {
+    const data = userSnap.data() as any;
+    timezone = data.timezone ?? "";
+    darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
+    roles = {
+      grower: Boolean(data.roles?.grower ?? true),
+      consumer: Boolean(data.roles?.consumer ?? false),
+    };
+  }
+
+  let subscription: SubscriptionDetails | null = null;
+
+  if (isPremium && auth.currentUser) {
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const response = await fetch("/api/mercadopago/subscription-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        subscription = data as SubscriptionDetails;
+      }
+    } catch {
+      subscription = null;
+    }
+  }
+
+  return {
+    settings: {
+      timezone,
+      darkMode,
+      email: auth.currentUser?.email || "",
+      providerId: auth.currentUser?.providerData?.[0]?.providerId || "",
+      roles,
+    },
+    subscription,
+  };
+}
+function SettingsContent({ userId }: SettingsContentProps) {
   const { t, i18n } = useTranslation(["common", "onboarding"]);
   const language = i18n.language;
   const setLanguage = (lng: string) => i18n.changeLanguage(lng);
@@ -83,58 +169,53 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const { isPremium } = usePremium();
   const { roles } = useUserRoles();
-  const [isLoading, setIsLoading] = useState(true);
+
+  const cacheKey = `settings-${userId}-${isPremium ? "premium" : "free"}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchSettingsData(userId, isPremium)
+  );
+  const {
+    settings: initialSettings,
+    subscription: initialSubscription,
+  } = resource.read();
+
+  const [userSettings, setUserSettings] = useState<UserSettingsState>(
+    initialSettings
+  );
+  const [subDetails, setSubDetails] = useState<SubscriptionDetails | null>(
+    initialSubscription
+  );
+  const previousSettingsRef = useRef<UserSettingsState | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
     useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userSettings, setUserSettings] = useState<{
-    timezone: string;
-    darkMode: boolean;
-    email?: string;
-    providerId?: string;
-    roles?: { grower: boolean; consumer: boolean };
-  }>({
-    timezone: "",
-    darkMode: true,
-    email: "",
-    providerId: "",
-    roles: { grower: true, consumer: false },
-  });
-
-  // Subscription status details (only fetched when premium)
-  const [subDetails, setSubDetails] = useState<{
-    premium: boolean;
-    premium_until: number | null;
-    remaining_ms: number | null;
-    recurring: boolean | null;
-    preapproval_status: string | null;
-    last_payment?: {
-      id: string;
-      status?: string;
-      date_approved?: string;
-    } | null;
-  } | null>(null);
 
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        if (!isPremium || !auth.currentUser) return;
-        const token = await auth.currentUser.getIdToken();
-        const res = await fetch("/api/mercadopago/subscription-status", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "status_failed");
-        setSubDetails(data);
-      } catch (e) {
-        // Non-blocking; just log
-        console.warn("Failed to fetch subscription status", e);
-      }
-    };
-    fetchStatus();
-  }, [isPremium]);
+    if (previousSettingsRef.current === initialSettings) {
+      return;
+    }
+    previousSettingsRef.current = initialSettings;
+    setUserSettings(initialSettings);
+  }, [initialSettings]);
 
+  useEffect(() => {
+    setSubDetails(initialSubscription);
+  }, [initialSubscription]);
+
+  useEffect(() => {
+    setTheme(userSettings.darkMode ? "dark" : "light");
+  }, [userSettings.darkMode, setTheme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        `cf:userSettings:${userId}`,
+        JSON.stringify(userSettings)
+      );
+    } catch {
+      // Ignore storage write errors (e.g., private mode)
+    }
+  }, [userId, userSettings]);
   const formatRemaining = (ms?: number | null) => {
     if (!ms || ms <= 0) return t("inactive");
     const days = Math.floor(ms / (24 * 60 * 60 * 1000));
@@ -144,97 +225,6 @@ export default function SettingsPage() {
     if (hours > 0) return `${hours}h ${mins}m`;
     return `${mins}m`;
   };
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        router.push(ROUTE_LOGIN);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  useEffect(() => {
-    const fetchUserSettings = async () => {
-      if (!userId) return;
-
-      try {
-        // Try local cache first
-        const cacheKey = `cf:userSettings:${userId}`;
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached);
-            setUserSettings(parsed);
-            // sync theme with cached
-            if (parsed.darkMode && theme !== "dark") setTheme("dark");
-            if (!parsed.darkMode && theme !== "light") setTheme("light");
-          } catch {}
-        }
-
-        const userRef = userDoc(userId);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          const darkMode =
-            typeof userData.darkMode === "boolean" ? userData.darkMode : true;
-
-          setUserSettings({
-            timezone: userData.timezone || "",
-            darkMode: darkMode,
-            email: auth.currentUser?.email || "",
-            providerId: auth.currentUser?.providerData?.[0]?.providerId || "",
-            roles: {
-              grower: Boolean(userData.roles?.grower ?? true),
-              consumer: Boolean(userData.roles?.consumer ?? false),
-            },
-          });
-
-          // Save to cache
-          try {
-            localStorage.setItem(
-              cacheKey,
-              JSON.stringify({
-                timezone: userData.timezone || "",
-                darkMode,
-                email: auth.currentUser?.email || "",
-                providerId:
-                  auth.currentUser?.providerData?.[0]?.providerId || "",
-                roles: {
-                  grower: Boolean(userData.roles?.grower ?? true),
-                  consumer: Boolean(userData.roles?.consumer ?? false),
-                },
-              })
-            );
-          } catch {}
-
-          // Sync with theme context
-          if (darkMode && theme !== "dark") {
-            setTheme("dark");
-          } else if (!darkMode && theme !== "light") {
-            setTheme("light");
-          }
-        }
-      } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: t("settings.error"),
-          description: error.message,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (userId) {
-      fetchUserSettings();
-    }
-  }, [userId, toast, t, theme, setTheme]);
-
   const handleTimezoneChange = async (value: string) => {
     if (!userId) return;
 
@@ -560,23 +550,8 @@ export default function SettingsPage() {
     "Europe/Paris",
   ];
 
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="max-w-2xl mx-auto p-4 space-y-6">
-          <Skeleton className="h-9 w-48" />
-          <div className="space-y-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
-    <Layout>
+    <>
       {/* Mobile Header */}
       <div className="md:hidden mb-4 p-4">
         <div className="flex items-center gap-3 mb-2">
@@ -964,6 +939,72 @@ export default function SettingsPage() {
           </div>
         </footer>
       </div>
+    </>
+  );
+}
+export default function SettingsPage() {
+  const { user, isLoading: authLoading } = useAuthUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+    if (!user) {
+      router.push(ROUTE_LOGIN);
+    }
+  }, [authLoading, user, router]);
+
+  const fallback = (
+    <div className="p-4 md:p-6">
+      <SettingsSkeleton />
+    </div>
+  );
+
+  if (authLoading || !user) {
+    return (
+      <Layout>
+        {fallback}
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <Suspense fallback={fallback}>
+        <SettingsContent userId={user.uid} />
+      </Suspense>
     </Layout>
   );
 }
+
+function SettingsSkeleton() {
+  return (
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
