@@ -8,7 +8,6 @@
   "error": "Error cargando diario",
   "deleted": "Registro eliminado",
   "deletedDesc": "El registro ha sido eliminado",
-  "filtersDesc": "Filtra las entradas de tu diario",
   "filterByPlant": "Filtrar por Planta",
   "selectPlant": "Selecciona una planta",
   "allPlants": "Todas las Plantas",
@@ -64,13 +63,13 @@
   "selectDate": "Seleccionar Fecha",
   "searchPlaceholder": "Buscar entradas del diario...",
   "filters": {
-    "title": "Filtros", 
+    "title": "Filtros",
     "active": "Filtros activos",
     "clear": "Limpiar filtros"
   },
   "sort": {
     "byDate": "Ordenar por Fecha",
-    "byType": "Ordenar por Tipo", 
+    "byType": "Ordenar por Tipo",
     "byPlant": "Ordenar por Planta",
     "ascending": "Ascendente",
     "descending": "Descendente"
@@ -83,7 +82,7 @@
   "training": {
     "topping": "Poda Apical",
     "lst": "Entrenamiento de Bajo Estrés (LST)",
-    "defoliation": "Defoliación", 
+    "defoliation": "Defoliación",
     "supercropping": "Supercropping"
   }
 }

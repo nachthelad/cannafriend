@@ -8,7 +8,7 @@
   "save": "Save Item",
   "saved": "Item saved",
   "savedDesc": "Your item has been added to your inventory",
-  "updated": "Item updated", 
+  "updated": "Item updated",
   "updatedDesc": "Your item has been updated successfully",
   "delete": "Item deleted",
   "name": "Name",
@@ -29,7 +29,7 @@
   },
   "units": {
     "g": "g",
-    "ml": "ml", 
+    "ml": "ml",
     "units": "units"
   },
   "addItemDesc": "Add a new item to your inventory",
@@ -40,5 +40,7 @@
   "addSuccess": "Item added",
   "addSuccessDesc": "Item was successfully added to your inventory",
   "addError": "Error adding item",
-  "addErrorDesc": "There was an error adding the item"
+  "addErrorDesc": "There was an error adding the item",
+  "deleted": "Deleted",
+  "itemDeleted": "The item has been successfully deleted"
 }

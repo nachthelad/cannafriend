@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -28,7 +28,6 @@ import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useState } from "react";
 import { updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
 import { ROUTE_JOURNAL, ROUTE_PLANTS } from "@/lib/routes";
@@ -134,16 +133,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const { toast } = useToast();
   const { roles } = useUserRoles();
 
-  // Local state for UI interactions
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [coverPhoto, setCoverPhoto] = useState<string>("");
-  const [selectedPhoto, setSelectedPhoto] = useState<string>("");
-  const [showUpload, setShowUpload] = useState(false);
-  const [plant, setPlant] = useState<Plant | null>(null);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Get plant data from Suspense
   const cacheKey = `plant-details-${userId}-${plantId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantDetailsData(userId, plantId));
   const {
@@ -157,17 +146,41 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     lastEnvironmentFromLogs
   } = resource.read();
 
-  // Initialize local state from Suspense data
-  if (!plant) {
+  const [plant, setPlant] = useState<Plant | null>(initialPlant);
+  const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
+  const [photos, setPhotos] = useState<string[]>(() => initialPlant.photos ?? []);
+  const [coverPhoto, setCoverPhoto] = useState<string>(() => initialPlant.coverPhoto ?? "");
+  const [selectedPhoto, setSelectedPhoto] = useState<string>(() => initialPlant.coverPhoto ?? initialPlant.photos?.[0] ?? "");
+  const [showUpload, setShowUpload] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const previousPlantRef = useRef<Plant | null>(null);
+  const previousLogsRef = useRef<LogEntry[] | null>(null);
+
+  useEffect(() => {
+    if (previousPlantRef.current === initialPlant) {
+      return;
+    }
+    previousPlantRef.current = initialPlant;
     setPlant(initialPlant);
+    const nextPhotos = initialPlant.photos ?? [];
+    setPhotos(nextPhotos);
+    const nextCover = initialPlant.coverPhoto ?? "";
+    setCoverPhoto(nextCover);
+    setSelectedPhoto((prev) => {
+      if (prev && (prev === nextCover || nextPhotos.includes(prev))) {
+        return prev;
+      }
+      return nextCover || nextPhotos[0] || "";
+    });
+  }, [initialPlant]);
+
+  useEffect(() => {
+    if (previousLogsRef.current === initialLogs) {
+      return;
+    }
+    previousLogsRef.current = initialLogs;
     setLogs(initialLogs);
-    const plantData = initialPlant;
-    const loadedPhotos: string[] = plantData.photos || [];
-    const loadedCover: string = plantData.coverPhoto || "";
-    setPhotos(loadedPhotos);
-    setCoverPhoto(loadedCover);
-    setSelectedPhoto(loadedCover || loadedPhotos[0] || "");
-  }
+  }, [initialLogs]);
 
   const handleBack = () => {
     router.push(ROUTE_PLANTS);
@@ -718,3 +731,4 @@ export function PlantDetailsContainer({ userId, plantId }: PlantDetailsContainer
     </Suspense>
   );
 }
+
