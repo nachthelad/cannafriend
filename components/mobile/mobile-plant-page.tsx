@@ -213,43 +213,45 @@ export function MobilePlantPage({
                     {t("photos.addPhotos", { ns: "plants" })}
                   </DropdownMenuItem>
                 )}
-                {onSetCoverPhoto && allImages.length > 0 && allImages[currentImageIndex] !== plant.coverPhoto && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        onSelect={(e) => e.preventDefault()}
-                        className="text-yellow-400 hover:bg-slate-700 hover:text-yellow-300"
-                      >
-                        <Star className="h-4 w-4 mr-2" />
-                        {t("photos.setAsCover", { ns: "plants" })}
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-slate-200">
-                          {t("photos.setCoverConfirmTitle", { ns: "plants" })}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                          {t("photos.setCoverConfirmDesc", { ns: "plants" })}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
-                          {t("cancel", { ns: "common" })}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            onSetCoverPhoto(allImages[currentImageIndex]);
-                            setMenuOpen(false);
-                          }}
-                          className="bg-yellow-600 text-white hover:bg-yellow-700"
+                {onSetCoverPhoto &&
+                  allImages.length > 0 &&
+                  allImages[currentImageIndex] !== plant.coverPhoto && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className="text-yellow-400 hover:bg-slate-700 hover:text-yellow-300"
                         >
+                          <Star className="h-4 w-4 mr-2" />
                           {t("photos.setAsCover", { ns: "plants" })}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="bg-slate-800 border-slate-700">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="text-slate-200">
+                            {t("photos.setCoverConfirmTitle", { ns: "plants" })}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-slate-400">
+                            {t("photos.setCoverConfirmDesc", { ns: "plants" })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                            {t("cancel", { ns: "common" })}
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              onSetCoverPhoto(allImages[currentImageIndex]);
+                              setMenuOpen(false);
+                            }}
+                            className="bg-yellow-600 text-white hover:bg-yellow-700"
+                          >
+                            {t("photos.setAsCover", { ns: "plants" })}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                 {onRemovePhoto && allImages.length > 0 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -295,7 +297,7 @@ export function MobilePlantPage({
           <div className="absolute bottom-0 left-0 right-0 p-4">
             <div className="flex items-end justify-between">
               <div>
-                <div className="mb-2">
+                <div className="mb-2 max-w-[calc(100vw-8rem)] pr-2">
                   <InlineEdit
                     value={plant.name}
                     onSave={async (newName) => {
@@ -307,8 +309,8 @@ export function MobilePlantPage({
                     placeholder={t("newPlant.namePlaceholder", {
                       ns: "plants",
                     })}
-                    className="text-3xl font-bold text-white drop-shadow-lg uppercase hover:bg-white/10 rounded-md py-1 truncate max-w-full block"
-                    inputClassName="text-lg font-bold text-white bg-black/50 border-white/30 rounded-lg py-2 backdrop-blur-sm placeholder-white/60"
+                    className="text-2xl font-bold text-white drop-shadow-lg uppercase hover:bg-white/10 rounded-md py-1 truncate block w-full"
+                    inputClassName="text-lg font-bold text-white bg-black/50 border-white/30 rounded-lg py-2 backdrop-blur-sm placeholder-white/60 w-full max-w-full"
                   />
                 </div>
                 <div className="flex items-center text-lg text-green-400 font-bold drop-shadow">
@@ -467,7 +469,7 @@ export function MobilePlantPage({
                   onUpdate?.({ seedType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded px-2 py-1 h-auto font-medium">
+                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
                   <SelectValue>
                     {plant.seedType === "autoflowering"
                       ? t("seedType.autoflowering", { ns: "plants" })
@@ -505,7 +507,7 @@ export function MobilePlantPage({
                   onUpdate?.({ growType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded px-2 py-1 h-auto font-medium">
+                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
                   <SelectValue>
                     {plant.growType === "indoor"
                       ? t("growType.indoor", { ns: "plants" })
@@ -529,11 +531,11 @@ export function MobilePlantPage({
               </Select>
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-slate-400 text-sm flex-shrink-0">
               {t("plantPage.seedBank", { ns: "plants" })}
             </span>
-            <div className="text-white font-medium flex-1 text-right">
+            <div className="text-white font-medium flex-1 text-right min-w-0">
               <InlineEdit
                 value={plant.seedBank || ""}
                 onSave={async (newBank) => {
@@ -545,8 +547,8 @@ export function MobilePlantPage({
                 placeholder={t("newPlant.seedBankPlaceholder", {
                   ns: "plants",
                 })}
-                className="text-white font-medium hover:bg-white/10 rounded px-2 py-1"
-                inputClassName="text-white bg-black/50 border-white/30 rounded px-3 py-1 backdrop-blur-sm placeholder-white/60"
+                className="text-white font-medium hover:bg-white/10 rounded-xl px-2 py-1"
+                inputClassName="text-white bg-black/50 border-white/30 rounded-xl px-3 py-1 backdrop-blur-sm placeholder-white/60 w-full max-w-full"
               />
             </div>
           </div>

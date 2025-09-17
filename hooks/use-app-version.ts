@@ -28,6 +28,11 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
   useEffect(() => {
     let cancelled = false;
 
+    // Skip update checking in development
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
+
     const check = async () => {
       try {
         const res = await fetch("/api/version", { cache: "no-store" });
