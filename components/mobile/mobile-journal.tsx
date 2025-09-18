@@ -74,7 +74,7 @@ async function fetchJournalData(userId: string): Promise<JournalData> {
     limit(50)
   );
 
-  let logs: LogEntry[] = [];
+  const logs: LogEntry[] = [];
   try {
     const cgSnap = await getDocs(cgQuery);
     cgSnap.forEach((docSnap) => {

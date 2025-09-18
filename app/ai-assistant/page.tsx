@@ -1,20 +1,22 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AILayout } from "@/components/layout/ai-layout";
 import { UnifiedChat } from "@/components/ai/unified-chat";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useTranslation } from "react-i18next";
 import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { auth } from "@/lib/firebase";
 
-async function fetchPremiumStatus(userId: string): Promise<boolean> {
+async function fetchPremiumStatus(_userId: string): Promise<boolean> {
   // Check localStorage flag first
-  if (typeof window !== "undefined" && localStorage.getItem("cf_premium") === "1") {
+  if (
+    typeof window !== "undefined" &&
+    localStorage.getItem("cf_premium") === "1"
+  ) {
     return true;
   }
 
@@ -24,7 +26,8 @@ async function fetchPremiumStatus(userId: string): Promise<boolean> {
       const token = await auth.currentUser.getIdTokenResult(true);
       const claims = token.claims as any;
       const boolPremium = Boolean(claims?.premium);
-      const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+      const until =
+        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
       const timePremium = until > Date.now();
       return Boolean(boolPremium || timePremium);
     } catch {
@@ -36,12 +39,13 @@ async function fetchPremiumStatus(userId: string): Promise<boolean> {
 }
 
 function AIAssistantContent({ userId }: { userId: string }) {
-  const { t } = useTranslation(["aiAssistant", "common"]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Get premium status from Suspense
   const cacheKey = `premium-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchPremiumStatus(userId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchPremiumStatus(userId)
+  );
   const isPremium = resource.read();
 
   const handleToggleSidebar = () => {
@@ -99,9 +103,7 @@ export default function AIAssistantPage() {
 
   return (
     <AILayout>
-      <Suspense
-        fallback={<AIChatSkeleton />}
-      >
+      <Suspense fallback={<AIChatSkeleton />}>
         <AIAssistantContent userId={user.uid} />
       </Suspense>
     </AILayout>

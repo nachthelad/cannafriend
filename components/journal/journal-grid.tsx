@@ -35,7 +35,7 @@ async function fetchJournalData(userId: string): Promise<JournalData> {
   });
 
   // Try collectionGroup for logs
-  let logs: LogEntry[] = [];
+  const logs: LogEntry[] = [];
 
   try {
     const logsGroup = collectionGroup(db, "logs");
