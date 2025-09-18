@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { setDoc, getDoc } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
@@ -81,6 +82,9 @@ export default function OnboardingPage() {
         },
         { merge: true }
       );
+
+      // Invalidate dashboard cache since roles affect dashboard content
+      invalidateDashboardCache(userId);
 
       toast({
         title: t("success"),

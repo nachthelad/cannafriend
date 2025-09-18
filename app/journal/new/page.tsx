@@ -28,6 +28,7 @@ import { ROUTE_JOURNAL } from "@/lib/routes";
 
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import {
   LOG_TYPES,
   LOG_TYPE_OPTIONS,
@@ -315,6 +316,9 @@ function NewJournalPageContent() {
         buildLogsPath(auth.currentUser!.uid, selectedPlantId)
       );
       await addDoc(logsRef, logData);
+
+      // Invalidate dashboard cache to refresh recent logs
+      invalidateDashboardCache(auth.currentUser!.uid);
 
       toast({
         title: t("logForm.success", { ns: "journal" }),

@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { triggerHaptic } from "@/lib/haptic";
 import {
   Bell,
@@ -259,6 +260,9 @@ export function MobileReminderScheduler({
         "reminders"
       );
       await addDoc(remindersRef, reminderData);
+
+      // Invalidate dashboard cache to refresh reminders count
+      invalidateDashboardCache(auth.currentUser.uid);
 
       toast({
         title: t("success", { ns: "reminders" }),

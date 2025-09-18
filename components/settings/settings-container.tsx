@@ -7,6 +7,7 @@ import {
   getDoc,
   updateDoc,
 } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
@@ -210,6 +211,10 @@ function SettingsContent({ userId, email, providerId }: SettingsContentProps) {
 
     try {
       await updateDoc(userDoc(userId), { roles: nextRoles });
+
+      // Invalidate dashboard cache to refresh role-dependent components
+      invalidateDashboardCache(userId);
+
       const next = { ...preferences, roles: nextRoles };
       setPreferences(next);
       try {

@@ -34,7 +34,6 @@ import {
   Shield,
   Box,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
@@ -42,7 +41,7 @@ import { ADMIN_EMAIL } from "@/lib/constants";
 interface MobileDashboardProps {
   plants: Plant[];
   recentLogs: LogEntry[];
-  nutrientMixesCount: number;
+  remindersCount: number;
   hasOverdue: boolean;
   userEmail?: string;
   reminders: any[];
@@ -52,7 +51,7 @@ interface MobileDashboardProps {
 export function MobileDashboard({
   plants,
   recentLogs,
-  nutrientMixesCount,
+  remindersCount,
   hasOverdue,
   userEmail,
   reminders,
@@ -148,6 +147,11 @@ export function MobileDashboard({
 
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">
+          {t("title", { ns: "dashboard" })}
+        </h1>
+      </div>
       {/* Overdue reminders banner - mobile optimized */}
       {hasOverdue && (
         <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
@@ -197,10 +201,10 @@ export function MobileDashboard({
         />
         {roles?.grower && (
           <StatCard
-            icon={FlaskConical}
-            label={t("title", { ns: "nutrients" })}
-            value={nutrientMixesCount}
-            href={ROUTE_NUTRIENTS}
+            icon={Bell}
+            label={t("title", { ns: "reminders" })}
+            value={remindersCount}
+            href={ROUTE_REMINDERS}
             color="text-purple-600"
             bgColor="bg-purple-50 dark:bg-purple-950/20"
           />
@@ -218,31 +222,12 @@ export function MobileDashboard({
       <div className="space-y-4 pt-2">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2 mb-1">
-            <Plus className="h-5 w-5" />
             {t("quickActions", { ns: "dashboard" })}
           </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("quickActionsDesc", { ns: "dashboard" })}
-          </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {roles?.grower && (
             <>
-              <QuickActionButton
-                icon={Box}
-                label={t("stash", { ns: "nav" })}
-                href={ROUTE_STASH}
-              />
-              <QuickActionButton
-                icon={FlaskConical}
-                label={t("title", { ns: "nutrients" })}
-                href={ROUTE_NUTRIENTS}
-              />
-              <QuickActionButton
-                icon={Bell}
-                label={t("reminders", { ns: "dashboard" })}
-                href={ROUTE_REMINDERS}
-              />
               {isPremium && (
                 <QuickActionButton
                   icon={Brain}
@@ -251,6 +236,21 @@ export function MobileDashboard({
                   isPremiumFeature
                 />
               )}
+              <QuickActionButton
+                icon={Box}
+                label={t("stash", { ns: "nav" })}
+                href={ROUTE_STASH}
+              />
+              {/* <QuickActionButton
+                icon={FlaskConical}
+                label={t("title", { ns: "nutrients" })}
+                href={ROUTE_NUTRIENTS}
+              /> */}
+              <QuickActionButton
+                icon={Bell}
+                label={t("reminders", { ns: "dashboard" })}
+                href={ROUTE_REMINDERS}
+              />
             </>
           )}
           {roles?.consumer && (

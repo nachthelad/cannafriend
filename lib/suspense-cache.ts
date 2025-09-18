@@ -11,8 +11,14 @@ export function invalidateJournalCache(userId: string) {
   clearSuspenseCache(`journal-${userId}`);
 }
 
+// Clear cache when dashboard data changes (reminders, roles, etc.)
+export function invalidateDashboardCache(userId: string) {
+  clearSuspenseCache(`dashboard-${userId}`);
+}
+
 // Clear all user-specific caches (useful for logout)
 export function invalidateUserCaches(userId: string) {
   invalidatePlantsCache(userId);
   invalidateJournalCache(userId);
+  invalidateDashboardCache(userId);
 }

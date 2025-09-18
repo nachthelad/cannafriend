@@ -37,6 +37,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import {
   Bell,
   Clock,
@@ -209,6 +210,9 @@ export function ReminderSystem({
         "reminders"
       );
       await addDoc(remindersRef, reminderData);
+
+      // Invalidate dashboard cache to refresh reminders count
+      invalidateDashboardCache(auth.currentUser.uid);
 
       toast({
         title: t("success", { ns: "reminders" }),

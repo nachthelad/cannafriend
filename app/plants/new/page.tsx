@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { Calendar, ArrowLeft } from "lucide-react";
@@ -122,6 +123,9 @@ export default function NewPlantPage() {
 
       const plantsRef = collection(db, "users", userId, "plants");
       const docRef = await addDoc(plantsRef, plantData);
+
+      // Invalidate dashboard cache to refresh plants count
+      invalidateDashboardCache(userId);
 
       toast({
         title: t("newPlant.success", { ns: "plants" }),

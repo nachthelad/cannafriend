@@ -29,6 +29,7 @@ import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
 import { ROUTE_JOURNAL, ROUTE_PLANTS } from "@/lib/routes";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
@@ -213,6 +214,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       // Delete plant document
       await deleteDoc(plantDocRef(userId, plantId));
 
+      // Invalidate dashboard cache to refresh plants count
+      invalidateDashboardCache(userId);
+
       router.push(resolveHomePathForRoles(roles));
     } catch (error: any) {
       toast({
@@ -229,6 +233,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     if (!userId) return;
     try {
       await deleteDoc(doc(db, "users", userId, "plants", plantId, "logs", logId));
+
+      // Invalidate dashboard cache to refresh recent logs
+      invalidateDashboardCache(userId);
+
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
       toast({
