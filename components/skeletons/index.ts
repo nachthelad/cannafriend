@@ -29,5 +29,11 @@ export {
   NotificationSkeleton,
 } from "./common-skeletons";
 
+// Settings skeletons
+export {
+  SettingsSkeleton,
+  SettingsCardSkeleton,
+} from "./settings-skeleton";
+
 // Re-export the base skeleton
 export { Skeleton } from "@/components/ui/skeleton";

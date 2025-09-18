@@ -143,9 +143,18 @@
       "prefs": "Preferences such as language, theme, and roles.",
       "pwa": "Offline caches for faster loading and limited offline functionality."
     },
-    "push": { "title": "Push notifications", "desc": "If enabled, we may send reminders or service updates. You can disable notifications in your device settings." },
-    "ai": { "title": "AI features", "desc": "When you use AI assistant features, your prompts and context may be processed to generate responses. Avoid sharing sensitive personal data." },
-    "retention": { "title": "Data retention", "desc": "We retain your data while your account is active. You can delete content or your account at any time; residual backups may persist for a limited period." },
+    "push": {
+      "title": "Push notifications",
+      "desc": "If enabled, we may send reminders or service updates. You can disable notifications in your device settings."
+    },
+    "ai": {
+      "title": "AI features",
+      "desc": "When you use AI assistant features, your prompts and context may be processed to generate responses. Avoid sharing sensitive personal data."
+    },
+    "retention": {
+      "title": "Data retention",
+      "desc": "We retain your data while your account is active. You can delete content or your account at any time; residual backups may persist for a limited period."
+    },
     "advertising": "Advertising",
     "advertisingDesc": "We do not currently serve third-party ads. If we add advertising (e.g., AdSense), we will update this policy and request any required consent.",
     "rights": "Your rights",
@@ -158,7 +167,10 @@
       "restrict": "Restrict or limit processing.",
       "object": "Object to certain processing."
     },
-    "children": { "title": "Children and age limits", "desc": "This app is intended only for individuals of legal age to consume or cultivate cannabis in their jurisdiction. Do not use the app if it is illegal for you to do so." },
+    "children": {
+      "title": "Children and age limits",
+      "desc": "This app is intended only for individuals of legal age to consume or cultivate cannabis in their jurisdiction. Do not use the app if it is illegal for you to do so."
+    },
     "changes": "Changes to this policy",
     "changesDesc": "We may update this policy. Material changes will be highlighted with an updated date.",
     "contact": "Contact",
@@ -177,17 +189,38 @@
       "security": "No attempts to breach, probe, or scan the service or related systems.",
       "scraping": "No automated scraping without prior written consent."
     },
-    "eligibility": { "title": "Eligibility and legal compliance", "desc": "You must be of legal age and permitted by local law to cultivate or consume cannabis. You are solely responsible for complying with your jurisdiction's laws." },
-    "medical": { "title": "No medical or legal advice", "desc": "Information in the app (including AI outputs) is for informational purposes only and is not medical or legal advice. Consult licensed professionals for guidance." },
+    "eligibility": {
+      "title": "Eligibility and legal compliance",
+      "desc": "You must be of legal age and permitted by local law to cultivate or consume cannabis. You are solely responsible for complying with your jurisdiction's laws."
+    },
+    "medical": {
+      "title": "No medical or legal advice",
+      "desc": "Information in the app (including AI outputs) is for informational purposes only and is not medical or legal advice. Consult licensed professionals for guidance."
+    },
     "account": "Accounts",
     "accountDesc": "You are responsible for maintaining the confidentiality of your login and for all activities under your account. Notify us of any unauthorized use.",
-    "userContent": { "title": "Your content", "desc": "You retain ownership of content you submit (plants, logs, images, stash). You grant us a limited license to host, store, process, and display your content solely to operate and improve the service." },
-    "subscriptions": { "title": "Premium subscriptions and payments", "desc": "Premium features may be offered via recurring subscriptions handled by payment processors (e.g., Stripe, MercadoPago). You can cancel at any time as described by the processor. Refunds are handled per the processor's terms and applicable law." },
+    "userContent": {
+      "title": "Your content",
+      "desc": "You retain ownership of content you submit (plants, logs, images, stash). You grant us a limited license to host, store, process, and display your content solely to operate and improve the service."
+    },
+    "subscriptions": {
+      "title": "Premium subscriptions and payments",
+      "desc": "Premium features may be offered via recurring subscriptions handled by payment processors (e.g., Stripe, MercadoPago). You can cancel at any time as described by the processor. Refunds are handled per the processor's terms and applicable law."
+    },
     "privacy": "Privacy",
     "privacyDesc": "See our Privacy Policy for details about how we collect and use data.",
-    "ip": { "title": "Intellectual property", "desc": "The app, logos, and content (other than your content) are owned by us or our licensors and are protected by law." },
-    "disclaimers": { "title": "Disclaimers", "desc": "The service is provided “as is” without warranties of any kind. Use at your own risk." },
-    "liability": { "title": "Limitation of liability", "desc": "To the maximum extent permitted by law, we are not liable for indirect, incidental, special, or consequential damages arising from your use of the app." },
+    "ip": {
+      "title": "Intellectual property",
+      "desc": "The app, logos, and content (other than your content) are owned by us or our licensors and are protected by law."
+    },
+    "disclaimers": {
+      "title": "Disclaimers",
+      "desc": "The service is provided “as is” without warranties of any kind. Use at your own risk."
+    },
+    "liability": {
+      "title": "Limitation of liability",
+      "desc": "To the maximum extent permitted by law, we are not liable for indirect, incidental, special, or consequential damages arising from your use of the app."
+    },
     "termination": "Termination",
     "terminationDesc": "We may suspend or terminate access if you violate these Terms or misuse the service.",
     "changes": "Changes to terms",
@@ -258,6 +291,9 @@
     "accountDesc": "Manage your account information and session",
     "preferences": "Preferences",
     "preferencesDesc": "Customize your app experience",
+    "appInfo": "App information",
+    "appInfoDesc": "Version details",
+    "billing": "Billing",
     "language": "Language",
     "timezone": "Timezone",
     "selectTimezone": "Select a timezone",

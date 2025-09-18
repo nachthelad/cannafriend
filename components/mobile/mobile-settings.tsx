@@ -1,0 +1,443 @@
+"use client";
+
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "next-themes";
+import { getSuspenseResource } from "@/lib/suspense-utils";
+import { AccountSummary } from "@/components/settings/account-summary";
+import { PreferencesForm } from "@/components/settings/preferences-form";
+import {
+  SubscriptionManagement,
+  type SubscriptionDetails,
+  type SubscriptionLine,
+} from "@/components/settings/subscription-management";
+import { AppInformation } from "@/components/settings/app-information";
+import { DangerZone } from "@/components/settings/danger-zone";
+import { SettingsFooter } from "@/components/settings/settings-footer";
+import { useToast } from "@/hooks/use-toast";
+import { updateDoc, getDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { userDoc } from "@/lib/paths";
+import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
+import type { Roles } from "@/types";
+
+interface MobileSettingsProps {
+  userId: string;
+  email?: string | null;
+  providerId?: string | null;
+}
+
+interface PreferencesState {
+  timezone: string;
+  darkMode: boolean;
+  roles: Roles;
+}
+
+interface SettingsData {
+  preferences: PreferencesState;
+  subscription: SubscriptionDetails | null;
+}
+
+async function fetchSettingsData(userId: string): Promise<SettingsData> {
+  const userRef = userDoc(userId);
+  const userSnap = await getDoc(userRef);
+
+  let timezone = "";
+  let darkMode = true;
+  let roles: Roles = { grower: true, consumer: false };
+
+  if (userSnap.exists()) {
+    const data = userSnap.data() as any;
+    timezone = data.timezone ?? "";
+    darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
+    roles = {
+      grower: Boolean(data.roles?.grower ?? true),
+      consumer: Boolean(data.roles?.consumer ?? false),
+    };
+  }
+
+  let subscription: SubscriptionDetails | null = null;
+
+  if (auth.currentUser) {
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const response = await fetch("/api/mercadopago/subscription-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        subscription = (await response.json()) as SubscriptionDetails;
+      }
+    } catch {
+      subscription = null;
+    }
+  }
+
+  return {
+    preferences: { timezone, darkMode, roles },
+    subscription,
+  };
+}
+
+function MobileSettingsContent({
+  userId,
+  email,
+  providerId,
+}: MobileSettingsProps) {
+  const { t } = useTranslation(["common", "onboarding"]);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { setTheme } = useTheme();
+
+  const cacheKey = `settings-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchSettingsData(userId)
+  );
+  const { preferences: initialPreferences, subscription: initialSubscription } =
+    resource.read();
+
+  const [preferences, setPreferences] =
+    useState<PreferencesState>(initialPreferences);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isCancellingSubscription, setIsCancellingSubscription] =
+    useState(false);
+  const previousPreferencesRef = useRef<PreferencesState | null>(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    if (previousPreferencesRef.current === initialPreferences) {
+      return;
+    }
+    previousPreferencesRef.current = initialPreferences;
+    setPreferences(initialPreferences);
+  }, [initialPreferences]);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  const subscription = initialSubscription;
+  const isPremium = Boolean(subscription?.premium ?? false);
+
+  useEffect(() => {
+    setTheme(preferences.darkMode ? "dark" : "light");
+  }, [preferences.darkMode, setTheme]);
+
+  const handleTimezoneChange = async (value: string) => {
+    if (!userId) return;
+    try {
+      await updateDoc(userDoc(userId), { timezone: value });
+      const next = { ...preferences, timezone: value };
+      setPreferences(next);
+      toast({
+        title: t("settings.timezoneUpdated"),
+        description: t("settings.timezoneUpdatedDesc"),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("settings.error"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleDarkModeChange = async (checked: boolean) => {
+    if (!userId) return;
+    try {
+      await updateDoc(userDoc(userId), { darkMode: checked });
+      const next = { ...preferences, darkMode: checked };
+      setPreferences(next);
+      setTheme(checked ? "dark" : "light");
+      toast({
+        title: t("settings.darkModeUpdated"),
+        description: checked
+          ? t("settings.darkModeOn")
+          : t("settings.darkModeOff"),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("settings.error"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleRolesChange = async (nextRoles: Roles) => {
+    if (!userId) return;
+    try {
+      await updateDoc(userDoc(userId), { roles: nextRoles });
+      const next = { ...preferences, roles: nextRoles };
+      setPreferences(next);
+      toast({ title: t("settings.updated") });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("settings.error"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push(ROUTE_LOGIN);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("settings.error"),
+        description: error.message,
+      });
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!auth.currentUser) return;
+    setIsCancellingSubscription(true);
+    try {
+      const token = await auth.currentUser.getIdToken();
+      let response = await fetch("/api/stripe/cancel-subscription", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      let data = await response.json();
+      if (!response.ok && data.error === "customer_not_found") {
+        response = await fetch("/api/mercadopago/cancel-subscription", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        data = await response.json();
+      }
+      if (response.ok && data.success) {
+        toast({
+          title: t("subscription.cancelled"),
+          description: t("subscription.cancelledDesc"),
+        });
+        if (data.note) {
+          setTimeout(() => {
+            toast({
+              title: t("info"),
+              description: data.note,
+            });
+          }, 2000);
+        }
+      } else if (data.error === "not_premium") {
+        toast({
+          variant: "destructive",
+          title: t("subscription.cancelError"),
+          description: t("subscription.alreadyCancelled"),
+        });
+      } else {
+        throw new Error(data.message || "Failed to cancel subscription");
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: t("subscription.cancelError"),
+        description: error.message || "Failed to cancel subscription",
+      });
+    } finally {
+      setIsCancellingSubscription(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    // This should use the full implementation from settings-container
+    // For now, just show a placeholder
+    toast({
+      variant: "destructive",
+      title: t("settings.error"),
+      description: "Delete account not implemented in mobile view",
+    });
+  };
+
+  const formatRemaining = useCallback(
+    (ms?: number | null) => {
+      if (!ms || ms <= 0) return t("inactive");
+      const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+      const hours = Math.floor((ms % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+      if (days > 0) return `${days}d ${hours}h`;
+      const mins = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    },
+    [t]
+  );
+
+  const getDisplayDate = useCallback(
+    (value: number | string) => {
+      const date =
+        typeof value === "number" ? new Date(value) : new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "—";
+      }
+      if (!hasHydrated) {
+        return date.toISOString().replace("T", " ").replace("Z", " UTC");
+      }
+      return date.toLocaleString();
+    },
+    [hasHydrated]
+  );
+
+  const subscriptionLines: SubscriptionLine[] = useMemo(() => {
+    if (!subscription) return [];
+    const lines: SubscriptionLine[] = [];
+    lines.push({
+      label: t("status"),
+      value:
+        subscription.recurring === true
+          ? t("subscription.recurring")
+          : subscription.preapproval_status
+          ? subscription.preapproval_status
+          : t("subscription.oneTime"),
+    });
+
+    if (typeof subscription.premium_until === "number") {
+      lines.push({
+        label: t("subscription.expires"),
+        value: `${getDisplayDate(
+          subscription.premium_until
+        )} (${formatRemaining(subscription.remaining_ms)})`,
+      });
+    }
+
+    if (subscription.last_payment?.date_approved) {
+      lines.push({
+        label: t("subscription.lastPayment"),
+        value: getDisplayDate(subscription.last_payment.date_approved),
+      });
+    }
+
+    return lines;
+  }, [formatRemaining, getDisplayDate, subscription, t]);
+
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? null;
+
+  return (
+    <div className="w-full max-w-full overflow-x-hidden">
+      {/* Mobile Header */}
+      <div className="sticky top-0 z-10 bg-background border-b border-border p-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <Settings className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-semibold">{t("settings.title")}</h1>
+          </div>
+        </div>
+      </div>
+
+      {/* All Settings in Single Column */}
+      <div className="pb-24 w-full max-w-full">
+        {/* Account Section */}
+        <div className="w-full p-4 border-b border-border">
+          <AccountSummary
+            title={t("settings.account")}
+            description={t("settings.accountDesc")}
+            email={email}
+            providerId={providerId}
+            signOutLabel={t("signOut", { ns: "nav" })}
+            onSignOut={handleSignOut}
+          />
+        </div>
+
+        {/* Preferences Section */}
+        <div className="w-full p-4 border-b border-border">
+          <PreferencesForm
+            title={t("settings.preferences")}
+            description={t("settings.preferencesDesc")}
+            languageLabel={t("settings.language")}
+            timezoneLabel={t("settings.timezone")}
+            timezonePlaceholder={t("settings.selectTimezone")}
+            timezoneValue={preferences.timezone}
+            onTimezoneChange={handleTimezoneChange}
+            darkModeLabel={t("settings.darkMode")}
+            darkModeChecked={preferences.darkMode}
+            onDarkModeChange={handleDarkModeChange}
+            rolesLabel={t("settings.roles")}
+            rolesValue={preferences.roles}
+            onRolesChange={handleRolesChange}
+            growerLabel={t("grower", { ns: "onboarding" })}
+            consumerLabel={t("consumer", { ns: "onboarding" })}
+          />
+        </div>
+
+        {/* Billing Section */}
+        <div className="w-full p-4 border-b border-border">
+          <SubscriptionManagement
+            title={t("subscription.title")}
+            statusLabel={t("subscription.status")}
+            activeLabel={t("subscription.active")}
+            inactiveLabel={t("subscription.inactive")}
+            upgradeLabel={t("premium.upgrade")}
+            upgradeDescription={t("premium.analyzeDesc")}
+            onUpgrade={() => router.push(ROUTE_PREMIUM)}
+            onCancel={handleCancelSubscription}
+            cancelLabel={t("subscription.cancel")}
+            dialogCancelLabel={t("cancel")}
+            cancelConfirmTitle={t("subscription.confirmCancel")}
+            cancelConfirmDescription={t("subscription.confirmCancelDesc")}
+            cancelConfirmActionLabel={t("subscription.confirmCancelButton")}
+            cancelingLabel={t("subscription.cancelling")}
+            isPremium={isPremium}
+            isCancelling={isCancellingSubscription}
+            subscriptionLines={subscriptionLines}
+            note={t("subscription.mercadopagoNote")}
+          />
+        </div>
+
+        {/* App Info Section */}
+        <div className="w-full p-4 border-b border-border">
+          <AppInformation
+            title={t("settings.appInfo")}
+            description={t("settings.appInfoDesc")}
+            versionLabel={t("settings.appVersion")}
+            version={appVersion}
+          />
+        </div>
+
+        {/* Danger Zone Section */}
+        <div className="w-full p-4 border-b border-border">
+          <DangerZone
+            title={t("settings.dangerZone")}
+            description={t("settings.dangerZoneDesc")}
+            triggerLabel={t("settings.deleteAccount")}
+            dialogTitle={t("settings.confirmDelete", { ns: "common" })}
+            dialogDescription={t("settings.confirmDeleteDesc", {
+              ns: "common",
+            })}
+            confirmLabel={t("settings.confirmDeleteButton")}
+            cancelLabel={t("cancel", { ns: "common" })}
+            deletingLabel={t("settings.deleting")}
+            isDeleting={isDeletingAccount}
+            onConfirm={handleDeleteAccount}
+          />
+        </div>
+
+        {/* Footer */}
+        <div className="w-full p-4">
+          <SettingsFooter
+            privacyLabel={t("privacy.title")}
+            termsLabel={t("terms.title")}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MobileSettings(props: MobileSettingsProps) {
+  return <MobileSettingsContent {...props} />;
+}
