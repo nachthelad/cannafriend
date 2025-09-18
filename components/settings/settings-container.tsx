@@ -2,16 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteUser, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import {
-  deleteDoc,
-  doc,
   getDoc,
-  getDocs,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
-import { listAll, ref as storageRef, deleteObject } from "firebase/storage";
 
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
@@ -32,15 +27,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import { auth, db, storage } from "@/lib/firebase";
-import {
-  logsCol,
-  plantDoc as plantDocRef,
-  plantsCol,
-  remindersCol,
-  userDoc,
-} from "@/lib/paths";
+import { auth } from "@/lib/firebase";
+import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
+import { deleteUserAccount } from "@/lib/delete-account";
 import type { Roles } from "@/types";
 
 interface PreferencesState {
@@ -311,150 +301,14 @@ function SettingsContent({ userId, email, providerId }: SettingsContentProps) {
   };
 
   const handleDeleteAccount = async () => {
-    if (!userId || !auth.currentUser) return;
+    if (!userId) return;
 
     setIsDeletingAccount(true);
 
     try {
-      const parseStoragePathFromDownloadUrl = (url: string): string | null => {
-        try {
-          const u = new URL(url);
-          if (!u.pathname.includes("/o/")) return null;
-          const afterO = u.pathname.split("/o/")[1] || "";
-          const encodedPath = afterO.split("?")[0] || "";
-          if (!encodedPath) return null;
-          return decodeURIComponent(encodedPath);
-        } catch {
-          return null;
-        }
-      };
+      await deleteUserAccount(userId);
 
-      const userRef = userDoc(userId);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-
-        await setDoc(doc(db, "archived_users", userId), {
-          ...userData,
-          archivedAt: new Date().toISOString(),
-        });
-
-        const plantsRef = plantsCol(userId);
-        const plantsSnap = await getDocs(plantsRef);
-
-        for (const plantDoc of plantsSnap.docs) {
-          const plantData = plantDoc.data() as any;
-
-          await setDoc(
-            doc(db, "archived_users", userId, "plants", plantDoc.id),
-            {
-              ...plantData,
-              archivedAt: new Date().toISOString(),
-            }
-          );
-
-          const logsRef = logsCol(userId, plantDoc.id);
-          const logsSnap = await getDocs(logsRef);
-
-          for (const logDoc of logsSnap.docs) {
-            await setDoc(
-              doc(
-                db,
-                "archived_users",
-                userId,
-                "plants",
-                plantDoc.id,
-                "logs",
-                logDoc.id
-              ),
-              {
-                ...logDoc.data(),
-                archivedAt: new Date().toISOString(),
-              }
-            );
-          }
-
-          for (const logDoc of logsSnap.docs) {
-            await deleteDoc(
-              doc(db, "users", userId, "plants", plantDoc.id, "logs", logDoc.id)
-            );
-          }
-
-          try {
-            const photoUrls: string[] = [];
-            if (plantData.coverPhoto) photoUrls.push(plantData.coverPhoto);
-            if (Array.isArray(plantData.photos))
-              photoUrls.push(...plantData.photos);
-            for (const url of photoUrls) {
-              const path = parseStoragePathFromDownloadUrl(url);
-              if (path) {
-                try {
-                  await deleteObject(storageRef(storage, path));
-                } catch (e) {
-                  console.warn("Failed to delete storage object:", path, e);
-                }
-              }
-            }
-          } catch (e) {
-            console.warn("Error deleting plant photos from storage", e);
-          }
-
-          await deleteDoc(plantDocRef(userId, plantDoc.id));
-        }
-
-        try {
-          const remindersRef = remindersCol(userId);
-          const remindersSnap = await getDocs(remindersRef);
-          for (const r of remindersSnap.docs) {
-            await setDoc(doc(db, "archived_users", userId, "reminders", r.id), {
-              ...r.data(),
-              archivedAt: new Date().toISOString(),
-            });
-          }
-          for (const r of remindersSnap.docs) {
-            await deleteDoc(doc(db, "users", userId, "reminders", r.id));
-          }
-        } catch (e) {
-          console.warn("Error archiving/deleting reminders", e);
-        }
-
-        await deleteDoc(userRef);
-      }
-
-      try {
-        await deleteUser(auth.currentUser);
-      } catch (e: any) {
-        if (e?.code === "auth/requires-recent-login") {
-          toast({
-            variant: "destructive",
-            title: t("settings.deleteError"),
-            description: t("settings.reauthRequired"),
-          });
-          setIsDeletingAccount(false);
-          return;
-        }
-        throw e;
-      }
-
-      try {
-        const userFolderRef = storageRef(storage, `images/${userId}`);
-        const all = await listAll(userFolderRef);
-        for (const item of all.items) {
-          try {
-            await deleteObject(item);
-          } catch (e) {
-            console.warn(
-              "Failed to delete storage object (GC):",
-              item.fullPath,
-              e
-            );
-          }
-        }
-      } catch (e) {
-        console.warn("GC storage listing failed", e);
-      }
-
+      // Complete success - both data and auth user deleted
       toast({
         title: t("settings.accountDeleted"),
         description: t("settings.accountDeletedDesc"),
@@ -462,11 +316,36 @@ function SettingsContent({ userId, email, providerId }: SettingsContentProps) {
 
       router.push(ROUTE_LOGIN);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.deleteError"),
-        description: error.message,
-      });
+      if (error.message === "DATA_DELETED_AUTH_FAILED") {
+        // Data deletion succeeded, but auth requires re-login
+        // Show success message and sign out after delay
+        toast({
+          title: t("settings.accountDeleted"),
+          description: t("settings.accountDeletedDesc"),
+        });
+
+        setTimeout(async () => {
+          try {
+            await signOut(auth);
+          } catch {
+            // Ignore signout errors
+          }
+          router.push(ROUTE_LOGIN);
+        }, 2000);
+      } else if (error.message === "REAUTH_REQUIRED") {
+        toast({
+          variant: "destructive",
+          title: t("settings.deleteError"),
+          description: t("settings.reauthRequired"),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: t("settings.deleteError"),
+          description: error.message || "Failed to delete account",
+        });
+      }
+    } finally {
       setIsDeletingAccount(false);
     }
   };

@@ -71,8 +71,6 @@ export function MobileDashboard({
   const { roles } = useUserRoles();
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-
-
   // Mobile-optimized stats cards
   const StatCard = ({
     icon: Icon,
@@ -180,7 +178,7 @@ export function MobileDashboard({
       )}
 
       {/* Stats grid - mobile first */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 pt-2">
         <StatCard
           icon={Leaf}
           label={t("yourPlants", { ns: "dashboard" })}
@@ -217,62 +215,56 @@ export function MobileDashboard({
       </div>
 
       {/* Quick actions - mobile optimized */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2">
+      <div className="space-y-4 pt-2">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2 mb-1">
             <Plus className="h-5 w-5" />
             {t("quickActions", { ns: "dashboard" })}
-          </CardTitle>
-          <CardDescription>
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
             {t("quickActionsDesc", { ns: "dashboard" })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            {roles?.grower && (
-              <>
-                <QuickActionButton
-                  icon={Box}
-                  label={t("stash", { ns: "nav" })}
-                  href={ROUTE_STASH}
-                />
-                <QuickActionButton
-                  icon={FlaskConical}
-                  label={t("title", { ns: "nutrients" })}
-                  href={ROUTE_NUTRIENTS}
-                />
-                <QuickActionButton
-                  icon={Bell}
-                  label={t("reminders", { ns: "dashboard" })}
-                  href={ROUTE_REMINDERS}
-                />
-                {isPremium && (
-                  <QuickActionButton
-                    icon={Brain}
-                    label={t("title", { ns: "aiAssistant" })}
-                    href={ROUTE_AI_ASSISTANT}
-                    isPremiumFeature
-                  />
-                )}
-              </>
-            )}
-            {roles?.consumer && (
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {roles?.grower && (
+            <>
               <QuickActionButton
-                icon={Leaf}
-                label={t("title", { ns: "sessions" })}
-                href={ROUTE_SESSIONS}
+                icon={Box}
+                label={t("stash", { ns: "nav" })}
+                href={ROUTE_STASH}
               />
-            )}
-            {isAdmin && (
               <QuickActionButton
-                icon={Shield}
-                label="Admin"
-                href={ROUTE_ADMIN}
+                icon={FlaskConical}
+                label={t("title", { ns: "nutrients" })}
+                href={ROUTE_NUTRIENTS}
               />
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <QuickActionButton
+                icon={Bell}
+                label={t("reminders", { ns: "dashboard" })}
+                href={ROUTE_REMINDERS}
+              />
+              {isPremium && (
+                <QuickActionButton
+                  icon={Brain}
+                  label={t("title", { ns: "aiAssistant" })}
+                  href={ROUTE_AI_ASSISTANT}
+                  isPremiumFeature
+                />
+              )}
+            </>
+          )}
+          {roles?.consumer && (
+            <QuickActionButton
+              icon={Leaf}
+              label={t("title", { ns: "sessions" })}
+              href={ROUTE_SESSIONS}
+            />
+          )}
+          {isAdmin && (
+            <QuickActionButton icon={Shield} label="Admin" href={ROUTE_ADMIN} />
+          )}
+        </div>
+      </div>
 
       {/* Empty state for new users */}
       {plants.length === 0 && (
