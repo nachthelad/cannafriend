@@ -122,11 +122,11 @@ export function Layout({ children }: LayoutProps) {
       label: t("stash", { ns: "nav" }),
       icon: Package,
     },
-    {
-      href: ROUTE_NUTRIENTS,
-      label: "Nutrientes",
-      icon: FlaskConical,
-    },
+    // {
+    //   href: ROUTE_NUTRIENTS,
+    //   label: "Nutrientes",
+    //   icon: FlaskConical,
+    // },
     {
       href: ROUTE_JOURNAL,
       label: t("journal", { ns: "nav" }),

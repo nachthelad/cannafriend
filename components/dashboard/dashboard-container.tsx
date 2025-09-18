@@ -8,7 +8,6 @@ import {
   ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
-  ROUTE_NUTRIENTS,
   ROUTE_ADMIN,
   ROUTE_STASH,
 } from "@/lib/routes";
@@ -27,7 +26,7 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, AlertTriangle, Bell, Brain, Shield } from "lucide-react";
+import { Plus, Brain, Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
@@ -48,7 +47,7 @@ interface DashboardData {
   lastFeedings: Record<string, LogEntry>;
   lastTrainings: Record<string, LogEntry>;
   recentLogs: LogEntry[];
-  nutrientMixesCount: number;
+  remindersCount: number;
   hasOverdue: boolean;
   reminders: any[];
   isPremium: boolean;
@@ -107,15 +106,8 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 10);
 
-  // Fetch nutrient mixes count
-  let nutrientMixesCount = 0;
-  try {
-    const nutrientMixesRef = collection(db, buildNutrientMixesPath(userId));
-    const nutrientMixesSnapshot = await getDocs(nutrientMixesRef);
-    nutrientMixesCount = nutrientMixesSnapshot.size;
-  } catch {
-    // Ignore nutrient mixes errors
-  }
+  // Calculate reminders count (moved above reminders fetch)
+  let remindersCount = 0;
 
   // Fetch reminders and check for overdue
   let hasOverdue = false;
@@ -130,8 +122,15 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
       ...doc.data(),
     }));
 
+    // Count total reminders
+    remindersCount = reminders.length;
+
     for (const reminder of reminders) {
-      if (reminder.nextReminder && new Date(reminder.nextReminder) < now && reminder.isActive) {
+      if (
+        reminder.nextReminder &&
+        new Date(reminder.nextReminder) < now &&
+        reminder.isActive
+      ) {
         hasOverdue = true;
         break;
       }
@@ -144,14 +143,18 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   let isPremium = false;
   try {
     // Check localStorage flag first
-    if (typeof window !== "undefined" && localStorage.getItem("cf_premium") === "1") {
+    if (
+      typeof window !== "undefined" &&
+      localStorage.getItem("cf_premium") === "1"
+    ) {
       isPremium = true;
     } else if (auth.currentUser) {
       // Check Firebase custom claims
       const token = await auth.currentUser.getIdTokenResult(true);
       const claims = token.claims as any;
       const boolPremium = Boolean(claims?.premium);
-      const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+      const until =
+        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
       const timePremium = until > Date.now();
       isPremium = Boolean(boolPremium || timePremium);
     }
@@ -165,7 +168,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     lastFeedings,
     lastTrainings,
     recentLogs,
-    nutrientMixesCount,
+    remindersCount,
     hasOverdue,
     reminders,
     isPremium,
@@ -201,7 +204,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
     lastFeedings,
     lastTrainings,
     recentLogs,
-    nutrientMixesCount,
+    remindersCount,
     hasOverdue,
     reminders,
     isPremium,
@@ -219,7 +222,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
           recentLogs={recentLogs.slice(0, 5)}
           hasOverdue={hasOverdue}
           userEmail={userEmail}
-          nutrientMixesCount={nutrientMixesCount}
+          remindersCount={remindersCount}
           reminders={reminders}
           isPremium={isPremium}
         />
@@ -227,15 +230,23 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
 
       {/* Desktop Dashboard */}
       <div className="hidden md:block">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">
+            {t("title", { ns: "dashboard" })}
+          </h1>
+        </div>
         <div className="space-y-6">
           {/* Overdue Reminders only (Top) */}
           <div>
-            <ReminderSystem plants={plants} showOnlyOverdue reminders={reminders} />
+            <ReminderSystem
+              plants={plants}
+              showOnlyOverdue
+              reminders={reminders}
+            />
           </div>
 
           {/* Widgets grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Plants Widget */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <div>
@@ -285,46 +296,12 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
               </CardContent>
             </Card>
 
-            {/* Nutrients Widget */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div>
-                  <CardTitle>{t("title", { ns: "nutrients" })}</CardTitle>
-                  <CardDescription>{nutrientMixesCount} mixes</CardDescription>
-                </div>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={ROUTE_NUTRIENTS}>
-                    {t("view", { ns: "common" })}
-                  </Link>
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Guarda tus recetas (NPK, notas) y regístralas en los logs.
-                </p>
-              </CardContent>
-            </Card>
-
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Acciones rápidas</CardTitle>
-                <CardDescription>Atajos a funciones frecuentes</CardDescription>
+                <CardTitle>{t("quickActions", { ns: "dashboard" })}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                <Button asChild>
-                  <Link href="/plants/new">{t("addPlant", { ns: "nav" })}</Link>
-                </Button>
-                <Button asChild>
-                  <Link href={ROUTE_REMINDERS}>
-                    {t("reminders", { ns: "dashboard" })}
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href={ROUTE_STASH}>
-                    {t("stash.title", { ns: "common" })}
-                  </Link>
-                </Button>
                 {isPremium && (
                   <Button
                     asChild
@@ -336,6 +313,16 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                     </Link>
                   </Button>
                 )}
+                <Button asChild>
+                  <Link href={ROUTE_REMINDERS}>
+                    {t("reminders", { ns: "dashboard" })}
+                  </Link>
+                </Button>
+                <Button asChild>
+                  <Link href={ROUTE_STASH}>
+                    {t("stash.title", { ns: "common" })}
+                  </Link>
+                </Button>
                 {isAdmin && (
                   <Button asChild>
                     <Link href={ROUTE_ADMIN}>
