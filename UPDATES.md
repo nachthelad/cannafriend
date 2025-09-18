@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: enhance settings page with new components and improved structure — 2025-09-18
 - [MID]: reuse reminders suspense data on mobile — 2025-09-17
 
 - [MINOR]: remove redundant isLoading states now handled by Suspense boundaries — 2025-09-17

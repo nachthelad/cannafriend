@@ -36,7 +36,6 @@ import {
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
 
@@ -45,8 +44,9 @@ interface MobileDashboardProps {
   recentLogs: LogEntry[];
   nutrientMixesCount: number;
   hasOverdue: boolean;
-  isLoading: boolean;
   userEmail?: string;
+  reminders: any[];
+  isPremium: boolean;
 }
 
 export function MobileDashboard({
@@ -54,8 +54,9 @@ export function MobileDashboard({
   recentLogs,
   nutrientMixesCount,
   hasOverdue,
-  isLoading,
   userEmail,
+  reminders,
+  isPremium,
 }: MobileDashboardProps) {
   const { t } = useTranslation([
     "dashboard",
@@ -68,39 +69,8 @@ export function MobileDashboard({
     "aiAssistant",
   ]);
   const { roles } = useUserRoles();
-  const { isPremium } = usePremium();
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4 p-4">
-        {/* Stats grid skeleton */}
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-24 rounded-xl" />
-          <Skeleton className="h-24 rounded-xl" />
-        </div>
-        {/* Quick actions card skeleton */}
-        <div className="space-y-3">
-          <Skeleton className="h-6 w-40" />
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
-          </div>
-        </div>
-        {/* Recent plants skeleton */}
-        <div className="space-y-3">
-          <Skeleton className="h-6 w-40" />
-          <div className="space-y-3">
-            <Skeleton className="h-20 rounded-xl" />
-            <Skeleton className="h-20 rounded-xl" />
-            <Skeleton className="h-20 rounded-xl" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
 
   // Mobile-optimized stats cards
@@ -326,7 +296,7 @@ export function MobileDashboard({
       )}
 
       {/* Reminder system - only overdue for mobile dashboard */}
-      <ReminderSystem plants={plants} showOnlyOverdue />
+      <ReminderSystem plants={plants} showOnlyOverdue reminders={reminders} />
     </div>
   );
 }

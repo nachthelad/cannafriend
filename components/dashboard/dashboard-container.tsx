@@ -30,9 +30,8 @@ import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import { Plus, AlertTriangle, Bell, Brain, Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import { usePremium } from "@/hooks/use-premium";
 import type { Plant, LogEntry } from "@/types";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { collection } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
 import { ADMIN_EMAIL } from "@/lib/constants";
@@ -51,6 +50,8 @@ interface DashboardData {
   recentLogs: LogEntry[];
   nutrientMixesCount: number;
   hasOverdue: boolean;
+  reminders: any[];
+  isPremium: boolean;
 }
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
@@ -116,22 +117,46 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     // Ignore nutrient mixes errors
   }
 
-  // Check for overdue reminders (simplified)
+  // Fetch reminders and check for overdue
   let hasOverdue = false;
+  let reminders: any[] = [];
   try {
     const remindersQuery = query(remindersCol(userId));
     const remindersSnapshot = await getDocs(remindersQuery);
     const now = new Date();
 
-    for (const doc of remindersSnapshot.docs) {
-      const reminder = doc.data();
-      if (reminder.nextDate && new Date(reminder.nextDate) < now) {
+    reminders = remindersSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    for (const reminder of reminders) {
+      if (reminder.nextReminder && new Date(reminder.nextReminder) < now && reminder.isActive) {
         hasOverdue = true;
         break;
       }
     }
   } catch {
     // Ignore reminders errors
+  }
+
+  // Check premium status
+  let isPremium = false;
+  try {
+    // Check localStorage flag first
+    if (typeof window !== "undefined" && localStorage.getItem("cf_premium") === "1") {
+      isPremium = true;
+    } else if (auth.currentUser) {
+      // Check Firebase custom claims
+      const token = await auth.currentUser.getIdTokenResult(true);
+      const claims = token.claims as any;
+      const boolPremium = Boolean(claims?.premium);
+      const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+      const timePremium = until > Date.now();
+      isPremium = Boolean(boolPremium || timePremium);
+    }
+  } catch {
+    // Ignore premium check errors
   }
 
   return {
@@ -142,6 +167,8 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     recentLogs,
     nutrientMixesCount,
     hasOverdue,
+    reminders,
+    isPremium,
   };
 }
 
@@ -157,7 +184,6 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
   ]);
   const { roles } = useUserRoles();
   const router = useRouter();
-  const { isPremium } = usePremium();
 
   const isAdmin = useMemo(
     () => (userEmail || "").toLowerCase() === ADMIN_EMAIL,
@@ -177,6 +203,8 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
     recentLogs,
     nutrientMixesCount,
     hasOverdue,
+    reminders,
+    isPremium,
   } = resource.read();
 
   // Filter plants for mobile view
@@ -190,9 +218,10 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
           plants={filteredPlants}
           recentLogs={recentLogs.slice(0, 5)}
           hasOverdue={hasOverdue}
-          isLoading={false}
           userEmail={userEmail}
           nutrientMixesCount={nutrientMixesCount}
+          reminders={reminders}
+          isPremium={isPremium}
         />
       </div>
 
@@ -201,7 +230,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
         <div className="space-y-6">
           {/* Overdue Reminders only (Top) */}
           <div>
-            <ReminderSystem plants={plants} showOnlyOverdue />
+            <ReminderSystem plants={plants} showOnlyOverdue reminders={reminders} />
           </div>
 
           {/* Widgets grid */}

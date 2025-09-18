@@ -97,11 +97,14 @@ interface ReminderSystemProps {
   plants: Plant[];
   // When true, render only the overdue card (if any). Used on dashboard.
   showOnlyOverdue?: boolean;
+  // Pre-fetched reminders to avoid loading state
+  reminders?: any[];
 }
 
 export function ReminderSystem({
   plants,
   showOnlyOverdue = false,
+  reminders: preFetchedReminders,
 }: ReminderSystemProps) {
   const { t } = useTranslation([
     "reminders",
@@ -111,8 +114,8 @@ export function ReminderSystem({
   ]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
-  const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reminders, setReminders] = useState<Reminder[]>(preFetchedReminders || []);
+  const [isLoading, setIsLoading] = useState(!preFetchedReminders);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -141,8 +144,11 @@ export function ReminderSystem({
   });
 
   useEffect(() => {
-    fetchReminders();
-  }, []);
+    // Only fetch if we don't have pre-fetched reminders
+    if (!preFetchedReminders) {
+      fetchReminders();
+    }
+  }, [preFetchedReminders]);
 
   const fetchReminders = async () => {
     if (!auth.currentUser) return;
