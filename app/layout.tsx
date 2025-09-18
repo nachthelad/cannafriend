@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { I18nProvider } from "@/components/providers/i18n-provider";
 import { UpdateProvider } from "@/components/providers/update-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
@@ -98,6 +99,7 @@ export default function RootLayout({
             <UpdateProvider>
               {children}
               <Toaster />
+              <Analytics />
             </UpdateProvider>
           </ThemeProvider>
         </I18nProvider>
