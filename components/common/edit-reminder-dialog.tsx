@@ -57,9 +57,8 @@ const createEditReminderFormSchema = (t: any) =>
   z.object({
     selectedPlant: z.string().min(1, t("plantRequired", { ns: "validation" })),
     reminderType: z.enum(["watering", "feeding", "training", "custom"], {
-      errorMap: () => ({
-        message: t("reminderTypeRequired", { ns: "validation" }),
-      }),
+      required_error: t("reminderTypeRequired", { ns: "validation" }),
+      invalid_type_error: t("reminderTypeRequired", { ns: "validation" }),
     }),
     title: z
       .string()
@@ -78,7 +77,9 @@ const createEditReminderFormSchema = (t: any) =>
     ),
   });
 
-type EditReminderFormData = z.infer<ReturnType<typeof createEditReminderFormSchema>>;
+type EditReminderFormData = z.infer<
+  ReturnType<typeof createEditReminderFormSchema>
+>;
 
 export function EditReminderDialog({
   reminder,
@@ -87,13 +88,21 @@ export function EditReminderDialog({
   onOpenChange,
   onReminderUpdated,
 }: EditReminderDialogProps) {
-  const { t } = useTranslation(["reminders", "common", "journal", "validation"]);
+  const { t } = useTranslation([
+    "reminders",
+    "common",
+    "journal",
+    "validation",
+  ]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Form schema with translations
-  const editReminderFormSchema = useMemo(() => createEditReminderFormSchema(t), [t]);
+  const editReminderFormSchema = useMemo(
+    () => createEditReminderFormSchema(t),
+    [t]
+  );
 
   const {
     register,
@@ -214,7 +223,10 @@ export function EditReminderDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleUpdateReminder)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(handleUpdateReminder)}
+          className="space-y-4"
+        >
           {/* Plant Selection */}
           <div className="space-y-2">
             <Label>{t("selectPlant", { ns: "reminders" })}</Label>
@@ -232,7 +244,9 @@ export function EditReminderDialog({
                   errors.selectedPlant ? "border-destructive" : ""
                 }`}
               >
-                <SelectValue placeholder={t("selectPlant", { ns: "reminders" })} />
+                <SelectValue
+                  placeholder={t("selectPlant", { ns: "reminders" })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {plants.map((plant) => (
@@ -266,7 +280,9 @@ export function EditReminderDialog({
             />
             <Select
               value={reminderType}
-              onValueChange={(v) => setValue("reminderType", v as Reminder["type"])}
+              onValueChange={(v) =>
+                setValue("reminderType", v as Reminder["type"])
+              }
             >
               <SelectTrigger
                 className={`min-h-[44px] ${
@@ -322,7 +338,10 @@ export function EditReminderDialog({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label>{t("description", { ns: "reminders" })} ({t("optional", { ns: "common" })})</Label>
+            <Label>
+              {t("description", { ns: "reminders" })} (
+              {t("optional", { ns: "common" })})
+            </Label>
             <Input
               {...register("description")}
               placeholder={getDefaultDescription(reminderType)}
@@ -373,7 +392,9 @@ export function EditReminderDialog({
               {t("cancel", { ns: "common" })}
             </Button>
             <Button type="submit" disabled={isUpdating}>
-              {isUpdating ? t("saving", { ns: "common" }) : t("save", { ns: "common" })}
+              {isUpdating
+                ? t("saving", { ns: "common" })
+                : t("save", { ns: "common" })}
             </Button>
           </DialogFooter>
         </form>
