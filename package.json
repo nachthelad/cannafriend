@@ -1,11 +1,13 @@
 {
   "name": "cannafriend",
-  "version": "0.8.4",
+  "version": "0.8.6",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "lint:unused": "next lint --quiet | grep 'never used\\|defined but never used'",
     "start": "next start",
     "images:optimize": "node ./scripts/optimize-images.mjs",
     "test": "jest",

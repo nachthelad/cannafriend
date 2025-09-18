@@ -265,7 +265,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     const isRemovingCover = photoToRemove === plant?.coverPhoto;
 
     try {
-      let newPhotos = photos.filter((p) => p !== photoToRemove);
+      const newPhotos = photos.filter((p) => p !== photoToRemove);
       let newCoverPhoto = plant?.coverPhoto;
 
       // If removing cover photo, set new cover

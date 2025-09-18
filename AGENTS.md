@@ -244,6 +244,14 @@ npm run lint      # Run ESLint (240+ warnings identified, non-blocking)
 npm run typecheck # Run TypeScript checks (strict checking enabled)
 ```
 
+### Code Quality & Unused Variable Detection
+
+```bash
+npm run lint           # See all issues including unused variables/imports
+npm run lint:fix       # Auto-fix what's possible (some unused vars need manual fix)
+npm run lint:unused    # Show only unused variable warnings
+```
+
 ### Testing
 
 ```bash
@@ -287,6 +295,30 @@ pnpm dev              # Alternative dev command
 - **Marketing Components**: Use `landing` namespace
 - **App Components**: Use feature-specific namespaces
 - **Shared UI**: Use `common` namespace
+
+### Unused Variable Detection Setup
+
+**Configuration**: ESLint rules configured to show unused variables/imports as warnings (won't block builds).
+
+**ESLint Rules** (`.eslintrc.json`):
+```json
+"@typescript-eslint/no-unused-vars": [
+  "warn",  // Won't block builds, shows as warnings
+  {
+    "argsIgnorePattern": "^_",      // Allow unused args starting with _
+    "varsIgnorePattern": "^_",      // Allow unused vars starting with _
+    "ignoreRestSiblings": true      // Allow unused in destructuring
+  }
+]
+```
+
+**TypeScript Config**: Unused variable checks disabled for builds to allow deployments.
+
+**Usage**:
+- **IDE**: Shows red squiggly lines under unused variables/imports
+- **Commands**: `npm run lint` for all issues, `npm run lint:fix` for auto-fixes
+- **Builds**: Won't block builds or deployments (warnings only)
+- **Cleanup Strategy**: Fix gradually during development or in dedicated cleanup sessions
 
 ## AI Assistant (/ai-assistant) Layout
 

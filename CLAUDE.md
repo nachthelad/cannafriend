@@ -212,6 +212,14 @@ npm run lint      # Run ESLint (240+ warnings identified, non-blocking)
 npm run typecheck # Run TypeScript checks (strict checking enabled)
 ```
 
+### Code Quality & Unused Variable Detection
+
+```bash
+npm run lint           # See all issues including unused variables/imports
+npm run lint:fix       # Auto-fix what's possible (some unused vars need manual fix)
+npm run lint:unused    # Show only unused variable warnings
+```
+
 ### Testing
 
 ```bash
@@ -304,6 +312,43 @@ pnpm dev             # Alternative dev command
 2. **ESLint configured** - 240+ warnings identified, address gradually
 3. **Testing required** - Write tests for new components and hooks
 4. **Build must pass** - Always verify `npm run build` succeeds before committing
+
+### ✅ Unused Variable Detection Setup (Jan 2025)
+
+**Issue Addressed**: Remove unused imports and variables to improve code quality and reduce bundle size.
+
+**Configuration Implemented**:
+
+1. **ESLint Rules** (`.eslintrc.json`):
+   ```json
+   "@typescript-eslint/no-unused-vars": [
+     "warn",  // Won't block builds, shows as warnings
+     {
+       "argsIgnorePattern": "^_",      // Allow unused args starting with _
+       "varsIgnorePattern": "^_",      // Allow unused vars starting with _
+       "ignoreRestSiblings": true      // Allow unused in destructuring
+     }
+   ]
+   ```
+
+2. **TypeScript Config** (`tsconfig.json`):
+   ```json
+   // Disabled for builds to prevent blocking deployments
+   // "noUnusedLocals": true,
+   // "noUnusedParameters": true,
+   ```
+
+**Usage**:
+- **IDE**: Shows red squiggly lines under unused variables/imports
+- **Commands**: Use `npm run lint` to see warnings, `npm run lint:fix` for auto-fixes
+- **Builds**: ✅ Won't block builds or deployments (warnings only)
+- **Cleanup**: Fix gradually as you work on files or dedicate cleanup sessions
+
+**Benefits**:
+- Continuous visibility of unused code
+- Can deploy while gradually cleaning up
+- Better code quality and smaller bundles
+- IDE integration for immediate feedback
 
 ### Code Consistency Standards
 
