@@ -23,6 +23,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
+import { deleteUserAccount } from "@/lib/delete-account";
 import type { Roles } from "@/types";
 
 interface MobileSettingsProps {
@@ -253,13 +254,53 @@ function MobileSettingsContent({
   };
 
   const handleDeleteAccount = async () => {
-    // This should use the full implementation from settings-container
-    // For now, just show a placeholder
-    toast({
-      variant: "destructive",
-      title: t("settings.error"),
-      description: "Delete account not implemented in mobile view",
-    });
+    if (!userId) return;
+
+    setIsDeletingAccount(true);
+
+    try {
+      await deleteUserAccount(userId);
+
+      // Complete success - both data and auth user deleted
+      toast({
+        title: t("settings.accountDeleted"),
+        description: t("settings.accountDeletedDesc"),
+      });
+
+      router.push(ROUTE_LOGIN);
+    } catch (error: any) {
+      if (error.message === "DATA_DELETED_AUTH_FAILED") {
+        // Data deletion succeeded, but auth requires re-login
+        // Show success message and sign out after delay
+        toast({
+          title: t("settings.accountDeleted"),
+          description: t("settings.accountDeletedDesc"),
+        });
+
+        setTimeout(async () => {
+          try {
+            await signOut(auth);
+          } catch {
+            // Ignore signout errors
+          }
+          router.push(ROUTE_LOGIN);
+        }, 2000);
+      } else if (error.message === "REAUTH_REQUIRED") {
+        toast({
+          variant: "destructive",
+          title: t("settings.deleteError"),
+          description: t("settings.reauthRequired"),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: t("settings.deleteError"),
+          description: error.message || "Failed to delete account",
+        });
+      }
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   const formatRemaining = useCallback(
