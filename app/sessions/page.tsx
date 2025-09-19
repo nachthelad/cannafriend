@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Layout } from "@/components/layout";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -9,7 +9,7 @@ import { SessionsContainer } from "@/components/sessions/sessions-container";
 import { SessionsSkeleton } from "@/components/sessions/sessions-skeleton";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 
-export default function SessionsPage() {
+function SessionsContent() {
   const { user, isLoading: authLoading } = useAuthUser();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,16 +35,18 @@ export default function SessionsPage() {
   }, [user, searchParams, router]);
 
   if (authLoading || !user) {
-    return (
-      <Layout>
-        <SessionsSkeleton />
-      </Layout>
-    );
+    return <SessionsSkeleton />;
   }
 
+  return <SessionsContainer userId={user.uid} />;
+}
+
+export default function SessionsPage() {
   return (
     <Layout>
-      <SessionsContainer userId={user.uid} />
+      <Suspense fallback={<SessionsSkeleton />}>
+        <SessionsContent />
+      </Suspense>
     </Layout>
   );
 }
