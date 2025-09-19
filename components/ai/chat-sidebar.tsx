@@ -141,7 +141,7 @@ export function ChatSidebar({
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-background border-r">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
@@ -190,7 +190,7 @@ export function ChatSidebar({
             <p className="text-xs">{t("noChats", { ns: "aiAssistant" })}</p>
           </div>
         ) : (
-          <div className="space-y-1 md:hidden">
+          <div className="space-y-1">
             {chatSessions.map((session) => (
               <ChatListItem
                 key={session.id}
@@ -314,9 +314,7 @@ export function ChatSidebar({
             ) : chatSessions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                <p className="text-xs">
-                  {t("noChats", { ns: "aiAssistant" })}
-                </p>
+                <p className="text-xs">{t("noChats", { ns: "aiAssistant" })}</p>
               </div>
             ) : (
               <div className="space-y-1">
@@ -385,7 +383,7 @@ export function ChatSidebar({
       {/* Mobile Sidebar */}
       <div
         className={cn(
-          "fixed top-0 left-0 h-full w-80 z-50 transform transition-transform duration-300 ease-in-out md:hidden",
+          "fixed top-0 left-0 h-full w-80 z-50 transform transition-transform duration-300 ease-in-out md:hidden bg-background",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

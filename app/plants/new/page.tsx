@@ -19,7 +19,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
@@ -42,6 +42,7 @@ import {
   type GrowType,
   type LightSchedule,
 } from "@/lib/plant-config";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 export default function NewPlantPage() {
   const { t, i18n } = useTranslation(["plants", "common", "validation"]);
@@ -142,37 +143,11 @@ export default function NewPlantPage() {
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(ROUTE_PLANTS)}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">{t("newPlant.title", { ns: "plants" })}</h1>
-            <p className="text-sm text-muted-foreground">
-              {t("newPlant.description", { ns: "plants" })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push(ROUTE_PLANTS)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">{t("newPlant.title", { ns: "plants" })}</h1>
-        <p className="text-muted-foreground">{t("newPlant.description", { ns: "plants" })}</p>
-      </div>
+      <ResponsivePageHeader
+        title={t("newPlant.title", { ns: "plants" })}
+        description={t("newPlant.description", { ns: "plants" })}
+        onBackClick={() => router.push(ROUTE_PLANTS)}
+      />
 
       {/* Form */}
       <form onSubmit={rhfHandleSubmit(onSubmit)} className="max-w-2xl px-4 md:px-6">

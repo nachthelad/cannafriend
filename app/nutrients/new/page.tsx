@@ -13,9 +13,9 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
 import { Layout } from "@/components/layout";
-import { ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 export default function NewNutrientPage() {
   const { t } = useTranslation(["nutrients", "common"]);
@@ -59,35 +59,11 @@ export default function NewNutrientPage() {
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm" 
-            onClick={() => router.push(ROUTE_NUTRIENTS)}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">{t("new")}</h1>
-            <p className="text-sm text-muted-foreground">{t("newDesc")}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push(ROUTE_NUTRIENTS)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">{t("new")}</h1>
-        <p className="text-muted-foreground">{t("newDesc")}</p>
-      </div>
+      <ResponsivePageHeader
+        title={t("new")}
+        description={t("newDesc")}
+        onBackClick={() => router.push(ROUTE_NUTRIENTS)}
+      />
 
       {/* Form */}
       <div className="max-w-2xl">

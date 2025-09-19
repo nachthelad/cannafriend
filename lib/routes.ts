@@ -12,6 +12,7 @@ export const ROUTE_CONSUMER_CHAT = "/consumer-chat" as const;
 export const ROUTE_PREMIUM = "/premium" as const;
 export const ROUTE_SETTINGS = "/settings" as const;
 export const ROUTE_JOURNAL = "/journal" as const;
+export const ROUTE_JOURNAL_NEW = "/journal/new" as const;
 export const ROUTE_REMINDERS = "/reminders" as const;
 export const ROUTE_STASH = "/stash" as const;
 export const ROUTE_STASH_NEW = "/stash/new" as const;
@@ -33,6 +34,7 @@ export type AppPath =
   | typeof ROUTE_PREMIUM
   | typeof ROUTE_SETTINGS
   | typeof ROUTE_JOURNAL
+  | typeof ROUTE_JOURNAL_NEW
   | typeof ROUTE_REMINDERS
   | typeof ROUTE_STASH
   | typeof ROUTE_STASH_NEW

@@ -22,7 +22,7 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
-import { ArrowLeft, Calendar, AlertCircle } from "lucide-react";
+import { Calendar, AlertCircle } from "lucide-react";
 import { FormSkeleton } from "@/components/skeletons/common-skeletons";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 
@@ -50,6 +50,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 import { AmountWithUnit } from "@/components/common/amount-with-unit";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 // Form validation schema - will be created with translations in component
 const createLogFormSchema = (t: any) =>
@@ -355,64 +356,21 @@ function NewJournalPageContent() {
   }
 
   const handleFormSubmit = handleSubmit(onSubmit as any);
+  const handleBack = () => {
+    if (returnTo === "plant" && urlPlantId) {
+      router.push(`/plants/${urlPlantId}`);
+    } else {
+      router.push(ROUTE_JOURNAL);
+    }
+  };
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              // Go back to plant page if coming from there, otherwise to journal
-              if (returnTo === "plant" && urlPlantId) {
-                router.push(`/plants/${urlPlantId}`);
-              } else {
-                router.push(ROUTE_JOURNAL);
-              }
-            }}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">
-              {t("logForm.title", { ns: "journal" })}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("logForm.description", { ns: "journal" })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              // Go back to plant page if coming from there, otherwise to journal
-              if (returnTo === "plant" && urlPlantId) {
-                router.push(`/plants/${urlPlantId}`);
-              } else {
-                router.push(ROUTE_JOURNAL);
-              }
-            }}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">
-          {t("logForm.title", { ns: "journal" })}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("logForm.description", { ns: "journal" })}
-        </p>
-      </div>
+      <ResponsivePageHeader
+        title={t("logForm.title", { ns: "journal" })}
+        description={t("logForm.description", { ns: "journal" })}
+        onBackClick={handleBack}
+      />
 
       {/* Form */}
       <form onSubmit={handleFormSubmit} className="max-w-2xl px-4 md:px-6">

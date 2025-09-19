@@ -20,13 +20,14 @@ import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/layout";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_STASH } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import { addDoc } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 // Form validation schema
 const createStashFormSchema = (t: any) =>
@@ -152,43 +153,11 @@ function NewStashPageContent() {
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">
-              {t("addItem", { ns: "stash" })}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("addItemDesc", { ns: "stash" })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">
-          {t("addItem", { ns: "stash" })}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("addItemDesc", { ns: "stash" })}
-        </p>
-      </div>
+      <ResponsivePageHeader
+        title={t("addItem", { ns: "stash" })}
+        description={t("addItemDesc", { ns: "stash" })}
+        onBackClick={handleBack}
+      />
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl px-4 md:px-6">

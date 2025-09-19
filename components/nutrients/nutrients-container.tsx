@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import {
   Card,
   CardContent,
@@ -38,7 +39,7 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
-import { Plus, X, ArrowLeft } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 
@@ -74,9 +75,12 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
   const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
   const { roles } = useUserRoles();
+  const homePath = resolveHomePathForRoles(roles);
   const [search, setSearch] = useState("");
   const cacheKey = `nutrients-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchNutrientsData(userId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchNutrientsData(userId)
+  );
   const { mixes: initialMixes } = resource.read();
 
   const [mixes, setMixes] = useState<NutrientMix[]>(initialMixes);
@@ -119,62 +123,46 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
     await fetchMixes();
   };
 
+  const handleAddMix = () => {
+    router.push(ROUTE_NUTRIENTS_NEW);
+  };
+
   return (
     <>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace(resolveHomePathForRoles(roles))}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">{t("title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("description")}</p>
+      <ResponsivePageHeader
+        className="mb-6"
+        title={t("title")}
+        description={t("description")}
+        onBackClick={() => router.replace(homePath)}
+        desktopActions={
+          <div className="flex items-center gap-3">
+            <Input
+              placeholder={t("searchPlaceholder")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-64"
+            />
+            <Button onClick={handleAddMix}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addMix")}
+            </Button>
           </div>
-          <Button size="icon" onClick={() => router.push(ROUTE_NUTRIENTS_NEW)}>
+        }
+        mobileActions={
+          <Button size="icon" onClick={handleAddMix}>
             <Plus className="h-5 w-5" />
           </Button>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace(resolveHomePathForRoles(roles))}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">{t("title")}</h1>
-            <p className="text-muted-foreground">{t("description")}</p>
-          </div>
-          <Button onClick={() => router.push(ROUTE_NUTRIENTS_NEW)}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("addMix")}
-          </Button>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="mb-6 px-4 md:px-6">
-        <Input
-          placeholder={t("searchPlaceholder")}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
-        />
-      </div>
+        }
+        mobileControls={
+          <Input
+            placeholder={t("searchPlaceholder")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full"
+          />
+        }
+        sticky={false}
+      />
 
       {/* Content */}
       <div className="px-4 md:px-6">
@@ -300,4 +288,3 @@ export function NutrientsContainer({ userId }: NutrientsContainerProps) {
     </Suspense>
   );
 }
-

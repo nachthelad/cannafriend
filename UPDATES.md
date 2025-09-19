@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: implement Suspense for loading state and improve component structure — 2025-09-19
 - [MID]: implement sessions management with mobile and desktop components — 2025-09-19
 - [MINOR]: handle unauthorized access and improve loading state display — 2025-09-19
 - [MINOR]: consolidate admin dashboard layout with modular components — 2025-09-18
