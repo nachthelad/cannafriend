@@ -186,7 +186,7 @@ export function MobilePlantPage({
               variant="ghost"
               size="sm"
               onClick={handleBack}
-              className="h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0"
+              className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 p-0"
             >
               <ArrowLeft className="h-5 w-5 text-white" />
             </Button>
@@ -195,19 +195,16 @@ export function MobilePlantPage({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-sm border border-white/20 p-0"
+                  className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 p-0"
                 >
                   <Menu className="h-5 w-5 text-white" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-slate-800 border-slate-700"
-              >
+              <DropdownMenuContent align="end">
                 {onAddPhoto && (
                   <DropdownMenuItem
                     onClick={() => onAddPhoto(plant)}
-                    className="text-slate-200 hover:bg-slate-700"
+                    className="text-slate-200 "
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     {t("photos.addPhotos", { ns: "plants" })}
@@ -220,13 +217,13 @@ export function MobilePlantPage({
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem
                           onSelect={(e) => e.preventDefault()}
-                          className="text-yellow-400 hover:bg-slate-700 hover:text-yellow-300"
+                          className="text-yellow-400"
                         >
                           <Star className="h-4 w-4 mr-2" />
                           {t("photos.setAsCover", { ns: "plants" })}
                         </DropdownMenuItem>
                       </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-slate-800 border-slate-700">
+                      <AlertDialogContent className="">
                         <AlertDialogHeader>
                           <AlertDialogTitle className="text-slate-200">
                             {t("photos.setCoverConfirmTitle", { ns: "plants" })}
@@ -236,7 +233,7 @@ export function MobilePlantPage({
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                          <AlertDialogCancel className="text-slate-200 ">
                             {t("cancel", { ns: "common" })}
                           </AlertDialogCancel>
                           <AlertDialogAction
@@ -244,7 +241,7 @@ export function MobilePlantPage({
                               onSetCoverPhoto(allImages[currentImageIndex]);
                               setMenuOpen(false);
                             }}
-                            className="bg-yellow-600 text-white hover:bg-yellow-700"
+                            className="bg-yellow-600 text-white "
                           >
                             {t("photos.setAsCover", { ns: "plants" })}
                           </AlertDialogAction>
@@ -257,13 +254,13 @@ export function MobilePlantPage({
                     <AlertDialogTrigger asChild>
                       <DropdownMenuItem
                         onSelect={(e) => e.preventDefault()}
-                        className="text-red-400 hover:bg-slate-700 hover:text-red-300"
+                        className="text-red-400  "
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
                         {t("photos.deletePhoto", { ns: "plants" })}
                       </DropdownMenuItem>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
+                    <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle className="text-slate-200">
                           {t("photos.removeConfirmTitle", { ns: "plants" })}
@@ -273,7 +270,7 @@ export function MobilePlantPage({
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                        <AlertDialogCancel className="text-slate-200 ">
                           {t("cancel", { ns: "common" })}
                         </AlertDialogCancel>
                         <AlertDialogAction
@@ -281,7 +278,7 @@ export function MobilePlantPage({
                             onRemovePhoto(currentImageIndex);
                             setMenuOpen(false);
                           }}
-                          className="bg-red-600 text-white hover:bg-red-700"
+                          className="bg-red-600 text-white "
                         >
                           {t("delete", { ns: "common" })}
                         </AlertDialogAction>
@@ -309,7 +306,7 @@ export function MobilePlantPage({
                     placeholder={t("newPlant.namePlaceholder", {
                       ns: "plants",
                     })}
-                    className="text-2xl font-bold text-white drop-shadow-lg uppercase hover:bg-white/10 rounded-md py-1 truncate block w-full"
+                    className="text-2xl font-bold text-white drop-shadow-lg uppercase rounded-md py-1 truncate block w-full"
                     inputClassName="text-lg font-bold text-white bg-black/50 border-white/30 rounded-lg py-2 backdrop-blur-sm placeholder-white/60 w-full max-w-full"
                   />
                 </div>
@@ -436,14 +433,14 @@ export function MobilePlantPage({
           <Button
             variant="outline"
             size="sm"
-            className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 flex-1 h-12"
+            className="flex-1 h-12"
             onClick={() => router.push(`/plants/${plant.id}/logs`)}
           >
             <FileText className="h-4 w-4 mr-2" />
             {t("viewLogs", { ns: "journal" })}
           </Button>
           <Button
-            className="bg-green-600 hover:bg-green-700 text-white flex-1 h-12"
+            className="bg-green-600 text-white flex-1 h-12"
             onClick={() => router.push(`/plants/${plant.id}/add-log`)}
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -469,24 +466,18 @@ export function MobilePlantPage({
                   onUpdate?.({ seedType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
+                <SelectTrigger className="w-auto border-none bg-transparent text-white rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
                   <SelectValue>
                     {plant.seedType === "autoflowering"
                       ? t("seedType.autoflowering", { ns: "plants" })
                       : t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem
-                    value="autoflowering"
-                    className="text-slate-200 hover:bg-slate-700"
-                  >
+                <SelectContent>
+                  <SelectItem value="autoflowering" className="text-slate-200 ">
                     {t("seedType.autoflowering", { ns: "plants" })}
                   </SelectItem>
-                  <SelectItem
-                    value="photoperiodic"
-                    className="text-slate-200 hover:bg-slate-700"
-                  >
+                  <SelectItem value="photoperiodic" className="text-slate-200 ">
                     {t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
@@ -507,24 +498,18 @@ export function MobilePlantPage({
                   onUpdate?.({ growType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white hover:bg-white/10 rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
+                <SelectTrigger className="w-auto border-none bg-transparent text-white rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
                   <SelectValue>
                     {plant.growType === "indoor"
                       ? t("growType.indoor", { ns: "plants" })
                       : t("growType.outdoor", { ns: "plants" })}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem
-                    value="indoor"
-                    className="text-slate-200 hover:bg-slate-700"
-                  >
+                <SelectContent>
+                  <SelectItem value="indoor" className="text-slate-200 ">
                     {t("growType.indoor", { ns: "plants" })}
                   </SelectItem>
-                  <SelectItem
-                    value="outdoor"
-                    className="text-slate-200 hover:bg-slate-700"
-                  >
+                  <SelectItem value="outdoor" className="text-slate-200 ">
                     {t("growType.outdoor", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
@@ -547,7 +532,7 @@ export function MobilePlantPage({
                 placeholder={t("newPlant.seedBankPlaceholder", {
                   ns: "plants",
                 })}
-                className="text-white font-medium hover:bg-white/10 rounded-xl px-2 py-1"
+                className="text-white font-medium rounded-xl px-2 py-1"
                 inputClassName="text-white bg-black/50 border-white/30 rounded-xl px-3 py-1 backdrop-blur-sm placeholder-white/60 w-full max-w-full"
               />
             </div>
@@ -580,13 +565,13 @@ export function MobilePlantPage({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-white/20 p-0"
+                    className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Trash2 className="h-5 w-5 text-white" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-slate-800 border-slate-700">
+                <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-slate-200">
                       {t("photos.removeConfirmTitle", { ns: "plants" })}
@@ -596,7 +581,7 @@ export function MobilePlantPage({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel className="bg-slate-700 text-slate-200 hover:bg-slate-600">
+                    <AlertDialogCancel className="text-slate-200">
                       {t("cancel", { ns: "common" })}
                     </AlertDialogCancel>
                     <AlertDialogAction
@@ -604,7 +589,7 @@ export function MobilePlantPage({
                         onRemovePhoto(currentImageIndex);
                         setShowFullImage(false);
                       }}
-                      className="bg-red-600 text-white hover:bg-red-700"
+                      className="bg-red-600 text-white"
                     >
                       {t("delete", { ns: "common" })}
                     </AlertDialogAction>

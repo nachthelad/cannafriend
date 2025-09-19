@@ -18,12 +18,15 @@
   "methodPlaceholder": "e.g., Joint, Vape, Bong",
   "amountPlaceholder": "e.g., 0.5g, 1 bowl",
   "notesPlaceholder": "How did it feel? Effects, mood, etc.",
+  "addNotes": "Add notes",
+  "editMode": "Edit mode active - click on fields to edit",
+  "addMethodAmount": "Add method & amount",
   "save": "Save Session",
   "saved": "Session saved successfully",
   "edit": "Edit",
   "delete": "Delete",
   "deleteConfirmTitle": "Delete Session",
-  "deleteConfirmDesc": "Are you sure you want to delete this session? This action cannot be undone.",
+  "deleteConfirmDesc": "Are you sure you want to delete this session?",
   "deleteConfirm": "Delete",
   "updated": "Session updated",
   "deleted": "Session deleted",
@@ -32,6 +35,20 @@
     "added": "Added to favorites",
     "removed": "Removed from favorites",
     "filter": "Favorites Only"
+  },
+  "search": {
+    "placeholder": "Search sessions..."
+  },
+  "filter": {
+    "method": "Method",
+    "allMethods": "All"
+  },
+  "sort": {
+    "label": "Sort by",
+    "dateDesc": "Recent",
+    "dateAsc": "Oldest",
+    "strainAsc": "Strain A-Z",
+    "strainDesc": "Strain Z-A"
   },
   "aiConsumer": {
     "title": "AI Assistant"

@@ -18,12 +18,15 @@
   "methodPlaceholder": "ej., Porro, Vaporizador, Bong",
   "amountPlaceholder": "ej., 0.5g, 1 tazón",
   "notesPlaceholder": "¿Cómo te sentiste? Efectos, ánimo, etc.",
+  "addNotes": "Agregar notas",
+  "editMode": "Modo de edición activo - haz clic en los campos para editar",
+  "addMethodAmount": "Agregar método y cantidad",
   "save": "Guardar Sesión",
   "saved": "Sesión guardada exitosamente",
   "edit": "Editar",
   "delete": "Eliminar",
   "deleteConfirmTitle": "Eliminar Sesión",
-  "deleteConfirmDesc": "¿Estás seguro de que quieres eliminar esta sesión? Esta acción no se puede deshacer.",
+  "deleteConfirmDesc": "¿Estás seguro de que quieres eliminar esta sesión?",
   "deleteConfirm": "Eliminar",
   "updated": "Sesión actualizada",
   "deleted": "Sesión eliminada",
@@ -32,6 +35,20 @@
     "added": "Agregado a favoritos",
     "removed": "Eliminado de favoritos",
     "filter": "Solo Favoritos"
+  },
+  "search": {
+    "placeholder": "Buscar sesiones..."
+  },
+  "filter": {
+    "method": "Método",
+    "allMethods": "Todos"
+  },
+  "sort": {
+    "label": "Ordenar por",
+    "dateDesc": "Recientes",
+    "dateAsc": "Antiguas",
+    "strainAsc": "Variedad A-Z",
+    "strainDesc": "Variedad Z-A"
   },
   "aiConsumer": {
     "title": "Asistente IA"
