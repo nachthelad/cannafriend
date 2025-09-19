@@ -1,11 +1,9 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { DEV_EMAIL } from "@/lib/constants";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 export default function TermsPage() {
   const { t, i18n } = useTranslation(["common"]);
@@ -14,21 +12,12 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <Link href={ROUTE_DASHBOARD}>
-            <Button variant="ghost" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              {t("back")}
-            </Button>
-          </Link>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            {t("terms.title")}
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t("terms.lastUpdated")}: {new Date().toLocaleDateString()}
-          </p>
-        </div>
+        <ResponsivePageHeader
+          title={t("terms.title")}
+          description={`${t("terms.lastUpdated")}: ${new Date().toLocaleDateString()}`}
+          backHref={ROUTE_DASHBOARD}
+          className="mb-6"
+        />
 
         {/* Content */}
         <div className="max-w-4xl mx-auto bg-white/95 dark:bg-gray-800/95 rounded-lg shadow-lg p-8 backdrop-blur-sm">

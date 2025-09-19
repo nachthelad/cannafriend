@@ -100,12 +100,17 @@ interface ReminderSystemProps {
   showOnlyOverdue?: boolean;
   // Pre-fetched reminders to avoid loading state
   reminders?: any[];
+  // External control over the add form visibility
+  externalShowAddForm?: boolean;
+  onExternalShowAddFormChange?: (show: boolean) => void;
 }
 
 export function ReminderSystem({
   plants,
   showOnlyOverdue = false,
   reminders: preFetchedReminders,
+  externalShowAddForm,
+  onExternalShowAddFormChange,
 }: ReminderSystemProps) {
   const { t } = useTranslation([
     "reminders",
@@ -117,9 +122,13 @@ export function ReminderSystem({
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(preFetchedReminders || []);
   const [isLoading, setIsLoading] = useState(!preFetchedReminders);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [internalShowAddForm, setInternalShowAddForm] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  // Use external state if provided, otherwise use internal state
+  const showAddForm = externalShowAddForm ?? internalShowAddForm;
+  const setShowAddForm = onExternalShowAddFormChange ?? setInternalShowAddForm;
   // Notifications removed
 
   // Form schema with translations
@@ -697,22 +706,6 @@ export function ReminderSystem({
                   {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
                 </Badge>
               )}
-              {/* Mobile: icon-only plus */}
-              <Button
-                onClick={() => setShowAddForm(true)}
-                size="icon"
-                className="md:hidden"
-              >
-                <Plus className="h-5 w-5" />
-              </Button>
-              {/* Desktop: full button with label */}
-              <Button
-                onClick={() => setShowAddForm(true)}
-                className="hidden md:inline-flex"
-              >
-                <Bell className="mr-2 h-4 w-4" />
-                {t("add", { ns: "reminders" })}
-              </Button>
             </div>
           </div>
         </CardHeader>

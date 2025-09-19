@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -17,7 +18,7 @@ import {
   onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
-import { ArrowLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -76,10 +77,6 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
     return () => unsubscribe();
   }, [userId, plantId, plant]);
 
-  const handleBack = () => {
-    router.push(`/plants/${plantId}`);
-  };
-
   const handleDeleteLog = async (log: LogEntry) => {
     if (!userId || !log.id) return;
     try {
@@ -96,60 +93,37 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
     }
   };
 
+  const backHref = `/plants/${plantId}`;
+
+  const handleAddLog = () => {
+    router.push(`/plants/${plantId}/add-log`);
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">
-              {t("viewLogs", { ns: "journal" })}
-            </h1>
-            <p className="text-sm text-muted-foreground">{plant.name}</p>
-          </div>
-          <Button
-            size="icon"
-            onClick={() => router.push(`/plants/${plantId}/add-log`)}
-            className="ml-2"
-          >
+      <ResponsivePageHeader
+        className="mb-4 sm:mb-6"
+        title={t("viewLogs", { ns: "journal" })}
+        description={
+          <span>
+            {t("logsFor", { ns: "journal" })} {plant.name}
+          </span>
+        }
+        backHref={backHref}
+        desktopActions={
+          <Button size="icon" onClick={handleAddLog}>
             <Plus className="h-5 w-5" />
           </Button>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">
-              {t("viewLogs", { ns: "journal" })}
-            </h1>
-            <p className="text-muted-foreground">
-              {t("logsFor", { ns: "journal" })} {plant.name}
-            </p>
+        }
+        mobileControls={
+          <div className="flex justify-end">
+            <Button size="icon" onClick={handleAddLog}>
+              <Plus className="h-5 w-5" />
+            </Button>
           </div>
-          <Button
-            size="icon"
-            onClick={() => router.push(`/plants/${plantId}/add-log`)}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+        }
+        sticky={false}
+      />
 
       {/* Logs List */}
       <div className="px-4 pb-4">

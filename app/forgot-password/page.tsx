@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ROUTE_LOGIN } from "@/lib/routes";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -109,15 +110,31 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+      <ResponsivePageHeader
+        title={
+          <span className="block text-center md:text-left">
+            {t("forgotPassword.title", { ns: "auth" })}
+          </span>
+        }
+        description={
+          <span className="block text-center md:text-left">
+            {t("forgotPassword.description", { ns: "auth" })}
+          </span>
+        }
+        onBackClick={() => router.push(ROUTE_LOGIN)}
+        className="max-w-md mx-auto"
+      />
       <Card className="w-full max-w-md border-0 shadow-2xl dark:shadow-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm">
-        <CardHeader className="text-center">
+        <CardHeader className="flex justify-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
             <Mail className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
-          <CardTitle className="text-2xl font-bold">
+          <CardTitle className="sr-only">
             {t("forgotPassword.title", { ns: "auth" })}
           </CardTitle>
-          <CardDescription>{t("forgotPassword.description", { ns: "auth" })}</CardDescription>
+          <CardDescription className="sr-only">
+            {t("forgotPassword.description", { ns: "auth" })}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -182,7 +199,6 @@ export default function ForgotPasswordPage() {
                   variant="link"
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
                   {t("forgotPassword.backToLogin", { ns: "auth" })}
                 </Button>
               </Link>

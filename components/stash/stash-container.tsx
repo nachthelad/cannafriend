@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import { Layout } from "@/components/layout";
 import {
   Card,
   CardContent,
@@ -10,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -35,7 +35,7 @@ import {
   deleteField,
 } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
-import { Plus, Pencil, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -83,6 +83,7 @@ function StashContent({ userId }: StashContainerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { roles } = useUserRoles();
+  const homePath = resolveHomePathForRoles(roles);
   const cacheKey = `stash-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchStashData(userId));
   const { items: initialItems } = resource.read();
@@ -241,50 +242,24 @@ function StashContent({ userId }: StashContainerProps) {
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace(resolveHomePathForRoles(roles))}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">{t("title")}</h1>
-            <p className="text-sm text-muted-foreground">{t("description")}</p>
-          </div>
-          <Button size="icon" onClick={openNew}>
-            <Plus className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace(resolveHomePathForRoles(roles))}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold">{t("title")}</h1>
-            <p className="text-muted-foreground">{t("description")}</p>
-          </div>
+      <ResponsivePageHeader
+        className="mb-6"
+        title={t("title")}
+        description={t("description")}
+        onBackClick={() => router.replace(homePath)}
+        desktopActions={
           <Button onClick={openNew}>
             <Plus className="h-4 w-4 mr-2" />
             {t("addItem")}
           </Button>
-        </div>
-      </div>
+        }
+        mobileActions={
+          <Button size="icon" onClick={openNew}>
+            <Plus className="h-5 w-5" />
+          </Button>
+        }
+        sticky={false}
+      />
 
       {/* Content */}
       <div className="px-4 md:px-6">

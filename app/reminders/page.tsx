@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/layout";
 import {
@@ -20,9 +20,10 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { getSuspenseResource } from "@/lib/suspense-utils";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface RemindersData {
   plants: Plant[];
@@ -42,8 +43,9 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
 
 function RemindersContent({ userId }: { userId: string }) {
   const { t } = useTranslation(["reminders", "common", "dashboard"]);
-  const router = useRouter();
   const { roles } = useUserRoles();
+  const homePath = resolveHomePathForRoles(roles);
+  const [isAddReminderOpen, setIsAddReminderOpen] = useState(false);
 
   const cacheKey = `reminders-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -51,61 +53,48 @@ function RemindersContent({ userId }: { userId: string }) {
   );
   const { plants } = resource.read();
 
+  const handleAddReminder = () => {
+    setIsAddReminderOpen(true);
+  };
+
   return (
     <>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.replace(resolveHomePathForRoles(roles))}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
+      <ResponsivePageHeader
+        title={t("reminders", { ns: "dashboard" })}
+        description={t("pageDescription", { ns: "reminders" })}
+        backHref={homePath}
+        mobileActions={
+          <Button size="icon" onClick={handleAddReminder}>
+            <Plus className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="text-xl font-bold">
-              {t("reminders", { ns: "dashboard" })}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("pageDescription", { ns: "reminders" })}
-            </p>
-          </div>
-        </div>
-      </div>
+        }
+        desktopActions={
+          <Button onClick={handleAddReminder}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("add", { ns: "reminders" })}
+          </Button>
+        }
+      />
 
       {/* Mobile View */}
       <div className="md:hidden">
-        <MobileReminders userId={userId} initialPlants={plants} showHeader={false} />
+        <MobileReminders
+          userId={userId}
+          initialPlants={plants}
+          showHeader={false}
+          isSchedulerOpen={isAddReminderOpen}
+          onSchedulerOpenChange={setIsAddReminderOpen}
+        />
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block">
-        {/* Desktop Header */}
-        <div className="hidden md:block mb-6 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.replace(resolveHomePathForRoles(roles))}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("back", { ns: "common" })}
-            </Button>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">
-              {t("reminders", { ns: "dashboard" })}
-            </h1>
-            <p className="text-muted-foreground">
-              {t("pageDescription", { ns: "reminders" })}
-            </p>
-          </div>
-        </div>
-
+      <div className="hidden md:flex md:flex-col md:gap-6">
         {plants.length > 0 ? (
-          <ReminderSystem plants={plants} />
+          <ReminderSystem
+            plants={plants}
+            externalShowAddForm={isAddReminderOpen}
+            onExternalShowAddFormChange={setIsAddReminderOpen}
+          />
         ) : (
           <Card>
             <CardHeader>
@@ -140,17 +129,13 @@ export default function RemindersPage() {
   }, [authLoading, user, router]);
 
   const fallback = (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:px-0 md:py-6">
       <RemindersSkeleton />
     </div>
   );
 
   if (authLoading || !user) {
-    return (
-      <Layout>
-        {fallback}
-      </Layout>
-    );
+    return <Layout>{fallback}</Layout>;
   }
 
   return (
@@ -176,4 +161,3 @@ function RemindersSkeleton() {
     </div>
   );
 }
-

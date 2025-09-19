@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import {
   Card,
   CardContent,
@@ -41,7 +42,14 @@ import { Input } from "@/components/ui/input";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { db } from "@/lib/firebase";
 import { plantsCol, logsCol } from "@/lib/paths";
-import { query, getDocs, orderBy, collectionGroup, where, limit } from "firebase/firestore";
+import {
+  query,
+  getDocs,
+  orderBy,
+  collectionGroup,
+  where,
+  limit,
+} from "firebase/firestore";
 import type { Plant, LogEntry } from "@/types";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
@@ -117,7 +125,9 @@ type SortOrder = "asc" | "desc";
 
 function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const cacheKey = `mobile-journal-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchJournalData(userId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchJournalData(userId)
+  );
   const { logs, plants } = resource.read();
   const { t } = useTranslation(["journal", "common"]);
   const router = useRouter();
@@ -130,7 +140,6 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [showCalendar, setShowCalendar] = useState(false);
 
-
   // Filter and sort logs
   const filteredAndSortedLogs = logs
     .filter((log) => {
@@ -139,7 +148,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
         const searchLower = searchText.toLowerCase();
         const matchesNotes = log.notes?.toLowerCase().includes(searchLower);
         const matchesPlant = log.plantName?.toLowerCase().includes(searchLower);
-        const matchesType = t(`logType.${log.type}`, { ns: "journal" }).toLowerCase().includes(searchLower);
+        const matchesType = t(`logType.${log.type}`, { ns: "journal" })
+          .toLowerCase()
+          .includes(searchLower);
         if (!matchesNotes && !matchesPlant && !matchesType) {
           return false;
         }
@@ -203,28 +214,14 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
     setSearchText("");
   };
 
-
+  const logsFoundDescription = `${filteredAndSortedLogs.length} ${t(
+    "logsFound",
+    { ns: "journal" }
+  )}`;
 
   return (
     <div className="space-y-4">
-      {/* Mobile Header */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">{t("title", { ns: "journal" })}</h1>
-            <p className="text-sm text-muted-foreground">
-              {filteredAndSortedLogs.length} {t("logsFound", { ns: "journal" })}
-            </p>
-          </div>
-          <Button
-            size="sm"
-            onClick={() => router.push("/journal/new")}
-            className="shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -302,7 +299,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                   setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                 }
               >
-                {sortOrder === "asc" ? t("sort.descending", { ns: "journal" }) : t("sort.ascending", { ns: "journal" })}
+                {sortOrder === "asc"
+                  ? t("sort.descending", { ns: "journal" })
+                  : t("sort.ascending", { ns: "journal" })}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -321,7 +320,8 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               className="gap-1 cursor-pointer"
               onClick={() => setSearchText("")}
             >
-              "{searchText.slice(0, 15)}{searchText.length > 15 ? "..." : ""}"
+              "{searchText.slice(0, 15)}
+              {searchText.length > 15 ? "..." : ""}"
               <X className="h-3 w-3" />
             </Badge>
           )}
@@ -382,7 +382,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           <CardContent>
             <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="mb-2">
-              {activeFiltersCount > 0 ? t("noFilteredLogs", { ns: "journal" }) : t("noLogs", { ns: "journal" })}
+              {activeFiltersCount > 0
+                ? t("noFilteredLogs", { ns: "journal" })
+                : t("noLogs", { ns: "journal" })}
             </CardTitle>
             <CardDescription className="mb-6">
               {activeFiltersCount > 0
@@ -391,7 +393,8 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             </CardDescription>
             {activeFiltersCount === 0 && (
               <Button onClick={() => router.push("/journal/new")}>
-                <Plus className="h-4 w-4 mr-2" /> {t("addLog", { ns: "journal" })}
+                <Plus className="h-4 w-4 mr-2" />{" "}
+                {t("addLog", { ns: "journal" })}
               </Button>
             )}
           </CardContent>
@@ -506,7 +509,6 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

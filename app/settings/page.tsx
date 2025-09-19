@@ -2,17 +2,23 @@
 
 import { Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { SettingsContainer } from "@/components/settings/settings-container";
 import { MobileSettings } from "@/components/mobile/mobile-settings";
 import { SettingsSkeleton } from "@/components/skeletons";
 import { Layout } from "@/components/layout";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuthUser();
   const router = useRouter();
+  const { roles } = useUserRoles();
+  const { t } = useTranslation(["common"]);
+  const homePath = resolveHomePathForRoles(roles);
 
   useEffect(() => {
     if (isLoading) {
@@ -27,7 +33,7 @@ export default function SettingsPage() {
   const providerId = user?.providerData?.[0]?.providerId ?? null;
 
   const skeletonFallback = (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:px-0 md:py-6">
       <SettingsSkeleton />
     </div>
   );
@@ -44,6 +50,11 @@ export default function SettingsPage() {
 
   return (
     <Layout>
+      <ResponsivePageHeader
+        title={t("settings.title")}
+        description={t("settings.accountDesc")}
+        backHref={homePath}
+      />
       {/* Mobile Settings */}
       <div className="md:hidden">
         <Suspense fallback={skeletonFallback}>
@@ -51,6 +62,7 @@ export default function SettingsPage() {
             userId={user.uid}
             email={user.email}
             providerId={providerId}
+            showHeader={false}
           />
         </Suspense>
       </div>
@@ -62,6 +74,7 @@ export default function SettingsPage() {
             userId={user.uid}
             email={user.email}
             providerId={providerId}
+            showHeader={false}
           />
         </Suspense>
       </div>

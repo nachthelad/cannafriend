@@ -45,6 +45,7 @@ import type {
 } from "@/components/sessions/types";
 import { TimeField } from "@/components/sessions/time-field";
 import { cn } from "@/lib/utils";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 interface MobileSessionsProps {
   sessions: Session[];
@@ -60,6 +61,7 @@ interface MobileSessionsProps {
   sortBy: string;
   onSortByChange: (sortBy: string) => void;
   availableMethods: string[];
+  backHref: string;
 }
 
 function formatDate(iso?: string | null) {
@@ -184,7 +186,9 @@ export function SessionDetailView({
     const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (timeRegex.test(timeString)) {
       try {
-        return formatTime(new Date(`1970-01-01T${timeString}:00`).toISOString());
+        return formatTime(
+          new Date(`1970-01-01T${timeString}:00`).toISOString()
+        );
       } catch {
         return timeString; // Return as-is if conversion fails
       }
@@ -193,8 +197,12 @@ export function SessionDetailView({
   };
 
   const sessionDate = formatDate(session.date);
-  const startTime = editValues.startTime ? safeFormatTime(editValues.startTime) : formatTime(session.startTime);
-  const endTime = editValues.endTime ? safeFormatTime(editValues.endTime) : formatTime(session.endTime);
+  const startTime = editValues.startTime
+    ? safeFormatTime(editValues.startTime)
+    : formatTime(session.startTime);
+  const endTime = editValues.endTime
+    ? safeFormatTime(editValues.endTime)
+    : formatTime(session.endTime);
   const timeRange =
     startTime && endTime
       ? `${startTime} – ${endTime}`
@@ -395,7 +403,9 @@ export function SessionDetailView({
                 size="sm"
                 onClick={handleToggleEditMode}
                 className={`h-10 w-10 rounded-full backdrop-blur-sm border border-white/20 p-0 ${
-                  isEditMode ? 'bg-blue-600/80 hover:bg-blue-700/80' : 'bg-black/20 hover:bg-black/40'
+                  isEditMode
+                    ? "bg-blue-600/80 hover:bg-blue-700/80"
+                    : "bg-black/20 hover:bg-black/40"
                 }`}
               >
                 {isEditMode ? (
@@ -423,7 +433,12 @@ export function SessionDetailView({
                 <div className="flex items-center gap-2">
                   <Input
                     value={editValues.strain}
-                    onChange={(e) => setEditValues(prev => ({ ...prev, strain: e.target.value }))}
+                    onChange={(e) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        strain: e.target.value,
+                      }))
+                    }
                     className="text-2xl font-bold bg-black/40 border-white/30 text-white placeholder-white/60"
                     placeholder={t("strainPlaceholder", { ns: "sessions" })}
                     autoFocus
@@ -448,7 +463,9 @@ export function SessionDetailView({
               ) : (
                 <h1
                   className={`text-3xl font-bold text-white drop-shadow-lg transition-colors ${
-                    isEditMode ? 'cursor-pointer hover:text-slate-200 ring-2 ring-blue-400/50 rounded px-2 py-1' : ''
+                    isEditMode
+                      ? "cursor-pointer hover:text-slate-200 ring-2 ring-blue-400/50 rounded px-2 py-1"
+                      : ""
                   }`}
                   onClick={() => handleEditField("strain")}
                 >
@@ -469,19 +486,25 @@ export function SessionDetailView({
               </div>
 
               {/* Time Range */}
-              {(timeRange || (!endTime && startTime && isEditMode) || (!startTime && isEditMode) || editingField === "endTime" || editingField === "startTime") && (
+              {(timeRange ||
+                (!endTime && startTime && isEditMode) ||
+                (!startTime && isEditMode) ||
+                editingField === "endTime" ||
+                editingField === "startTime") && (
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
 
                   {/* Show existing time range */}
-                  {timeRange && editingField !== "endTime" && editingField !== "startTime" && (
-                    <span>{timeRange}</span>
-                  )}
+                  {timeRange &&
+                    editingField !== "endTime" &&
+                    editingField !== "startTime" && <span>{timeRange}</span>}
 
                   {/* Show only start time when no end time exists */}
-                  {startTime && !endTime && editingField !== "endTime" && editingField !== "startTime" && !timeRange && (
-                    <span>{startTime}</span>
-                  )}
+                  {startTime &&
+                    !endTime &&
+                    editingField !== "endTime" &&
+                    editingField !== "startTime" &&
+                    !timeRange && <span>{startTime}</span>}
 
                   {/* Add Start Time - Only show if no start time exists */}
                   {!startTime && isEditMode && editingField !== "startTime" && (
@@ -496,27 +519,33 @@ export function SessionDetailView({
                   )}
 
                   {/* Add End Time - Only show if start time exists but no end time */}
-                  {startTime && !endTime && isEditMode && editingField !== "endTime" && editingField !== "startTime" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditField("endTime")}
-                      className="border-blue-400/50 text-blue-300 hover:bg-blue-900/30 h-7 text-xs px-3 ml-2"
-                    >
-                      + Add End Time
-                    </Button>
-                  )}
+                  {startTime &&
+                    !endTime &&
+                    isEditMode &&
+                    editingField !== "endTime" &&
+                    editingField !== "startTime" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditField("endTime")}
+                        className="border-blue-400/50 text-blue-300 hover:bg-blue-900/30 h-7 text-xs px-3 ml-2"
+                      >
+                        + Add End Time
+                      </Button>
+                    )}
 
                   {/* Start Time Editor */}
                   {editingField === "startTime" && (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-400">Start time:</span>
+                      <span className="text-xs text-slate-400">
+                        Start time:
+                      </span>
                       <TimeField
                         value={editValues.startTime}
                         onChange={(value) =>
-                          setEditValues(prev => ({
+                          setEditValues((prev) => ({
                             ...prev,
-                            startTime: value
+                            startTime: value,
                           }))
                         }
                         className="bg-black/40 border-white/30 text-white text-sm w-20"
@@ -549,9 +578,9 @@ export function SessionDetailView({
                       <TimeField
                         value={editValues.endTime}
                         onChange={(value) =>
-                          setEditValues(prev => ({
+                          setEditValues((prev) => ({
                             ...prev,
-                            endTime: value
+                            endTime: value,
                           }))
                         }
                         className="bg-black/40 border-white/30 text-white text-sm w-20"
@@ -591,7 +620,10 @@ export function SessionDetailView({
             <div className="flex items-center gap-2">
               <Edit className="h-4 w-4 text-blue-400" />
               <span className="text-blue-300 text-sm font-medium">
-                {t("editMode", { ns: "sessions", defaultValue: "Edit mode active - click on fields to edit" })}
+                {t("editMode", {
+                  ns: "sessions",
+                  defaultValue: "Edit mode active - click on fields to edit",
+                })}
               </span>
             </div>
           </div>
@@ -613,7 +645,12 @@ export function SessionDetailView({
                   </label>
                   <Input
                     value={editValues.method}
-                    onChange={(e) => setEditValues(prev => ({ ...prev, method: e.target.value }))}
+                    onChange={(e) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        method: e.target.value,
+                      }))
+                    }
                     className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400"
                     placeholder={t("methodPlaceholder", { ns: "sessions" })}
                     autoFocus={editingField === "method"}
@@ -627,7 +664,12 @@ export function SessionDetailView({
                   </label>
                   <Input
                     value={editValues.amount}
-                    onChange={(e) => setEditValues(prev => ({ ...prev, amount: e.target.value }))}
+                    onChange={(e) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        amount: e.target.value,
+                      }))
+                    }
                     className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400"
                     placeholder={t("amountPlaceholder", { ns: "sessions" })}
                     autoFocus={editingField === "amount"}
@@ -664,7 +706,9 @@ export function SessionDetailView({
                 {methodAndAmount ? (
                   <span
                     className={`text-white font-medium text-lg transition-colors ${
-                      isEditMode ? 'cursor-pointer hover:text-slate-200 ring-1 ring-blue-400/50 rounded px-2 py-1' : ''
+                      isEditMode
+                        ? "cursor-pointer hover:text-slate-200 ring-1 ring-blue-400/50 rounded px-2 py-1"
+                        : ""
                     }`}
                     onClick={() => handleEditField("method")}
                   >
@@ -680,7 +724,10 @@ export function SessionDetailView({
                     className="border-blue-400/50 text-blue-300 hover:bg-blue-900/30 ring-1 ring-blue-400/50"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    {t("addMethodAmount", { ns: "sessions", defaultValue: "Add method & amount" })}
+                    {t("addMethodAmount", {
+                      ns: "sessions",
+                      defaultValue: "Add method & amount",
+                    })}
                   </Button>
                 ) : null}
               </div>
@@ -698,7 +745,12 @@ export function SessionDetailView({
               <div className="space-y-2">
                 <Textarea
                   value={editValues.notes}
-                  onChange={(e) => setEditValues(prev => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) =>
+                    setEditValues((prev) => ({
+                      ...prev,
+                      notes: e.target.value,
+                    }))
+                  }
                   className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400 min-h-[80px]"
                   placeholder={t("notesPlaceholder", { ns: "sessions" })}
                   autoFocus
@@ -727,7 +779,9 @@ export function SessionDetailView({
             ) : (
               <p
                 className={`text-white leading-relaxed transition-colors p-2 rounded ${
-                  isEditMode ? 'cursor-pointer hover:text-slate-200 hover:bg-slate-800/30 ring-1 ring-blue-400/50' : ''
+                  isEditMode
+                    ? "cursor-pointer hover:text-slate-200 hover:bg-slate-800/30 ring-1 ring-blue-400/50"
+                    : ""
                 }`}
                 onClick={() => handleEditField("notes")}
               >
@@ -830,6 +884,7 @@ export function MobileSessions({
   sortBy,
   onSortByChange,
   availableMethods,
+  backHref,
 }: MobileSessionsProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
@@ -887,34 +942,92 @@ export function MobileSessions({
   // Show list view
   return (
     <div className="min-h-screen text-white">
-      {/* Header */}
-      <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b z-10">
-        <div className="p-4 space-y-4">
-          {/* Title */}
-          <div>
-            <h1 className="text-2xl font-bold">
-              {t("title", { ns: "sessions" })}
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              {t("description", { ns: "sessions" })}
-            </p>
-          </div>
+      <ResponsivePageHeader
+        title={t("title", { ns: "sessions" })}
+        description={t("description", { ns: "sessions" })}
+        backHref={backHref}
+        mobileControls={
+          <>
+            <div className="relative mt-2">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t("search.placeholder", { ns: "sessions" })}
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Select value={filterMethod} onValueChange={onFilterMethodChange}>
+                <SelectTrigger className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    <SelectValue
+                      placeholder={t("filter.method", { ns: "sessions" })}
+                    />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {t("filter.allMethods", { ns: "sessions" })}
+                  </SelectItem>
+                  {availableMethods.map((method) => (
+                    <SelectItem key={method} value={method}>
+                      {method}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t("search.placeholder", { ns: "sessions" })}
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+              <Select value={sortBy} onValueChange={onSortByChange}>
+                <SelectTrigger className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <SelectValue
+                      placeholder={t("sort.label", { ns: "sessions" })}
+                    />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date-desc">
+                    {t("sort.dateDesc", { ns: "sessions" })}
+                  </SelectItem>
+                  <SelectItem value="date-asc">
+                    {t("sort.dateAsc", { ns: "sessions" })}
+                  </SelectItem>
+                  <SelectItem value="strain-asc">
+                    {t("sort.strainAsc", { ns: "sessions" })}
+                  </SelectItem>
+                  <SelectItem value="strain-desc">
+                    {t("sort.strainDesc", { ns: "sessions" })}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-          {/* Filters */}
-          <div className="flex items-center gap-2">
+              <Button
+                onClick={onAddSession}
+                className="bg-white text-black border"
+                aria-label={t("addSession", { ns: "sessions" })}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        }
+        desktopActions={
+          <div className="flex w-full items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t("search.placeholder", { ns: "sessions" })}
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
             <Select value={filterMethod} onValueChange={onFilterMethodChange}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="w-[160px]">
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
                   <SelectValue
@@ -935,7 +1048,7 @@ export function MobileSessions({
             </Select>
 
             <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="w-[160px]">
                 <div className="flex items-center gap-2">
                   <ArrowUpDown className="h-4 w-4" />
                   <SelectValue
@@ -963,11 +1076,12 @@ export function MobileSessions({
               onClick={onAddSession}
               className="bg-white text-black border"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addSession", { ns: "sessions" })}
             </Button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Sessions List */}
       <div className="p-4 space-y-3">

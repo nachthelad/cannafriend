@@ -9,11 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ImageUpload } from "@/components/common/image-upload";
-import {
-  Brain,
-  User,
-  X,
-} from "lucide-react";
+import { Brain, User, X, Menu } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
@@ -35,7 +31,12 @@ interface UnifiedChatProps {
   onToggleSidebar?: () => void;
 }
 
-export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggleSidebar }: UnifiedChatProps) {
+export function UnifiedChat({
+  sessionId,
+  className,
+  sidebarOpen = false,
+  onToggleSidebar,
+}: UnifiedChatProps) {
   const { t } = useTranslation(["aiAssistant", "common"]);
   const { toast } = useToast();
   const { user } = useAuthUser();
@@ -202,12 +203,10 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
         currentSessionId={currentSessionId}
         onSessionSelect={loadChatSession}
         onNewChat={handleNewChat}
-        className="md:block"
       />
 
       {/* Main Chat */}
       <div className="flex flex-col flex-1 h-full max-w-4xl mx-auto">
-
         {/* Chat Content */}
         {messages.length === 0 ? (
           /* Centered Welcome State - ChatGPT Style */
@@ -322,7 +321,9 @@ export function UnifiedChat({ sessionId, className, sidebarOpen = false, onToggl
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                       </div>
                     ) : (
-                      <div className="whitespace-pre-wrap">{message.content}</div>
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
                     )}
                   </div>
                 </div>

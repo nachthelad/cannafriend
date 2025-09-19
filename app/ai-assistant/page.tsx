@@ -38,27 +38,21 @@ async function fetchPremiumStatus(_userId: string): Promise<boolean> {
   return false;
 }
 
-function AIAssistantContent({ userId }: { userId: string }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+function AIAssistantContent({
+  userId,
+  sidebarOpen,
+  onToggleSidebar,
+}: {
+  userId: string;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+}) {
   // Get premium status from Suspense
   const cacheKey = `premium-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchPremiumStatus(userId)
   );
   const isPremium = resource.read();
-
-  const handleToggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  // Open sidebar by default on desktop only
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-      if (isDesktop) setSidebarOpen(true);
-    }
-  }, []);
 
   return (
     <>
@@ -72,7 +66,7 @@ function AIAssistantContent({ userId }: { userId: string }) {
         <UnifiedChat
           className="h-full"
           sidebarOpen={sidebarOpen}
-          onToggleSidebar={handleToggleSidebar}
+          onToggleSidebar={onToggleSidebar}
         />
       )}
     </>
@@ -82,6 +76,19 @@ function AIAssistantContent({ userId }: { userId: string }) {
 export default function AIAssistantPage() {
   const router = useRouter();
   const { user, isLoading } = useAuthUser();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  // Open sidebar by default on desktop only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+      if (isDesktop) setSidebarOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -91,7 +98,7 @@ export default function AIAssistantPage() {
 
   if (isLoading) {
     return (
-      <AILayout>
+      <AILayout onToggleSidebar={handleToggleSidebar}>
         <AIChatSkeleton />
       </AILayout>
     );
@@ -102,9 +109,13 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <AILayout>
+    <AILayout onToggleSidebar={handleToggleSidebar}>
       <Suspense fallback={<AIChatSkeleton />}>
-        <AIAssistantContent userId={user.uid} />
+        <AIAssistantContent
+          userId={user.uid}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={handleToggleSidebar}
+        />
       </Suspense>
     </AILayout>
   );

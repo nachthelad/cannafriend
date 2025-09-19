@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -30,6 +31,7 @@ interface MobileSettingsProps {
   userId: string;
   email?: string | null;
   providerId?: string | null;
+  showHeader?: boolean;
 }
 
 interface PreferencesState {
@@ -87,6 +89,7 @@ function MobileSettingsContent({
   userId,
   email,
   providerId,
+  showHeader = true,
 }: MobileSettingsProps) {
   const { t } = useTranslation(["common", "onboarding"]);
   const router = useRouter();
@@ -367,18 +370,15 @@ function MobileSettingsContent({
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      {/* Mobile Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border p-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+      <ResponsivePageHeader
+        title={
           <div className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-semibold">{t("settings.title")}</h1>
+            <span>{t("settings.title")}</span>
           </div>
-        </div>
-      </div>
+        }
+        onBackClick={() => router.back()}
+      />
 
       {/* All Settings in Single Column */}
       <div className="pb-24 w-full max-w-full">
