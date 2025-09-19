@@ -7,7 +7,7 @@ import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 
 const TOAST_LIMIT = 1;
 // Deprecated: use '@/components/ui/use-toast' instead. This stub re-exports the same API.
-const TOAST_REMOVE_DELAY = 5000;
+const TOAST_REMOVE_DELAY = 1500;
 
 type ToasterToast = ToastProps & {
   id: string;

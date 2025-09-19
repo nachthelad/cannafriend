@@ -191,7 +191,7 @@ export default function NewSessionPage() {
         date: dateISO,
       });
       toast({ title: t("saved", { ns: "sessions" }) });
-      router.push(ROUTE_SESSIONS);
+      router.push(`${ROUTE_SESSIONS}?refresh=true`);
     } catch (e: any) {
       toast({
         variant: "destructive",

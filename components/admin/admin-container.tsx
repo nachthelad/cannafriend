@@ -361,12 +361,20 @@ export function AdminContainer() {
       return;
     }
     if (!isLoading && !rolesLoading && user && !isAdmin) {
-      router.replace(resolveHomePathForRoles(roles));
+      router.replace("/404");
     }
   }, [isLoading, rolesLoading, isAdmin, user, router, roles]);
 
-  if (isLoading || rolesLoading || !isAdmin) {
-    return <AdminSkeleton />;
+  if (isLoading || rolesLoading) {
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        Cargando...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (
