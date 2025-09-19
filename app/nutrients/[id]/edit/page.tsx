@@ -10,10 +10,10 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useFirebaseDocument } from "@/hooks";
 import { Layout } from "@/components/layout";
-import { ArrowLeft } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
 import type { NutrientMix as NutrientMixBase } from "@/types";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 export default function EditNutrientPage({
   params,
@@ -94,39 +94,11 @@ export default function EditNutrientPage({
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(ROUTE_NUTRIENTS)}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">{t("edit")}</h1>
-            <p className="text-sm text-muted-foreground">{t("editDesc")}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(ROUTE_NUTRIENTS)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">{t("edit")}</h1>
-        <p className="text-muted-foreground">{t("editDesc")}</p>
-      </div>
+      <ResponsivePageHeader
+        title={t("edit")}
+        description={t("editDesc")}
+        onBackClick={() => router.push(ROUTE_NUTRIENTS)}
+      />
 
       {/* Form */}
       <div className="max-w-2xl px-4 md:px-6">

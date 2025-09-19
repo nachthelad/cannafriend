@@ -16,7 +16,7 @@ import { ROUTE_LOGIN, ROUTE_SESSIONS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 import { ImageUpload } from "@/components/common/image-upload";
-import { Calendar, Clock, ArrowLeft } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -27,6 +27,7 @@ import {
 import { cn, formatDateObjectWithLocale } from "@/lib/utils";
 import { MobileDatePicker } from "@/components/ui/mobile-date-picker";
 import { es, enUS } from "date-fns/locale";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -205,43 +206,11 @@ export default function NewSessionPage() {
 
   return (
     <Layout>
-      {/* Mobile Header */}
-      <div className="md:hidden mb-4 p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="p-2"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold">
-              {t("addSession", { ns: "sessions" })}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {t("addSessionDesc", { ns: "sessions" })}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block mb-6 p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Button variant="ghost" size="sm" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t("back", { ns: "common" })}
-          </Button>
-        </div>
-        <h1 className="text-3xl font-bold">
-          {t("addSession", { ns: "sessions" })}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("addSessionDesc", { ns: "sessions" })}
-        </p>
-      </div>
+      <ResponsivePageHeader
+        title={t("addSession", { ns: "sessions" })}
+        description={t("addSessionDesc", { ns: "sessions" })}
+        onBackClick={handleBack}
+      />
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSave)} className="max-w-2xl px-4 md:px-6">

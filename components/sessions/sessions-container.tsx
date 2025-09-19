@@ -13,7 +13,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { ROUTE_SESSIONS } from "@/lib/routes";
+import { ROUTE_SESSIONS, resolveHomePathForRoles } from "@/lib/routes";
 import { sessionsCol, userDoc } from "@/lib/paths";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,7 @@ import type {
   SessionEditFormValues,
 } from "./types";
 import { auth } from "@/lib/firebase";
+import { useUserRoles } from "@/hooks/use-user-roles";
 
 interface SessionsContainerProps {
   userId: string;
@@ -90,6 +91,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { roles } = useUserRoles();
 
   const cacheKey = `sessions-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -304,6 +306,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
           sortBy={sortBy}
           onSortByChange={setSortBy}
           availableMethods={availableMethods}
+          backHref={resolveHomePathForRoles(roles)}
         />
       </div>
 

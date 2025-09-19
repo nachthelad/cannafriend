@@ -542,19 +542,5 @@ export function MobileReminderScheduler({
     );
   }
 
-  return (
-    <Button
-      onClick={() => {
-        if (onOpenChange) {
-          onOpenChange(true);
-        } else {
-          setInternalIsOpen(true);
-        }
-      }}
-      className="w-full min-h-[48px] text-lg"
-    >
-      <Plus className="mr-2 h-5 w-5" />
-      {t("addReminder", { ns: "reminders" })}
-    </Button>
-  );
+  return <div />;
 }

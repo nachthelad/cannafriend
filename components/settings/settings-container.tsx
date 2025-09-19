@@ -49,6 +49,7 @@ interface SettingsContentProps {
   userId: string;
   email?: string | null;
   providerId?: string | null;
+  showHeader?: boolean;
 }
 
 async function fetchSettingsData(userId: string): Promise<SettingsData> {
@@ -91,7 +92,12 @@ async function fetchSettingsData(userId: string): Promise<SettingsData> {
   };
 }
 
-function SettingsContent({ userId, email, providerId }: SettingsContentProps) {
+function SettingsContent({
+  userId,
+  email,
+  providerId,
+  showHeader = true,
+}: SettingsContentProps) {
   const { t } = useTranslation(["common", "onboarding"]);
   const router = useRouter();
   const { toast } = useToast();
@@ -542,13 +548,15 @@ function SettingsContent({ userId, email, providerId }: SettingsContentProps) {
   }, [activeSection, sections]);
 
   return (
-    <div className="min-h-screen flex flex-col p-4 md:p-6">
-      <header className="mb-6 md:mb-10">
-        <h1 className="text-xl font-bold md:text-3xl">{t("settings.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground md:mt-2 md:text-base md:max-w-2xl">
-          {t("settings.accountDesc")}
-        </p>
-      </header>
+    <div className="min-h-screen flex flex-col gap-6 p-4 md:px-0 md:py-6">
+      {showHeader ? (
+        <header className="md:mb-4">
+          <h1 className="text-xl font-bold md:text-3xl">{t("settings.title")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground md:mt-2 md:text-base md:max-w-2xl">
+            {t("settings.accountDesc")}
+          </p>
+        </header>
+      ) : null}
 
       <div className="flex-1 flex flex-col md:flex-row md:items-start md:gap-8">
         <SettingsNavigation
@@ -575,8 +583,14 @@ export function SettingsContainer({
   userId,
   email,
   providerId,
+  showHeader,
 }: SettingsContentProps) {
   return (
-    <SettingsContent userId={userId} email={email} providerId={providerId} />
+    <SettingsContent
+      userId={userId}
+      email={email}
+      providerId={providerId}
+      showHeader={showHeader}
+    />
   );
 }

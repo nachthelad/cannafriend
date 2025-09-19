@@ -45,6 +45,8 @@ interface MobileRemindersProps {
   userId: string;
   initialPlants?: Plant[];
   showHeader?: boolean;
+  isSchedulerOpen?: boolean;
+  onSchedulerOpenChange?: (open: boolean) => void;
 }
 
 interface MobileRemindersContentProps extends MobileRemindersProps {
@@ -108,6 +110,8 @@ function MobileRemindersContent({
   userId,
   initialPlants,
   showHeader,
+  isSchedulerOpen: externalIsSchedulerOpen,
+  onSchedulerOpenChange: externalOnSchedulerOpenChange,
 }: MobileRemindersContentProps) {
   const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { handleFirebaseError } = useErrorHandler();
@@ -122,9 +126,14 @@ function MobileRemindersContent({
   const [reminders, setReminders] = useState<Reminder[]>(
     () => initialReminders
   );
-  const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
+  const [internalIsSchedulerOpen, setInternalIsSchedulerOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  // Use external scheduler state if provided, otherwise use internal state
+  const isSchedulerOpen = externalIsSchedulerOpen ?? internalIsSchedulerOpen;
+  const setIsSchedulerOpen =
+    externalOnSchedulerOpenChange ?? setInternalIsSchedulerOpen;
 
   useEffect(() => {
     const remindersCollection = collection(db, "users", userId, "reminders");
@@ -335,6 +344,8 @@ export function MobileReminders({
   userId,
   initialPlants,
   showHeader = true,
+  isSchedulerOpen,
+  onSchedulerOpenChange,
 }: MobileRemindersProps) {
   return (
     <Suspense fallback={<MobileRemindersSkeleton showHeader={showHeader} />}>
@@ -342,6 +353,8 @@ export function MobileReminders({
         userId={userId}
         initialPlants={initialPlants}
         showHeader={showHeader}
+        isSchedulerOpen={isSchedulerOpen}
+        onSchedulerOpenChange={onSchedulerOpenChange}
       />
     </Suspense>
   );
