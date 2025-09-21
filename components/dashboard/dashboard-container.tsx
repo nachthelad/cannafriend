@@ -10,6 +10,7 @@ import {
   ROUTE_JOURNAL,
   ROUTE_ADMIN,
   ROUTE_STASH,
+  ROUTE_PLANTS_NEW,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,13 +27,11 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, Brain, Shield } from "lucide-react";
+import { Plus, Brain, Shield, Bell, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
-import { db, auth } from "@/lib/firebase";
-import { collection } from "firebase/firestore";
-import { buildNutrientMixesPath } from "@/lib/firebase-config";
+import { auth } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 
@@ -315,11 +314,19 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                 )}
                 <Button asChild>
                   <Link href={ROUTE_REMINDERS}>
+                    <Bell className="h-4 w-4 mr-1" />{" "}
                     {t("reminders", { ns: "dashboard" })}
                   </Link>
                 </Button>
                 <Button asChild>
+                  <Link href={ROUTE_PLANTS_NEW}>
+                    <Plus className="h-4 w-4 mr-1" />{" "}
+                    {t("addPlant", { ns: "dashboard" })}
+                  </Link>
+                </Button>
+                <Button asChild>
                   <Link href={ROUTE_STASH}>
+                    <Package className="h-4 w-4 mr-1" />{" "}
                     {t("stash.title", { ns: "common" })}
                   </Link>
                 </Button>
