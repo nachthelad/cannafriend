@@ -29,7 +29,7 @@ import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { invalidateDashboardCache } from "@/lib/suspense-cache";
+import { invalidateDashboardCache, invalidatePlantsCache, invalidateJournalCache, invalidatePlantDetails } from "@/lib/suspense-cache";
 import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
 import { ROUTE_JOURNAL, ROUTE_PLANTS } from "@/lib/routes";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
@@ -214,7 +214,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       // Delete plant document
       await deleteDoc(plantDocRef(userId, plantId));
 
-      // Invalidate dashboard cache to refresh plants count
+      // Invalidate caches to refresh plants list and dashboard count
+      invalidatePlantsCache(userId);
       invalidateDashboardCache(userId);
 
       router.push(resolveHomePathForRoles(roles));
@@ -234,7 +235,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     try {
       await deleteDoc(doc(db, "users", userId, "plants", plantId, "logs", logId));
 
-      // Invalidate dashboard cache to refresh recent logs
+      // Invalidate caches to refresh journal, plants (for recent logs), and dashboard
+      invalidateJournalCache(userId);
+      invalidatePlantsCache(userId);
+      invalidatePlantDetails(userId, plantId); // Individual plant page
       invalidateDashboardCache(userId);
 
       const updated = logs.filter((l) => l.id !== logId);

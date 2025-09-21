@@ -107,7 +107,7 @@
     "outdoor": "Exterior"
   },
   "managementDesc": "Gestiona tus plantas",
-  "searchPlaceholder": "Buscar plantas...",
+  "searchPlaceholder": "Buscar por nombre, interior/exterior, autofloreciente...",
   "filters": {
     "title": "Filtros",
     "seedType": "Tipo de Semilla",
@@ -116,6 +116,10 @@
     "all": "Todos",
     "clear": "Limpiar filtros"
   },
+  "sortByName": "Ordenar por Nombre",
+  "sortByDate": "Ordenar por Fecha",
+  "sortBySeedType": "Ordenar por Tipo de Semilla",
+  "sortByGrowType": "Ordenar por Tipo de Cultivo",
   "sort": {
     "byName": "Ordenar por Nombre",
     "byDate": "Ordenar por Fecha",

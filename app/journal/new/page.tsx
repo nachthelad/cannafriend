@@ -28,7 +28,7 @@ import { ROUTE_JOURNAL } from "@/lib/routes";
 
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query } from "firebase/firestore";
-import { invalidateDashboardCache } from "@/lib/suspense-cache";
+import { invalidateDashboardCache, invalidateJournalCache, invalidatePlantsCache, invalidatePlantDetails } from "@/lib/suspense-cache";
 import {
   LOG_TYPES,
   LOG_TYPE_OPTIONS,
@@ -318,7 +318,10 @@ function NewJournalPageContent() {
       );
       await addDoc(logsRef, logData);
 
-      // Invalidate dashboard cache to refresh recent logs
+      // Invalidate caches to refresh journal, plants (for last watering/feeding), and dashboard
+      invalidateJournalCache(auth.currentUser!.uid);
+      invalidatePlantsCache(auth.currentUser!.uid);
+      invalidatePlantDetails(auth.currentUser!.uid, selectedPlantId); // Individual plant page
       invalidateDashboardCache(auth.currentUser!.uid);
 
       toast({

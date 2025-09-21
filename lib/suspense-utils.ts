@@ -65,3 +65,12 @@ export function clearSuspenseCache(key?: string) {
     resourceCache.clear();
   }
 }
+
+// Clear cache entries that start with a specific prefix
+export function clearSuspenseCacheByPrefix(prefix: string) {
+  for (const key of resourceCache.keys()) {
+    if (key.startsWith(prefix)) {
+      resourceCache.delete(key);
+    }
+  }
+}
