@@ -107,7 +107,7 @@
     "outdoor": "Outdoor"
   },
   "managementDesc": "Manage all your plants",
-  "searchPlaceholder": "Search plants...",
+  "searchPlaceholder": "Search by name, type, seed bank...",
   "filters": {
     "title": "Filters",
     "seedType": "Seed Type",
@@ -116,6 +116,10 @@
     "all": "All",
     "clear": "Clear filters"
   },
+  "sortByName": "Sort by Name",
+  "sortByDate": "Sort by Date",
+  "sortBySeedType": "Sort by Seed Type",
+  "sortByGrowType": "Sort by Grow Type",
   "sort": {
     "byName": "Sort by Name",
     "byDate": "Sort by Date",
