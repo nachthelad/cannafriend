@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: streamline forgot and reset password pages with responsive design and component consolidation — 2025-09-21
 - [MINOR]: enhance AIAssistantContent with sidebar management and improve layout structure — 2025-09-19
 - [MINOR]: implement Suspense for loading state and improve component structure — 2025-09-19
 - [MID]: implement sessions management with mobile and desktop components — 2025-09-19

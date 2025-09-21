@@ -16,10 +16,9 @@ import {
   LogOut,
   Calendar,
   Bell,
-  Plus,
+  FilePen,
   Package,
   Leaf,
-  FlaskConical,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
@@ -107,15 +106,15 @@ export function Layout({ children }: LayoutProps) {
       label: t("yourPlants", { ns: "dashboard" }),
       icon: Leaf,
     },
-    {
-      href: ROUTE_PLANTS_NEW,
-      label: t("addPlant", { ns: "nav" }),
-      icon: Plus,
-    },
+    // {
+    //   href: ROUTE_PLANTS_NEW,
+    //   label: t("addPlant", { ns: "nav" }),
+    //   icon: Plus,
+    // },
     {
       href: ROUTE_SESSIONS,
       label: t("title", { ns: "sessions" }),
-      icon: Plus,
+      icon: FilePen,
     },
     {
       href: ROUTE_STASH,
