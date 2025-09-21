@@ -18,6 +18,7 @@ import {
   onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
+import { invalidateJournalCache, invalidatePlantsCache, invalidateDashboardCache, invalidatePlantDetails } from "@/lib/suspense-cache";
 import { Plus } from "lucide-react";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
@@ -83,6 +84,13 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
       await deleteDoc(
         doc(db, "users", userId, "plants", plantId, "logs", log.id)
       );
+
+      // Invalidate caches to refresh journal, plants (for recent logs), and dashboard
+      invalidateJournalCache(userId);
+      invalidatePlantsCache(userId);
+      invalidatePlantDetails(userId, plantId); // Individual plant page
+      invalidateDashboardCache(userId);
+
       setLogs((prev) => prev.filter((l) => l.id !== log.id));
       toast({
         title: t("deleted", { ns: "journal" }),

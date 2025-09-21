@@ -16,6 +16,7 @@ interface PlantCardProps {
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
   compact?: boolean;
+  detailed?: boolean;
 }
 
 export function PlantCard({
@@ -24,6 +25,7 @@ export function PlantCard({
   lastFeeding,
   lastTraining,
   compact = false,
+  detailed = false,
 }: PlantCardProps) {
   const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const language = i18n.language;
@@ -63,33 +65,45 @@ export function PlantCard({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+        <div className="absolute bottom-2 left-2 right-2">
           <h3 className="text-white text-lg font-semibold drop-shadow">
             {plant.name}
           </h3>
-          <Badge
-            variant={plant.seedType === "autoflowering" ? "default" : "outline"}
-            className="bg-white/90 text-black backdrop-blur-sm"
-          >
-            {plant.seedType === "autoflowering"
-              ? t("newPlant.autoflowering")
-              : t("newPlant.photoperiodic")}
-          </Badge>
         </div>
       </div>
       {!compact && (
         <>
           <CardContent className="pb-2">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Badge variant="outline" className="mr-2">
-                {plant.growType === "indoor"
-                  ? t("newPlant.indoor")
-                  : t("newPlant.outdoor")}
-              </Badge>
-              {plant.growType === "indoor" && plant.lightSchedule && (
-                <Badge variant="outline">{plant.lightSchedule}</Badge>
-              )}
-            </div>
+            {detailed ? (
+              <div className="flex flex-wrap gap-2">
+                <Badge
+                  variant={plant.seedType === "autoflowering" ? "default" : "outline"}
+                >
+                  {plant.seedType === "autoflowering"
+                    ? t("newPlant.autoflowering")
+                    : t("newPlant.photoperiodic")}
+                </Badge>
+                <Badge variant="outline">
+                  {plant.growType === "indoor"
+                    ? t("newPlant.indoor")
+                    : t("newPlant.outdoor")}
+                </Badge>
+                {plant.growType === "indoor" && plant.lightSchedule && (
+                  <Badge variant="outline">{plant.lightSchedule}</Badge>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Badge variant="outline" className="mr-2">
+                  {plant.growType === "indoor"
+                    ? t("newPlant.indoor")
+                    : t("newPlant.outdoor")}
+                </Badge>
+                {plant.growType === "indoor" && plant.lightSchedule && (
+                  <Badge variant="outline">{plant.lightSchedule}</Badge>
+                )}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="pt-0 text-xs text-muted-foreground">
             <div className="space-y-1">

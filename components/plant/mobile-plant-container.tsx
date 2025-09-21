@@ -89,7 +89,7 @@ function MobilePlantContainerContent({ userId }: MobilePlantContainerProps) {
   const [growTypeFilter, setGrowTypeFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  const cacheKey = `plants-${userId}`;
+  const cacheKey = `plants-mobile-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));
   const { plants } = resource.read();
 
