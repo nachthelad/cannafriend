@@ -16,7 +16,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
@@ -28,11 +27,11 @@ import {
   Brain,
   Leaf,
   Calendar,
-  FlaskConical,
   ArrowRight,
   TrendingUp,
   Shield,
   Box,
+  FilePen,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
@@ -255,7 +254,7 @@ export function MobileDashboard({
           )}
           {roles?.consumer && (
             <QuickActionButton
-              icon={Leaf}
+              icon={FilePen}
               label={t("title", { ns: "sessions" })}
               href={ROUTE_SESSIONS}
             />
