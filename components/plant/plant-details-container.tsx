@@ -302,15 +302,13 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           : null
       );
 
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.removeSuccess", { ns: "plants" }),
         description: t("photos.photoRemoved", { ns: "plants" }),
       });
-
-      // Refresh page after a short delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -329,6 +327,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       setCoverPhoto(photoUrl);
       setSelectedPhoto(photoUrl);
       setPlant((prev) => (prev ? { ...prev, coverPhoto: photoUrl } : null));
+
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.coverPhotoSet", { ns: "plants" }),
         description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
@@ -349,15 +351,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       await updateDoc(plantDocRef(userId, plantId), { photos: updated });
       setPhotos(updated);
       if (!coverPhoto && updated.length > 0) setSelectedPhoto(updated[0]);
+
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.uploadSuccess", { ns: "plants" }),
         description: t("photos.photosUpdated", { ns: "plants" }),
       });
-
-      // Refresh page after a short delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -566,27 +567,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
                               {t("settings.cancel")}
                             </AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={async (e) => {
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                if (!userId) return;
-                                try {
-                                  await updateDoc(plantDocRef(userId, plantId), {
-                                    coverPhoto: p,
-                                  });
-                                  setCoverPhoto(p);
-                                  setSelectedPhoto(p);
-                                  toast({
-                                    title: t("photos.coverPhotoSet", {
-                                      ns: "plants",
-                                    }),
-                                  });
-                                } catch (error: any) {
-                                  toast({
-                                    variant: "destructive",
-                                    title: t("common.error"),
-                                    description: error.message,
-                                  });
-                                }
+                                void handleSetCoverPhoto(p);
                               }}
                             >
                               {t("photos.setAsCover", { ns: "plants" })}
