@@ -301,6 +301,7 @@ pnpm dev              # Alternative dev command
 **Configuration**: ESLint rules configured to show unused variables/imports as warnings (won't block builds).
 
 **ESLint Rules** (`.eslintrc.json`):
+
 ```json
 "@typescript-eslint/no-unused-vars": [
   "warn",  // Won't block builds, shows as warnings
@@ -315,6 +316,7 @@ pnpm dev              # Alternative dev command
 **TypeScript Config**: Unused variable checks disabled for builds to allow deployments.
 
 **Usage**:
+
 - **IDE**: Shows red squiggly lines under unused variables/imports
 - **Commands**: `npm run lint` for all issues, `npm run lint:fix` for auto-fixes
 - **Builds**: Won't block builds or deployments (warnings only)
@@ -327,7 +329,7 @@ The AI assistant consists of a responsive chat layout with a persistent sidebar 
 ### Main Pieces
 
 - `app/ai-assistant/page.tsx`: Protects route, opens the chat sidebar by default on desktop (≥768px), closed on mobile.
-- `components/ai/unified-chat.tsx`: Chat area, message list, composer, image upload modal. Closes the sidebar after selecting a chat on mobile only.
+- `components/ai/chat.tsx`: Chat area, message list, composer, image upload modal. Closes the sidebar after selecting a chat on mobile only.
 - `components/ai/chat-sidebar.tsx`: Sidebar with history, actions, and search. Uses `ChatListItem` for each chat row.
 - `components/ai/chat-list-item.tsx`: Reusable row that handles selection, inline rename, and menu actions consistently for mobile/desktop.
 
