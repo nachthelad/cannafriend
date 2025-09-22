@@ -150,11 +150,13 @@ export function SimplePlantCard({
         <h3 className="text-white font-semibold text-sm truncate mb-1">
           {plant.name}
         </h3>
-        <div className="flex items-center gap-2">
+        <div
+          className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-2"
+        >
           <Badge
             variant="secondary"
             className={cn(
-              "text-xs bg-white/20 text-white border-white/30",
+              "text-xs bg-white/20 text-white border-white/30 w-fit",
               isOverlay && "bg-white/25 text-white"
             )}
           >
@@ -165,7 +167,7 @@ export function SimplePlantCard({
           {showGrowType && (
             <Badge
               variant="outline"
-              className="text-xs bg-black/30 text-white border-white/40"
+              className="text-xs bg-black/30 text-white border-white/40 w-fit"
             >
               {plant.growType === "indoor"
                 ? t("growType.indoor", { ns: "plants" })
