@@ -1,6 +1,6 @@
 {
   "name": "cannafriend",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -22,7 +22,7 @@
     "version:minor": "node ./scripts/autoversion.mjs minor"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-collapsible": "^1.1.2",
     "@radix-ui/react-dialog": "latest",

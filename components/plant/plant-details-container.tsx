@@ -12,7 +12,7 @@ import {
   collection,
   query,
   orderBy,
-  getDocs
+  getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { resolveHomePathForRoles } from "@/lib/routes";
@@ -21,15 +21,41 @@ import { PlantDetails } from "@/components/plant/plant-details";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ImageUpload } from "@/components/common/image-upload";
 import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { invalidateDashboardCache, invalidatePlantsCache, invalidateJournalCache, invalidatePlantDetails } from "@/lib/suspense-cache";
+import {
+  invalidateDashboardCache,
+  invalidatePlantsCache,
+  invalidateJournalCache,
+  invalidatePlantDetails,
+} from "@/lib/suspense-cache";
 import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
 import { ROUTE_JOURNAL, ROUTE_PLANTS } from "@/lib/routes";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
@@ -65,7 +91,10 @@ interface PlantDetailsData {
   lastEnvironmentFromLogs: LogEntry | undefined;
 }
 
-async function fetchPlantDetailsData(userId: string, plantId: string): Promise<PlantDetailsData> {
+async function fetchPlantDetailsData(
+  userId: string,
+  plantId: string
+): Promise<PlantDetailsData> {
   // Fetch plant details
   const plantRef = plantDocRef(userId, plantId);
   const plantSnap = await getDoc(plantRef);
@@ -104,10 +133,18 @@ async function fetchPlantDetailsData(userId: string, plantId: string): Promise<P
       log.temperature != null &&
       log.humidity != null
   );
-  const lastEnvironmentFromLogs = environmentLogs.length > 0 ? environmentLogs[0] : undefined;
+  const lastEnvironmentFromLogs =
+    environmentLogs.length > 0 ? environmentLogs[0] : undefined;
 
   // Fetch environment data collection
-  const envRef = collection(db, "users", userId, "plants", plantId, "environment");
+  const envRef = collection(
+    db,
+    "users",
+    userId,
+    "plants",
+    plantId,
+    "environment"
+  );
   const envQuery = query(envRef, orderBy("date", "desc"));
   const envSnap = await getDocs(envQuery);
 
@@ -129,13 +166,15 @@ async function fetchPlantDetailsData(userId: string, plantId: string): Promise<P
 }
 
 function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
-  const { t, i18n } = useTranslation(["plants", "common"]);
+  const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
   const { toast } = useToast();
   const { roles } = useUserRoles();
 
   const cacheKey = `plant-details-${userId}-${plantId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchPlantDetailsData(userId, plantId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchPlantDetailsData(userId, plantId)
+  );
   const {
     plant: initialPlant,
     logs: initialLogs,
@@ -144,14 +183,20 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     lastFeeding,
     lastTraining,
     lastFlowering,
-    lastEnvironmentFromLogs
+    lastEnvironmentFromLogs,
   } = resource.read();
 
   const [plant, setPlant] = useState<Plant | null>(initialPlant);
   const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
-  const [photos, setPhotos] = useState<string[]>(() => initialPlant.photos ?? []);
-  const [coverPhoto, setCoverPhoto] = useState<string>(() => initialPlant.coverPhoto ?? "");
-  const [selectedPhoto, setSelectedPhoto] = useState<string>(() => initialPlant.coverPhoto ?? initialPlant.photos?.[0] ?? "");
+  const [photos, setPhotos] = useState<string[]>(
+    () => initialPlant.photos ?? []
+  );
+  const [coverPhoto, setCoverPhoto] = useState<string>(
+    () => initialPlant.coverPhoto ?? ""
+  );
+  const [selectedPhoto, setSelectedPhoto] = useState<string>(
+    () => initialPlant.coverPhoto ?? initialPlant.photos?.[0] ?? ""
+  );
   const [showUpload, setShowUpload] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const previousPlantRef = useRef<Plant | null>(null);
@@ -205,7 +250,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       }
 
       // Delete subcollection docs: environment
-      const envRef = collection(db, "users", userId, "plants", plantId, "environment");
+      const envRef = collection(
+        db,
+        "users",
+        userId,
+        "plants",
+        plantId,
+        "environment"
+      );
       const envSnap = await getDocs(envRef);
       for (const d of envSnap.docs) {
         await deleteDoc(d.ref);
@@ -233,7 +285,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const handleDeleteLog = async (logId: string) => {
     if (!userId) return;
     try {
-      await deleteDoc(doc(db, "users", userId, "plants", plantId, "logs", logId));
+      await deleteDoc(
+        doc(db, "users", userId, "plants", plantId, "logs", logId)
+      );
 
       // Invalidate caches to refresh journal, plants (for recent logs), and dashboard
       invalidateJournalCache(userId);
@@ -244,8 +298,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
       toast({
-        title: t("journal.deleted"),
-        description: t("journal.deletedDesc"),
+        title: t("deleted", { ns: "journal" }),
+        description: t("deletedDesc", { ns: "journal" }),
       });
     } catch (error: any) {
       toast({
@@ -302,15 +356,13 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           : null
       );
 
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.removeSuccess", { ns: "plants" }),
         description: t("photos.photoRemoved", { ns: "plants" }),
       });
-
-      // Refresh page after a short delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -329,6 +381,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       setCoverPhoto(photoUrl);
       setSelectedPhoto(photoUrl);
       setPlant((prev) => (prev ? { ...prev, coverPhoto: photoUrl } : null));
+
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.coverPhotoSet", { ns: "plants" }),
         description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
@@ -349,15 +405,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       await updateDoc(plantDocRef(userId, plantId), { photos: updated });
       setPhotos(updated);
       if (!coverPhoto && updated.length > 0) setSelectedPhoto(updated[0]);
+
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
       toast({
         title: t("photos.uploadSuccess", { ns: "plants" }),
         description: t("photos.photosUpdated", { ns: "plants" }),
       });
-
-      // Refresh page after a short delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -566,27 +621,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
                               {t("settings.cancel")}
                             </AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={async (e) => {
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                if (!userId) return;
-                                try {
-                                  await updateDoc(plantDocRef(userId, plantId), {
-                                    coverPhoto: p,
-                                  });
-                                  setCoverPhoto(p);
-                                  setSelectedPhoto(p);
-                                  toast({
-                                    title: t("photos.coverPhotoSet", {
-                                      ns: "plants",
-                                    }),
-                                  });
-                                } catch (error: any) {
-                                  toast({
-                                    variant: "destructive",
-                                    title: t("common.error"),
-                                    description: error.message,
-                                  });
-                                }
+                                void handleSetCoverPhoto(p);
                               }}
                             >
                               {t("photos.setAsCover", { ns: "plants" })}
@@ -680,7 +717,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               size="icon"
               aria-label="Add log"
               onClick={() =>
-                router.push(`${ROUTE_JOURNAL}/new?plantId=${plantId}&returnTo=plant`)
+                router.push(
+                  `${ROUTE_JOURNAL}/new?plantId=${plantId}&returnTo=plant`
+                )
               }
             >
               <Plus className="h-5 w-5" />
@@ -716,7 +755,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 }
 
 // Error boundary for plant not found
-function PlantDetailsErrorBoundary({ userId, plantId }: PlantDetailsContainerProps) {
+function PlantDetailsErrorBoundary({
+  userId,
+  plantId,
+}: PlantDetailsContainerProps) {
   const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
   const { roles } = useUserRoles();
@@ -736,11 +778,19 @@ function PlantDetailsErrorBoundary({ userId, plantId }: PlantDetailsContainerPro
   );
 }
 
-export function PlantDetailsContainer({ userId, plantId }: PlantDetailsContainerProps) {
+export function PlantDetailsContainer({
+  userId,
+  plantId,
+}: PlantDetailsContainerProps) {
   return (
-    <Suspense fallback={<div className="p-4 md:p-6"><PlantDetailSkeleton /></div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 md:p-6">
+          <PlantDetailSkeleton />
+        </div>
+      }
+    >
       <PlantDetailsContent userId={userId} plantId={plantId} />
     </Suspense>
   );
 }
-

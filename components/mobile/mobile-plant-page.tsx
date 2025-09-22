@@ -50,6 +50,10 @@ import { InlineEdit } from "@/components/common/inline-edit";
 import { updateDoc, doc } from "firebase/firestore";
 import { plantDoc } from "@/lib/paths";
 import { ROUTE_PLANTS } from "@/lib/routes";
+import {
+  invalidatePlantDetails,
+  invalidatePlantsCache,
+} from "@/lib/suspense-cache";
 
 interface MobilePlantPageProps {
   plant: Plant;
@@ -301,6 +305,8 @@ export function MobilePlantPage({
                       await updateDoc(plantDoc(userId, plant.id), {
                         name: newName,
                       });
+                      invalidatePlantDetails(userId, plant.id);
+                      invalidatePlantsCache(userId);
                       onUpdate?.({ name: newName });
                     }}
                     placeholder={t("newPlant.namePlaceholder", {
@@ -463,6 +469,8 @@ export function MobilePlantPage({
                   await updateDoc(plantDoc(userId, plant.id), {
                     seedType: value,
                   });
+                  invalidatePlantDetails(userId, plant.id);
+                  invalidatePlantsCache(userId);
                   onUpdate?.({ seedType: value });
                 }}
               >
@@ -495,6 +503,8 @@ export function MobilePlantPage({
                   await updateDoc(plantDoc(userId, plant.id), {
                     growType: value,
                   });
+                  invalidatePlantDetails(userId, plant.id);
+                  invalidatePlantsCache(userId);
                   onUpdate?.({ growType: value });
                 }}
               >
@@ -527,6 +537,8 @@ export function MobilePlantPage({
                   await updateDoc(plantDoc(userId, plant.id), {
                     seedBank: newBank,
                   });
+                  invalidatePlantDetails(userId, plant.id);
+                  invalidatePlantsCache(userId);
                   onUpdate?.({ seedBank: newBank });
                 }}
                 placeholder={t("newPlant.seedBankPlaceholder", {
