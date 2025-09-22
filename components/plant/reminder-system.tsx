@@ -120,7 +120,9 @@ export function ReminderSystem({
   ]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
-  const [reminders, setReminders] = useState<Reminder[]>(preFetchedReminders || []);
+  const [reminders, setReminders] = useState<Reminder[]>(
+    preFetchedReminders || []
+  );
   const [isLoading, setIsLoading] = useState(!preFetchedReminders);
   const [internalShowAddForm, setInternalShowAddForm] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
@@ -417,9 +419,6 @@ export function ReminderSystem({
           <CardTitle className="text-orange-800 dark:text-orange-200">
             {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
           </CardTitle>
-          <CardDescription className="text-orange-600 dark:text-orange-300">
-            {t("overdueDesc", { ns: "reminders" })}
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {overdueReminders.map((reminder) => (
@@ -778,8 +777,11 @@ export function ReminderSystem({
   );
 }
 
-
-function ReminderSystemSkeleton({ showOnlyOverdue }: { showOnlyOverdue: boolean }) {
+function ReminderSystemSkeleton({
+  showOnlyOverdue,
+}: {
+  showOnlyOverdue: boolean;
+}) {
   if (showOnlyOverdue) {
     return (
       <Card>
@@ -810,5 +812,3 @@ function ReminderSystemSkeleton({ showOnlyOverdue }: { showOnlyOverdue: boolean 
     </div>
   );
 }
-
-

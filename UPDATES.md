@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: integrate Fuse.js for enhanced search functionality and improve cache invalidation — 2025-09-22
+
 - [MINOR]: enhance dashboard with new plant addition feature and icon updates — 2025-09-21
 
 - [MINOR]: streamline forgot and reset password pages with responsive design and component consolidation — 2025-09-21
