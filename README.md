@@ -11,49 +11,6 @@ Your complete cannabis cultivation companion. A modern PWA designed for growers 
 - **📱 Mobile-First PWA**: Install as an app for seamless mobile experience with offline functionality
 - **🌍 Internationalization**: Full support for English and Spanish with easy language switching
 
-### ✨ Latest Updates
-
-#### 🤖 AI Analysis System
-
-- **AI Assistant Page**: `/ai-assistant` - Interactive AI chat for plant analysis and growing advice
-- **Universal AI Help**: Ask anything about cannabis cultivation, get expert recommendations
-- **Photo Analysis**: Upload plant photos for automated health assessments
-- **Analysis History**: All AI interactions are saved and accessible anytime
-- **Smart Recommendations**: Personalized advice based on your specific growing conditions
-
-#### 🌐 Enhanced Translation System
-
-- **Improved i18n**: Comprehensive translation support across all components
-- **Landing Page Translations**: Fully localized marketing content
-- **Namespace Organization**: Structured translation system for better maintainability
-- **Dynamic Language Switching**: Seamless experience in both Spanish and English
-
-#### 📱 Premium Features
-
-### Payments & Premium (Stripe / MercadoPago)
-
-- Premium access is controlled via Firebase custom claims.
-- Automatic granting via webhooks:
-  - Stripe: `app/api/stripe/webhook/route.ts` marks `premium: true` for active subscriptions; revokes on cancellation.
-  - MercadoPago: `app/api/mercadopago/webhook/route.ts` supports both:
-    - `payment`/`authorized_payment` approved → grants premium and sets `premium_until` ≈ 31 days.
-    - `preapproval` active/authorized → grants premium. Cancelled/paused does not auto‑revoke; access expires by `premium_until` or admin toggle.
-- Client reads premium via `hooks/use-premium.ts` (checks `premium` or `premium_until > now`).
-- After returning from MercadoPago, `/premium?status=completed` triggers claim sync and token refresh.
-
-Configuration
-- Env var: `MERCADOPAGO_ACCESS_TOKEN` (production token APP_USR‑…)
-- Webhook URL (MercadoPago): `https://www.cannafriend.app/api/mercadopago/webhook`
-- For Stripe, configure your webhook secret and price ID per your account.
-
-Admin Tools
-- Unified search at `/admin` lets you search MercadoPago payments and subscriptions by email or UID (`external_reference`), view status/date, and Reprocess to grant premium if appropriate.
-
-
-- **AI Access Control**: Advanced AI features available for authorized users
-- **Enhanced Dashboard**: Premium users get additional insights and features
-- **Priority Support**: Dedicated assistance for premium subscribers
-
 ### 🎯 How It Works
 
 #### 🏠 **Dashboard**
@@ -149,15 +106,3 @@ A: CannaFriend is designed for personal cultivation tracking. For commercial ope
 5. **Try AI**: Upload a plant photo for instant analysis
 6. **Install PWA**: Add to home screen for app-like experience
 
-### 🛠️ Setup
-
-1. Copy `.env.example` to `.env` and fill in your Firebase credentials:
-   - `NEXT_PUBLIC_FIREBASE_API_KEY`
-   - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-   - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-   - `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-   - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-   - `NEXT_PUBLIC_FIREBASE_APP_ID`
-   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`
-2. Install dependencies with `npm install` (or your preferred package manager).
-3. Start the development server with `npm run dev`.
