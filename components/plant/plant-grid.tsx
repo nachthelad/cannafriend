@@ -171,6 +171,8 @@ function PlantGridContent({
             plant={plant}
             language="en" // Could be passed as prop if needed
             viewMode="list"
+            variant="overlay"
+            showGrowType
           />
         ))}
       </div>
@@ -188,6 +190,8 @@ function PlantGridContent({
             plant={plant}
             language="en"
             viewMode="grid"
+            variant="overlay"
+            showGrowType
           />
         ))}
       </div>
