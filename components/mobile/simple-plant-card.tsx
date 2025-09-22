@@ -144,15 +144,13 @@ export function SimplePlantCard({
       <div
         className={cn(
           "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3",
-          isOverlay && "p-4 backdrop-blur-[2px]"
+          isOverlay && "p-2 backdrop-blur-[1px]"
         )}
       >
         <h3 className="text-white font-semibold text-sm truncate mb-1">
           {plant.name}
         </h3>
-        <div
-          className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-2"
-        >
+        <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-2">
           <Badge
             variant="secondary"
             className={cn(

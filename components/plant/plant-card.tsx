@@ -121,7 +121,9 @@ export function PlantCard({
             {detailed ? (
               <div className="flex flex-wrap gap-2">
                 <Badge
-                  variant={plant.seedType === "autoflowering" ? "default" : "outline"}
+                  variant={
+                    plant.seedType === "autoflowering" ? "default" : "outline"
+                  }
                 >
                   {plant.seedType === "autoflowering"
                     ? t("newPlant.autoflowering")
