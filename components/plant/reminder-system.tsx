@@ -685,30 +685,22 @@ export function ReminderSystem({
       )}
 
       {/* Reminders List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>{t("title", { ns: "reminders" })}</CardTitle>
-              <CardDescription>
-                {t("description", { ns: "reminders" })}
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              {overdueReminders.length > 0 && (
-                <Badge variant="destructive">
-                  {t("overdue", { ns: "reminders" })} {overdueReminders.length}
-                </Badge>
-              )}
-              {dueSoonReminders.length > 0 && (
-                <Badge>
-                  {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
-                </Badge>
-              )}
-            </div>
+      <div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {overdueReminders.length > 0 && (
+              <Badge variant="destructive">
+                {t("overdue", { ns: "reminders" })} {overdueReminders.length}
+              </Badge>
+            )}
+            {dueSoonReminders.length > 0 && (
+              <Badge>
+                {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
+              </Badge>
+            )}
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
           {reminders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -762,8 +754,8 @@ export function ReminderSystem({
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Edit Reminder Dialog */}
       <EditReminderDialog

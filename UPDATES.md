@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: clean up chat components and remove unused date display — 2025-09-23
 - [MINOR]: remove deprecated photo gallery component and update AI-related translations — 2025-09-23
 - [MINOR]: update chat message types and improve OpenAI integration — 2025-09-23
 - [MINOR]: rename unified-chat to chat and update related imports — 2025-09-23
