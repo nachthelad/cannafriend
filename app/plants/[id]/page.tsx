@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { Layout } from "@/components/layout";
-import { PlantDetailsContainer } from "@/components/plant/plant-details-container";
+import { NewPlantDetailsContainer } from "@/components/plant/new-plant-details-container";
 
 export default function PlantPage({
   params,
@@ -28,7 +28,7 @@ export default function PlantPage({
 
   return (
     <Layout>
-      <PlantDetailsContainer userId={userId!} plantId={id} />
+      <NewPlantDetailsContainer userId={userId!} plantId={id} />
     </Layout>
   );
 }
