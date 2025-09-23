@@ -269,14 +269,12 @@
     "uploadFailed": "Upload failed",
     "uploadSuccess": "Upload Success",
     "imagesUploaded": "Images uploaded:",
-    "tapToSelect": "Tap to select images",
-    "dragDrop": "Drag and drop images here",
-    "orClick": "or click to select",
+    "tapToSelect": "Tap Add Photo to choose images",
+    "dragDrop": "Drag & drop photos here",
+    "orClick": "Or use the Add Photo button",
     "uploading": "Uploading...",
-    "selectImages": "Select Images",
-    "allowedTypes": "Allowed types:",
-    "maxSize": "Max size:",
-    "maxImages": "Max images:"
+    "addPhoto": "Add Photo",
+    "helperText": "Upload up to {{maxImages}} photos ({{maxSizeMB}}MB each). Allowed formats: {{types}}."
   },
   "imageErrors": {
     "userNotAuthenticated": "User not authenticated",

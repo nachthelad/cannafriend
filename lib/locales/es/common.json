@@ -174,14 +174,12 @@
     "uploadFailed": "Subida fallida",
     "uploadSuccess": "Subida Exitosa",
     "imagesUploaded": "Imágenes subidas:",
-    "tapToSelect": "Toca para seleccionar imágenes",
-    "dragDrop": "Arrastra y suelta imágenes aquí",
-    "orClick": "o haz clic para seleccionar",
+    "tapToSelect": "Toca Agregar foto para elegir imágenes",
+    "dragDrop": "Arrastra y suelta fotos aquí",
+    "orClick": "O usa el botón Agregar foto",
     "uploading": "Subiendo...",
-    "selectImages": "Seleccionar Imágenes",
-    "allowedTypes": "Tipos permitidos:",
-    "maxSize": "Tamaño máximo:",
-    "maxImages": "Máximo de imágenes:"
+    "addPhoto": "Agregar foto",
+    "helperText": "Sube hasta {{maxImages}} fotos ({{maxSizeMB}} MB cada una). Formatos permitidos: {{types}}."
   },
   "imageErrors": {
     "userNotAuthenticated": "Usuario no autenticado",

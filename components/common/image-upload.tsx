@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { Upload, Image as ImageIcon } from "lucide-react";
+import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
 import {
@@ -27,6 +27,7 @@ interface ImageUploadProps {
   maxSizeMB?: number;
   className?: string;
   buttonSize?: "sm" | "default";
+  enableDropzone?: boolean;
 }
 
 export function ImageUpload({
@@ -35,6 +36,7 @@ export function ImageUpload({
   maxSizeMB = DEFAULT_MAX_SIZE_MB,
   className,
   buttonSize = "sm",
+  enableDropzone = false,
 }: ImageUploadProps) {
   const { t } = useTranslation(["common"]);
   const { toast } = useToast();
@@ -42,8 +44,16 @@ export function ImageUpload({
   const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const dropzoneEnabled = enableDropzone && !isMobile;
+  const openFilePicker = () => fileInputRef.current?.click();
+
   // Detect if user is on mobile device
   useEffect(() => {
+    if (!enableDropzone) {
+      setIsMobile(false);
+      return;
+    }
+
     const checkIsMobile = () => {
       const userAgent =
         navigator.userAgent || navigator.vendor || (window as any).opera;
@@ -60,7 +70,7 @@ export function ImageUpload({
     const handleResize = () => setIsMobile(checkIsMobile());
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [enableDropzone]);
 
   const uploadImage = async (file: File): Promise<string> => {
     const userId = auth.currentUser?.uid;
@@ -179,6 +189,7 @@ export function ImageUpload({
   };
 
   const handleDrop = async (event: React.DragEvent) => {
+    if (!dropzoneEnabled) return;
     event.preventDefault();
     const files = Array.from(event.dataTransfer.files);
 
@@ -197,72 +208,89 @@ export function ImageUpload({
   };
 
   const handleDragOver = (event: React.DragEvent) => {
+    if (!dropzoneEnabled) return;
     event.preventDefault();
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
-      {/* Área de drop */}
-      <div
-        className={cn(
-          "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
-          "hover:border-primary/50 hover:bg-muted/50",
-          uploading && "opacity-50 pointer-events-none"
-        )}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept={getImageAcceptAttribute()}
-          onChange={handleFileSelect}
-          className="hidden"
-          disabled={uploading}
-        />
+    <div className={cn("space-y-3", className)}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept={getImageAcceptAttribute()}
+        onChange={handleFileSelect}
+        className="hidden"
+        disabled={uploading}
+      />
 
-        <div className="space-y-2">
-          <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-          <div>
-            {isMobile ? (
-              <p className="text-sm font-medium">
-                {t("imageUpload.tapToSelect", { ns: "common" })}
-              </p>
-            ) : (
-              <>
-                <p className="text-sm font-medium">
-                  {t("imageUpload.dragDrop", { ns: "common" })}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("imageUpload.orClick", { ns: "common" })}
-                </p>
-              </>
-            )}
+      {dropzoneEnabled ? (
+        <div
+          className={cn(
+            "flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-6 text-center transition-colors",
+            "hover:border-primary/50 hover:bg-muted/50",
+            uploading && "pointer-events-none opacity-50"
+          )}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onClick={openFilePicker}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openFilePicker();
+            }
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          <Upload className="h-8 w-8 text-muted-foreground" />
+          <div className="space-y-1">
+            <p className="text-sm font-medium">
+              {t("imageUpload.dragDrop", { ns: "common" })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("imageUpload.orClick", { ns: "common" })}
+            </p>
           </div>
           <Button
             type="button"
-            variant="outline"
             size={buttonSize}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={(event) => {
+              event.stopPropagation();
+              openFilePicker();
+            }}
             disabled={uploading}
+            className="gap-2"
           >
-            <ImageIcon className="mr-2 h-4 w-4" />
+            <Plus className="h-4 w-4" />
             {uploading
               ? t("imageUpload.uploading", { ns: "common" })
-              : t("imageUpload.selectImages", { ns: "common" })}
+              : t("imageUpload.addPhoto", { ns: "common" })}
           </Button>
         </div>
+      ) : (
+        <Button
+          type="button"
+          size={buttonSize}
+          onClick={openFilePicker}
+          disabled={uploading}
+          className="w-full justify-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          {uploading
+            ? t("imageUpload.uploading", { ns: "common" })
+            : t("imageUpload.addPhoto", { ns: "common" })}
+        </Button>
+      )}
 
-        <p className="text-xs text-muted-foreground mt-2">
-          {t("imageUpload.allowedTypes", { ns: "common" })}{" "}
-          {ALLOWED_IMAGE_EXTENSIONS.join(", ")}
-          <br />
-          {t("imageUpload.maxSize", { ns: "common" })} {maxSizeMB}MB
-          <br />
-          {t("imageUpload.maxImages", { ns: "common" })} {maxImages}
-        </p>
-      </div>
+      <p className="text-xs text-muted-foreground">
+        {t("imageUpload.helperText", {
+          ns: "common",
+          maxImages,
+          maxSizeMB,
+          types: ALLOWED_IMAGE_EXTENSIONS.join(", "),
+        })}
+      </p>
     </div>
   );
 }
