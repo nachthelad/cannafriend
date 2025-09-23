@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import {
+  ref as createStorageRef,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
@@ -110,7 +114,7 @@ function ImageUploadComponent(
 
     const fileName = generateImageFileName(processed.name);
     const storagePath = getImageStoragePath(userId, fileName);
-    const storageRef = ref(storage, storagePath);
+    const storageRef = createStorageRef(storage, storagePath);
 
     const task = uploadBytesResumable(storageRef, processed, {
       cacheControl: "public,max-age=31536000,immutable",
