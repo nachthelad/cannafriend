@@ -6,26 +6,32 @@ import { unwrapError } from "@/lib/errors";
 
 export const runtime = "nodejs";
 
-type ChatMessage =
-  | {
-      role: "user" | "assistant";
-      content: string;
-      timestamp: string;
-      images?: { url: string; type: string }[];
-    }
-  | { role: "system"; content: string };
+type ClientMessage = {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+  images?: { url: string; type: string }[];
+};
 
 type ChatRequest = {
-  messages: Array<Extract<ChatMessage, { role: "user" | "assistant" }>>;
+  messages: ClientMessage[];
   chatType: "consumer" | "plant-analysis";
   sessionId?: string;
 };
 
+type VisionPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
+type OpenAIMessage =
+  | { role: "system" | "assistant"; content: string }
+  | { role: "user"; content: string | VisionPart[] };
+
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
-// Modelo único para todo (texto + visión)
+
+// Modelos
 const PRIMARY_MODEL = "gpt-5-mini";
-// Opcional: fallback si querés mayor resiliencia a cambios futuros de acceso
-const FALLBACK_MODELS = ["gpt-4.1", "gpt-4.1-mini"] as const;
+const FALLBACK_MODELS = ["gpt-5"] as const;
 
 // === Utilidades ===
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -39,7 +45,6 @@ async function callOpenAI<T extends object>(
 ): Promise<Response> {
   let lastErrText = "";
   for (const model of candidates) {
-    // Retry/backoff sólo para errores transitorios
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -49,6 +54,10 @@ async function callOpenAI<T extends object>(
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
+            // Si usás una key legacy sk-..., podés forzar el Project con este header opcional:
+            ...(process.env.OPENAI_PROJECT_ID
+              ? { "OpenAI-Project": process.env.OPENAI_PROJECT_ID }
+              : {}),
           },
           body: JSON.stringify({ ...body, model }),
           signal: controller.signal,
@@ -65,29 +74,31 @@ async function callOpenAI<T extends object>(
         lastErrText = text;
 
         // model_not_found / acceso → probá próximo modelo
-        if (/model_not_found|does not have access|does not exist/i.test(text))
-          break;
+        if (/model_not_found|does not have access|does not exist/i.test(text)) {
+          break; // pasa al siguiente candidato
+        }
 
-        // 429/5xx → backoff y reintentar
+        // 429/5xx → backoff y retry
         if (resp.status === 429 || (resp.status >= 500 && resp.status < 600)) {
           const delay = 500 * Math.pow(2, attempt); // 0.5s, 1s, 2s…
           await sleep(delay);
           continue;
         }
 
-        // Otros errores → devolvé de una
+        // Otros errores → devolvé
         return new Response(text || "OpenAI error", { status: 500 });
       } catch (e: any) {
         clearTimeout(timer);
         if (e?.name === "AbortError") {
-          // Timeout → reintentar
+          // timeout → retry
           continue;
         }
-        // Error de red → reintentar
+        // error de red → retry
         await sleep(300);
         continue;
       }
     }
+    // sigue con el próximo modelo si rompimos por model_not_found
   }
   return new Response(
     JSON.stringify({
@@ -227,7 +238,7 @@ export async function POST(req: NextRequest) {
     const onTopic =
       (latestHasImages
         ? true
-        : isCannabisRelated(latestMessage.content || "")) || // imágenes: permitimos (tu guard robusto visual es opcional)
+        : isCannabisRelated(latestMessage.content || "")) ||
       messages.slice(0, -1).some((m) => isCannabisRelated(m.content || ""));
 
     if (!onTopic) {
@@ -258,14 +269,14 @@ export async function POST(req: NextRequest) {
             ]
           : [...messages, assistantMessage];
 
-        const firstMessage = toSave[0];
+        const firstMessage = toSave[0] as ClientMessage | undefined;
         const chatData: Record<string, unknown> = {
           messages: toSave,
           chatType,
           lastUpdated: new Date().toISOString(),
           title:
             (firstMessage?.content?.slice(0, 50) || "New Chat") +
-            (firstMessage?.content?.length > 50 ? "..." : ""),
+            ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
           ...(sessionId ? {} : { createdAt: new Date() }),
         };
         await chatRef.set(chatData, { merge: true });
@@ -279,29 +290,25 @@ export async function POST(req: NextRequest) {
     }
 
     // === Construcción de mensajes para OpenAI ===
-    const systemPrompt = systemPrompts[chatType] || systemPrompts.consumer;
+    const systemPrompt =
+      chatType === "plant-analysis"
+        ? systemPrompts["plant-analysis"]
+        : systemPrompts.consumer;
 
-    const openaiMessages: ChatMessage[] = [
+    const openaiMessages: OpenAIMessage[] = [
       { role: "system", content: systemPrompt },
-      ...messages.map((m) => {
+      ...messages.map<OpenAIMessage>((m) => {
         if (m.role === "user" && m.images?.length) {
-          return {
-            role: "user",
-            content: JSON.stringify({
-              // En Chat Completions, se usa content con array "text" + "image_url" (SDKs lo hacen fácil).
-              // Para fetch crudo, intentamos formato de guía de imágenes/visión.
-              // Si usás SDK oficial, podés modelar { type: "image_url", image_url: { url } } directamente.  :contentReference[oaicite:4]{index=4}
-              parts: [
-                { type: "text", text: m.content },
-                ...m.images.map((img) => ({
-                  type: "image_url",
-                  image_url: { url: img.url },
-                })),
-              ],
-            }),
-          } as any;
+          const parts: VisionPart[] = [
+            { type: "text", text: m.content },
+            ...m.images.map((img) => ({
+              type: "image_url" as const,
+              image_url: { url: img.url },
+            })),
+          ];
+          return { role: "user", content: parts };
         }
-        return { role: m.role, content: m.content } as ChatMessage;
+        return { role: m.role, content: m.content };
       }),
     ];
 
@@ -320,8 +327,11 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
     const data = await resp.json();
     const content = data?.choices?.[0]?.message?.content ?? "";
+    const modelUsed = data?.model ?? PRIMARY_MODEL;
+    console.log("🧭 modelUsed:", modelUsed);
 
     // === Persistencia ===
     const currentSessionId =
@@ -345,21 +355,22 @@ export async function POST(req: NextRequest) {
       const toSave = sessionId
         ? [
             ...(((await chatRef.get()).data()?.messages ||
-              []) as ChatRequest["messages"]),
+              []) as ClientMessage[]),
             messages[messages.length - 1],
             assistantMessage,
           ]
         : [...messages, assistantMessage];
 
-      const firstMessage = toSave[0];
+      const firstMessage = toSave[0] as ClientMessage | undefined;
       const chatData: Record<string, unknown> = {
         messages: toSave,
         chatType,
         lastUpdated: new Date().toISOString(),
         title:
           (firstMessage?.content?.slice(0, 50) || "New Chat") +
-          (firstMessage?.content?.length > 50 ? "..." : ""),
+          ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
         ...(sessionId ? {} : { createdAt: new Date() }),
+        modelUsed, // <-- guardamos qué modelo respondió
       };
       await chatRef.set(chatData, { merge: true });
     } catch (err: unknown) {
