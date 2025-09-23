@@ -2,25 +2,12 @@ import {
   gpt5AssistantReply,
   gpt5NestedAssistantMessage,
 } from "@/test-utils/fixtures/gpt5-assistant-message";
+import { normalizeOpenAIContent } from "@/lib/openai-normalize";
 
 jest.mock("@/lib/firebase-admin", () => ({
   adminAuth: jest.fn(),
   ensureAdminApp: jest.fn(),
 }));
-
-let normalizeOpenAIContent: (message: unknown) => string;
-
-beforeAll(async () => {
-  // Polyfill minimal Web API pieces that next/server expects during import.
-  // @ts-expect-error - provided only for test runtime
-  global.Request = class Request {};
-  // @ts-expect-error - provided only for test runtime
-  global.Response = class Response {};
-  // @ts-expect-error - provided only for test runtime
-  global.Headers = class Headers {};
-
-  ({ normalizeOpenAIContent } = await import("@/app/api/ai-assistant/route"));
-});
 
 describe("normalizeOpenAIContent", () => {
   it("unwraps nested gpt-5 assistant output into plain text", () => {
