@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type React from "react";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,11 @@ import { addDoc } from "firebase/firestore";
 import { ROUTE_LOGIN, ROUTE_SESSIONS } from "@/lib/routes";
 import { sessionsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
-import { ImageUpload } from "@/components/common/image-upload";
-import { Calendar, Clock } from "lucide-react";
+import {
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/components/common/image-upload";
+import { Calendar, Clock, Plus } from "lucide-react";
 import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -101,6 +104,7 @@ export default function NewSessionPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
+  const imageUploadRef = useRef<ImageUploadHandle | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleBack = () => {
@@ -333,11 +337,22 @@ export default function NewSessionPage() {
             <label className="text-base font-medium">
               {t("photos", { ns: "sessions" })}
             </label>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => imageUploadRef.current?.open()}
+              className="w-full justify-center gap-2 sm:w-auto"
+            >
+              <Plus className="h-4 w-4" />
+              {t("imageUpload.addPhoto", { ns: "common" })}
+            </Button>
             <ImageUpload
+              ref={imageUploadRef}
               onImagesChange={(newUrls) =>
                 setPhotos((prev) => [...prev, ...newUrls])
               }
               maxSizeMB={5}
+              hideDefaultTrigger
             />
             {photos.length > 0 && (
               <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
