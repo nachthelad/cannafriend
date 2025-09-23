@@ -1,7 +1,7 @@
 import {
   gpt5AssistantReply,
   gpt5NestedAssistantMessage,
-} from "@/__tests__/fixtures/gpt5-assistant-message";
+} from "@/test-utils/fixtures/gpt5-assistant-message";
 
 jest.mock("@/lib/firebase-admin", () => ({
   adminAuth: jest.fn(),
