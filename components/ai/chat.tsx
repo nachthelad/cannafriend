@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { ThinkingAnimation } from "@/components/ai/thinking-animation";
 import {
   ImageUpload,
   type ImageUploadHandle,
@@ -54,9 +54,6 @@ export function AIChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
 
-  // Determine chat type based on whether user has uploaded images
-  const chatType = images.length > 0 ? "plant-analysis" : "consumer";
-
   // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,6 +83,16 @@ export function AIChat({
     if (!input.trim() && images.length === 0) return;
     if (isLoading) return;
 
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: t("error", { ns: "aiAssistant" }),
+        description: "Please sign in to use the AI assistant",
+      });
+      return;
+    }
+
     const userMessage: AIMessage = {
       role: "user",
       content: input.trim(),
@@ -100,7 +107,15 @@ export function AIChat({
     setIsLoading(true);
 
     try {
-      const token = await user?.getIdToken();
+      // Get auth token with better error handling
+      let token: string;
+      try {
+        token = await user.getIdToken();
+      } catch (tokenError: any) {
+        console.error("Failed to get auth token:", tokenError);
+        throw new Error("Authentication failed. Please try signing in again.");
+      }
+
       const response = await fetch("/api/ai-assistant", {
         method: "POST",
         headers: {
@@ -109,7 +124,6 @@ export function AIChat({
         },
         body: JSON.stringify({
           messages: newMessages,
-          chatType,
           sessionId: currentSessionId,
         }),
       });
@@ -117,6 +131,16 @@ export function AIChat({
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle specific error cases
+        if (response.status === 401) {
+          throw new Error("Authentication failed. Please sign in again.");
+        } else if (response.status === 403) {
+          throw new Error("Premium subscription required for AI assistant.");
+        } else if (response.status === 429) {
+          throw new Error(
+            "Too many requests. Please wait a moment and try again."
+          );
+        }
         throw new Error(data.error || "Failed to send message");
       }
 
@@ -133,6 +157,11 @@ export function AIChat({
         setCurrentSessionId(data.sessionId);
       }
     } catch (error: any) {
+      // Remove the user message if the request failed
+      setMessages(messages);
+      setInput(userMessage.content);
+      setImages(userMessage.images || []);
+
       toast({
         variant: "destructive",
         title: t("error", { ns: "aiAssistant" }),
@@ -335,13 +364,8 @@ export function AIChat({
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                     <Brain className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 bg-muted rounded-lg p-4 space-x-2">
-                    <AnimatedLogo
-                      size={16}
-                      className="text-primary"
-                      duration={1.2}
-                    />
-                    <span>Analizando el mensaje...</span>
+                  <div className="flex-1 bg-muted rounded-lg p-4">
+                    <ThinkingAnimation />
                   </div>
                 </div>
               )}

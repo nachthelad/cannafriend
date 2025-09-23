@@ -7,6 +7,7 @@ import {
   normalizeOpenAIContent,
   type OpenAIResponseMessage,
 } from "@/lib/openai-normalize";
+import { isCannabisRelated, isContextuallyOnTopic } from "./keywords";
 
 export const runtime = "nodejs";
 
@@ -19,7 +20,7 @@ type ClientMessage = {
 
 type ChatRequest = {
   messages: ClientMessage[];
-  chatType: "consumer" | "plant-analysis";
+  chatType?: string; // Optional, keeping for backward compatibility
   sessionId?: string;
 };
 
@@ -112,63 +113,12 @@ async function callOpenAI<T extends object>(
   );
 }
 
-const systemPrompts = {
-  consumer:
-    "You are a cannabis-only assistant. Answer ONLY questions related to cannabis consumption or general cannabis context (strains, effects, storage, dosing, harm reduction, legality context). If unrelated, briefly refuse and ask to rephrase within cannabis scope. Be concise, actionable, and prioritize safety.",
-  "plant-analysis":
-    "You are a cannabis cultivation–only assistant. Answer ONLY questions about cannabis growing, plant health diagnosis, growth stages, nutrients, environment, pests, and best practices. If outside scope, briefly refuse and ask to rephrase. Provide specific, actionable, safe advice.",
-} as const;
+const SYSTEM_PROMPT = `You are a comprehensive cannabis assistant. Answer ONLY questions related to cannabis, including:
 
-function isCannabisRelated(text: string) {
-  const t = (text || "").toLowerCase();
-  const kw = [
-    "cannabis",
-    "marihuana",
-    "hierba",
-    "porro",
-    "vape",
-    "cogollo",
-    "cultivo",
-    "planta",
-    "indoor",
-    "outdoor",
-    "maceta",
-    "tierra",
-    "ph",
-    "ec",
-    "nutriente",
-    "fertilizante",
-    "riego",
-    "thc",
-    "cbd",
-    "terpeno",
-    "plaga",
-    "moho",
-    "deficiencia",
-    "hoja",
-    "raíz",
-    "ramas",
-    "led",
-    "temperatura",
-    "humedad",
-    "weed",
-    "marijuana",
-    "grow",
-    "soil",
-    "seed",
-    "germination",
-    "veg",
-    "flowering",
-    "harvest",
-    "watering",
-    "nutrients",
-    "fertilizer",
-    "vpd",
-    "pest",
-    "mold",
-  ];
-  return kw.some((k) => t.includes(k));
-}
+CULTIVATION: Growing, plant health, nutrients, environment, pests, equipment, genetics, harvest, etc.
+CONSUMPTION: Effects, strains, dosing, methods, storage, harm reduction, legality context, etc.
+
+If the question is unrelated to cannabis, briefly refuse and ask to rephrase within cannabis scope. Be concise, actionable, and prioritize safety. Respond in the same language as the user's question (Spanish or English).`;
 
 export async function POST(req: NextRequest) {
   try {
@@ -222,6 +172,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "messages_required" }, { status: 400 });
     }
     const latestMessage = messages[messages.length - 1];
+
     if (latestMessage.role !== "user") {
       return NextResponse.json(
         { error: "last_message_must_be_user" },
@@ -239,11 +190,9 @@ export async function POST(req: NextRequest) {
 
     // === Topic guard (texto/imágenes) ===
     const latestHasImages = Boolean(latestMessage.images?.length);
-    const onTopic =
-      (latestHasImages
-        ? true
-        : isCannabisRelated(latestMessage.content || "")) ||
-      messages.slice(0, -1).some((m) => isCannabisRelated(m.content || ""));
+    const directMatch = isCannabisRelated(latestMessage.content || "");
+    const contextMatch = isContextuallyOnTopic(messages);
+    const onTopic = latestHasImages || directMatch || contextMatch;
 
     if (!onTopic) {
       const refusal =
@@ -276,7 +225,6 @@ export async function POST(req: NextRequest) {
         const firstMessage = toSave[0] as ClientMessage | undefined;
         const chatData: Record<string, unknown> = {
           messages: toSave,
-          chatType,
           lastUpdated: new Date().toISOString(),
           title:
             (firstMessage?.content?.slice(0, 50) || "New Chat") +
@@ -294,13 +242,8 @@ export async function POST(req: NextRequest) {
     }
 
     // === Construcción de mensajes para OpenAI ===
-    const systemPrompt =
-      chatType === "plant-analysis"
-        ? systemPrompts["plant-analysis"]
-        : systemPrompts.consumer;
-
     const openaiMessages: OpenAIMessage[] = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: SYSTEM_PROMPT },
       ...messages.map<OpenAIMessage>((m) => {
         if (m.role === "user" && m.images?.length) {
           const parts: VisionPart[] = [
@@ -322,7 +265,7 @@ export async function POST(req: NextRequest) {
       {
         messages: openaiMessages,
         temperature: 1,
-        max_completion_tokens: 1000,
+        max_completion_tokens: 3500, // GPT-5 reasoning tokens + detailed responses
       },
       apiKey,
       modelCandidates
@@ -330,6 +273,7 @@ export async function POST(req: NextRequest) {
 
     if (!resp.ok) {
       const text = await resp.text();
+      console.error("OpenAI API error:", resp.status, text);
       return NextResponse.json(
         { error: text || "OpenAI error" },
         { status: 500 }
@@ -337,12 +281,45 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await resp.json();
-    const message = data?.choices?.[0]?.message as
-      | OpenAIResponseMessage
+    const choice0 = data?.choices?.[0] as
+      | { message?: OpenAIResponseMessage; content?: unknown; [k: string]: any }
       | undefined;
-    const content = normalizeOpenAIContent(message);
+
+    // Prefer normalized assistant message, but add robust fallbacks
+    const message = choice0?.message as OpenAIResponseMessage | undefined;
+    let content = normalizeOpenAIContent(message);
+
+    // Fallback 1: some providers place text directly on choice.content
+    if (!content) {
+      const direct = normalizeOpenAIContent({
+        content: choice0?.content,
+      } as unknown as OpenAIResponseMessage);
+      if (direct) content = direct;
+    }
+
+    // Fallback 2: stringify tool calls if they contain textual output
+    if (!content && message && (message as any).tool_calls) {
+      try {
+        const toolText = JSON.stringify((message as any).tool_calls);
+        if (toolText && toolText !== "{}" && toolText !== "[]") {
+          content = toolText;
+        }
+      } catch {}
+    }
+
+    // Fallback 3: check if there's any content in the choice
+    if (!content && choice0?.message?.content) {
+      content = String(choice0.message.content);
+    }
+
+    // Final fallback: generic error-like message to avoid empty bubbles
+    if (!content) {
+      console.error(
+        "No content found in OpenAI response, using fallback message"
+      );
+      content = "Lo siento, no pude generar una respuesta válida esta vez.";
+    }
     const modelUsed = data?.model ?? PRIMARY_MODEL;
-    console.log("🧭 modelUsed:", modelUsed);
 
     // === Persistencia ===
     const currentSessionId =
@@ -375,7 +352,6 @@ export async function POST(req: NextRequest) {
       const firstMessage = toSave[0] as ClientMessage | undefined;
       const chatData: Record<string, unknown> = {
         messages: toSave,
-        chatType,
         lastUpdated: new Date().toISOString(),
         title:
           (firstMessage?.content?.slice(0, 50) || "New Chat") +

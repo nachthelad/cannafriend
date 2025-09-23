@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: adjust OpenAI parameters for improved response quality — 2025-09-23
+
 - [MINOR]: -- Move normalizeOpenAIContent helper into shared util — 2025-09-23
 - [MINOR]: simplify reminder display structure and enhance layout — 2025-09-23
 - [MINOR]: clean up chat components and remove unused date display — 2025-09-23
