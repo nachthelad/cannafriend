@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -22,6 +22,11 @@ export function ImageGalleryModal({
 }: ImageGalleryModalProps) {
   const { t } = useTranslation(["plants", "common"]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  // Update currentIndex when initialIndex changes
+  useEffect(() => {
+    setCurrentIndex(initialIndex);
+  }, [initialIndex]);
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -91,7 +96,7 @@ export function ImageGalleryModal({
               </Button>
 
               {/* Indicador de posición */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                 {currentIndex + 1} / {images.length}
               </div>
             </>
@@ -99,7 +104,7 @@ export function ImageGalleryModal({
 
           {/* Miniaturas */}
           {images.length > 1 && (
-            <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10 flex gap-2 bg-black/50 p-2 rounded-lg">
+            <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 bg-black/70 p-2 rounded-lg max-w-sm overflow-x-auto">
               {images.map((image, index) => (
                 <button
                   key={index}

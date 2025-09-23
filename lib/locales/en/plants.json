@@ -83,7 +83,9 @@
     "schedule": "Schedule",
     "seedType": "Seed type",
     "growType": "Grow type",
-    "seedBank": "Seed bank"
+    "seedBank": "Seed bank",
+    "currentEnvironment": "Current Environment",
+    "lastActivities": "Last Activities"
   },
   "plantCard": {
     "lastWatering": "Last watering",
@@ -152,14 +154,21 @@
     "removeConfirmTitle": "Delete photo",
     "removeConfirmDesc": "This action cannot be undone.",
     "plantPhoto": "Plant photo",
-    "deletePhoto": "Delete photo"
+    "deletePhoto": "Delete photo",
+    "clickToEnlarge": "Click to enlarge"
   },
   "environment": {
     "temperature": "Temperature",
     "humidity": "Humidity",
     "ph": "pH",
     "noData": "No environmental data",
-    "noDataDesc": "Record measurements to see the history"
+    "noDataDesc": "Record measurements to see the history",
+    "lastReading": "Last reading",
+    "optimal": "Optimal",
+    "hot": "Hot",
+    "cold": "Cold",
+    "humid": "Humid",
+    "dry": "Dry"
   },
   "logForm": {
     "date": "Date"
