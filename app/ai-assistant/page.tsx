@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AILayout } from "@/components/layout/ai-layout";
-import { UnifiedChat } from "@/components/ai/unified-chat";
+import { AIChat } from "@/components/ai/chat";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { ROUTE_LOGIN } from "@/lib/routes";
@@ -63,7 +63,7 @@ function AIAssistantContent({
           </div>
         </div>
       ) : (
-        <UnifiedChat
+        <AIChat
           className="h-full"
           sidebarOpen={sidebarOpen}
           onToggleSidebar={onToggleSidebar}

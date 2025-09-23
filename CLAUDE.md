@@ -13,6 +13,7 @@ Cannafriend is a comprehensive cannabis growing and consumption tracking applica
 **Issue Addressed**: Redundant `isLoading` states throughout the application causing duplicate loading logic and maintenance overhead.
 
 **Problem**: Multiple components had complex loading states that duplicated functionality now handled by Suspense boundaries:
+
 - Journal page had 140+ lines of loading logic including data fetching, pagination, and skeletons
 - Mobile components received `isLoading` props but used containers with Suspense
 - Pages had auth loading skeletons that duplicated Suspense component skeletons
@@ -46,11 +47,13 @@ export function Component(props) {
 #### **Components Updated**:
 
 1. **Journal System**:
+
    - `app/journal/page.tsx` - Removed 140+ lines of loading logic
    - `components/mobile/mobile-journal.tsx` - Converted to Suspense pattern
    - `components/journal/journal-grid.tsx` - Already using Suspense
 
 2. **Page Components**:
+
    - `app/stash/page.tsx` - Removed auth loading skeleton (15 lines)
    - `app/nutrients/page.tsx` - Removed auth loading skeleton (17 lines)
    - `app/plants/page.tsx` - Uses containers with Suspense
@@ -320,6 +323,7 @@ pnpm dev             # Alternative dev command
 **Configuration Implemented**:
 
 1. **ESLint Rules** (`.eslintrc.json`):
+
    ```json
    "@typescript-eslint/no-unused-vars": [
      "warn",  // Won't block builds, shows as warnings
@@ -339,12 +343,14 @@ pnpm dev             # Alternative dev command
    ```
 
 **Usage**:
+
 - **IDE**: Shows red squiggly lines under unused variables/imports
 - **Commands**: Use `npm run lint` to see warnings, `npm run lint:fix` for auto-fixes
 - **Builds**: ✅ Won't block builds or deployments (warnings only)
 - **Cleanup**: Fix gradually as you work on files or dedicate cleanup sessions
 
 **Benefits**:
+
 - Continuous visibility of unused code
 - Can deploy while gradually cleaning up
 - Better code quality and smaller bundles
@@ -362,7 +368,6 @@ When editing files, you MUST follow the exact same patterns used in that file:
 4. **Hook Usage**: Follow the same hook patterns and custom hook usage as existing code
 5. **Translation Patterns**: Use the same translation namespace and key patterns as existing code
 6. **Styling Patterns**: Follow existing className patterns and component composition
-
 
 **Examples of Following Patterns:**
 
@@ -524,15 +529,17 @@ export const ADMIN_EMAIL = "nacho.vent@gmail.com" as const;
 ```
 
 **Import Pattern**:
+
 ```typescript
 // ✅ Client components
 import { ADMIN_EMAIL } from "@/lib/constants";
 
-// ✅ Server components/API routes  
+// ✅ Server components/API routes
 import { ADMIN_EMAIL } from "@/lib/constants";
 ```
 
 **Files Updated**:
+
 - **Created**: `lib/constants.ts` - Centralized constants file
 - **Updated**: `app/api/admin/users/route.ts` - Import from constants
 - **Updated**: `app/admin/page.tsx` - Fixed client-side import
@@ -543,10 +550,11 @@ import { ADMIN_EMAIL } from "@/lib/constants";
 When adding constants that need to be accessed by both client and server code:
 
 1. **Add to `lib/constants.ts`** - Never define in API routes
-2. **Import from constants** - Both client and server import from same file  
+2. **Import from constants** - Both client and server import from same file
 3. **Avoid server-only dependencies** - Keep constants file clean of Firebase Admin, etc.
 
 **Common constants to move here**:
+
 - Configuration values used across components
 - Feature flags and toggles
 - Default values and limits
@@ -557,6 +565,7 @@ When adding constants that need to be accessed by both client and server code:
 **Issue Addressed**: AI assistant rejecting valid cannabis-related questions due to insufficient keyword detection and lack of conversation context awareness.
 
 **Problem**:
+
 - AI would reject questions like "la planta está caída, fertilizante Mantra Nitro" despite being clearly cannabis-related
 - After establishing cannabis context, subsequent plant questions (temperature, humidity, watering) were rejected
 - Only ~25 keywords were recognized, missing common plant care terms
@@ -564,13 +573,15 @@ When adding constants that need to be accessed by both client and server code:
 **Solution Implemented**: **Enhanced Keyword Detection & Context Awareness**
 
 **Changes Made**:
+
 1. **Expanded keywords**: From 25 to 300+ terms including environment, nutrients, problems, equipment
 2. **Context memory**: If "cannabis"/"cultivo" mentioned anywhere in conversation, plant terms become valid
 3. **Specific brands**: Added "mantra", "nitro", "monstruoso" and other fertilizer names
 4. **Environmental terms**: "temperatura", "humedad", "indoor", "grados", "celsius"
 
 **Files Updated**:
-- **Modified**: `app/api/unified-chat/route.ts` - Enhanced `isCannabisRelated()` and added `isContextuallyOnTopic()`
+
+- **Modified**: `app/api/ai-assistant/route.ts` - Enhanced `isCannabisRelated()` and added `isContextuallyOnTopic()`
 
 ### Current Priorities (Next Tasks)
 
@@ -585,14 +596,17 @@ When adding constants that need to be accessed by both client and server code:
 ### Commit Type Guidelines:
 
 - **`fix(component)`** - Solves existing user experience issues, bugs, or problems
+
   - Use when: Users report something not working as expected
   - Example: AI rejecting valid questions, translations not showing, forms failing
 
 - **`feat(component)`** - Adds completely new functionality or major features
+
   - Use when: Adding new pages, new user-facing features, new integrations
   - Avoid for: Improvements to existing functionality
 
 - **`enhance(component)`** - Improves existing functionality without fixing bugs
+
   - Use when: Performance improvements, better UX for working features
 
 - **`chore(component)`** - Internal improvements with no user-facing impact
@@ -601,15 +615,19 @@ When adding constants that need to be accessed by both client and server code:
 ### Examples from Recent Work:
 
 ✅ **Correct**: `fix(ai): improve keyword detection for more intuitive plant conversations`
+
 - Reason: Solves user problem where AI rejected valid questions
 
 ❌ **Incorrect**: `feat(ai): enhance keyword detection and context awareness`
+
 - Reason: This fixes an existing issue, doesn't add new functionality
 
 ✅ **Correct**: `fix(forms): consolidate journal entry creation to single form`
+
 - Reason: Fixes duplicate forms causing inconsistent UX
 
 ✅ **Correct**: `feat(admin): add unified MercadoPago search functionality`
+
 - Reason: Completely new admin feature
 
 **Philosophy**: Think about the user experience impact, not the technical implementation. If it solves a problem users were having, it's a `fix`.

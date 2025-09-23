@@ -17,30 +17,30 @@ import { ChatInput } from "@/components/ai/chat-input";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-interface UnifiedMessage {
+interface AIMessage {
   role: "user" | "assistant";
   content: string;
   images?: { url: string; type: string }[];
   timestamp: string;
 }
 
-interface UnifiedChatProps {
+interface AIChatProps {
   sessionId?: string;
   className?: string;
   sidebarOpen?: boolean;
   onToggleSidebar?: () => void;
 }
 
-export function UnifiedChat({
+export function AIChat({
   sessionId,
   className,
   sidebarOpen = false,
   onToggleSidebar,
-}: UnifiedChatProps) {
+}: AIChatProps) {
   const { t } = useTranslation(["aiAssistant", "common"]);
   const { toast } = useToast();
   const { user } = useAuthUser();
-  const [messages, setMessages] = useState<UnifiedMessage[]>([]);
+  const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
   const [images, setImages] = useState<{ url: string; type: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +71,7 @@ export function UnifiedChat({
     const unsub = onSnapshot(
       doc(db, "users", user.uid, "aiChats", currentSessionId),
       (snap) => {
-        const data = snap.data() as { messages?: UnifiedMessage[] } | undefined;
+        const data = snap.data() as { messages?: AIMessage[] } | undefined;
         if (data?.messages && Array.isArray(data.messages)) {
           setMessages(data.messages);
         }
@@ -84,7 +84,7 @@ export function UnifiedChat({
     if (!input.trim() && images.length === 0) return;
     if (isLoading) return;
 
-    const userMessage: UnifiedMessage = {
+    const userMessage: AIMessage = {
       role: "user",
       content: input.trim(),
       images: images.length > 0 ? images : undefined,
@@ -99,7 +99,7 @@ export function UnifiedChat({
 
     try {
       const token = await user?.getIdToken();
-      const response = await fetch("/api/unified-chat", {
+      const response = await fetch("/api/ai-assistant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +118,7 @@ export function UnifiedChat({
         throw new Error(data.error || "Failed to send message");
       }
 
-      const assistantMessage: UnifiedMessage = {
+      const assistantMessage: AIMessage = {
         role: "assistant",
         content: data.response,
         timestamp: new Date().toISOString(),

@@ -519,7 +519,7 @@
 **🎨 Advanced Mobile UX:**
 
 - **Smart Empty States**: Different empty states for no plants vs no reminders with appropriate CTAs
-- **Status Summary**: Header badges showing count of overdue, due-soon, and total active reminders  
+- **Status Summary**: Header badges showing count of overdue, due-soon, and total active reminders
 - **Responsive Integration**: Seamless mobile/desktop switching in existing reminders page
 - **Real-time Updates**: Uses Firestore onSnapshot for live reminder updates without refresh
 - **Loading States**: Proper skeleton loading during data fetching
@@ -544,6 +544,7 @@
 **Translation Keys Added:**
 
 **Spanish:**
+
 - `reminders.completed`, `reminders.snoozed`, `reminders.snoozedFor`
 - `reminders.snooze1h`, `reminders.snooze2h`, `reminders.swipeHint`
 - `reminders.deleteReminder`, `reminders.deleteReminderConfirm`
@@ -551,6 +552,7 @@
 - `reminders.getStartedHint`, `reminders.editComingSoon`
 
 **English:**
+
 - Complete set of English translations matching Spanish keys
 - Contextual messaging for different reminder states and actions
 
@@ -584,7 +586,7 @@
 
 **Previous State:**
 
-- **Unified AI System**: Single `/api/unified-chat` route supports both text and image inputs
+- **Unified AI System**: Single `/api/ai-assistant` route supports both text and image inputs
 - **Role-based UI**: Different interfaces for growers vs consumers
 - **Complex Navigation**: Multiple AI entry points depending on user role
 - **Separate Data Models**: Different Firestore collections and message formats
@@ -595,15 +597,15 @@
 - **Universal Image Upload**: All users can upload photos (plants or joints) for analysis
 - **Dynamic Context**: Chat type determined automatically based on image presence rather than user role
 - **Simplified Interface**: No mode switching or role-based toggles
-- **Single API Route**: `/api/unified-chat` supporting both text and vision capabilities
+- **Single API Route**: `/api/ai-assistant` supporting both text and vision capabilities
 - **Clean Navigation**: One AI Assistant entry point in both mobile and desktop navigation
 
 **✅ Full Implementation Complete:**
 
 **New Files Created:**
 
-- `app/api/unified-chat/route.ts` - Universal API route supporting both text and vision capabilities
-- `components/ai/unified-chat.tsx` - Universal chat interface with conversation bubbles
+- `app/api/ai-assistant/route.ts` - Universal API route supporting both text and vision capabilities
+- `components/ai/chat.tsx` - Universal chat interface with conversation bubbles
 - `app/ai-assistant/page.tsx` - AI Assistant page using unified chat component
 
 **Files Removed:**
@@ -620,7 +622,7 @@
 - `app/strains/page.tsx` - Updated AI button to use new unified route
 - `components/mobile/mobile-dashboard.tsx` - Updated AI button routing
 - `app/robots.ts` - Updated to reference new AI assistant route
-- `public/sw.js` - Updated to exclude unified-chat from caching
+- `public/sw.js` - Updated to exclude ai-assistant from caching
 - `components/providers/language-provider.tsx` - Added universal translation keys
 
 **Key Features Implemented:**
@@ -708,7 +710,7 @@
 
 **Updated Components:**
 
-- `components/ai/unified-chat.tsx` - Integrated sidebar, improved image display, session management
+- `components/ai/chat.tsx` - Integrated sidebar, improved image display, session management
 - `app/ai-assistant/page.tsx` - Uses new AILayout for gap-free desktop experience
 
 **Desktop Sidebar Behavior:**

@@ -5,6 +5,9 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: rename unified-chat to chat and update related imports — 2025-09-23
+- [MINOR]: adjust padding and backdrop blur for mobile plant card — 2025-09-22
+
 - [MINOR]: improve code readability and structure — 2025-09-22
 - [MID]: integrate Fuse.js for enhanced search functionality and improve cache invalidation — 2025-09-22
 
