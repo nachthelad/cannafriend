@@ -315,7 +315,11 @@ export async function POST(req: NextRequest) {
     // === Llamada a OpenAI con fallback/timeout/retry ===
     const modelCandidates = [PRIMARY_MODEL, ...FALLBACK_MODELS];
     const resp = await callOpenAI(
-      { messages: openaiMessages, temperature: 0.7, max_tokens: 1000 },
+      {
+        messages: openaiMessages,
+        temperature: 1,
+        max_completion_tokens: 1000,
+      },
       apiKey,
       modelCandidates
     );
