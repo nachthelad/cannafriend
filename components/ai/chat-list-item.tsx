@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InlineEdit } from "@/components/common/inline-edit";
-import { Clock, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import React from "react";
 
 export interface ChatListItemData {
@@ -39,7 +39,7 @@ export function ChatListItem({
   setEditingId,
   editingId,
 }: ChatListItemProps) {
-  const base = variant === "mobile" ? "px-3 py-2" : "p-2.5";
+  const base = variant === "mobile" ? "px-4 py-2" : "p-2";
   const isEditing = editingId === session.id;
 
   return (
@@ -50,10 +50,11 @@ export function ChatListItem({
         if (!isEditing) onSelect(session.id);
       }}
       onKeyDown={(e) => {
-        if (!isEditing && (e.key === "Enter" || e.key === " ")) onSelect(session.id);
+        if (!isEditing && (e.key === "Enter" || e.key === " "))
+          onSelect(session.id);
       }}
       className={cn(
-        "w-full flex items-start justify-between rounded-md hover:bg-accent text-left",
+        "w-full flex items-center justify-between rounded-xl hover:bg-accent text-left cursor-pointer",
         base,
         active && "bg-accent"
       )}
@@ -77,16 +78,11 @@ export function ChatListItem({
             }}
             inputClassName={cn(
               "w-full",
-              isEditing && active ? "!bg-background text-foreground ring-1 ring-border focus:ring-primary" : undefined
+              isEditing && active ? "rounded-xl text-foreground" : undefined
             )}
           />
         </div>
-        <div className="flex items-center gap-1 mt-0.5 text-[11px] text-muted-foreground">
-          <Clock className="h-3 w-3" />
-          <span className="truncate">
-            {new Date(session.lastUpdated).toLocaleDateString()}
-          </span>
-        </div>
+        {/* Date removed per request: no date display under chat title */}
       </div>
 
       <DropdownMenu>

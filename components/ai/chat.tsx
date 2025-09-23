@@ -270,7 +270,7 @@ export function AIChat({
                 <div
                   key={index}
                   className={cn(
-                    "flex gap-2.5 max-w-3xl",
+                    "flex gap-2 max-w-3xl",
                     message.role === "user"
                       ? "ml-auto flex-row-reverse"
                       : "mr-auto"
@@ -335,12 +335,13 @@ export function AIChat({
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                     <Brain className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 bg-muted rounded-lg p-4">
+                  <div className="flex-1 bg-muted rounded-lg p-4 space-x-2">
                     <AnimatedLogo
                       size={16}
                       className="text-primary"
                       duration={1.2}
                     />
+                    <span>Analizando el mensaje...</span>
                   </div>
                 </div>
               )}
@@ -378,7 +379,7 @@ export function AIChat({
             )}
 
             {/* Input - Bottom position */}
-            <div className="border-t p-3">
+            <div className="p-2 mb-3">
               <ChatInput
                 ref={inputRef}
                 value={input}

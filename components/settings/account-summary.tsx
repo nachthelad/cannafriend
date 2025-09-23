@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 interface AccountSummaryProps {
   title: string;
-  description: string;
+  // description: string;
   email?: string | null;
   providerId?: string | null;
   signOutLabel: string;
@@ -13,7 +13,7 @@ interface AccountSummaryProps {
 
 export function AccountSummary({
   title,
-  description,
+  // description,
   email,
   providerId,
   signOutLabel,
@@ -22,10 +22,10 @@ export function AccountSummary({
   const isGoogleProvider = Boolean(providerId && providerId.includes("google"));
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="space-y-2">
+      <div>
         <h2 className="text-xl font-semibold">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        {/* <p className="text-sm text-muted-foreground">{description}</p> */}
       </div>
       <div className="space-y-4 max-w-sm">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
