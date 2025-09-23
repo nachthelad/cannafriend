@@ -95,10 +95,10 @@ export function HeroSection({
               <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              {t("hero.aiComingSoon", { ns: "landing" })}
+              {t("hero.aiInformation", { ns: "landing" })}
             </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              {t("hero.aiComingSoonDesc", { ns: "landing" })}
+              {t("hero.aiInformationDesc", { ns: "landing" })}
             </p>
           </div>
         </div>

@@ -74,7 +74,7 @@ Si tienes problemas con CORS, puedes configurar las reglas de CORS en la consola
    - Límite de cantidad de imágenes (10 máximo por planta)
    - Feedback visual durante la subida
 
-2. **Galería de fotos integrada** (`PhotoGallery`)
+2. **Galería de fotos integrada**
 
    - Campo de imágenes agregado al apartado de Fotos de cada planta
    - Las imágenes se guardan en el documento de la planta en Firestore

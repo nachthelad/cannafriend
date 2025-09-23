@@ -2,19 +2,19 @@
 
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Brain, 
-  Camera, 
-  Calendar, 
-  BarChart3, 
-  Bell, 
+import {
+  Brain,
+  Camera,
+  Calendar,
+  BarChart3,
+  Bell,
   Users,
   Leaf,
   Droplets,
   Thermometer,
   Notebook,
   Heart,
-  Zap
+  Zap,
 } from "lucide-react";
 
 export function AppShowcase() {
@@ -30,11 +30,6 @@ export function AppShowcase() {
       icon: <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400" />,
       title: t("features.growJournal.title", { ns: "landing" }),
       description: t("features.growJournal.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Camera className="h-8 w-8 text-purple-600 dark:text-purple-400" />,
-      title: t("features.photoGallery.title", { ns: "landing" }),
-      description: t("features.photoGallery.desc", { ns: "landing" }),
     },
     {
       icon: <Thermometer className="h-8 w-8 text-red-600 dark:text-red-400" />,
@@ -70,7 +65,9 @@ export function AppShowcase() {
       description: t("features.favoriteStrains.desc", { ns: "landing" }),
     },
     {
-      icon: <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" />,
+      icon: (
+        <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+      ),
       title: t("features.personalInventory.title", { ns: "landing" }),
       description: t("features.personalInventory.desc", { ns: "landing" }),
     },
@@ -103,12 +100,13 @@ export function AppShowcase() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {growerFeatures.map((feature, index) => (
-              <Card key={index} className="h-full hover:shadow-lg transition-shadow duration-300">
+              <Card
+                key={index}
+                className="h-full hover:shadow-lg transition-shadow duration-300"
+              >
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">
-                      {feature.icon}
-                    </div>
+                    <div className="flex-shrink-0">{feature.icon}</div>
                     <div>
                       <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                         {feature.title}
@@ -138,7 +136,10 @@ export function AppShowcase() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {consumerFeatures.map((feature, index) => (
-              <Card key={index} className="h-full hover:shadow-lg transition-shadow duration-300">
+              <Card
+                key={index}
+                className="h-full hover:shadow-lg transition-shadow duration-300"
+              >
                 <CardContent className="p-6">
                   <div className="text-center">
                     <div className="flex justify-center mb-4">
@@ -157,15 +158,12 @@ export function AppShowcase() {
           </div>
         </div>
 
-        {/* AI Premium Section */}
+        {/* AI Section */}
         <div className="text-center" data-section="ai">
           <Card className="max-w-4xl mx-auto bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800">
             <CardContent className="p-12">
               <div className="flex items-center justify-center mb-6">
                 <Brain className="h-16 w-16 text-purple-600 dark:text-purple-400 mr-4" />
-                <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                  {t("showcase.comingSoon", { ns: "landing" })}
-                </span>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 {t("showcase.aiTitle", { ns: "landing" })}
@@ -173,38 +171,46 @@ export function AppShowcase() {
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
                 {t("showcase.aiDesc", { ns: "landing" })}
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
                     {t("showcase.autoDetection", { ns: "landing" })}
                   </h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>{t("showcase.nutrientDeficiencies", { ns: "landing" })}</li>
+                    <li>
+                      {t("showcase.nutrientDeficiencies", { ns: "landing" })}
+                    </li>
                     <li>{t("showcase.commonPests", { ns: "landing" })}</li>
                     <li>{t("showcase.fungalDiseases", { ns: "landing" })}</li>
                     <li>{t("showcase.phProblems", { ns: "landing" })}</li>
                   </ul>
                 </div>
-                
+
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                    {t("showcase.intelligentRecommendations", { ns: "landing" })}
+                    {t("showcase.intelligentRecommendations", {
+                      ns: "landing",
+                    })}
                   </h4>
                   <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>{t("showcase.fertilizationAdjustments", { ns: "landing" })}</li>
-                    <li>{t("showcase.organicTreatments", { ns: "landing" })}</li>
+                    <li>
+                      {t("showcase.fertilizationAdjustments", {
+                        ns: "landing",
+                      })}
+                    </li>
+                    <li>
+                      {t("showcase.organicTreatments", { ns: "landing" })}
+                    </li>
                     <li>{t("showcase.wateringChanges", { ns: "landing" })}</li>
-                    <li>{t("showcase.environmentOptimization", { ns: "landing" })}</li>
+                    <li>
+                      {t("showcase.environmentOptimization", { ns: "landing" })}
+                    </li>
                   </ul>
                 </div>
               </div>
 
-              <div className="mt-8 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  <strong>{t("showcase.whenAvailable", { ns: "landing" })}</strong> {t("showcase.whenAvailableDesc", { ns: "landing" })}
-                </p>
-              </div>
+              {/* Availability note removed since AI is implemented */}
             </CardContent>
           </Card>
         </div>
