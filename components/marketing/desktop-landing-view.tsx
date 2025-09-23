@@ -122,7 +122,7 @@ export function DesktopLandingView({
               <div>
                 <div className="text-4xl font-bold text-primary mb-2">🧠</div>
                 <div className="text-gray-600 dark:text-gray-300">
-                  {t("stats.aiComingSoon", { ns: "common" })}
+                  {t("stats.aiInformation", { ns: "common" })}
                 </div>
               </div>
               <div>

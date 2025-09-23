@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update chat message types and improve OpenAI integration — 2025-09-23
 - [MINOR]: rename unified-chat to chat and update related imports — 2025-09-23
 - [MINOR]: adjust padding and backdrop blur for mobile plant card — 2025-09-22
 

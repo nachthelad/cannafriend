@@ -144,7 +144,7 @@
   "stats": {
     "free": "Gratuito",
     "mobileApp": "App Móvil",
-    "aiComingSoon": "IA Próximamente",
+    "aiInformation": "IA",
     "worksOffline": "Funciona Sin Internet"
   },
   "landing": {
@@ -174,14 +174,11 @@
     "uploadFailed": "Subida fallida",
     "uploadSuccess": "Subida Exitosa",
     "imagesUploaded": "Imágenes subidas:",
-    "tapToSelect": "Toca para seleccionar imágenes",
-    "dragDrop": "Arrastra y suelta imágenes aquí",
-    "orClick": "o haz clic para seleccionar",
+    "tapToSelect": "Toca Agregar foto para elegir imágenes",
+    "dragDrop": "Arrastra y suelta fotos aquí",
+    "orClick": "O usa el botón Agregar foto",
     "uploading": "Subiendo...",
-    "selectImages": "Seleccionar Imágenes",
-    "allowedTypes": "Tipos permitidos:",
-    "maxSize": "Tamaño máximo:",
-    "maxImages": "Máximo de imágenes:"
+    "addPhoto": "Agregar foto"
   },
   "imageErrors": {
     "userNotAuthenticated": "Usuario no autenticado",

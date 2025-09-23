@@ -40,13 +40,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { ImageUpload } from "@/components/common/image-upload";
-import { DEFAULT_MAX_IMAGES, DEFAULT_MAX_SIZE_MB } from "@/lib/image-config";
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/components/common/image-upload";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { updateDoc, deleteDoc, doc } from "firebase/firestore";
@@ -197,7 +193,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<string>(
     () => initialPlant.coverPhoto ?? initialPlant.photos?.[0] ?? ""
   );
-  const [showUpload, setShowUpload] = useState(false);
+  const imageUploadRef = useRef<ImageUploadHandle | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const previousPlantRef = useRef<Plant | null>(null);
   const previousLogsRef = useRef<LogEntry[] | null>(null);
@@ -419,8 +415,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
         title: t("photos.uploadError", { ns: "plants" }),
         description: error.message,
       });
-    } finally {
-      setShowUpload(false);
     }
   };
 
@@ -451,7 +445,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastFeeding={lastFeeding || undefined}
           lastTraining={lastTraining || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
-          onAddPhoto={() => setShowUpload(true)}
+          onAddPhoto={() => imageUploadRef.current?.open()}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}
           onUpdate={(patch) =>
@@ -552,7 +546,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setShowUpload(true)}
+                onClick={() => imageUploadRef.current?.open()}
               >
                 <Plus className="mr-2 h-4 w-4" />{" "}
                 {t("photos.addPhotos", { ns: "plants" })}
@@ -733,22 +727,12 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           </CardContent>
         </Card>
 
-        {/* Upload photos modal */}
-        <Dialog open={showUpload} onOpenChange={setShowUpload}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {t("photos.uploadPhotos", { ns: "plants" })}
-              </DialogTitle>
-            </DialogHeader>
-            <ImageUpload
-              onImagesChange={handlePhotosChange}
-              maxImages={DEFAULT_MAX_IMAGES}
-              maxSizeMB={DEFAULT_MAX_SIZE_MB}
-              className="mt-4"
-            />
-          </DialogContent>
-        </Dialog>
+        {/* Hidden image upload trigger (imperative) */}
+        <ImageUpload
+          ref={imageUploadRef}
+          onImagesChange={handlePhotosChange}
+          hideDefaultTrigger
+        />
       </div>
     </>
   );
