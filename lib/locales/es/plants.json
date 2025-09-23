@@ -83,7 +83,9 @@
     "schedule": "Horario",
     "seedType": "Tipo de semilla",
     "growType": "Tipo de cultivo",
-    "seedBank": "Banco de semillas"
+    "seedBank": "Banco de semillas",
+    "currentEnvironment": "Ambiente Actual",
+    "lastActivities": "Últimas Actividades"
   },
   "plantCard": {
     "lastWatering": "Último riego",
@@ -152,14 +154,21 @@
     "removeConfirmTitle": "Eliminar foto",
     "removeConfirmDesc": "Esta acción no se puede deshacer.",
     "plantPhoto": "Foto de la planta",
-    "deletePhoto": "Eliminar foto"
+    "deletePhoto": "Eliminar foto",
+    "clickToEnlarge": "Clic para ampliar"
   },
   "environment": {
     "temperature": "Temperatura",
     "humidity": "Humedad",
     "ph": "pH",
     "noData": "Sin datos ambientales",
-    "noDataDesc": "Registra mediciones para ver el historial"
+    "noDataDesc": "Registra mediciones para ver el historial",
+    "lastReading": "Última lectura",
+    "optimal": "Óptimo",
+    "hot": "Caliente",
+    "cold": "Frío",
+    "humid": "Húmedo",
+    "dry": "Seco"
   },
   "logForm": {
     "date": "Fecha"

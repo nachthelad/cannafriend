@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: enhance AI assistant functionality with improved topic detection and error handling — 2025-09-23
 - [MINOR]: adjust OpenAI parameters for improved response quality — 2025-09-23
 
 - [MINOR]: -- Move normalizeOpenAIContent helper into shared util — 2025-09-23

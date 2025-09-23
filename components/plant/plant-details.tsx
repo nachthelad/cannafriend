@@ -90,6 +90,22 @@ export function PlantDetails({
               />
             </div>
           </div>
+
+          {/* Seed Type */}
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("newPlant.seedType")}
+            </div>
+            <div className="flex items-center text-base font-medium text-foreground">
+              <Zap className="h-5 w-5 mr-2 text-primary" />
+              <span>
+                {plant.seedType === "autoflowering"
+                  ? t("newPlant.autoflowering")
+                  : t("newPlant.photoperiodic")}
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("newPlant.growType")}
