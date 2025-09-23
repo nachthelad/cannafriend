@@ -3,6 +3,10 @@ import { adminAuth, ensureAdminApp } from "@/lib/firebase-admin";
 import { checkRateLimit, extractClientIp } from "@/lib/rate-limit";
 import { getFirestore } from "firebase-admin/firestore";
 import { unwrapError } from "@/lib/errors";
+import {
+  normalizeOpenAIContent,
+  type OpenAIResponseMessage,
+} from "@/lib/openai-normalize";
 
 export const runtime = "nodejs";
 
@@ -333,7 +337,10 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await resp.json();
-    const content = data?.choices?.[0]?.message?.content ?? "";
+    const message = data?.choices?.[0]?.message as
+      | OpenAIResponseMessage
+      | undefined;
+    const content = normalizeOpenAIContent(message);
     const modelUsed = data?.model ?? PRIMARY_MODEL;
     console.log("🧭 modelUsed:", modelUsed);
 

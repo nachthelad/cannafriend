@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: -- Move normalizeOpenAIContent helper into shared util — 2025-09-23
 - [MINOR]: simplify reminder display structure and enhance layout — 2025-09-23
 - [MINOR]: clean up chat components and remove unused date display — 2025-09-23
 - [MINOR]: remove deprecated photo gallery component and update AI-related translations — 2025-09-23
@@ -23,7 +24,6 @@ This file is maintained automatically by scripts/autolog.mjs.
 - [MINOR]: handle unauthorized access and improve loading state display — 2025-09-19
 - [MINOR]: consolidate admin dashboard layout with modular components — 2025-09-18
 - [MINOR]: enhance unused variable detection and code quality rules — 2025-09-18
-
 
 - [MINOR]: -- Refactor admin dashboard layout and modular panels — 2025-09-18
 - [MINOR]: add Vercel Analytics integration — 2025-09-18
