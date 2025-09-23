@@ -16,25 +16,38 @@ export function useAuthUser() {
       try {
         if (u) {
           try {
+            // Try to get a fresh token to validate the user
             await u.getIdToken(true);
             cachedUser = u;
             setUser(u);
           } catch (tokenError: unknown) {
             const code = (tokenError as any)?.code;
-            console.warn("Token invalid, clearing user state:", code);
-            unwrapError(tokenError);
-            cachedUser = null;
-            setUser(null);
+            console.warn("Token validation failed:", code, unwrapError(tokenError));
 
+            // Handle specific error cases
             if (
               code === "auth/user-token-expired" ||
-              code === "auth/token-expired"
+              code === "auth/token-expired" ||
+              code === "auth/user-disabled" ||
+              code === "auth/network-request-failed"
             ) {
-              try {
-                await auth.signOut();
-              } catch (signOutError: unknown) {
-                console.warn("Error signing out:", unwrapError(signOutError));
+              console.log("Clearing user state due to auth error");
+              cachedUser = null;
+              setUser(null);
+
+              // Only sign out for token expiry, not network errors
+              if (code !== "auth/network-request-failed") {
+                try {
+                  await auth.signOut();
+                } catch (signOutError: unknown) {
+                  console.warn("Error signing out:", unwrapError(signOutError));
+                }
               }
+            } else {
+              // For other errors, still set the user but log the issue
+              console.warn("Token error but keeping user authenticated:", code);
+              cachedUser = u;
+              setUser(u);
             }
           }
         } else {
