@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  type Ref,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -10,9 +17,7 @@ import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
 import {
-  DEFAULT_MAX_IMAGES,
   DEFAULT_MAX_SIZE_MB,
-  ALLOWED_IMAGE_EXTENSIONS,
   IMAGE_ERROR_KEYS,
   generateImageFileName,
   getImageStoragePath,
@@ -28,16 +33,24 @@ interface ImageUploadProps {
   className?: string;
   buttonSize?: "sm" | "default";
   enableDropzone?: boolean;
+  hideDefaultTrigger?: boolean;
 }
 
-export function ImageUpload({
-  onImagesChange,
-  maxImages = DEFAULT_MAX_IMAGES,
-  maxSizeMB = DEFAULT_MAX_SIZE_MB,
-  className,
-  buttonSize = "sm",
-  enableDropzone = false,
-}: ImageUploadProps) {
+export interface ImageUploadHandle {
+  open: () => void;
+}
+
+function ImageUploadComponent(
+  {
+    onImagesChange,
+    maxSizeMB = DEFAULT_MAX_SIZE_MB,
+    className,
+    buttonSize = "sm",
+    enableDropzone = false,
+    hideDefaultTrigger = false,
+  }: ImageUploadProps,
+  ref: Ref<ImageUploadHandle>
+) {
   const { t } = useTranslation(["common"]);
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
@@ -46,6 +59,10 @@ export function ImageUpload({
 
   const dropzoneEnabled = enableDropzone && !isMobile;
   const openFilePicker = () => fileInputRef.current?.click();
+
+  useImperativeHandle(ref, () => ({
+    open: openFilePicker,
+  }));
 
   // Detect if user is on mobile device
   useEffect(() => {
@@ -213,7 +230,7 @@ export function ImageUpload({
   };
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn(dropzoneEnabled || !hideDefaultTrigger ? "space-y-3" : undefined, className)}>
       <input
         ref={fileInputRef}
         type="file"
@@ -269,6 +286,7 @@ export function ImageUpload({
           </Button>
         </div>
       ) : (
+        !hideDefaultTrigger && (
         <Button
           type="button"
           size={buttonSize}
@@ -281,16 +299,14 @@ export function ImageUpload({
             ? t("imageUpload.uploading", { ns: "common" })
             : t("imageUpload.addPhoto", { ns: "common" })}
         </Button>
+        )
       )}
-
-      <p className="text-xs text-muted-foreground">
-        {t("imageUpload.helperText", {
-          ns: "common",
-          maxImages,
-          maxSizeMB,
-          types: ALLOWED_IMAGE_EXTENSIONS.join(", "),
-        })}
-      </p>
     </div>
   );
 }
+
+export const ImageUpload = forwardRef<ImageUploadHandle, ImageUploadProps>(
+  ImageUploadComponent
+);
+
+ImageUpload.displayName = "ImageUpload";

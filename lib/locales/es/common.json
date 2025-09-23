@@ -178,8 +178,7 @@
     "dragDrop": "Arrastra y suelta fotos aquí",
     "orClick": "O usa el botón Agregar foto",
     "uploading": "Subiendo...",
-    "addPhoto": "Agregar foto",
-    "helperText": "Sube hasta {{maxImages}} fotos ({{maxSizeMB}} MB cada una). Formatos permitidos: {{types}}."
+    "addPhoto": "Agregar foto"
   },
   "imageErrors": {
     "userNotAuthenticated": "Usuario no autenticado",

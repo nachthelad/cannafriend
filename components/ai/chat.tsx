@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { AnimatedLogo } from "@/components/common/animated-logo";
-import { ImageUpload } from "@/components/common/image-upload";
+import {
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/components/common/image-upload";
 import { Brain, User, X, Menu } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -47,10 +49,10 @@ export function AIChat({
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId
   );
-  const [showImageUpload, setShowImageUpload] = useState(false);
   // Sidebar state is now managed by parent component
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const imageUploadRef = useRef<ImageUploadHandle>(null);
 
   // Determine chat type based on whether user has uploaded images
   const chatType = images.length > 0 ? "plant-analysis" : "consumer";
@@ -145,7 +147,6 @@ export function AIChat({
   const handleImageUpload = (urls: string[]) => {
     const newImages = urls.map((url) => ({ url, type: "image/jpeg" }));
     setImages((prev) => [...prev, ...newImages]);
-    setShowImageUpload(false);
   };
 
   const removeImage = (index: number) => {
@@ -255,7 +256,7 @@ export function AIChat({
                 onChange={setInput}
                 onKeyPress={handleKeyPress}
                 onSendMessage={handleSendMessage}
-                onShowImageUpload={() => setShowImageUpload(true)}
+                onShowImageUpload={() => imageUploadRef.current?.open()}
                 isLoading={isLoading}
               />
             </div>
@@ -384,39 +385,19 @@ export function AIChat({
                 onChange={setInput}
                 onKeyPress={handleKeyPress}
                 onSendMessage={handleSendMessage}
-                onShowImageUpload={() => setShowImageUpload(true)}
+                onShowImageUpload={() => imageUploadRef.current?.open()}
                 isLoading={isLoading}
               />
             </div>
           </>
         )}
-
-        {/* Image Upload Modal */}
-        {showImageUpload && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">
-                    {t("uploadPhoto", { ns: "aiAssistant" })}
-                  </h3>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setShowImageUpload(false)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <ImageUpload
-                  onImagesChange={handleImageUpload}
-                  maxImages={3}
-                  className="w-full"
-                />
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        <ImageUpload
+          ref={imageUploadRef}
+          onImagesChange={handleImageUpload}
+          maxImages={3}
+          className="sr-only"
+          hideDefaultTrigger
+        />
       </div>
     </div>
   );
