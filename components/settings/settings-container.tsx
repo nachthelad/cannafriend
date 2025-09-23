@@ -3,10 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
-import {
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { getDoc, updateDoc } from "firebase/firestore";
 import { invalidateDashboardCache } from "@/lib/suspense-cache";
 
 import { AccountSummary } from "@/components/settings/account-summary";
@@ -443,7 +440,7 @@ function SettingsContent({
       profile: () => (
         <AccountSummary
           title={t("settings.account")}
-          description={t("settings.accountDesc")}
+          // description={t("settings.accountDesc")}
           email={email}
           providerId={providerId}
           signOutLabel={t("signOut", { ns: "nav" })}
@@ -453,7 +450,7 @@ function SettingsContent({
       preferences: () => (
         <PreferencesForm
           title={t("settings.preferences")}
-          description={t("settings.preferencesDesc")}
+          // description={t("settings.preferencesDesc")}
           languageLabel={t("settings.language")}
           timezoneLabel={t("settings.timezone")}
           timezonePlaceholder={t("settings.selectTimezone")}
@@ -493,8 +490,8 @@ function SettingsContent({
       ),
       "app-info": () => (
         <AppInformation
-          title={t("settings.appInfo")}
-          description={t("settings.appInfoDesc")}
+          title={t("settings.appInfoDesc")}
+          // description={t("settings.appInfoDesc")}
           versionLabel={t("settings.appVersion")}
           version={appVersion}
         />
@@ -551,7 +548,9 @@ function SettingsContent({
     <div className="min-h-screen flex flex-col gap-6 p-4 md:px-0 md:py-6">
       {showHeader ? (
         <header className="md:mb-4">
-          <h1 className="text-xl font-bold md:text-3xl">{t("settings.title")}</h1>
+          <h1 className="text-xl font-bold md:text-3xl">
+            {t("settings.title")}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground md:mt-2 md:text-base md:max-w-2xl">
             {t("settings.accountDesc")}
           </p>

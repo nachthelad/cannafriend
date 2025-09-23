@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useTranslation } from "react-i18next";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
@@ -10,23 +9,12 @@ import { db } from "@/lib/firebase";
 import {
   MessageSquare,
   X,
-  Menu,
-  Clock,
-  Trash2,
-  MoreHorizontal,
   SquarePen,
-  Pencil,
   Search as SearchIcon,
 } from "lucide-react";
 import Logo from "@/components/common/logo";
 import ChatListItem from "@/components/ai/chat-list-item";
 import { cn } from "@/lib/utils";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,8 +29,6 @@ import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -122,23 +108,6 @@ export function ChatSidebar({
       loadChatHistory();
     }
   }, [isOpen, user?.uid]);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return t("today", { ns: "common" });
-    } else if (diffDays === 1) {
-      return t("yesterday", { ns: "common" });
-    } else if (diffDays < 7) {
-      return `${diffDays} ${t("daysAgo", { ns: "common" })}`;
-    } else {
-      return date.toLocaleDateString();
-    }
-  };
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-background">
@@ -401,66 +370,25 @@ export function ChatSidebar({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("search", { ns: "common" })}
           />
-          <div className="max-h-80 overflow-auto mt-2 space-y-3">
-            {(() => {
-              const groups = new Map<
-                string,
-                { label: string; items: ChatSession[] }
-              >();
-              const add = (key: string, label: string, item: ChatSession) => {
-                const g = groups.get(key) || { label, items: [] };
-                g.items.push(item);
-                groups.set(key, g);
-              };
-              const filtered = chatSessions.filter((s) =>
+          <div className="max-h-80 overflow-auto mt-2 space-y-1">
+            {chatSessions
+              .filter((s) =>
                 searchQuery.trim()
                   ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
                   : true
-              );
-              for (const s of filtered) {
-                const d = new Date(s.lastUpdated);
-                const today = new Date();
-                const days = Math.floor(
-                  (today.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
-                );
-                let key = d.toDateString();
-                let label = d.toLocaleDateString();
-                if (days === 0) {
-                  key = "today";
-                  label = t("today", { ns: "common" });
-                } else if (days === 1) {
-                  key = "yesterday";
-                  label = t("yesterday", { ns: "common" });
-                }
-                add(key, label, s);
-              }
-              return Array.from(groups.entries()).map(([key, g]) => (
-                <div key={key}>
-                  <div className="text-xs font-semibold text-muted-foreground mb-1">
-                    {g.label}
-                  </div>
-                  <div className="space-y-1">
-                    {g.items.map((session) => (
-                      <button
-                        key={session.id}
-                        onClick={() => {
-                          onSessionSelect(session.id);
-                          setShowSearchDialog(false);
-                        }}
-                        className="w-full text-left px-3 py-2 rounded-md hover:bg-accent"
-                      >
-                        <div className="font-medium truncate">
-                          {session.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(session.lastUpdated).toLocaleTimeString()}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ));
-            })()}
+              )
+              .map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => {
+                    onSessionSelect(session.id);
+                    setShowSearchDialog(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-md hover:bg-accent"
+                >
+                  <div className="font-medium truncate">{session.title}</div>
+                </button>
+              ))}
           </div>
         </DialogContent>
       </Dialog>

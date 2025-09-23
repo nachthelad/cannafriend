@@ -370,15 +370,17 @@ function MobileSettingsContent({
 
   return (
     <div className="w-full max-w-full overflow-x-hidden">
-      <ResponsivePageHeader
-        title={
-          <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-primary" />
-            <span>{t("settings.title")}</span>
-          </div>
-        }
-        onBackClick={() => router.back()}
-      />
+      {showHeader && (
+        <ResponsivePageHeader
+          title={
+            <div className="flex items-center gap-2">
+              <Settings className="h-5 w-5 text-primary" />
+              <span>{t("settings.title")}</span>
+            </div>
+          }
+          onBackClick={() => router.back()}
+        />
+      )}
 
       {/* All Settings in Single Column */}
       <div className="pb-24 w-full max-w-full">
@@ -386,7 +388,7 @@ function MobileSettingsContent({
         <div className="w-full p-4 border-b border-border">
           <AccountSummary
             title={t("settings.account")}
-            description={t("settings.accountDesc")}
+            // description={t("settings.accountDesc")}
             email={email}
             providerId={providerId}
             signOutLabel={t("signOut", { ns: "nav" })}
@@ -398,7 +400,7 @@ function MobileSettingsContent({
         <div className="w-full p-4 border-b border-border">
           <PreferencesForm
             title={t("settings.preferences")}
-            description={t("settings.preferencesDesc")}
+            // description={t("settings.preferencesDesc")}
             languageLabel={t("settings.language")}
             timezoneLabel={t("settings.timezone")}
             timezonePlaceholder={t("settings.selectTimezone")}
@@ -442,8 +444,8 @@ function MobileSettingsContent({
         {/* App Info Section */}
         <div className="w-full p-4 border-b border-border">
           <AppInformation
-            title={t("settings.appInfo")}
-            description={t("settings.appInfoDesc")}
+            title={t("settings.appInfoDesc")}
+            // description={t("settings.appInfoDesc")}
             versionLabel={t("settings.appVersion")}
             version={appVersion}
           />

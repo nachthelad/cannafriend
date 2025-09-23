@@ -9,7 +9,7 @@ import { RoleSelector } from "@/components/common/role-selector";
 
 interface PreferencesFormProps {
   title: string;
-  description: string;
+  // description: string;
   languageLabel: string;
   timezoneLabel: string;
   timezonePlaceholder: string;
@@ -27,7 +27,7 @@ interface PreferencesFormProps {
 
 export function PreferencesForm({
   title,
-  description,
+  // description,
   languageLabel,
   timezoneLabel,
   timezonePlaceholder,
@@ -43,10 +43,10 @@ export function PreferencesForm({
   consumerLabel,
 }: PreferencesFormProps) {
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="space-y-4">
+      <div>
         <h2 className="text-xl font-semibold">{title}</h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
+        {/* <p className="text-sm text-muted-foreground">{description}</p> */}
       </div>
       <div className="space-y-6">
         <div className="space-y-2 max-w-sm">

@@ -76,7 +76,8 @@ export function SettingsNavigation({
           const isDestructive = Boolean(section.isDestructive);
           const isLastSection = index === sections.length - 1;
           const prevSection = sections[index - 1];
-          const shouldAddSeparator = isDestructive && prevSection && !prevSection.isDestructive;
+          const shouldAddSeparator =
+            isDestructive && prevSection && !prevSection.isDestructive;
 
           return (
             <div key={section.id}>
@@ -87,7 +88,7 @@ export function SettingsNavigation({
                 type="button"
                 onClick={() => onSectionChange(section.id)}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-medium transition-colors",
+                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm font-medium transition-colors md:cursor-pointer",
                   isActive
                     ? isDestructive
                       ? "bg-destructive text-destructive-foreground shadow-sm"
