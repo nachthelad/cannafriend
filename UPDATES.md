@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update plant details component and enhance image gallery modal with new features — 2025-09-24
+
 - [MINOR]: enhance AI assistant functionality with improved topic detection and error handling — 2025-09-23
 - [MINOR]: adjust OpenAI parameters for improved response quality — 2025-09-23
 

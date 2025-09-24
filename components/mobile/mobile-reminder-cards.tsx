@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { auth, db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
 import { triggerHaptic } from "@/lib/haptic";
 import {
   Bell,
@@ -38,20 +36,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-
-interface Reminder {
-  id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number; // days
-  lastReminder: string;
-  nextReminder: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import type { Reminder } from "@/types";
 
 interface MobileReminderCardsProps {
   reminders: Reminder[];

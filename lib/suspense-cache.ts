@@ -29,9 +29,16 @@ export function invalidateDashboardCache(userId: string) {
   clearSuspenseCache(`dashboard-${userId}`);
 }
 
+// Clear cache when reminders change
+export function invalidateRemindersCache(userId: string) {
+  clearSuspenseCache(`reminders-${userId}`);
+  clearSuspenseCache(`mobile-reminders-${userId}`);
+}
+
 // Clear all user-specific caches (useful for logout)
 export function invalidateUserCaches(userId: string) {
   invalidatePlantsCache(userId);
   invalidateJournalCache(userId);
   invalidateDashboardCache(userId);
+  invalidateRemindersCache(userId);
 }
