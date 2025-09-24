@@ -50,5 +50,19 @@ export interface EnvironmentData {
   createdAt: string;
 }
 
+export interface Reminder {
+  id: string;
+  plantId: string;
+  plantName: string;
+  type: "watering" | "feeding" | "training" | "custom";
+  title: string;
+  description: string;
+  interval: number;
+  lastReminder: string;
+  nextReminder: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
 export * from "./firestore";
 export * from "./pwa";

@@ -235,7 +235,7 @@ export function PlantPhotoGallery({
             {/* Right Main Image Display */}
             <div className="flex-1">
               <div
-                className="relative w-full h-auto aspect-[4/3] bg-muted flex items-center justify-center cursor-pointer group"
+                className="relative w-full h-auto aspect-[4/3.6] flex items-center justify-center cursor-pointer group"
                 onClick={() => {
                   const currentPhoto = selectedPhoto || coverPhoto || photos[0];
                   if (currentPhoto) {

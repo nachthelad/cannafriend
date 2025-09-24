@@ -9,41 +9,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { db } from "@/lib/firebase";
-import {
-  collection,
-  getDocs,
-  query,
-  doc,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-} from "firebase/firestore";
-import { plantsCol } from "@/lib/paths";
+import { getDocs, query, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { plantsCol, remindersCol } from "@/lib/paths";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { MobileReminderCards } from "./mobile-reminder-cards";
 import { MobileReminderScheduler } from "./mobile-reminder-scheduler";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import { Bell, Plus, TrendingUp } from "lucide-react";
-import type { Plant } from "@/types";
-
-interface Reminder {
-  id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number;
-  lastReminder: string;
-  nextReminder: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import type { Plant, Reminder } from "@/types";
+import {
+  invalidateDashboardCache,
+  invalidateRemindersCache,
+} from "@/lib/suspense-cache";
 
 interface MobileRemindersProps {
   userId: string;
   initialPlants?: Plant[];
+  initialReminders?: Reminder[];
   showHeader?: boolean;
   isSchedulerOpen?: boolean;
   onSchedulerOpenChange?: (open: boolean) => void;
@@ -83,25 +66,33 @@ function MobileRemindersSkeleton({ showHeader }: { showHeader: boolean }) {
 
 async function fetchMobileRemindersData(
   userId: string,
-  initialPlants?: Plant[]
+  initialPlants?: Plant[],
+  initialReminders?: Reminder[]
 ): Promise<MobileRemindersData> {
-  const remindersRef = collection(db, "users", userId, "reminders");
-  const remindersSnapshot = await getDocs(query(remindersRef));
-  const reminders: Reminder[] = [];
-
-  remindersSnapshot.forEach((docSnapshot) => {
-    reminders.push({ id: docSnapshot.id, ...docSnapshot.data() } as Reminder);
-  });
+  let reminders: Reminder[] = [];
+  if (initialReminders) {
+    reminders = [...initialReminders];
+  } else {
+    const remindersSnapshot = await getDocs(query(remindersCol(userId)));
+    reminders = remindersSnapshot.docs.map(
+      (docSnapshot) => ({
+        id: docSnapshot.id,
+        ...docSnapshot.data(),
+      }) as Reminder
+    );
+  }
 
   if (initialPlants) {
     return { reminders, plants: [...initialPlants] };
   }
 
   const plantsSnapshot = await getDocs(query(plantsCol(userId)));
-  const plants: Plant[] = [];
-  plantsSnapshot.forEach((docSnapshot) => {
-    plants.push({ id: docSnapshot.id, ...docSnapshot.data() } as Plant);
-  });
+  const plants: Plant[] = plantsSnapshot.docs.map(
+    (docSnapshot) => ({
+      id: docSnapshot.id,
+      ...docSnapshot.data(),
+    }) as Plant
+  );
 
   return { reminders, plants };
 }
@@ -109,6 +100,7 @@ async function fetchMobileRemindersData(
 function MobileRemindersContent({
   userId,
   initialPlants,
+  initialReminders,
   showHeader,
   isSchedulerOpen: externalIsSchedulerOpen,
   onSchedulerOpenChange: externalOnSchedulerOpenChange,
@@ -119,12 +111,12 @@ function MobileRemindersContent({
 
   const cacheKey = `mobile-reminders-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
-    fetchMobileRemindersData(userId, initialPlants)
+    fetchMobileRemindersData(userId, initialPlants, initialReminders)
   );
-  const { reminders: initialReminders, plants } = resource.read();
+  const { reminders: initialResourceReminders, plants } = resource.read();
 
   const [reminders, setReminders] = useState<Reminder[]>(
-    () => initialReminders
+    () => initialResourceReminders
   );
   const [internalIsSchedulerOpen, setInternalIsSchedulerOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
@@ -136,8 +128,11 @@ function MobileRemindersContent({
     externalOnSchedulerOpenChange ?? setInternalIsSchedulerOpen;
 
   useEffect(() => {
-    const remindersCollection = collection(db, "users", userId, "reminders");
-    const remindersQuery = query(remindersCollection);
+    setReminders(initialResourceReminders);
+  }, [initialResourceReminders]);
+
+  useEffect(() => {
+    const remindersQuery = query(remindersCol(userId));
 
     const unsubscribe = onSnapshot(
       remindersQuery,
@@ -168,6 +163,8 @@ function MobileRemindersContent({
         lastReminder: now.toISOString(),
         nextReminder: next.toISOString(),
       });
+      invalidateRemindersCache(userId);
+      invalidateDashboardCache(userId);
     } catch (error) {
       handleFirebaseError(error, "marking reminder done");
     }
@@ -186,6 +183,8 @@ function MobileRemindersContent({
       await updateDoc(reminderRef, {
         nextReminder: snoozeTime.toISOString(),
       });
+      invalidateRemindersCache(userId);
+      invalidateDashboardCache(userId);
     } catch (error) {
       handleFirebaseError(error, "snoozing reminder");
     }
@@ -200,16 +199,22 @@ function MobileRemindersContent({
     try {
       const reminderRef = doc(db, "users", userId, "reminders", reminderId);
       await deleteDoc(reminderRef);
+      invalidateRemindersCache(userId);
+      invalidateDashboardCache(userId);
     } catch (error) {
       handleFirebaseError(error, "deleting reminder");
     }
   };
 
   const handleReminderAdded = () => {
+    invalidateRemindersCache(userId);
+    invalidateDashboardCache(userId);
     // Reminders will be updated automatically via onSnapshot
   };
 
   const handleReminderUpdated = () => {
+    invalidateRemindersCache(userId);
+    invalidateDashboardCache(userId);
     // Reminders will be updated automatically via onSnapshot
   };
 
@@ -343,6 +348,7 @@ function MobileRemindersContent({
 export function MobileReminders({
   userId,
   initialPlants,
+  initialReminders,
   showHeader = true,
   isSchedulerOpen,
   onSchedulerOpenChange,
@@ -352,6 +358,7 @@ export function MobileReminders({
       <MobileRemindersContent
         userId={userId}
         initialPlants={initialPlants}
+        initialReminders={initialReminders}
         showHeader={showHeader}
         isSchedulerOpen={isSchedulerOpen}
         onSchedulerOpenChange={onSchedulerOpenChange}

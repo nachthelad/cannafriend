@@ -21,7 +21,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { invalidateDashboardCache } from "@/lib/suspense-cache";
+import {
+  invalidateDashboardCache,
+  invalidateRemindersCache,
+} from "@/lib/suspense-cache";
 import { triggerHaptic } from "@/lib/haptic";
 import {
   Bell,
@@ -34,7 +37,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
-import type { Plant } from "@/types";
+import type { Plant, Reminder } from "@/types";
 
 // Form validation schema - created with translations
 const createMobileReminderFormSchema = (t: any) =>
@@ -61,20 +64,6 @@ const createMobileReminderFormSchema = (t: any) =>
 type MobileReminderFormData = z.infer<
   ReturnType<typeof createMobileReminderFormSchema>
 >;
-
-interface Reminder {
-  id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number; // days
-  lastReminder: string;
-  nextReminder: string;
-  isActive: boolean;
-  createdAt: string;
-}
 
 interface MobileReminderSchedulerProps {
   plants: Plant[];
@@ -261,7 +250,8 @@ export function MobileReminderScheduler({
       );
       await addDoc(remindersRef, reminderData);
 
-      // Invalidate dashboard cache to refresh reminders count
+      // Invalidate caches so Suspense data refreshes across views
+      invalidateRemindersCache(auth.currentUser.uid);
       invalidateDashboardCache(auth.currentUser.uid);
 
       toast({
