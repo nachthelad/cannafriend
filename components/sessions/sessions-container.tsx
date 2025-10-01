@@ -17,6 +17,8 @@ import { ROUTE_SESSIONS, resolveHomePathForRoles } from "@/lib/routes";
 import { sessionsCol, userDoc } from "@/lib/paths";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { useToast } from "@/hooks/use-toast";
+import { toastSuccess } from "@/lib/toast-helpers";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { SessionsHeader } from "./sessions-header";
 import { SessionsList } from "./sessions-list";
 import { SessionsSkeleton } from "./sessions-skeleton";
@@ -91,6 +93,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const { roles } = useUserRoles();
 
   const cacheKey = `sessions-${userId}`;
@@ -205,18 +208,8 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       setFavoriteStrains((prev) =>
         isFav ? prev.filter((item) => item !== normalized) : [...prev, normalized]
       );
-      toast({
-        title: isFav
-          ? t("favorites.removed", { ns: "sessions" })
-          : t("favorites.added", { ns: "sessions" }),
-      });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description:
-          error instanceof Error ? error.message : String(error),
-      });
+      handleFirebaseError(error, "toggle favorite");
     }
   };
 
@@ -254,7 +247,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
         )
       );
 
-      toast({ title: t("updated", { ns: "sessions" }) });
+      toastSuccess(toast, t, { titleKey: "updated", namespace: "sessions" });
     } catch (error) {
       console.error("Error updating session:", error);
       toast({
@@ -270,7 +263,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
     try {
       await deleteDoc(doc(sessionsCol(userId), sessionId));
       setSessions((prev) => prev.filter((session) => session.id !== sessionId));
-      toast({ title: t("deleted", { ns: "sessions" }) });
+      toastSuccess(toast, t, { titleKey: "deleted", namespace: "sessions" });
     } catch (error) {
       toast({
         variant: "destructive",
@@ -373,3 +366,4 @@ export function SessionsContainer(props: SessionsContainerProps) {
     </Suspense>
   );
 }
+

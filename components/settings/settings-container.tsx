@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { getDoc, updateDoc } from "firebase/firestore";
-import { invalidateDashboardCache } from "@/lib/suspense-cache";
+import { invalidateDashboardCache, invalidateSettingsCache } from "@/lib/suspense-cache";
 
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
@@ -22,6 +22,7 @@ import {
 } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -98,6 +99,7 @@ function SettingsContent({
   const { t } = useTranslation(["common", "onboarding"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const { setTheme } = useTheme();
 
   const cacheKey = `settings-${userId}`;
@@ -109,6 +111,21 @@ function SettingsContent({
 
   const [preferences, setPreferences] =
     useState<PreferencesState>(initialPreferences);
+
+  const persistPreferences = useCallback(
+    (nextPreferences: PreferencesState) => {
+      try {
+        localStorage.setItem(
+          `cf:userSettings:${userId}`,
+          JSON.stringify(nextPreferences)
+        );
+      } catch {
+        // Ignore storage errors
+      }
+    },
+    [userId]
+  );
+
   const previousPreferencesRef = useRef<PreferencesState | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
@@ -133,6 +150,7 @@ function SettingsContent({
   const isPremium = Boolean(subscription?.premium ?? false);
 
   useEffect(() => {
+    setTheme(preferences.darkMode ? "dark" : "light");
     setTheme(preferences.darkMode ? "dark" : "light");
   }, [preferences.darkMode, setTheme]);
 
@@ -170,66 +188,51 @@ function SettingsContent({
       try {
         localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
       } catch {}
-      toast({
-        title: t("settings.timezoneUpdated"),
-        description: t("settings.timezoneUpdatedDesc"),
-      });
+      invalidateSettingsCache(userId);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      handleFirebaseError(error, "update timezone");
     }
   };
 
   const handleDarkModeChange = async (checked: boolean) => {
     if (!userId) return;
 
+    const previous = preferences;
+    const next = { ...preferences, darkMode: checked };
+
+    setPreferences(next);
+    persistPreferences(next);
+    setTheme(checked ? "dark" : "light");
+
     try {
       await updateDoc(userDoc(userId), { darkMode: checked });
-      const next = { ...preferences, darkMode: checked };
-      setPreferences(next);
-      try {
-        localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
-      } catch {}
-      setTheme(checked ? "dark" : "light");
-      toast({
-        title: t("settings.darkModeUpdated"),
-        description: checked
-          ? t("settings.darkModeOn")
-          : t("settings.darkModeOff"),
-      });
+      // Delay cache invalidation to avoid skeleton flash
+      setTimeout(() => invalidateSettingsCache(userId), 100);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      setPreferences(previous);
+      persistPreferences(previous);
+      setTheme(previous.darkMode ? "dark" : "light");
+      handleFirebaseError(error, "update dark mode");
     }
   };
 
   const handleRolesChange = async (nextRoles: Roles) => {
     if (!userId) return;
 
+    const previous = preferences;
+    const next = { ...preferences, roles: nextRoles };
+
+    setPreferences(next);
+    persistPreferences(next);
+
     try {
       await updateDoc(userDoc(userId), { roles: nextRoles });
-
-      // Invalidate dashboard cache to refresh role-dependent components
       invalidateDashboardCache(userId);
-
-      const next = { ...preferences, roles: nextRoles };
-      setPreferences(next);
-      try {
-        localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
-      } catch {}
-      toast({ title: t("settings.updated") });
+      invalidateSettingsCache(userId);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      setPreferences(previous);
+      persistPreferences(previous);
+      handleFirebaseError(error, "update roles");
     }
   };
 
@@ -238,11 +241,7 @@ function SettingsContent({
       await signOut(auth);
       router.push(ROUTE_LOGIN);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      handleFirebaseError(error, "sign out");
     }
   };
 
@@ -593,3 +592,12 @@ export function SettingsContainer({
     />
   );
 }
+
+
+
+
+
+
+
+
+

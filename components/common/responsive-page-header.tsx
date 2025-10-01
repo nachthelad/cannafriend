@@ -38,6 +38,10 @@ interface ResponsivePageHeaderProps {
    * Whether the header should stick to the top of the viewport. Enabled by default for mobile parity.
    */
   sticky?: boolean;
+  /**
+   * Controls whether the mobile back button is rendered when a back action is provided.
+   */
+  showMobileBackButton?: boolean;
 }
 
 export function ResponsivePageHeader({
@@ -50,6 +54,7 @@ export function ResponsivePageHeader({
   mobileActions,
   desktopActions,
   sticky = true,
+  showMobileBackButton = true,
 }: ResponsivePageHeaderProps) {
   const renderBackButton = backHref || onBackClick;
 
@@ -64,7 +69,7 @@ export function ResponsivePageHeader({
       <div className="px-4 py-4 sm:px-6 sm:py-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
-            {renderBackButton ? (
+            {renderBackButton && showMobileBackButton ? (
               <Button
                 variant="ghost"
                 size="icon"
@@ -115,3 +120,4 @@ export function ResponsivePageHeader({
     </header>
   );
 }
+

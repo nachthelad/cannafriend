@@ -28,21 +28,11 @@ import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { AlertCircle } from "lucide-react";
-import type { Plant } from "@/types";
-
-interface Reminder {
-  id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number; // days
-  lastReminder: string;
-  nextReminder: string;
-  isActive: boolean;
-  createdAt: string;
-}
+import type { Plant, Reminder } from "@/types";
+import {
+  invalidateDashboardCache,
+  invalidateRemindersCache,
+} from "@/lib/suspense-cache";
 
 interface EditReminderDialogProps {
   reminder: Reminder | null;
@@ -190,6 +180,9 @@ export function EditReminderDialog({
       };
 
       await updateDoc(reminderRef, updateData);
+
+      invalidateRemindersCache(auth.currentUser.uid);
+      invalidateDashboardCache(auth.currentUser.uid);
 
       toast({
         title: t("updated", { ns: "reminders" }),

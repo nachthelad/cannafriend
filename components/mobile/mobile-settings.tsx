@@ -19,12 +19,14 @@ import { AppInformation } from "@/components/settings/app-information";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { updateDoc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
+import { invalidateSettingsCache } from "@/lib/suspense-cache";
 import type { Roles } from "@/types";
 
 interface MobileSettingsProps {
@@ -94,6 +96,7 @@ function MobileSettingsContent({
   const { t } = useTranslation(["common", "onboarding"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const { setTheme } = useTheme();
 
   const cacheKey = `settings-${userId}`;
@@ -126,9 +129,7 @@ function MobileSettingsContent({
   const subscription = initialSubscription;
   const isPremium = Boolean(subscription?.premium ?? false);
 
-  useEffect(() => {
-    setTheme(preferences.darkMode ? "dark" : "light");
-  }, [preferences.darkMode, setTheme]);
+
 
   const handleTimezoneChange = async (value: string) => {
     if (!userId) return;
@@ -136,54 +137,50 @@ function MobileSettingsContent({
       await updateDoc(userDoc(userId), { timezone: value });
       const next = { ...preferences, timezone: value };
       setPreferences(next);
-      toast({
-        title: t("settings.timezoneUpdated"),
-        description: t("settings.timezoneUpdatedDesc"),
-      });
+      invalidateSettingsCache(userId);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      handleFirebaseError(error, "update timezone");
     }
   };
 
   const handleDarkModeChange = async (checked: boolean) => {
     if (!userId) return;
+    const previous = preferences.darkMode;
+
+    setPreferences((prev) => ({ ...prev, darkMode: checked }));
+    setTheme(checked ? "dark" : "light");
+
     try {
       await updateDoc(userDoc(userId), { darkMode: checked });
-      const next = { ...preferences, darkMode: checked };
-      setPreferences(next);
-      setTheme(checked ? "dark" : "light");
-      toast({
-        title: t("settings.darkModeUpdated"),
-        description: checked
-          ? t("settings.darkModeOn")
-          : t("settings.darkModeOff"),
-      });
+      // Delay cache invalidation to avoid conflicts
+      setTimeout(() => invalidateSettingsCache(userId), 100);
+
+      // Mobile fallback: Force refresh if theme doesn't apply properly
+      // This ensures the theme change is visible even if there are mobile-specific issues
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
+      }, 500);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      setPreferences((prev) => ({ ...prev, darkMode: previous }));
+      setTheme(previous ? "dark" : "light");
+      handleFirebaseError(error, "update dark mode");
     }
   };
 
   const handleRolesChange = async (nextRoles: Roles) => {
     if (!userId) return;
+
+    const previous = preferences.roles;
+    setPreferences((prev) => ({ ...prev, roles: nextRoles }));
+
     try {
       await updateDoc(userDoc(userId), { roles: nextRoles });
-      const next = { ...preferences, roles: nextRoles };
-      setPreferences(next);
-      toast({ title: t("settings.updated") });
+      invalidateSettingsCache(userId);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      setPreferences((prev) => ({ ...prev, roles: previous }));
+      handleFirebaseError(error, "update roles");
     }
   };
 
@@ -192,11 +189,7 @@ function MobileSettingsContent({
       await signOut(auth);
       router.push(ROUTE_LOGIN);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("settings.error"),
-        description: error.message,
-      });
+      handleFirebaseError(error, "sign out");
     }
   };
 
@@ -484,3 +477,13 @@ function MobileSettingsContent({
 export function MobileSettings(props: MobileSettingsProps) {
   return <MobileSettingsContent {...props} />;
 }
+
+
+
+
+
+
+
+
+
+

@@ -15,11 +15,11 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { getDocs, query } from "firebase/firestore";
 import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import { plantsCol } from "@/lib/paths";
+import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { useTranslation } from "react-i18next";
-import type { Plant } from "@/types";
+import type { Plant, Reminder } from "@/types";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Plus } from "lucide-react";
@@ -27,18 +27,24 @@ import { Button } from "@/components/ui/button";
 
 interface RemindersData {
   plants: Plant[];
+  reminders: Reminder[];
 }
 
 async function fetchRemindersData(userId: string): Promise<RemindersData> {
-  const remindersQuery = query(plantsCol(userId));
-  const snapshot = await getDocs(remindersQuery);
-  const plants: Plant[] = [];
+  const [plantsSnapshot, remindersSnapshot] = await Promise.all([
+    getDocs(query(plantsCol(userId))),
+    getDocs(query(remindersCol(userId))),
+  ]);
 
-  snapshot.forEach((doc) => {
-    plants.push({ id: doc.id, ...doc.data() } as Plant);
-  });
+  const plants = plantsSnapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as Plant)
+  );
 
-  return { plants };
+  const reminders = remindersSnapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as Reminder)
+  );
+
+  return { plants, reminders };
 }
 
 function RemindersContent({ userId }: { userId: string }) {
@@ -51,7 +57,7 @@ function RemindersContent({ userId }: { userId: string }) {
   const resource = getSuspenseResource(cacheKey, () =>
     fetchRemindersData(userId)
   );
-  const { plants } = resource.read();
+  const { plants, reminders } = resource.read();
 
   const handleAddReminder = () => {
     setIsAddReminderOpen(true);
@@ -81,6 +87,7 @@ function RemindersContent({ userId }: { userId: string }) {
         <MobileReminders
           userId={userId}
           initialPlants={plants}
+          initialReminders={reminders}
           showHeader={false}
           isSchedulerOpen={isAddReminderOpen}
           onSchedulerOpenChange={setIsAddReminderOpen}
@@ -92,6 +99,7 @@ function RemindersContent({ userId }: { userId: string }) {
         {plants.length > 0 ? (
           <ReminderSystem
             plants={plants}
+            reminders={reminders}
             externalShowAddForm={isAddReminderOpen}
             onExternalShowAddFormChange={setIsAddReminderOpen}
           />

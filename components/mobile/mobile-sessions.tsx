@@ -946,6 +946,7 @@ export function MobileSessions({
         title={t("title", { ns: "sessions" })}
         description={t("description", { ns: "sessions" })}
         backHref={backHref}
+        showMobileBackButton={false}
         mobileControls={
           <>
             <div className="relative mt-2">
@@ -1113,3 +1114,4 @@ export function MobileSessions({
     </div>
   );
 }
+

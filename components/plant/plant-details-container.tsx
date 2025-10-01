@@ -1,8 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { toastSuccess } from "@/lib/toast-helpers";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -13,14 +15,22 @@ import {
   query,
   orderBy,
   getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { PlantDetailSkeleton } from "@/components/skeletons/plant-list-skeleton";
+import { PlantDetailsHeader } from "@/components/plant/plant-details-header";
+import { PlantPhotoGallery } from "@/components/plant/plant-photo-gallery";
+import { PlantEnvironmentCard } from "@/components/plant/plant-environment-card";
+import {
+  PlantLogsSummary,
+  LastActivitiesSummary,
+} from "@/components/plant/plant-logs-summary";
 import { PlantDetails } from "@/components/plant/plant-details";
-import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,48 +38,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  ImageUpload,
-  type ImageUploadHandle,
-} from "@/components/common/image-upload";
-import Image from "next/image";
-import dynamic from "next/dynamic";
-import { updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { Button } from "@/components/ui/button";
 import {
   invalidateDashboardCache,
   invalidatePlantsCache,
   invalidateJournalCache,
   invalidatePlantDetails,
 } from "@/lib/suspense-cache";
-import { Trash2, Plus, Star, ArrowLeft } from "lucide-react";
-import { ROUTE_JOURNAL, ROUTE_PLANTS } from "@/lib/routes";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
-
-const EnvironmentChart = dynamic(
-  () =>
-    import("@/components/plant/environment-chart").then((mod) => ({
-      default: mod.EnvironmentChart,
-    })),
-  {
-    loading: () => (
-      <div className="flex justify-center py-8">
-        <div className="text-primary">Loading chart...</div>
-      </div>
-    ),
-    ssr: false,
-  }
-);
 
 interface PlantDetailsContainerProps {
   userId: string;
@@ -165,12 +141,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const { roles } = useUserRoles();
 
   const cacheKey = `plant-details-${userId}-${plantId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchPlantDetailsData(userId, plantId)
   );
+
   const {
     plant: initialPlant,
     logs: initialLogs,
@@ -182,56 +160,15 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     lastEnvironmentFromLogs,
   } = resource.read();
 
-  const [plant, setPlant] = useState<Plant | null>(initialPlant);
+  const [plant, setPlant] = useState<Plant>(initialPlant);
   const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
-  const [photos, setPhotos] = useState<string[]>(
-    () => initialPlant.photos ?? []
-  );
-  const [coverPhoto, setCoverPhoto] = useState<string>(
-    () => initialPlant.coverPhoto ?? ""
-  );
-  const [selectedPhoto, setSelectedPhoto] = useState<string>(
-    () => initialPlant.coverPhoto ?? initialPlant.photos?.[0] ?? ""
-  );
-  const imageUploadRef = useRef<ImageUploadHandle | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const previousPlantRef = useRef<Plant | null>(null);
-  const previousLogsRef = useRef<LogEntry[] | null>(null);
 
+  // Update local state when Suspense data changes
   useEffect(() => {
-    if (previousPlantRef.current === initialPlant) {
-      return;
-    }
-    previousPlantRef.current = initialPlant;
     setPlant(initialPlant);
-    const nextPhotos = initialPlant.photos ?? [];
-    setPhotos(nextPhotos);
-    const nextCover = initialPlant.coverPhoto ?? "";
-    setCoverPhoto(nextCover);
-    setSelectedPhoto((prev) => {
-      if (prev && (prev === nextCover || nextPhotos.includes(prev))) {
-        return prev;
-      }
-      return nextCover || nextPhotos[0] || "";
-    });
-  }, [initialPlant]);
-
-  useEffect(() => {
-    if (previousLogsRef.current === initialLogs) {
-      return;
-    }
-    previousLogsRef.current = initialLogs;
     setLogs(initialLogs);
-  }, [initialLogs]);
-
-  const handleBack = () => {
-    router.push(ROUTE_PLANTS);
-  };
-
-  const recomputeLasts = (logsData: LogEntry[]) => {
-    // This function can be called when logs are updated locally
-    // For now, we'll use the initial data from Suspense
-  };
+  }, [initialPlant, initialLogs]);
 
   const handleDeletePlant = async () => {
     if (!userId) return;
@@ -268,11 +205,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       router.push(resolveHomePathForRoles(roles));
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: error?.message,
-      });
+      handleFirebaseError(error, "delete plant");
     } finally {
       setIsDeleting(false);
     }
@@ -288,19 +221,49 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       // Invalidate caches to refresh journal, plants (for recent logs), and dashboard
       invalidateJournalCache(userId);
       invalidatePlantsCache(userId);
-      invalidatePlantDetails(userId, plantId); // Individual plant page
+      invalidatePlantDetails(userId, plantId);
       invalidateDashboardCache(userId);
 
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
-      toast({
-        title: t("deleted", { ns: "journal" }),
-        description: t("deletedDesc", { ns: "journal" }),
+      toastSuccess(toast, t, {
+        namespace: "journal",
+        titleKey: "deleted",
+        descriptionKey: "deletedDesc",
+      });
+    } catch (error: any) {
+      handleFirebaseError(error, "delete log");
+    }
+  };
+
+  const handlePhotosChange = async (newPhotos: string[]) => {
+    if (!userId) return;
+    try {
+      const updated = [...(plant.photos || []), ...newPhotos];
+      await updateDoc(plantDocRef(userId, plantId), { photos: updated });
+
+      setPlant((prev) => ({ ...prev, photos: updated }));
+
+      // Auto-set first photo as cover if no cover exists
+      if (!plant.coverPhoto && updated.length > 0) {
+        await updateDoc(plantDocRef(userId, plantId), {
+          coverPhoto: updated[0],
+        });
+        setPlant((prev) => ({ ...prev, coverPhoto: updated[0] }));
+      }
+
+      invalidatePlantDetails(userId, plantId);
+      invalidatePlantsCache(userId);
+
+      toastSuccess(toast, t, {
+        namespace: "plants",
+        titleKey: "photos.uploadSuccess",
+        descriptionKey: "photos.photosUpdated",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("common.error"),
+        title: t("photos.uploadError", { ns: "plants" }),
         description: error.message,
       });
     }
@@ -312,14 +275,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     // Get all available images
     const allImages = [
       ...(plant?.coverPhoto ? [plant.coverPhoto] : []),
-      ...(photos || []),
+      ...(plant.photos || []),
     ].filter((img, i, arr) => arr.indexOf(img) === i);
 
     const photoToRemove = allImages[index];
     const isRemovingCover = photoToRemove === plant?.coverPhoto;
 
     try {
-      const newPhotos = photos.filter((p) => p !== photoToRemove);
+      const newPhotos = (plant.photos || []).filter((p) => p !== photoToRemove);
       let newCoverPhoto = plant?.coverPhoto;
 
       // If removing cover photo, set new cover
@@ -334,37 +297,17 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       });
 
       // Update local state
-      setPhotos(newPhotos);
-      setCoverPhoto(newCoverPhoto || "");
-
-      if (selectedPhoto === photoToRemove) {
-        setSelectedPhoto(newCoverPhoto || newPhotos[0] || "");
-      }
-
-      // Update plant state
-      setPlant((prev) =>
-        prev
-          ? {
-              ...prev,
-              photos: newPhotos,
-              coverPhoto: newCoverPhoto,
-            }
-          : null
-      );
+      setPlant((prev) => ({
+        ...prev,
+        photos: newPhotos,
+        coverPhoto: newCoverPhoto,
+      }));
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toast({
-        title: t("photos.removeSuccess", { ns: "plants" }),
-        description: t("photos.photoRemoved", { ns: "plants" }),
-      });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("photos.removeError", { ns: "plants" }),
-        description: error.message,
-      });
+      handleFirebaseError(error, "remove photo");
     }
   };
 
@@ -374,47 +317,14 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       await updateDoc(plantDocRef(userId, plantId), {
         coverPhoto: photoUrl,
       });
-      setCoverPhoto(photoUrl);
-      setSelectedPhoto(photoUrl);
-      setPlant((prev) => (prev ? { ...prev, coverPhoto: photoUrl } : null));
+
+      setPlant((prev) => ({ ...prev, coverPhoto: photoUrl }));
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toast({
-        title: t("photos.coverPhotoSet", { ns: "plants" }),
-        description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
-      });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("photos.coverPhotoError", { ns: "plants" }),
-        description: error.message,
-      });
-    }
-  };
-
-  const handlePhotosChange = async (newPhotos: string[]) => {
-    if (!userId) return;
-    try {
-      const updated = [...photos, ...newPhotos];
-      await updateDoc(plantDocRef(userId, plantId), { photos: updated });
-      setPhotos(updated);
-      if (!coverPhoto && updated.length > 0) setSelectedPhoto(updated[0]);
-
-      invalidatePlantDetails(userId, plantId);
-      invalidatePlantsCache(userId);
-
-      toast({
-        title: t("photos.uploadSuccess", { ns: "plants" }),
-        description: t("photos.photosUpdated", { ns: "plants" }),
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("photos.uploadError", { ns: "plants" }),
-        description: error.message,
-      });
+      handleFirebaseError(error, "set cover photo");
     }
   };
 
@@ -445,235 +355,40 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastFeeding={lastFeeding || undefined}
           lastTraining={lastTraining || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
-          onAddPhoto={() => imageUploadRef.current?.open()}
+          onAddPhoto={async () => {
+            // Mobile photo upload would need implementation
+            // For now, redirect to desktop or implement mobile gallery
+          }}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}
-          onUpdate={(patch) =>
-            setPlant((prev) => (prev ? { ...prev, ...patch } : null))
-          }
+          onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
           language={i18n.language}
         />
       </div>
 
       {/* Desktop Plant Page */}
-      <div className="hidden md:block">
-        {/* Desktop Header */}
-        <div className="hidden md:block mb-6 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Button variant="ghost" size="sm" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("back", { ns: "common" })}
-            </Button>
-          </div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold">{plant.name}</h1>
-              <div className="mt-1">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    plant.seedType === "autoflowering"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {plant.seedType === "autoflowering"
-                    ? t("newPlant.autoflowering")
-                    : t("newPlant.photoperiodic")}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Delete plant"
-                    className="shrink-0 hover:bg-transparent"
-                  >
-                    <Trash2 className="h-5 w-5 text-red-600" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {t("deleteTitle", { ns: "plants" })}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t("deleteDesc", { ns: "plants" })}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>
-                      {t("cancel", { ns: "common" })}
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeletePlant}
-                      disabled={isDeleting}
-                    >
-                      {t("deleteConfirm", { ns: "plants" })}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-        </div>
+      <div className="hidden md:block space-y-6">
+        {/* Header */}
+        <PlantDetailsHeader
+          plant={plant}
+          plantId={plantId}
+          onDelete={handleDeletePlant}
+          isDeleting={isDeleting}
+        />
 
-        {/* Profile layout */}
+        {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Left: main image + thumbnails */}
-          <Card className="overflow-hidden">
-            <div className="relative aspect-[4/3] bg-muted">
-              <Image
-                src={
-                  selectedPhoto || coverPhoto || photos[0] || "/placeholder.svg"
-                }
-                alt={plant.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            </div>
-            <div className="flex items-center justify-between px-3 pb-2">
-              <div className="text-sm text-muted-foreground">
-                {photos.length}{" "}
-                {photos.length === 1
-                  ? t("photos.photo", { ns: "plants" })
-                  : t("photos.photos", { ns: "plants" })}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => imageUploadRef.current?.open()}
-              >
-                <Plus className="mr-2 h-4 w-4" />{" "}
-                {t("photos.addPhotos", { ns: "plants" })}
-              </Button>
-            </div>
-            {photos.length > 1 && (
-              <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-6">
-                {photos.map((p, idx) => (
-                  <div
-                    key={idx}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedPhoto(p)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedPhoto(p);
-                      }
-                    }}
-                    className={`relative aspect-square overflow-hidden rounded-md border cursor-pointer ${
-                      (selectedPhoto || coverPhoto) === p
-                        ? "ring-2 ring-primary"
-                        : ""
-                    }`}
-                  >
-                    <Image
-                      src={p}
-                      alt={`${plant.name} ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="100px"
-                      loading="lazy"
-                    />
+          {/* Left Column: Photo Gallery */}
+          <div className="space-y-6">
+            <PlantPhotoGallery
+              plant={plant}
+              onPhotosChange={handlePhotosChange}
+              onRemovePhoto={handleRemovePhoto}
+              onSetCoverPhoto={handleSetCoverPhoto}
+            />
+          </div>
 
-                    {/* Controls: Set cover + Delete photo */}
-                    {coverPhoto !== p && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute left-1 bottom-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
-                            onClick={(e) => e.stopPropagation()}
-                            aria-label={t("photos.setAsCover", {
-                              ns: "plants",
-                            })}
-                          >
-                            <Star className="h-3.5 w-3.5 text-yellow-500" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              {t("photos.setCoverConfirmTitle", {
-                                ns: "plants",
-                              })}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t("photos.setCoverConfirmDesc", {
-                                ns: "plants",
-                              })}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>
-                              {t("settings.cancel")}
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                void handleSetCoverPhoto(p);
-                              }}
-                            >
-                              {t("photos.setAsCover", { ns: "plants" })}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-
-                    {/* Delete photo small button */}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6 p-0 bg-white/80 hover:bg-white"
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={t("photos.removeSuccess", {
-                            ns: "plants",
-                          })}
-                        >
-                          <Trash2 className="h-3 w-3 text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            {t("settings.confirmDelete", { ns: "common" })}
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {t("settings.confirmDeleteDesc", { ns: "common" })}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>
-                            {t("cancel", { ns: "common" })}
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              void handleRemovePhoto(idx);
-                            }}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            {t("deleteConfirm", { ns: "sessions" })}
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-
-          {/* Right: plant details + environment */}
+          {/* Right Column: Plant Details & Environment */}
           <div className="space-y-6">
             <PlantDetails
               plant={plant}
@@ -682,56 +397,32 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               lastFeeding={lastFeeding || undefined}
               lastTraining={lastTraining || undefined}
               lastFlowering={lastFlowering || undefined}
-              onUpdate={(patch) =>
-                setPlant((prev) => (prev ? { ...prev, ...patch } : prev))
-              }
+              onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
             />
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("plantPage.environmentData")}</CardTitle>
-                <CardDescription>
-                  {t("plantPage.environmentDataDesc")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <EnvironmentChart data={environmentData} />
-              </CardContent>
-            </Card>
+
+            <PlantEnvironmentCard
+              environmentData={environmentData}
+              lastEnvironmentFromLogs={lastEnvironmentFromLogs}
+            />
+            {/* Last Activities Summary */}
+            {/* <LastActivitiesSummary
+              lastWatering={lastWatering || undefined}
+              lastFeeding={lastFeeding || undefined}
+              lastTraining={lastTraining || undefined}
+              lastFlowering={lastFlowering || undefined}
+            /> */}
           </div>
         </div>
 
-        {/* Journal section */}
-        <Card className="mt-6">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle>{t("plantPage.recentLogs")}</CardTitle>
-              <CardDescription>{t("plantPage.recentLogsDesc")}</CardDescription>
-            </div>
-            <Button
-              size="icon"
-              aria-label="Add log"
-              onClick={() =>
-                router.push(
-                  `${ROUTE_JOURNAL}/new?plantId=${plantId}&returnTo=plant`
-                )
-              }
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <JournalEntries
-              logs={logs}
-              onDelete={(log) => handleDeleteLog(log.id!)}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Hidden image upload trigger (imperative) */}
-        <ImageUpload
-          ref={imageUploadRef}
-          onImagesChange={handlePhotosChange}
-          hideDefaultTrigger
+        {/* Logs Registry */}
+        <PlantLogsSummary
+          plantId={plantId}
+          logs={logs}
+          lastWatering={lastWatering || undefined}
+          lastFeeding={lastFeeding || undefined}
+          lastTraining={lastTraining || undefined}
+          lastFlowering={lastFlowering || undefined}
+          onDeleteLog={handleDeleteLog}
         />
       </div>
     </>
@@ -778,3 +469,4 @@ export function PlantDetailsContainer({
     </Suspense>
   );
 }
+

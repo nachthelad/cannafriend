@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
+import { remindersCol } from "@/lib/paths";
 import {
   collection,
   addDoc,
@@ -37,7 +38,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import { invalidateDashboardCache } from "@/lib/suspense-cache";
+import { invalidateDashboardCache, invalidateRemindersCache } from "@/lib/suspense-cache";
 import {
   Bell,
   Clock,
@@ -50,7 +51,7 @@ import {
   Edit,
 } from "lucide-react";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
-import type { Plant } from "@/types";
+import type { Plant, Reminder } from "@/types";
 
 // Form validation schema - created with translations
 const createReminderFormSchema = (t: any) =>
@@ -80,26 +81,12 @@ const createReminderFormSchema = (t: any) =>
 
 type ReminderFormData = z.infer<ReturnType<typeof createReminderFormSchema>>;
 
-interface Reminder {
-  id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number; // days
-  lastReminder: string;
-  nextReminder: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
 interface ReminderSystemProps {
   plants: Plant[];
   // When true, render only the overdue card (if any). Used on dashboard.
   showOnlyOverdue?: boolean;
   // Pre-fetched reminders to avoid loading state
-  reminders?: any[];
+  reminders?: Reminder[];
   // External control over the add form visibility
   externalShowAddForm?: boolean;
   onExternalShowAddFormChange?: (show: boolean) => void;
@@ -156,22 +143,20 @@ export function ReminderSystem({
   });
 
   useEffect(() => {
-    // Only fetch if we don't have pre-fetched reminders
-    if (!preFetchedReminders) {
-      fetchReminders();
+    if (preFetchedReminders) {
+      setReminders(preFetchedReminders);
+      setIsLoading(false);
+      return;
     }
+    fetchReminders();
   }, [preFetchedReminders]);
 
   const fetchReminders = async () => {
-    if (!auth.currentUser) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
     try {
-      const remindersRef = collection(
-        db,
-        "users",
-        auth.currentUser.uid,
-        "reminders"
-      );
+      const remindersRef = remindersCol(currentUser.uid);
       const q = query(remindersRef);
       const querySnapshot = await getDocs(q);
 
@@ -189,7 +174,8 @@ export function ReminderSystem({
   };
 
   const handleAddReminder = async (data: ReminderFormData) => {
-    if (!auth.currentUser || !data.selectedPlant) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser || !data.selectedPlant) return;
 
     const plant = plants.find((p) => p.id === data.selectedPlant);
     if (!plant) return;
@@ -217,13 +203,14 @@ export function ReminderSystem({
       const remindersRef = collection(
         db,
         "users",
-        auth.currentUser.uid,
+        currentUser.uid,
         "reminders"
       );
       await addDoc(remindersRef, reminderData);
 
       // Invalidate dashboard cache to refresh reminders count
-      invalidateDashboardCache(auth.currentUser.uid);
+      invalidateRemindersCache(currentUser.uid);
+      invalidateDashboardCache(currentUser.uid);
 
       toast({
         title: t("success", { ns: "reminders" }),
@@ -242,13 +229,14 @@ export function ReminderSystem({
     reminderId: string,
     isActive: boolean
   ) => {
-    if (!auth.currentUser) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
     try {
       const reminderRef = doc(
         db,
         "users",
-        auth.currentUser.uid,
+        currentUser.uid,
         "reminders",
         reminderId
       );
@@ -257,6 +245,9 @@ export function ReminderSystem({
       setReminders(
         reminders.map((r) => (r.id === reminderId ? { ...r, isActive } : r))
       );
+
+      invalidateRemindersCache(currentUser.uid);
+      invalidateDashboardCache(currentUser.uid);
 
       toast({
         title: t("updated", { ns: "reminders" }),
@@ -271,14 +262,15 @@ export function ReminderSystem({
 
   // Mark as done: move nextReminder by interval days and update lastReminder to now
   const handleMarkDone = async (reminderId: string, intervalDays: number) => {
-    if (!auth.currentUser) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
     try {
       const now = new Date();
       const next = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
       const reminderRef = doc(
         db,
         "users",
-        auth.currentUser.uid,
+        currentUser.uid,
         "reminders",
         reminderId
       );
@@ -297,6 +289,8 @@ export function ReminderSystem({
             : r
         )
       );
+      invalidateRemindersCache(currentUser.uid);
+      invalidateDashboardCache(currentUser.uid);
       toast({ title: t("updated", { ns: "reminders" }) });
     } catch (error: any) {
       handleFirebaseError(error, "marking reminder done");
@@ -309,23 +303,32 @@ export function ReminderSystem({
   };
 
   const handleReminderUpdated = () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      invalidateRemindersCache(currentUser.uid);
+      invalidateDashboardCache(currentUser.uid);
+    }
     fetchReminders(); // Refresh the reminders list
   };
 
   const handleDeleteReminder = async (reminderId: string) => {
-    if (!auth.currentUser) return;
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
     try {
       const reminderRef = doc(
         db,
         "users",
-        auth.currentUser.uid,
+        currentUser.uid,
         "reminders",
         reminderId
       );
       await deleteDoc(reminderRef);
 
       setReminders(reminders.filter((r) => r.id !== reminderId));
+
+      invalidateRemindersCache(currentUser.uid);
+      invalidateDashboardCache(currentUser.uid);
 
       toast({
         title: t("deleted", { ns: "reminders" }),
