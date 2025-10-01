@@ -35,10 +35,16 @@ export function invalidateRemindersCache(userId: string) {
   clearSuspenseCache(`mobile-reminders-${userId}`);
 }
 
+// Clear cache when settings change (theme, timezone, roles, etc.)
+export function invalidateSettingsCache(userId: string) {
+  clearSuspenseCache(`settings-${userId}`);
+}
+
 // Clear all user-specific caches (useful for logout)
 export function invalidateUserCaches(userId: string) {
   invalidatePlantsCache(userId);
   invalidateJournalCache(userId);
   invalidateDashboardCache(userId);
   invalidateRemindersCache(userId);
+  invalidateSettingsCache(userId);
 }

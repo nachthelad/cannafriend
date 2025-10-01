@@ -22,6 +22,7 @@ import {
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { authorizedFetch, copyToClipboard } from "@/lib/admin/utils";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
@@ -48,6 +49,7 @@ function AdminSkeleton() {
 
 function AdminContent() {
   const { toast } = useToast();
+  const { handleError } = useErrorHandler();
 
   const usersResource = getSuspenseResource(USERS_CACHE_KEY, fetchAdminUsers);
   const initialUsers = usersResource.read();
@@ -82,15 +84,11 @@ function AdminContent() {
       const next = await fetchAdminUsers();
       setUsers(next);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error?.message || String(error),
-      });
+      handleError(error);
     } finally {
       setUsersLoading(false);
     }
-  }, [toast]);
+  }, [handleError]);
 
   const handleTogglePremium = useCallback(
     async (user: AdminUser, next: boolean) => {
@@ -112,26 +110,22 @@ function AdminContent() {
         }
       } catch (error: any) {
         setUsers(previous);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error?.message || String(error),
-        });
+        handleError(error);
       }
     },
-    [toast, users]
+    [handleError, users]
   );
 
   const handleCopy = useCallback(
     async (value: string, label: string = "Valor") => {
       const copied = await copyToClipboard(value);
-      toast({
-        title: copied ? "Copiado" : "No se pudo copiar",
-        description: copied
-          ? `${label} copiado al portapapeles`
-          : "Intenta nuevamente desde un navegador compatible",
-        variant: copied ? "default" : "destructive",
-      });
+      if (!copied) {
+        toast({
+          variant: "destructive",
+          title: "No se pudo copiar",
+          description: `${label} no se pudo copiar. Intenta nuevamente desde un navegador compatible`,
+        });
+      }
     },
     [toast]
   );
@@ -152,22 +146,12 @@ function AdminContent() {
       }
       const items = (data?.items || []) as MpSearchItem[];
       setMpItems(items);
-      if (items.length === 0) {
-        toast({
-          title: "Sin resultados",
-          description: "No se encontraron resultados",
-        });
-      }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error?.message || String(error),
-      });
+      handleError(error);
     } finally {
       setMpLoading(false);
     }
-  }, [toast, mpFilters]);
+  }, [handleError, mpFilters]);
 
   const handleMpReprocess = useCallback(
     async (item: MpSearchItem) => {
@@ -188,16 +172,12 @@ function AdminContent() {
         });
         await refreshUsers();
       } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error?.message || String(error),
-        });
+        handleError(error);
       } finally {
         setMpLoading(false);
       }
     },
-    [toast, refreshUsers]
+    [toast, handleError, refreshUsers]
   );
 
   const handleStripeSearch = useCallback(async () => {
@@ -217,22 +197,12 @@ function AdminContent() {
       }
       const items = (data?.items || []) as StripeSearchItem[];
       setStripeItems(items);
-      if (items.length === 0) {
-        toast({
-          title: "Sin resultados",
-          description: "No se encontraron resultados en Stripe",
-        });
-      }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error?.message || String(error),
-      });
+      handleError(error);
     } finally {
       setStripeLoading(false);
     }
-  }, [stripeFilters, toast]);
+  }, [handleError, stripeFilters]);
 
   const handleStripeReprocess = useCallback(
     async (item: StripeSearchItem) => {
@@ -253,16 +223,12 @@ function AdminContent() {
         });
         await refreshUsers();
       } catch (error: any) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error?.message || String(error),
-        });
+        handleError(error);
       } finally {
         setStripeLoading(false);
       }
     },
-    [refreshUsers, toast]
+    [toast, handleError, refreshUsers]
   );
 
   return (
@@ -383,3 +349,5 @@ export function AdminContainer() {
     </Suspense>
   );
 }
+
+

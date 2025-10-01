@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { toastSuccess } from "@/lib/toast-helpers";
+import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -139,6 +141,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
   const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
   const { roles } = useUserRoles();
 
   const cacheKey = `plant-details-${userId}-${plantId}`;
@@ -202,11 +205,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       router.push(resolveHomePathForRoles(roles));
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: error?.message,
-      });
+      handleFirebaseError(error, "delete plant");
     } finally {
       setIsDeleting(false);
     }
@@ -227,16 +226,13 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
-      toast({
-        title: t("deleted", { ns: "journal" }),
-        description: t("deletedDesc", { ns: "journal" }),
+      toastSuccess(toast, t, {
+        namespace: "journal",
+        titleKey: "deleted",
+        descriptionKey: "deletedDesc",
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: error.message,
-      });
+      handleFirebaseError(error, "delete log");
     }
   };
 
@@ -259,9 +255,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toast({
-        title: t("photos.uploadSuccess", { ns: "plants" }),
-        description: t("photos.photosUpdated", { ns: "plants" }),
+      toastSuccess(toast, t, {
+        namespace: "plants",
+        titleKey: "photos.uploadSuccess",
+        descriptionKey: "photos.photosUpdated",
       });
     } catch (error: any) {
       toast({
@@ -309,16 +306,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toast({
-        title: t("photos.removeSuccess", { ns: "plants" }),
-        description: t("photos.photoRemoved", { ns: "plants" }),
-      });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("photos.removeError", { ns: "plants" }),
-        description: error.message,
-      });
+      handleFirebaseError(error, "remove photo");
     }
   };
 
@@ -334,16 +323,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toast({
-        title: t("photos.coverPhotoSet", { ns: "plants" }),
-        description: t("photos.coverPhotoSetDesc", { ns: "plants" }),
-      });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("photos.coverPhotoError", { ns: "plants" }),
-        description: error.message,
-      });
+      handleFirebaseError(error, "set cover photo");
     }
   };
 
@@ -488,3 +469,4 @@ export function PlantDetailsContainer({
     </Suspense>
   );
 }
+
