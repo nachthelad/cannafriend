@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 type SettingsSectionId =
   | "profile"
   | "preferences"
-  | "app-info"
   | "billing"
+  | "notifications"
+  | "app-info"
   | "danger";
 
 interface SettingsSection {
