@@ -21,6 +21,7 @@ import {
   type SettingsSection,
 } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
+import { PushNotifications } from "@/components/settings/push-notifications";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
@@ -422,6 +423,10 @@ function SettingsContent({
         label: t("settings.billing"),
       },
       {
+        id: "notifications",
+        label: t("settings.notifications"),
+      },
+      {
         id: "app-info",
         label: t("settings.appInfo"),
       },
@@ -485,6 +490,13 @@ function SettingsContent({
           isCancelling={isCancellingSubscription}
           subscriptionLines={subscriptionLines}
           note={t("subscription.mercadopagoNote")}
+        />
+      ),
+      notifications: () => (
+        <PushNotifications
+          title={t("settings.notifications")}
+          description={t("settings.notificationsDesc")}
+          userId={userId}
         />
       ),
       "app-info": () => (

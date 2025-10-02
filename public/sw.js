@@ -85,3 +85,116 @@ registerRoute(
   'POST'
 );
 
+// =============================================================================
+// PUSH NOTIFICATIONS
+// =============================================================================
+
+// Listen for push events
+self.addEventListener('push', (event) => {
+  console.log('Push event received:', event);
+
+  let notificationData = {
+    title: 'Cannafriend',
+    body: 'You have a new notification',
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
+    tag: 'default',
+    data: {},
+    actions: []
+  };
+
+  // Parse push data if available
+  if (event.data) {
+    try {
+      const pushData = event.data.json();
+      notificationData = { ...notificationData, ...pushData };
+    } catch (error) {
+      console.error('Error parsing push data:', error);
+      notificationData.body = event.data.text() || notificationData.body;
+    }
+  }
+
+  // Show notification
+  const notificationPromise = self.registration.showNotification(notificationData.title, {
+    body: notificationData.body,
+    icon: notificationData.icon,
+    badge: notificationData.badge,
+    tag: notificationData.tag,
+    data: notificationData.data,
+    actions: notificationData.actions,
+    requireInteraction: false,
+    silent: false,
+    vibrate: [200, 100, 200], // Vibration pattern for mobile
+    renotify: true // Allow replacing existing notifications with same tag
+  });
+
+  event.waitUntil(notificationPromise);
+});
+
+// Listen for notification click events
+self.addEventListener('notificationclick', (event) => {
+  console.log('Notification clicked:', event);
+
+  event.notification.close();
+
+  // Handle notification action clicks
+  let urlToOpen = '/'; // Default to home page
+
+  if (event.action) {
+    // Handle specific action clicks
+    switch (event.action) {
+      case 'view_plant':
+        urlToOpen = event.notification.data?.plantUrl || '/plants';
+        break;
+      case 'view_journal':
+        urlToOpen = '/journal';
+        break;
+      case 'open_app':
+        urlToOpen = '/';
+        break;
+      default:
+        urlToOpen = event.notification.data?.url || '/';
+    }
+  } else {
+    // Handle general notification click (no specific action)
+    urlToOpen = event.notification.data?.url || '/';
+  }
+
+  // Focus existing window or open new one
+  const promiseChain = clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true
+  }).then((windowClients) => {
+    // Check if there's already a window open
+    let matchingClient = null;
+
+    for (let i = 0; i < windowClients.length; i++) {
+      const windowClient = windowClients[i];
+
+      // If we find a window that matches our domain, focus it
+      if (windowClient.url.includes(self.location.origin)) {
+        matchingClient = windowClient;
+        break;
+      }
+    }
+
+    if (matchingClient) {
+      // Navigate existing window to the target URL and focus it
+      return matchingClient.navigate(urlToOpen).then(() => matchingClient.focus());
+    } else {
+      // Open new window
+      return clients.openWindow(urlToOpen);
+    }
+  });
+
+  event.waitUntil(promiseChain);
+});
+
+// Listen for notification close events (optional analytics)
+self.addEventListener('notificationclose', (event) => {
+  console.log('Notification closed:', event.notification.tag);
+
+  // Optional: Track notification dismissal analytics
+  // You could send this data to your analytics endpoint
+});
+

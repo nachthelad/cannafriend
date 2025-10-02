@@ -50,6 +50,11 @@ service cloud.firestore {
       }
     }
 
+    // Push subscriptions (outside users collection)
+    match /pushSubscriptions/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     // Archive
     match /archived_users/{userId} {
       allow read, write: if isOwner(userId);

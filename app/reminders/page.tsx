@@ -24,6 +24,7 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PushNotificationTest } from "@/components/reminders/push-notification-test";
 
 interface RemindersData {
   plants: Plant[];
@@ -81,6 +82,13 @@ function RemindersContent({ userId }: { userId: string }) {
           </Button>
         }
       />
+
+      {/* Development Test Component */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mb-6">
+          <PushNotificationTest />
+        </div>
+      )}
 
       {/* Mobile View */}
       <div className="md:hidden">

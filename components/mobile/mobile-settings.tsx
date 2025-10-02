@@ -18,6 +18,7 @@ import {
 import { AppInformation } from "@/components/settings/app-information";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
+import { PushNotifications } from "@/components/settings/push-notifications";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { updateDoc, getDoc } from "firebase/firestore";
@@ -431,6 +432,15 @@ function MobileSettingsContent({
             isCancelling={isCancellingSubscription}
             subscriptionLines={subscriptionLines}
             note={t("subscription.mercadopagoNote")}
+          />
+        </div>
+
+        {/* Push Notifications Section */}
+        <div className="w-full p-4 border-b border-border">
+          <PushNotifications
+            title={t("settings.notifications")}
+            description={t("settings.notificationsDesc")}
+            userId={userId}
           />
         </div>
 
