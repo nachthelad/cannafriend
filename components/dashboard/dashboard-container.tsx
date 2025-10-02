@@ -199,9 +199,6 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
   );
   const {
     plants,
-    lastWaterings,
-    lastFeedings,
-    lastTrainings,
     recentLogs,
     remindersCount,
     hasOverdue,
@@ -209,15 +206,12 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
     isPremium,
   } = resource.read();
 
-  // Filter plants for mobile view
-  const filteredPlants = plants.slice(0, 3); // Show first 3 on mobile
-
   return (
     <>
       {/* Mobile Dashboard */}
       <div className="md:hidden">
         <MobileDashboard
-          plants={filteredPlants}
+          plants={plants}
           recentLogs={recentLogs.slice(0, 5)}
           hasOverdue={hasOverdue}
           userEmail={userEmail}
@@ -259,7 +253,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
               <CardContent>
                 {plants.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {plants.slice(0, 3).map((plant) => (
+                    {plants.map((plant) => (
                       <PlantCard key={plant.id} plant={plant} compact />
                     ))}
                   </div>
