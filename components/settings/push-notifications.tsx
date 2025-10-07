@@ -6,18 +6,16 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, BellOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
+import { useTranslation } from "react-i18next";
 
 interface PushNotificationsProps {
-  title: string;
-  description?: string;
   userId: string;
 }
 
 export function PushNotifications({
-  title,
-  description,
   userId
 }: PushNotificationsProps) {
+  const { t } = useTranslation("common");
   const [isSupported, setIsSupported] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -86,10 +84,21 @@ export function PushNotifications({
         return;
       }
 
-      // Get service worker registration
+      // Ensure service worker is registered and ready
       console.log("Getting service worker registration...");
-      const registration = await navigator.serviceWorker.ready;
-      console.log("Service worker ready:", registration);
+
+      // Wait for service worker to be registered if not already
+      let registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        console.log("No service worker found, registering...");
+        registration = await navigator.serviceWorker.register('/sw.js');
+        console.log("Service worker registered:", registration);
+      }
+
+      // Wait for service worker to be ready
+      console.log("Waiting for service worker to be ready...");
+      await navigator.serviceWorker.ready;
+      console.log("Service worker is ready:", registration);
 
       // Subscribe to push manager
       const vapidPublicKey = getVapidPublicKey();
@@ -210,15 +219,12 @@ export function PushNotifications({
     return (
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-medium">{title}</h3>
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
+          <h3 className="text-lg font-medium">{t("pushNotifications.title")}</h3>
         </div>
         <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
           <BellOff className="h-5 w-5 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            Push notifications are not supported in this browser.
+            {t("pushNotifications.notSupported")}
           </span>
         </div>
       </div>
@@ -228,25 +234,22 @@ export function PushNotifications({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-medium">{title}</h3>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
+        <h3 className="text-lg font-medium">{t("pushNotifications.title")}</h3>
       </div>
 
       <div className="flex items-center justify-between p-4 border rounded-lg">
         <div className="flex items-center gap-3">
           <Bell className="h-5 w-5 text-primary" />
           <div>
-            <div className="font-medium">Push Notifications</div>
+            <div className="font-medium">{t("pushNotifications.title")}</div>
             <div className="text-sm text-muted-foreground">
               {permission === 'granted'
                 ? isSubscribed
-                  ? "Enabled - You'll receive plant care reminders"
-                  : "Permission granted - Click to enable"
+                  ? t("pushNotifications.enabled")
+                  : t("pushNotifications.permissionGranted")
                 : permission === 'denied'
-                  ? "Blocked - Please enable in browser settings"
-                  : "Get notified about your plants"
+                  ? t("pushNotifications.blocked")
+                  : t("pushNotifications.getNotified")
               }
             </div>
           </div>
@@ -259,12 +262,12 @@ export function PushNotifications({
               size="sm"
               onClick={() => {
                 toast({
-                  title: "Notifications blocked",
-                  description: "Please enable notifications in your browser settings and refresh the page.",
+                  title: t("pushNotifications.blockedTitle"),
+                  description: t("pushNotifications.blockedDesc"),
                 });
               }}
             >
-              Enable in Browser
+              {t("pushNotifications.enableInBrowser")}
             </Button>
           ) : (
             <Switch
@@ -275,48 +278,6 @@ export function PushNotifications({
           )}
         </div>
       </div>
-
-      {/* Test notification button for development */}
-      {isSubscribed && process.env.NODE_ENV === 'development' && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={async () => {
-            try {
-              const user = auth.currentUser;
-              if (!user) return;
-
-              const token = await user.getIdToken();
-              const response = await fetch('/api/push/send', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  notification: {
-                    title: 'Test Notification',
-                    body: 'Your push notifications are working!',
-                    data: { url: '/plants' }
-                  },
-                  userIds: [userId]
-                })
-              });
-
-              if (response.ok) {
-                toast({
-                  title: "Test notification sent",
-                  description: "Check if you received the notification.",
-                });
-              }
-            } catch (error) {
-              console.error('Test notification failed:', error);
-            }
-          }}
-        >
-          Send Test Notification
-        </Button>
-      )}
     </div>
   );
 }

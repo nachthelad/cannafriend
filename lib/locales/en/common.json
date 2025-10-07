@@ -310,6 +310,7 @@
     "selectTimezone": "Select a timezone",
     "darkMode": "Dark mode",
     "roles": "Roles",
+    "notifications": "Notifications",
     "updated": "Updated",
     "error": "Error",
     "timezoneUpdated": "Timezone updated",
@@ -330,6 +331,17 @@
     "accountDeleted": "Account deleted",
     "accountDeletedDesc": "Your account and data were removed",
     "appVersion": "App version"
+  },
+  "pushNotifications": {
+    "title": "Push Notifications",
+    "notSupported": "Push notifications are not supported in this browser.",
+    "enabled": "Enabled - You'll receive plant care reminders",
+    "permissionGranted": "Permission granted - Click to enable",
+    "blocked": "Blocked - Please enable in browser settings",
+    "getNotified": "Get notified about your plants",
+    "enableInBrowser": "Enable in Browser",
+    "blockedTitle": "Notifications blocked",
+    "blockedDesc": "Please enable notifications in your browser settings and refresh the page."
   },
   "cookies": {
     "title": "Cookies",
