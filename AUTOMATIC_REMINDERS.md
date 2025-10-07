@@ -52,20 +52,20 @@ VAPID_EMAIL=nacho.vent@gmail.com
 CRON_SECRET=your-random-secret-key-here
 ```
 
-### 2. Vercel Deployment
-The `vercel.json` file configures the cron job:
+### 2. Vercel Deployment (Optional)
+Vercel Cron Jobs require a paid plan. The project keeps the cron **disabled by default** so free-tier deployments avoid quota limits. To re-enable the hourly job, add the following to `vercel.json`:
 ```json
 {
   "crons": [
     {
       "path": "/api/cron/check-reminders",
-      "schedule": "0 * * * *"  // Every hour
+      "schedule": "0 * * * *"
     }
   ]
 }
 ```
 
-**⚠️ Cron jobs only work on Vercel Pro plans** - but you can manually trigger for testing.
+**⚠️ Cron jobs only work on Vercel Pro plans** - you can still trigger the route manually for testing or periodic execution.
 
 ## 🧪 Testing
 
