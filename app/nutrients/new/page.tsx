@@ -113,12 +113,12 @@ export default function NewNutrientPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-6">
+          <div className="flex gap-3 pt-4 pb-6">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push(ROUTE_NUTRIENTS)}
-              className="min-h-[48px] w-full sm:w-auto text-base font-medium"
+              className="flex-1 min-h-[48px] text-base"
               disabled={saving}
             >
               {t("cancel", { ns: "common" })}
@@ -126,7 +126,7 @@ export default function NewNutrientPage() {
             <Button
               onClick={handleSave}
               disabled={!name.trim() || saving}
-              className="min-h-[48px] w-full sm:w-auto text-base font-medium"
+              className="flex-1 min-h-[48px] text-base"
             >
               {saving ? (
                 <>

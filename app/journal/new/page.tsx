@@ -28,7 +28,12 @@ import { ROUTE_JOURNAL } from "@/lib/routes";
 
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query } from "firebase/firestore";
-import { invalidateDashboardCache, invalidateJournalCache, invalidatePlantsCache, invalidatePlantDetails } from "@/lib/suspense-cache";
+import {
+  invalidateDashboardCache,
+  invalidateJournalCache,
+  invalidatePlantsCache,
+  invalidatePlantDetails,
+} from "@/lib/suspense-cache";
 import {
   LOG_TYPES,
   LOG_TYPE_OPTIONS,
@@ -606,10 +611,7 @@ function NewJournalPageContent() {
                     ...register("feedingAmount"),
                   }}
                   defaultUnit="ml/L"
-                  unitOptions={[
-                    { value: "ml/L" },
-                    { value: "g/L" },
-                  ]}
+                  unitOptions={[{ value: "ml/L" }, { value: "g/L" }]}
                   onUnitChange={(value) =>
                     setValue("feedingUnit", value, { shouldDirty: true })
                   }
@@ -794,16 +796,7 @@ function NewJournalPageContent() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-6">
-            <Button
-              type="submit"
-              disabled={!logType || !selectedPlantId || isLoading}
-              className="min-h-[48px] w-full sm:w-auto text-base font-medium"
-            >
-              {isLoading
-                ? t("saving", { ns: "common" })
-                : t("logForm.save", { ns: "journal" })}
-            </Button>
+          <div className="flex gap-3 pt-4 pb-6">
             <Button
               type="button"
               variant="outline"
@@ -815,10 +808,19 @@ function NewJournalPageContent() {
                   router.push(ROUTE_JOURNAL);
                 }
               }}
-              className="min-h-[48px] w-full sm:w-auto text-base font-medium"
+              className="flex-1 min-h-[48px] text-base"
               disabled={isLoading}
             >
               {t("cancel", { ns: "common" })}
+            </Button>
+            <Button
+              type="submit"
+              disabled={!logType || !selectedPlantId || isLoading}
+              className="flex-1 min-h-[48px] text-base"
+            >
+              {isLoading
+                ? t("saving", { ns: "common" })
+                : t("logForm.save", { ns: "journal" })}
             </Button>
           </div>
         </div>

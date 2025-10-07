@@ -9,12 +9,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { db } from "@/lib/firebase";
-import { getDocs, query, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import {
+  getDocs,
+  query,
+  doc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+} from "firebase/firestore";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { MobileReminderCards } from "./mobile-reminder-cards";
-import { MobileReminderScheduler } from "./mobile-reminder-scheduler";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import { Bell, Plus, TrendingUp } from "lucide-react";
 import type { Plant, Reminder } from "@/types";
@@ -28,8 +34,6 @@ interface MobileRemindersProps {
   initialPlants?: Plant[];
   initialReminders?: Reminder[];
   showHeader?: boolean;
-  isSchedulerOpen?: boolean;
-  onSchedulerOpenChange?: (open: boolean) => void;
 }
 
 interface MobileRemindersContentProps extends MobileRemindersProps {
@@ -75,10 +79,11 @@ async function fetchMobileRemindersData(
   } else {
     const remindersSnapshot = await getDocs(query(remindersCol(userId)));
     reminders = remindersSnapshot.docs.map(
-      (docSnapshot) => ({
-        id: docSnapshot.id,
-        ...docSnapshot.data(),
-      }) as Reminder
+      (docSnapshot) =>
+        ({
+          id: docSnapshot.id,
+          ...docSnapshot.data(),
+        } as Reminder)
     );
   }
 
@@ -88,10 +93,11 @@ async function fetchMobileRemindersData(
 
   const plantsSnapshot = await getDocs(query(plantsCol(userId)));
   const plants: Plant[] = plantsSnapshot.docs.map(
-    (docSnapshot) => ({
-      id: docSnapshot.id,
-      ...docSnapshot.data(),
-    }) as Plant
+    (docSnapshot) =>
+      ({
+        id: docSnapshot.id,
+        ...docSnapshot.data(),
+      } as Plant)
   );
 
   return { reminders, plants };
@@ -102,8 +108,6 @@ function MobileRemindersContent({
   initialPlants,
   initialReminders,
   showHeader,
-  isSchedulerOpen: externalIsSchedulerOpen,
-  onSchedulerOpenChange: externalOnSchedulerOpenChange,
 }: MobileRemindersContentProps) {
   const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { handleFirebaseError } = useErrorHandler();
@@ -118,14 +122,8 @@ function MobileRemindersContent({
   const [reminders, setReminders] = useState<Reminder[]>(
     () => initialResourceReminders
   );
-  const [internalIsSchedulerOpen, setInternalIsSchedulerOpen] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  // Use external scheduler state if provided, otherwise use internal state
-  const isSchedulerOpen = externalIsSchedulerOpen ?? internalIsSchedulerOpen;
-  const setIsSchedulerOpen =
-    externalOnSchedulerOpenChange ?? setInternalIsSchedulerOpen;
 
   useEffect(() => {
     setReminders(initialResourceReminders);
@@ -206,20 +204,10 @@ function MobileRemindersContent({
     }
   };
 
-  const handleReminderAdded = () => {
-    invalidateRemindersCache(userId);
-    invalidateDashboardCache(userId);
-    // Reminders will be updated automatically via onSnapshot
-  };
-
   const handleReminderUpdated = () => {
     invalidateRemindersCache(userId);
     invalidateDashboardCache(userId);
     // Reminders will be updated automatically via onSnapshot
-  };
-
-  const handleSchedulerOpenChange = (open: boolean) => {
-    setIsSchedulerOpen(open);
   };
 
   const now = new Date();
@@ -271,7 +259,7 @@ function MobileRemindersContent({
 
   return (
     <div className="space-y-6 pb-8">
-      {showHeader && !isSchedulerOpen && (
+      {showHeader && (
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold">
             {t("reminders", { ns: "dashboard" })}
@@ -300,39 +288,31 @@ function MobileRemindersContent({
         </div>
       )}
 
-      <MobileReminderScheduler
-        plants={plants}
-        onReminderAdded={handleReminderAdded}
-        isOpen={isSchedulerOpen}
-        onOpenChange={handleSchedulerOpenChange}
-      />
-
-      {!isSchedulerOpen &&
-        (reminders.length > 0 ? (
-          <MobileReminderCards
-            reminders={reminders}
-            onComplete={handleComplete}
-            onSnooze={handleSnooze}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Bell className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h2 className="text-xl font-semibold mb-2">
-                {t("noReminders", { ns: "reminders" })}
-              </h2>
-              <p className="text-muted-foreground text-sm mb-4">
-                {t("noRemindersDesc", { ns: "reminders" })}
-              </p>
-              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <TrendingUp className="h-4 w-4" />
-                <span>{t("getStartedHint", { ns: "reminders" })}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {reminders.length > 0 ? (
+        <MobileReminderCards
+          reminders={reminders}
+          onComplete={handleComplete}
+          onSnooze={handleSnooze}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <Bell className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <h2 className="text-xl font-semibold mb-2">
+              {t("noReminders", { ns: "reminders" })}
+            </h2>
+            <p className="text-muted-foreground text-sm mb-4">
+              {t("noRemindersDesc", { ns: "reminders" })}
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <TrendingUp className="h-4 w-4" />
+              <span>{t("getStartedHint", { ns: "reminders" })}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <EditReminderDialog
         reminder={editingReminder}
@@ -350,8 +330,6 @@ export function MobileReminders({
   initialPlants,
   initialReminders,
   showHeader = true,
-  isSchedulerOpen,
-  onSchedulerOpenChange,
 }: MobileRemindersProps) {
   return (
     <Suspense fallback={<MobileRemindersSkeleton showHeader={showHeader} />}>
@@ -360,8 +338,6 @@ export function MobileReminders({
         initialPlants={initialPlants}
         initialReminders={initialReminders}
         showHeader={showHeader}
-        isSchedulerOpen={isSchedulerOpen}
-        onSchedulerOpenChange={onSchedulerOpenChange}
       />
     </Suspense>
   );

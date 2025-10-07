@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,15 +12,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -45,41 +33,11 @@ import {
   Droplet,
   Leaf,
   Scissors,
-  X,
-  Plus,
-  AlertCircle,
   Edit,
+  X,
 } from "lucide-react";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import type { Plant, Reminder } from "@/types";
-
-// Form validation schema - created with translations
-const createReminderFormSchema = (t: any) =>
-  z.object({
-    selectedPlant: z.string().min(1, t("plantRequired", { ns: "validation" })),
-    reminderType: z.enum(["watering", "feeding", "training", "custom"], {
-      errorMap: () => ({
-        message: t("reminderTypeRequired", { ns: "validation" }),
-      }),
-    }),
-    title: z
-      .string()
-      .max(50, t("titleMaxLength", { ns: "validation" }))
-      .optional(),
-    description: z
-      .string()
-      .max(200, t("descriptionMaxLength", { ns: "validation" }))
-      .optional(),
-    interval: z.string().refine(
-      (val) => {
-        const num = parseInt(val);
-        return !isNaN(num) && num >= 1 && num <= 99;
-      },
-      { message: t("intervalInvalid", { ns: "validation" }) }
-    ),
-  });
-
-type ReminderFormData = z.infer<ReturnType<typeof createReminderFormSchema>>;
 
 interface ReminderSystemProps {
   plants: Plant[];
@@ -87,60 +45,22 @@ interface ReminderSystemProps {
   showOnlyOverdue?: boolean;
   // Pre-fetched reminders to avoid loading state
   reminders?: Reminder[];
-  // External control over the add form visibility
-  externalShowAddForm?: boolean;
-  onExternalShowAddFormChange?: (show: boolean) => void;
 }
 
 export function ReminderSystem({
   plants,
   showOnlyOverdue = false,
   reminders: preFetchedReminders,
-  externalShowAddForm,
-  onExternalShowAddFormChange,
 }: ReminderSystemProps) {
-  const { t } = useTranslation([
-    "reminders",
-    "common",
-    "journal",
-    "validation",
-  ]);
+  const { t } = useTranslation(["reminders", "common", "journal"]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(
     preFetchedReminders || []
   );
   const [isLoading, setIsLoading] = useState(!preFetchedReminders);
-  const [internalShowAddForm, setInternalShowAddForm] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  // Use external state if provided, otherwise use internal state
-  const showAddForm = externalShowAddForm ?? internalShowAddForm;
-  const setShowAddForm = onExternalShowAddFormChange ?? setInternalShowAddForm;
-  // Notifications removed
-
-  // Form schema with translations
-  const reminderFormSchema = useMemo(() => createReminderFormSchema(t), [t]);
-
-  // Form state via RHF with Zod validation
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<ReminderFormData>({
-    resolver: zodResolver(reminderFormSchema),
-    defaultValues: {
-      selectedPlant: "",
-      reminderType: "watering",
-      title: "",
-      description: "",
-      interval: "7",
-    },
-  });
 
   useEffect(() => {
     if (preFetchedReminders) {
@@ -170,58 +90,6 @@ export function ReminderSystem({
       handleFirebaseError(error, "fetching reminders");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleAddReminder = async (data: ReminderFormData) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser || !data.selectedPlant) return;
-
-    const plant = plants.find((p) => p.id === data.selectedPlant);
-    if (!plant) return;
-
-    try {
-      const now = new Date();
-      const nextReminder = new Date(
-        now.getTime() + parseInt(data.interval) * 24 * 60 * 60 * 1000
-      );
-
-      const reminderData = {
-        plantId: data.selectedPlant,
-        plantName: plant.name,
-        type: data.reminderType,
-        title: data.title || getDefaultTitle(data.reminderType),
-        description:
-          data.description || getDefaultDescription(data.reminderType),
-        interval: parseInt(data.interval),
-        lastReminder: now.toISOString(),
-        nextReminder: nextReminder.toISOString(),
-        isActive: true,
-        createdAt: now.toISOString(),
-      };
-
-      const remindersRef = collection(
-        db,
-        "users",
-        currentUser.uid,
-        "reminders"
-      );
-      await addDoc(remindersRef, reminderData);
-
-      // Invalidate dashboard cache to refresh reminders count
-      invalidateRemindersCache(currentUser.uid);
-      invalidateDashboardCache(currentUser.uid);
-
-      toast({
-        title: t("success", { ns: "reminders" }),
-        description: t("successMessage", { ns: "reminders" }),
-      });
-
-      setShowAddForm(false);
-      reset();
-      fetchReminders();
-    } catch (error: any) {
-      handleFirebaseError(error, "creating reminder");
     }
   };
 
@@ -339,32 +207,6 @@ export function ReminderSystem({
     }
   };
 
-  const getDefaultTitle = (type: Reminder["type"]) => {
-    switch (type) {
-      case "watering":
-        return t("wateringTitle", { ns: "reminders" });
-      case "feeding":
-        return t("feedingTitle", { ns: "reminders" });
-      case "training":
-        return t("trainingTitle", { ns: "reminders" });
-      default:
-        return t("customTitle", { ns: "reminders" });
-    }
-  };
-
-  const getDefaultDescription = (type: Reminder["type"]) => {
-    switch (type) {
-      case "watering":
-        return t("wateringDesc", { ns: "reminders" });
-      case "feeding":
-        return t("feedingDesc", { ns: "reminders" });
-      case "training":
-        return t("trainingDesc", { ns: "reminders" });
-      default:
-        return t("customDesc", { ns: "reminders" });
-    }
-  };
-
   const getReminderIcon = (type: Reminder["type"]) => {
     switch (type) {
       case "watering":
@@ -377,12 +219,6 @@ export function ReminderSystem({
         return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
-
-  const selectedPlant = watch("selectedPlant");
-  const reminderType = watch("reminderType");
-  const title = watch("title");
-  const description = watch("description");
-  const interval = watch("interval");
 
   const activeReminders = reminders.filter((r) => r.isActive);
   const now = new Date();
@@ -499,190 +335,6 @@ export function ReminderSystem({
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Add Reminder Form */}
-      {showAddForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              {t("addReminder", { ns: "reminders" })}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAddForm(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form
-              onSubmit={handleSubmit(handleAddReminder)}
-              className="space-y-4"
-            >
-              <div className="space-y-2">
-                <Label>{t("selectPlant", { ns: "reminders" })}</Label>
-                <input
-                  type="hidden"
-                  {...register("selectedPlant")}
-                  value={selectedPlant || ""}
-                />
-                <Select
-                  value={selectedPlant}
-                  onValueChange={(v) => setValue("selectedPlant", v)}
-                >
-                  <SelectTrigger
-                    className={`min-h-[44px] ${
-                      errors.selectedPlant ? "border-destructive" : ""
-                    }`}
-                  >
-                    <SelectValue
-                      placeholder={t("selectPlant", { ns: "reminders" })}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {plants.map((plant) => (
-                      <SelectItem
-                        key={plant.id}
-                        value={plant.id}
-                        className="min-h-[44px]"
-                      >
-                        {plant.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.selectedPlant && (
-                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                    <AlertCircle className="w-4 h-4 text-destructive" />
-                    <p className="text-sm text-destructive font-medium">
-                      {errors.selectedPlant.message}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("reminderType", { ns: "reminders" })}</Label>
-                <input
-                  type="hidden"
-                  {...register("reminderType")}
-                  value={reminderType || ""}
-                />
-                <Select
-                  value={reminderType}
-                  onValueChange={(v) =>
-                    setValue("reminderType", v as Reminder["type"])
-                  }
-                >
-                  <SelectTrigger
-                    className={`min-h-[44px] ${
-                      errors.reminderType ? "border-destructive" : ""
-                    }`}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="watering" className="min-h-[44px]">
-                      {t("logType.watering", { ns: "journal" })}
-                    </SelectItem>
-                    <SelectItem value="feeding" className="min-h-[44px]">
-                      {t("logType.feeding", { ns: "journal" })}
-                    </SelectItem>
-                    <SelectItem value="training" className="min-h-[44px]">
-                      {t("logType.training", { ns: "journal" })}
-                    </SelectItem>
-                    <SelectItem value="custom" className="min-h-[44px]">
-                      {t("custom", { ns: "reminders" })}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.reminderType && (
-                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                    <AlertCircle className="w-4 h-4 text-destructive" />
-                    <p className="text-sm text-destructive font-medium">
-                      {errors.reminderType.message}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("title", { ns: "reminders" })}</Label>
-                <Input
-                  {...register("title")}
-                  placeholder={getDefaultTitle(reminderType)}
-                  className={`min-h-[44px] ${
-                    errors.title ? "border-destructive" : ""
-                  }`}
-                />
-                {errors.title && (
-                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                    <AlertCircle className="w-4 h-4 text-destructive" />
-                    <p className="text-sm text-destructive font-medium">
-                      {errors.title.message}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>{t("description", { ns: "reminders" })}</Label>
-                <Input
-                  {...register("description")}
-                  placeholder={getDefaultDescription(reminderType)}
-                  className={`min-h-[44px] ${
-                    errors.description ? "border-destructive" : ""
-                  }`}
-                />
-                {errors.description && (
-                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                    <AlertCircle className="w-4 h-4 text-destructive" />
-                    <p className="text-sm text-destructive font-medium">
-                      {errors.description.message}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t("interval", { ns: "reminders" })}</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    max="99"
-                    {...register("interval")}
-                    placeholder="7"
-                    className={`min-h-[44px] ${
-                      errors.interval ? "border-destructive" : ""
-                    }`}
-                  />
-                  {errors.interval && (
-                    <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                      <AlertCircle className="w-4 h-4 text-destructive" />
-                      <p className="text-sm text-destructive font-medium">
-                        {errors.interval.message}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowAddForm(false)}
-                >
-                  {t("cancel", { ns: "common" })}
-                </Button>
-                <Button type="submit">{t("add", { ns: "reminders" })}</Button>
-              </div>
-            </form>
           </CardContent>
         </Card>
       )}

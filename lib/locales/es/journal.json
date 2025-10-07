@@ -44,7 +44,7 @@
     "lightSchedule": "Horario de Luz",
     "notes": "Notas",
     "notesPlaceholder": "Agrega observaciones adicionales o notas...",
-    "save": "Guardar Registro",
+    "save": "Guardar",
     "success": "Registro guardado",
     "successDesc": "Tu registro ha sido guardado exitosamente",
     "error": "Error guardando registro",
