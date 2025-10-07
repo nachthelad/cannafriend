@@ -2,7 +2,8 @@
 
 import type React from "react";
 import { cn } from "@/lib/utils";
-import { AnimatedLogo } from "./animated-logo";
+import { Logo } from "./logo";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BrandedLoadingProps {
   size?: "sm" | "md" | "lg";
@@ -12,8 +13,8 @@ interface BrandedLoadingProps {
 }
 
 /**
- * Branded loading component with different variants and sizes
- * Uses the animated logo for consistent brand experience
+ * Branded loading component with different variants and sizes.
+ * Displays the static logo alongside lightweight skeleton placeholders.
  */
 export function BrandedLoading({
   size = "md",
@@ -41,14 +42,18 @@ export function BrandedLoading({
 
   const config = sizeConfig[size];
 
+  const renderSkeletonLines = () => (
+    <div className="flex flex-col gap-2 w-full max-w-xs">
+      <Skeleton className="h-2 w-full" />
+      <Skeleton className="h-2 w-5/6" />
+      <Skeleton className="h-2 w-2/3" />
+    </div>
+  );
+
   if (variant === "minimal") {
     return (
       <div className={cn("flex justify-center", className)}>
-        <AnimatedLogo 
-          size={config.logoSize} 
-          className="text-primary" 
-          duration={1.5} 
-        />
+        <Logo size={config.logoSize} className="text-primary" />
       </div>
     );
   }
@@ -59,11 +64,7 @@ export function BrandedLoading({
       config.containerClass,
       className
     )}>
-      <AnimatedLogo 
-        size={config.logoSize} 
-        className="text-primary mb-2" 
-        duration={1.5} 
-      />
+      <Logo size={config.logoSize} className="text-primary mb-2" />
       {(text || variant === "with-text") && (
         <p className={cn(
           "text-muted-foreground font-medium",
@@ -72,6 +73,7 @@ export function BrandedLoading({
           {text || "Cargando..."}
         </p>
       )}
+      {renderSkeletonLines()}
     </div>
   );
 }
@@ -88,7 +90,7 @@ interface ButtonLoadingProps {
 }
 
 /**
- * Button with integrated loading state using branded animation
+ * Button with integrated loading state that keeps spacing consistent while disabled.
  */
 export function ButtonWithLoading({
   children,
@@ -115,8 +117,6 @@ export function ButtonWithLoading({
     ghost: "hover:bg-accent hover:text-accent-foreground",
   };
 
-  const logoSize = size === "sm" ? 16 : size === "lg" ? 20 : 18;
-
   return (
     <button
       className={cn(
@@ -129,14 +129,9 @@ export function ButtonWithLoading({
       onClick={onClick}
       {...props}
     >
-      {isLoading ? (
-        <>
-          <AnimatedLogo size={logoSize} duration={1.2} />
-          {loadingText && <span>{loadingText}</span>}
-        </>
-      ) : (
-        children
-      )}
+      {isLoading
+        ? (loadingText ? <span>{loadingText}</span> : children)
+        : children}
     </button>
   );
 }
@@ -177,7 +172,7 @@ interface CardLoadingProps {
 }
 
 /**
- * Card loading with skeleton content and branded logo
+ * Card loading with skeleton content and branded logo mark.
  */
 export function CardLoading({ 
   lines = 3, 

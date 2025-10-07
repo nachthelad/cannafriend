@@ -66,7 +66,7 @@ This tracker lists the remaining work first (prioritized), followed by a consoli
 ## Completed Tasks
 
 ### Rendering, Loading & Skeletons
-- [x] Replaced in-page AnimatedLogo loaders with skeletons on key routes
+- [x] Replaced legacy animated logo loaders with skeletons on key routes
 - [x] Removed global `app/loading.tsx` spinner to avoid pre-skeleton flash
 - [x] Route-level skeletons aligned with final desktop layouts (journal, AI)
 - [x] Dynamic import splitting for heavy marketing views on home
@@ -90,7 +90,7 @@ This tracker lists the remaining work first (prioritized), followed by a consoli
 - [x] Mobile plant page now shows latest ambient info (query order by `date desc`)
 
 ### Dashboard & Mobile Views
-- [x] Mobile Dashboard skeletons (replaced AnimatedLogo) and consistent loading
+- [x] Mobile Dashboard skeletons and consistent loading visuals
 
 ### ESLint/Tooling
 - [x] Added ESLint v9 flat config via `eslint.config.mjs` (VSCode compatibility)

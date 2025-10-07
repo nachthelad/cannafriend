@@ -2,7 +2,6 @@
 
 import { Crown, CreditCard, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -143,14 +142,7 @@ export function SubscriptionManagement({
                 <AlertDialogFooter>
                   <AlertDialogCancel>{dialogCancelLabel}</AlertDialogCancel>
                   <AlertDialogAction onClick={onCancel} disabled={isCancelling}>
-                    {isCancelling ? (
-                      <div className="flex items-center gap-2">
-                        <AnimatedLogo size={16} duration={1} />
-                        {cancelingLabel}
-                      </div>
-                    ) : (
-                      cancelConfirmActionLabel
-                    )}
+                    {isCancelling ? cancelingLabel : cancelConfirmActionLabel}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

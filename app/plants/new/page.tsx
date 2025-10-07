@@ -20,7 +20,6 @@ import { invalidateDashboardCache, invalidatePlantsCache } from "@/lib/suspense-
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { Calendar } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -382,18 +381,9 @@ export default function NewPlantPage() {
                   disabled={isLoading}
                   className="flex-1 min-h-[48px] text-base"
                 >
-                  {isLoading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <AnimatedLogo
-                        size={16}
-                        className="text-primary-foreground"
-                        duration={1.2}
-                      />
-                      {t("newPlant.loading", { ns: "plants" })}
-                    </span>
-                  ) : (
-                    t("newPlant.submit", { ns: "plants" })
-                  )}
+                  {isLoading
+                    ? t("newPlant.loading", { ns: "plants" })
+                    : t("newPlant.submit", { ns: "plants" })}
                 </Button>
               </div>
             </div>

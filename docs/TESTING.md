@@ -91,9 +91,12 @@ describe('MyComponent', () => {
 ### 3. Testing Components with Props
 
 ```typescript
+import { Logo } from "@/components/common/logo";
+import { render, screen } from "@testing-library/react";
+
 it('renders with custom props', () => {
-  render(<AnimatedLogo size={32} className="custom-class" />)
-  
+  render(<Logo size={32} className="custom-class" />)
+
   const logo = screen.getByRole('img')
   expect(logo).toHaveAttribute('width', '32')
   expect(logo).toHaveClass('custom-class')
@@ -315,10 +318,10 @@ This creates a `coverage/` directory with detailed HTML reports showing:
 ### Running Specific Tests
 ```bash
 # Run tests matching a pattern
-npm run test -- --testNamePattern="AnimatedLogo"
+npm run test -- --testNamePattern="Logo"
 
 # Run tests in a specific file
-npm run test -- __tests__/components/animated-logo.test.tsx
+npm run test -- __tests__/components/theme-provider.test.tsx
 
 # Run tests in watch mode with coverage
 npm run test:watch -- --coverage

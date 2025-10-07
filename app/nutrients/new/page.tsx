@@ -13,7 +13,6 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { buildNutrientMixesPath } from "@/lib/firebase-config";
 import { Layout } from "@/components/layout";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
@@ -128,14 +127,9 @@ export default function NewNutrientPage() {
               disabled={!name.trim() || saving}
               className="flex-1 min-h-[48px] text-base"
             >
-              {saving ? (
-                <>
-                  <AnimatedLogo size={16} className="mr-2" duration={1.2} />
-                  {t("saving", { ns: "common" })}
-                </>
-              ) : (
-                t("save", { ns: "common" })
-              )}
+              {saving
+                ? t("saving", { ns: "common" })
+                : t("save", { ns: "common" })}
             </Button>
           </div>
         </div>

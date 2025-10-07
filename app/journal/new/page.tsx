@@ -23,8 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
 import { Calendar, AlertCircle } from "lucide-react";
-import { FormSkeleton } from "@/components/skeletons/common-skeletons";
 import { ROUTE_JOURNAL } from "@/lib/routes";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { auth, db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query } from "firebase/firestore";
@@ -56,6 +56,66 @@ import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 import { AmountWithUnit } from "@/components/common/amount-with-unit";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+
+function JournalFormSkeleton() {
+  return (
+    <div className="max-w-2xl mx-auto px-4 sm:px-0 space-y-8">
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-28" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} className="h-11 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Skeleton className="h-11 w-full rounded-lg" />
+            <Skeleton className="h-11 w-full rounded-lg" />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-24 w-full rounded-xl" />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <Skeleton className="h-12 w-full rounded-lg" />
+          <Skeleton className="h-12 w-full rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Form validation schema - will be created with translations in component
 const createLogFormSchema = (t: any) =>
@@ -356,9 +416,7 @@ function NewJournalPageContent() {
   if (plantsLoading) {
     return (
       <Layout>
-        <div className="max-w-2xl mx-auto">
-          <FormSkeleton />
-        </div>
+        <JournalFormSkeleton />
       </Layout>
     );
   }
@@ -831,7 +889,13 @@ function NewJournalPageContent() {
 
 export default function NewJournalPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <Layout>
+          <JournalFormSkeleton />
+        </Layout>
+      }
+    >
       <NewJournalPageContent />
     </Suspense>
   );

@@ -18,7 +18,12 @@ import {
   onSnapshot,
   deleteDoc,
 } from "firebase/firestore";
-import { invalidateJournalCache, invalidatePlantsCache, invalidateDashboardCache, invalidatePlantDetails } from "@/lib/suspense-cache";
+import {
+  invalidateJournalCache,
+  invalidatePlantsCache,
+  invalidateDashboardCache,
+  invalidatePlantDetails,
+} from "@/lib/suspense-cache";
 import { Plus } from "lucide-react";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
@@ -34,7 +39,10 @@ interface PlantLogsData {
   plant: Plant;
 }
 
-async function fetchPlantData(userId: string, plantId: string): Promise<PlantLogsData> {
+async function fetchPlantData(
+  userId: string,
+  plantId: string
+): Promise<PlantLogsData> {
   const plantSnap = await getDoc(plantDocRef(userId, plantId));
 
   if (!plantSnap.exists()) {
@@ -54,7 +62,9 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
 
   // Get plant data from Suspense
   const cacheKey = `plant-${userId}-${plantId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchPlantData(userId, plantId));
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchPlantData(userId, plantId)
+  );
   const { plant } = resource.read();
 
   // Set up real-time logs subscription
@@ -192,9 +202,18 @@ function PlantLogsErrorBoundary({ userId, plantId }: PlantLogsContainerProps) {
   );
 }
 
-export function PlantLogsContainer({ userId, plantId }: PlantLogsContainerProps) {
+export function PlantLogsContainer({
+  userId,
+  plantId,
+}: PlantLogsContainerProps) {
   return (
-    <Suspense fallback={<div className="p-4 md:p-6"><JournalSkeleton /></div>}>
+    <Suspense
+      fallback={
+        <div className="p-4 md:p-6">
+          <JournalSkeleton />
+        </div>
+      }
+    >
       <PlantLogsContent userId={userId} plantId={plantId} />
     </Suspense>
   );
