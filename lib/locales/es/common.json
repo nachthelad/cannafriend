@@ -215,6 +215,7 @@
     "selectTimezone": "Selecciona una zona horaria",
     "darkMode": "Modo oscuro",
     "roles": "Roles",
+    "notifications": "Notificaciones",
     "updated": "Actualizado",
     "error": "Error",
     "timezoneUpdated": "Zona horaria actualizada",
@@ -235,6 +236,17 @@
     "accountDeleted": "Cuenta eliminada",
     "accountDeletedDesc": "Tu cuenta y datos han sido eliminados",
     "appVersion": "Versión de la app"
+  },
+  "pushNotifications": {
+    "title": "Notificaciones Push",
+    "notSupported": "Las notificaciones push no son compatibles con este navegador.",
+    "enabled": "Activado - Recibirás recordatorios del cuidado de tus plantas",
+    "permissionGranted": "Permiso concedido - Haz clic para activar",
+    "blocked": "Bloqueado - Por favor activa las notificaciones en la configuración del navegador",
+    "getNotified": "Recibe notificaciones sobre tus plantas",
+    "enableInBrowser": "Activar en el Navegador",
+    "blockedTitle": "Notificaciones bloqueadas",
+    "blockedDesc": "Por favor activa las notificaciones en la configuración de tu navegador y actualiza la página."
   },
   "cookies": {
     "title": "Cookies",

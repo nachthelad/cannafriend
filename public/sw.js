@@ -137,27 +137,32 @@ self.addEventListener('notificationclick', (event) => {
 
   event.notification.close();
 
-  // Handle notification action clicks
-  let urlToOpen = '/'; // Default to home page
+  // Determine what to do based on action
+  let urlToOpen = null;
 
-  if (event.action) {
-    // Handle specific action clicks
-    switch (event.action) {
-      case 'view_plant':
-        urlToOpen = event.notification.data?.plantUrl || '/plants';
-        break;
-      case 'view_journal':
-        urlToOpen = '/journal';
-        break;
-      case 'open_app':
-        urlToOpen = '/';
-        break;
-      default:
-        urlToOpen = event.notification.data?.url || '/';
-    }
-  } else {
-    // Handle general notification click (no specific action)
+  if (event.action === 'mark_done') {
+    // Just close notification, don't navigate
+    console.log('Mark done clicked, closing notification');
+    return;
+  } else if (event.action === 'view_plant') {
+    // Navigate to plant page
+    urlToOpen = event.notification.data?.url || '/plants';
+  } else if (event.action === 'view_journal') {
+    // Navigate to journal
+    urlToOpen = '/journal';
+  } else if (event.action === 'open_app') {
+    // Navigate to home
+    urlToOpen = '/';
+  } else if (!event.action) {
+    // User clicked notification body (not action buttons, not dismiss)
+    // Navigate to the URL specified in notification data
     urlToOpen = event.notification.data?.url || '/';
+  }
+
+  // Only navigate if we have a URL (ignore dismiss clicks)
+  if (!urlToOpen) {
+    console.log('No URL to navigate to, just closing notification');
+    return;
   }
 
   // Focus existing window or open new one
