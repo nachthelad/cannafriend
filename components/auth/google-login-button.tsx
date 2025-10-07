@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { GoogleLoginButtonProps } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -12,14 +13,6 @@ import { resolveHomePathForRoles } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
 import { useToast } from "@/hooks/use-toast";
-
-interface GoogleLoginButtonProps {
-  variant?: "default" | "outline";
-  className?: string;
-  size?: "default" | "sm" | "lg" | "icon";
-  onSuccess?: () => void;
-  onAuthStart?: () => void;
-}
 
 export function GoogleLoginButton({
   variant = "outline",

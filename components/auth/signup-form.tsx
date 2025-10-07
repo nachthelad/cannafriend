@@ -1,5 +1,6 @@
 "use client";
 
+import type { SignupFormData, SignupFormProps } from "@/types/auth";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,16 +14,6 @@ import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 // import ReCAPTCHA from "react-google-recaptcha";
 // import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
-
-interface SignupFormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface SignupFormProps {
-  onSuccess?: () => void;
-}
 
 export function SignupForm({ onSuccess }: SignupFormProps) {
   const router = useRouter();

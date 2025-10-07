@@ -1,18 +1,12 @@
 "use client";
 
+import type { ImageGalleryModalProps } from "@/types/plants";
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getImageAltText } from "@/lib/image-config";
-
-interface ImageGalleryModalProps {
-  images: string[];
-  isOpen: boolean;
-  onClose: () => void;
-  initialIndex?: number;
-}
 
 export function ImageGalleryModal({
   images,

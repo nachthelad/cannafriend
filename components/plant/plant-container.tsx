@@ -45,16 +45,15 @@ import { query, getDocs, orderBy } from "firebase/firestore";
 import { ROUTE_PLANTS_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant } from "@/types";
+import type {
+  PlantContainerProps,
+  PlantContainerData,
+  ViewMode,
+  SortBy,
+  SortOrder,
+} from "@/types/plants";
 
-interface PlantContainerProps {
-  userId: string;
-}
-
-interface PlantData {
-  plants: Plant[];
-}
-
-async function fetchPlantsData(userId: string): Promise<PlantData> {
+async function fetchPlantsData(userId: string): Promise<PlantContainerData> {
   const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
   const plants: Plant[] = [];
@@ -65,10 +64,6 @@ async function fetchPlantsData(userId: string): Promise<PlantData> {
 
   return { plants };
 }
-
-type ViewMode = "grid" | "list";
-type SortBy = "name" | "date" | "seedType" | "growType";
-type SortOrder = "asc" | "desc";
 
 function PlantContainerContent({ userId }: PlantContainerProps) {
   const { t } = useTranslation(["plants", "common", "dashboard"]);

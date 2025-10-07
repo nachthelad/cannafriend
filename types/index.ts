@@ -64,5 +64,7 @@ export interface Reminder {
   createdAt: string;
 }
 
+export * from "./auth";
+export * from "./plants";
 export * from "./firestore";
 export * from "./pwa";

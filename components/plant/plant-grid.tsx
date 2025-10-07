@@ -9,25 +9,15 @@ import { plantsCol, logsCol } from "@/lib/paths";
 import { query, getDocs, orderBy } from "firebase/firestore";
 import Fuse from "fuse.js";
 import type { Plant, LogEntry } from "@/types";
+import type {
+  PlantGridProps,
+  PlantGridData,
+  ViewMode,
+  SortBy,
+  SortOrder,
+} from "@/types/plants";
 
-interface PlantGridProps {
-  userId: string;
-  searchTerm?: string;
-  viewMode?: "grid" | "list";
-  sortBy?: "name" | "date" | "seedType" | "growType";
-  sortOrder?: "asc" | "desc";
-  seedTypeFilter?: string;
-  growTypeFilter?: string;
-}
-
-interface PlantData {
-  plants: Plant[];
-  lastWaterings: Record<string, LogEntry>;
-  lastFeedings: Record<string, LogEntry>;
-  lastTrainings: Record<string, LogEntry>;
-}
-
-async function fetchPlantsData(userId: string): Promise<PlantData> {
+async function fetchPlantsData(userId: string): Promise<PlantGridData> {
   const PAGE_SIZE = 12;
   const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);

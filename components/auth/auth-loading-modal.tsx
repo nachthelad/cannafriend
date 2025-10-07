@@ -1,13 +1,10 @@
 "use client";
 
+import type { AuthLoadingModalProps } from "@/types/auth";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Logo } from "@/components/common/logo";
-
-interface AuthLoadingModalProps {
-  open: boolean;
-}
 
 export function AuthLoadingModal({ open }: AuthLoadingModalProps) {
   const { t } = useTranslation("auth");
