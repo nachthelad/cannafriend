@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { Logo } from "@/components/common/logo";
 
 interface AuthLoadingModalProps {
   open: boolean;
@@ -22,11 +22,7 @@ export function AuthLoadingModal({ open }: AuthLoadingModalProps) {
           <DialogTitle>{t("login.signingIn")}</DialogTitle>
         </VisuallyHidden>
         <div className="flex flex-col items-center justify-center py-6">
-          <AnimatedLogo
-            size={48}
-            className="text-primary mb-4"
-            duration={1.5}
-          />
+          <Logo size={48} className="text-primary mb-4" />
           <p className="text-lg font-medium text-foreground">
             {t("login.signingIn")}
           </p>

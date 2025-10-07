@@ -308,8 +308,8 @@ Feature-rich card with image, metadata, and responsive layouts:
 ### Loading States
 
 ```tsx
-// Animated logo for loading states
-<AnimatedLogo size={32} className="text-primary" duration={1.5} />
+// Skeletons provide consistent loading feedback
+<Skeleton className="h-8 w-48" />
 ```
 
 ### Page Transitions

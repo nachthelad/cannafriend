@@ -24,7 +24,6 @@ import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { TimezoneSelect } from "@/components/common/timezone-select";
 import { RoleSelector } from "@/components/common/role-selector";
@@ -181,18 +180,7 @@ export default function OnboardingPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <AnimatedLogo
-                    size={16}
-                    className="mr-2 text-primary"
-                    duration={1.2}
-                  />
-                  {t("loading")}
-                </>
-              ) : (
-                t("submit")
-              )}
+              {isLoading ? t("loading") : t("submit")}
             </Button>
           </form>
         </CardContent>

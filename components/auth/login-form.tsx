@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, LogIn } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { useFormAuth, useToggle, useLoadingSteps } from "@/hooks";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -180,10 +179,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         disabled={isLoading}
       >
         {isLoading ? (
-          <>
-            <AnimatedLogo size={16} className="mr-2 text-primary" duration={1.2} />
+          <span className="flex items-center justify-center gap-2">
             {loadingStep}
-          </>
+          </span>
         ) : (
           <>
             <LogIn className="mr-2 h-4 w-4" />

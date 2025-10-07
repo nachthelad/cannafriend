@@ -32,7 +32,6 @@ export function invalidateDashboardCache(userId: string) {
 // Clear cache when reminders change
 export function invalidateRemindersCache(userId: string) {
   clearSuspenseCache(`reminders-${userId}`);
-  clearSuspenseCache(`mobile-reminders-${userId}`);
 }
 
 // Clear cache when settings change (theme, timezone, roles, etc.)

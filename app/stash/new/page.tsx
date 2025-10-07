@@ -21,13 +21,13 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/layout";
 import { AlertCircle } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { ROUTE_STASH } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import { addDoc } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Form validation schema
 const createStashFormSchema = (t: any) =>
@@ -44,6 +44,44 @@ const createStashFormSchema = (t: any) =>
   });
 
 type StashFormData = z.infer<ReturnType<typeof createStashFormSchema>>;
+
+function StashFormSkeleton() {
+  return (
+    <div className="max-w-2xl mx-auto px-4 md:px-6 space-y-8">
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-40" />
+        <Skeleton className="h-4 w-60" />
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-11 w-full rounded-lg" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-24 w-full rounded-lg" />
+        </div>
+        <div className="flex gap-3 pt-2">
+          <Skeleton className="h-12 w-full rounded-lg" />
+          <Skeleton className="h-12 w-full rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function NewStashPageContent() {
   const { t } = useTranslation(["stash", "common", "validation"]);
@@ -144,9 +182,7 @@ function NewStashPageContent() {
   if (authLoading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <AnimatedLogo size={24} className="text-primary" duration={1.2} />
-        </div>
+        <StashFormSkeleton />
       </Layout>
     );
   }
@@ -354,18 +390,9 @@ function NewStashPageContent() {
               disabled={isLoading}
               className="flex-1 min-h-[48px] text-base"
             >
-              {isLoading ? (
-                <span className="inline-flex items-center gap-2">
-                  <AnimatedLogo
-                    size={16}
-                    className="text-primary-foreground"
-                    duration={1.2}
-                  />
-                  {t("saving", { ns: "common" })}
-                </span>
-              ) : (
-                t("save", { ns: "common" })
-              )}
+              {isLoading
+                ? t("saving", { ns: "common" })
+                : t("save", { ns: "common" })}
             </Button>
           </div>
         </div>
@@ -378,9 +405,7 @@ export default function NewStashPage() {
   return (
     <Suspense fallback={
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <AnimatedLogo size={24} className="text-primary" duration={1.2} />
-        </div>
+        <StashFormSkeleton />
       </Layout>
     }>
       <NewStashPageContent />

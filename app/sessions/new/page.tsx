@@ -20,7 +20,6 @@ import {
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
 import { Calendar, Clock, Plus } from "lucide-react";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Popover,
@@ -389,18 +388,9 @@ export default function NewSessionPage() {
               disabled={isSaving}
               className="flex-1 min-h-[48px] text-base"
             >
-              {isSaving ? (
-                <span className="inline-flex items-center gap-2">
-                  <AnimatedLogo
-                    size={16}
-                    className="text-primary-foreground"
-                    duration={1.2}
-                  />
-                  {t("saving", { ns: "common" })}
-                </span>
-              ) : (
-                t("save", { ns: "sessions" })
-              )}
+              {isSaving
+                ? t("saving", { ns: "common" })
+                : t("save", { ns: "sessions" })}
             </Button>
           </div>
         </div>

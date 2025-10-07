@@ -96,6 +96,9 @@ export function ResponsivePageHeader({
                 </p>
               ) : null}
             </div>
+            {mobileControls ? (
+              <div className="space-y-3 sm:hidden">{mobileControls}</div>
+            ) : null}
           </div>
 
           {/* Mobile Actions - show only on mobile */}
@@ -112,12 +115,7 @@ export function ResponsivePageHeader({
             </div>
           ) : null}
         </div>
-
-        {mobileControls ? (
-          <div className="space-y-3 sm:hidden">{mobileControls}</div>
-        ) : null}
       </div>
     </header>
   );
 }
-

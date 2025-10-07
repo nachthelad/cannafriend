@@ -2,7 +2,6 @@
 
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,14 +68,7 @@ export function DangerZone({
                 disabled={isDeleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isDeleting ? (
-                  <div className="flex items-center gap-2">
-                    <AnimatedLogo size={16} duration={1} className="text-current" />
-                    {deletingLabel}
-                  </div>
-                ) : (
-                  confirmLabel
-                )}
+                {isDeleting ? deletingLabel : confirmLabel}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

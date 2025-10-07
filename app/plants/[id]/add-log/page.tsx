@@ -4,7 +4,6 @@ import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 import { Layout } from "@/components/layout";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AddLogRedirectPage({

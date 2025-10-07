@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useFirebaseDocument } from "@/hooks";
 import { Layout } from "@/components/layout";
-import { AnimatedLogo } from "@/components/common/animated-logo";
+import { FormSkeleton } from "@/components/skeletons/common-skeletons";
 import { ROUTE_NUTRIENTS } from "@/lib/routes";
 import type { NutrientMix as NutrientMixBase } from "@/types";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
@@ -85,8 +85,8 @@ export default function EditNutrientPage({
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center h-64">
-          <AnimatedLogo size={24} className="text-primary" duration={1.2} />
+        <div className="max-w-2xl mx-auto px-4 md:px-6">
+          <FormSkeleton />
         </div>
       </Layout>
     );
@@ -163,14 +163,9 @@ export default function EditNutrientPage({
               disabled={!name.trim() || saving}
               className="min-h-[48px] w-full sm:w-auto text-base font-medium"
             >
-              {saving ? (
-                <>
-                  <AnimatedLogo size={16} className="mr-2" duration={1.2} />
-                  {t("saving", { ns: "common" })}
-                </>
-              ) : (
-                t("save", { ns: "common" })
-              )}
+              {saving
+                ? t("saving", { ns: "common" })
+                : t("save", { ns: "common" })}
             </Button>
           </div>
         </div>

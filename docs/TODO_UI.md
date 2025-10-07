@@ -466,6 +466,7 @@
 
 #### 8. Mobile reminder system with notification-style cards and quick actions ✅
 
+- **Note (Oct 2025):** Legacy mobile reminder scheduler components were removed in favor of the unified `ReminderSystem` + `/reminders/new` flow. The details below are retained for historical context only.
 - [x] Design notification-style reminder cards
 - [x] Add quick action buttons (snooze, complete, edit)
 - [x] Implement swipe actions for reminders
@@ -475,10 +476,10 @@
 
 **Implementation details:**
 
-- Created `components/mobile/mobile-reminder-cards.tsx` with notification-style cards for overdue and due-soon reminders
-- Built `components/mobile/mobile-reminder-scheduler.tsx` for mobile-optimized reminder creation with dialog interface
-- Integrated `components/mobile/mobile-reminders.tsx` as main mobile reminders page with responsive design
-- Updated `app/reminders/page.tsx` to use mobile components on mobile screens (`md:hidden` breakpoint)
+- Legacy (removed Oct 2025): `components/mobile/mobile-reminder-cards.tsx` provided notification-style cards for overdue and due-soon reminders
+- Legacy (removed Oct 2025): `components/mobile/mobile-reminder-scheduler.tsx` offered a mobile-focused reminder creation dialog
+- Legacy (removed Oct 2025): `components/mobile/mobile-reminders.tsx` powered the mobile reminders page before the unified layout
+- Updated `app/reminders/page.tsx` to rely on the shared `ReminderSystem` across breakpoints (legacy mobile components removed Oct 2025)
 
 **Key Features Implemented:**
 
@@ -784,3 +785,8 @@
 - Maintain consistency with current design system
 - Test on actual devices, not just browser dev tools
 - Consider offline functionality for PWA features
+
+
+
+
+

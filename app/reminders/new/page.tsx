@@ -37,11 +37,55 @@ import {
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTE_LOGIN, ROUTE_REMINDERS } from "@/lib/routes";
 import { plantsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
-import { AnimatedLogo } from "@/components/common/animated-logo";
 import type { Plant, Reminder } from "@/types";
+
+function ReminderFormSkeleton() {
+  return (
+    <div className="max-w-2xl mx-auto px-4 sm:px-0">
+      <div className="space-y-8">
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-44" />
+          <Skeleton className="h-4 w-72" />
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-11 w-full" />
+          </div>
+
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-11 w-full" />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-11 w-full" />
+          </div>
+
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // Form validation schema - created with translations
 const createReminderFormSchema = (t: any) =>
@@ -267,9 +311,7 @@ export default function NewReminderPage() {
   if (isLoadingPlants) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <AnimatedLogo size={48} duration={1.5} />
-        </div>
+        <ReminderFormSkeleton />
       </Layout>
     );
   }
@@ -534,18 +576,9 @@ export default function NewReminderPage() {
                 disabled={isSubmitting || !selectedPlant}
                 className="flex-1 min-h-[48px] text-base"
               >
-                {isSubmitting ? (
-                  <span className="inline-flex items-center gap-2">
-                    <AnimatedLogo
-                      size={16}
-                      className="text-primary-foreground"
-                      duration={1.2}
-                    />
-                    {t("saving", { ns: "common" })}
-                  </span>
-                ) : (
-                  t("add", { ns: "reminders" })
-                )}
+                {isSubmitting
+                  ? t("saving", { ns: "common" })
+                  : t("add", { ns: "reminders" })}
               </Button>
             </div>
           </div>

@@ -17,7 +17,6 @@ import { ROUTE_LOGIN, ROUTE_REMINDERS_NEW, resolveHomePathForRoles } from "@/lib
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
-import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { useTranslation } from "react-i18next";
 import type { Plant, Reminder } from "@/types";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -90,39 +89,23 @@ function RemindersContent({ userId }: { userId: string }) {
         </div>
       )}
 
-      {/* Mobile View */}
-      <div className="md:hidden">
-        <MobileReminders
-          userId={userId}
-          initialPlants={plants}
-          initialReminders={reminders}
-          showHeader={false}
-        />
-      </div>
-
-      {/* Desktop View */}
-      <div className="hidden md:flex md:flex-col md:gap-6">
-        {plants.length > 0 ? (
-          <ReminderSystem
-            plants={plants}
-            reminders={reminders}
-          />
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("noPlants", { ns: "dashboard" })}</CardTitle>
-              <CardDescription>
-                {t("noPlantDesc", { ns: "dashboard" })}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {t("noPlantsHint", { ns: "reminders" })}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {plants.length > 0 ? (
+        <ReminderSystem plants={plants} reminders={reminders} />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("noPlants", { ns: "dashboard" })}</CardTitle>
+            <CardDescription>
+              {t("noPlantDesc", { ns: "dashboard" })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              {t("noPlantsHint", { ns: "reminders" })}
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }
