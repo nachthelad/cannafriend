@@ -494,8 +494,6 @@ function SettingsContent({
       ),
       notifications: () => (
         <PushNotifications
-          title={t("settings.notifications")}
-          description={t("settings.notificationsDesc")}
           userId={userId}
         />
       ),

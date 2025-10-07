@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { collection, getDocs, getDoc, query, where, updateDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import webpush from "web-push";
 
 export const runtime = "nodejs";
@@ -18,6 +16,10 @@ export async function POST(request: NextRequest) {
 
     console.log("Checking for overdue reminders...");
 
+    // Import Firebase Admin at runtime (server-only)
+    const { adminDb } = await import("@/lib/firebase-admin");
+    const db = adminDb();
+
     // Configure VAPID for web-push
     webpush.setVapidDetails(
       'mailto:' + (process.env.VAPID_EMAIL || 'your-email@cannafriend.com'),
@@ -30,20 +32,20 @@ export async function POST(request: NextRequest) {
     const nowString = now.toISOString();
 
     // Get all users who might have reminders
-    const usersSnapshot = await getDocs(collection(db, "users"));
+    const usersSnapshot = await db.collection("users").get();
     const overdueReminders: any[] = [];
 
     // Check each user's reminders subcollection
     for (const userDoc of usersSnapshot.docs) {
       const userId = userDoc.id;
 
-      const userRemindersQuery = query(
-        collection(db, "users", userId, "reminders"),
-        where("isActive", "==", true),
-        where("nextReminder", "<=", nowString)
-      );
-
-      const userRemindersSnapshot = await getDocs(userRemindersQuery);
+      const userRemindersSnapshot = await db
+        .collection("users")
+        .doc(userId)
+        .collection("reminders")
+        .where("isActive", "==", true)
+        .where("nextReminder", "<=", nowString)
+        .get();
 
       for (const reminderDoc of userRemindersSnapshot.docs) {
         overdueReminders.push({
@@ -72,8 +74,7 @@ export async function POST(request: NextRequest) {
     for (const reminder of overdueReminders) {
       try {
         // Get user's push subscription
-        const subscriptionRef = doc(db, "pushSubscriptions", reminder.userId);
-        const subscriptionSnap = await getDoc(subscriptionRef);
+        const subscriptionSnap = await db.collection("pushSubscriptions").doc(reminder.userId).get();
         const subscription = subscriptionSnap.data();
 
         if (subscription?.endpoint) {
@@ -111,10 +112,15 @@ export async function POST(request: NextRequest) {
         const nextReminderDate = new Date(reminder.nextReminder);
         nextReminderDate.setDate(nextReminderDate.getDate() + reminder.interval);
 
-        await updateDoc(doc(db, "users", reminder.userId, "reminders", reminder.id), {
-          lastReminder: nowString,
-          nextReminder: nextReminderDate.toISOString()
-        });
+        await db
+          .collection("users")
+          .doc(reminder.userId)
+          .collection("reminders")
+          .doc(reminder.id)
+          .update({
+            lastReminder: nowString,
+            nextReminder: nextReminderDate.toISOString()
+          });
 
       } catch (error) {
         console.error(`Error processing reminder ${reminder.id}:`, error);

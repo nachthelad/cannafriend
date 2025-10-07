@@ -438,8 +438,6 @@ function MobileSettingsContent({
         {/* Push Notifications Section */}
         <div className="w-full p-4 border-b border-border">
           <PushNotifications
-            title={t("settings.notifications")}
-            description={t("settings.notificationsDesc")}
             userId={userId}
           />
         </div>
