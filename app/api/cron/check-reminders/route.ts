@@ -3,8 +3,8 @@ import webpush from "web-push";
 
 export const runtime = "nodejs";
 
-// This endpoint will be called by Vercel Cron Jobs
-// Add this to vercel.json: { "crons": [{ "path": "/api/cron/check-reminders", "schedule": "0 * * * *" }] }
+// This endpoint can be triggered by Vercel Cron Jobs (paid plans) or manually.
+// To enable the scheduled job, add to vercel.json: { "crons": [{ "path": "/api/cron/check-reminders", "schedule": "0 * * * *" }] }
 
 export async function POST(request: NextRequest) {
   try {

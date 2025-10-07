@@ -44,7 +44,7 @@
     "lightSchedule": "Light Schedule",
     "notes": "Notes",
     "notesPlaceholder": "Add any additional observations or notes...",
-    "save": "Save Log",
+    "save": "Save",
     "success": "Log saved",
     "successDesc": "Your log entry has been saved successfully",
     "error": "Error saving log",
