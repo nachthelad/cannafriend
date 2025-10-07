@@ -16,14 +16,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { ROUTE_PLANTS } from "@/lib/routes";
-import type { Plant } from "@/types";
-
-interface PlantDetailsHeaderProps {
-  plant: Plant;
-  plantId: string;
-  onDelete: () => Promise<void>;
-  isDeleting: boolean;
-}
+import type { PlantDetailsHeaderProps } from "@/types/plants";
 
 export function PlantDetailsHeader({
   plant,

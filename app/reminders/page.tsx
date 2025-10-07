@@ -24,6 +24,7 @@ import { ResponsivePageHeader } from "@/components/common/responsive-page-header
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PushNotificationTest } from "@/components/reminders/push-notification-test";
+import { MobileReminders } from "@/components/mobile/mobile-reminders";
 
 interface RemindersData {
   plants: Plant[];
@@ -90,7 +91,18 @@ function RemindersContent({ userId }: { userId: string }) {
       )}
 
       {plants.length > 0 ? (
-        <ReminderSystem plants={plants} reminders={reminders} />
+        <>
+          <div className="md:hidden">
+            <MobileReminders
+              userId={userId}
+              plants={plants}
+              initialReminders={reminders}
+            />
+          </div>
+          <div className="hidden md:block">
+            <ReminderSystem plants={plants} reminders={reminders} />
+          </div>
+        </>
       ) : (
         <Card>
           <CardHeader>

@@ -1,5 +1,6 @@
 "use client";
 
+import type { PlantDetailsProps } from "@/types/plants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
@@ -19,16 +20,6 @@ import { InlineEdit } from "@/components/common/inline-edit";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { userDoc, plantDoc } from "@/lib/paths";
-
-interface PlantDetailsProps {
-  plant: Plant;
-  userId: string;
-  lastWatering?: LogEntry;
-  lastFeeding?: LogEntry;
-  lastTraining?: LogEntry;
-  lastFlowering?: LogEntry;
-  onUpdate?: (patch: Partial<Plant>) => void;
-}
 
 export function PlantDetails({
   plant,

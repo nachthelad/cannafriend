@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
+import type {
+  ResetPasswordFormData,
+  ResetPasswordFormProps,
+} from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,15 +23,6 @@ import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { ROUTE_LOGIN } from "@/lib/routes";
-
-interface ResetPasswordFormData {
-  password: string;
-  confirmPassword: string;
-}
-
-interface ResetPasswordFormProps {
-  className?: string;
-}
 
 export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
   const { t } = useTranslation(["auth", "common"]);

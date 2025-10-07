@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: remove AnimatedLogo component and replace with FormSkeleton in various pages for improved loading states — 2025-10-07
 - [MINOR]: update Vercel deployment instructions and clean up cron job configuration in documentation — 2025-10-07
 
 - [MINOR]: update push notifications implementation to use Firebase Admin SDK and improve service worker registration — 2025-10-07

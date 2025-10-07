@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReminderSystemProps } from "@/types/plants";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,15 +38,7 @@ import {
   X,
 } from "lucide-react";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
-import type { Plant, Reminder } from "@/types";
-
-interface ReminderSystemProps {
-  plants: Plant[];
-  // When true, render only the overdue card (if any). Used on dashboard.
-  showOnlyOverdue?: boolean;
-  // Pre-fetched reminders to avoid loading state
-  reminders?: Reminder[];
-}
+import type { Reminder } from "@/types";
 
 export function ReminderSystem({
   plants,

@@ -1,16 +1,11 @@
 "use client";
 
+import type { AuthTabsProps } from "@/types/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
 import { LoginForm } from "./login-form";
 import { SignupForm } from "./signup-form";
 import { GoogleLoginButton } from "./google-login-button";
-
-interface AuthTabsProps {
-  className?: string;
-  onLoginSuccess?: () => void;
-  onAuthStart?: () => void;
-}
 
 export function AuthTabs({ className = "", onLoginSuccess, onAuthStart }: AuthTabsProps) {
   const { t } = useTranslation("auth");

@@ -29,15 +29,10 @@ import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import type { Plant, LogEntry } from "@/types";
-
-interface PlantLogsContainerProps {
-  userId: string;
-  plantId: string;
-}
-
-interface PlantLogsData {
-  plant: Plant;
-}
+import type {
+  PlantLogsContainerProps,
+  PlantLogsData,
+} from "@/types/plants";
 
 async function fetchPlantData(
   userId: string,

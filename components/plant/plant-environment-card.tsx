@@ -4,12 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Thermometer, Droplets, Calendar, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { EnvironmentData, LogEntry } from "@/types";
-
-interface PlantEnvironmentCardProps {
-  environmentData: EnvironmentData[];
-  lastEnvironmentFromLogs?: LogEntry;
-}
+import type { PlantEnvironmentCardProps } from "@/types/plants";
 
 export function PlantEnvironmentCard({
   environmentData,
