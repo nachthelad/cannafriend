@@ -1,5 +1,6 @@
 "use client";
 
+import type { LoginFormData, LoginFormProps } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,15 +13,6 @@ import { userDoc } from "@/lib/paths";
 import { resolveHomePathForRoles } from "@/lib/routes";
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
-interface LoginFormProps {
-  onSuccess?: () => void;
-}
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();

@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import type {
+  ForgotPasswordFormData,
+  ForgotPasswordFormProps,
+} from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,14 +26,6 @@ import {
   fetchSignInMethodsForEmail,
 } from "firebase/auth";
 import { ROUTE_LOGIN } from "@/lib/routes";
-
-interface ForgotPasswordFormData {
-  email: string;
-}
-
-interface ForgotPasswordFormProps {
-  className?: string;
-}
 
 export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
   const { t } = useTranslation(["auth", "common"]);

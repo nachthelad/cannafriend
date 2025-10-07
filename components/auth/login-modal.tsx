@@ -1,5 +1,6 @@
 "use client";
 
+import type { LoginModalProps } from "@/types/auth";
 import { useEffect } from "react";
 import {
   Dialog,
@@ -9,12 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { AuthTabs } from "@/components/auth/auth-tabs";
 import { useTranslation } from "react-i18next";
-
-interface LoginModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAuthStart?: () => void;
-}
 
 export function LoginModal({ open, onOpenChange, onAuthStart }: LoginModalProps) {
   const { t } = useTranslation("auth");

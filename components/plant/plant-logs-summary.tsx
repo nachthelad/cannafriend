@@ -1,5 +1,9 @@
 "use client";
 
+import type {
+  PlantLogsSummaryProps,
+  LastActivitiesSummaryProps,
+} from "@/types/plants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,25 +20,6 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 import { JournalEntries } from "@/components/journal/journal-entries";
-import type { LogEntry } from "@/types";
-
-interface PlantLogsSummaryProps {
-  plantId: string;
-  logs: LogEntry[];
-  lastWatering?: LogEntry;
-  lastFeeding?: LogEntry;
-  lastTraining?: LogEntry;
-  lastFlowering?: LogEntry;
-  onDeleteLog: (logId: string) => Promise<void>;
-}
-
-// Last Activities Summary Component
-interface LastActivitiesSummaryProps {
-  lastWatering?: LogEntry;
-  lastFeeding?: LogEntry;
-  lastTraining?: LogEntry;
-  lastFlowering?: LogEntry;
-}
 
 export function LastActivitiesSummary({
   lastWatering,

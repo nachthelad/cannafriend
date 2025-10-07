@@ -46,22 +46,10 @@ import {
   invalidatePlantDetails,
 } from "@/lib/suspense-cache";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
-
-interface PlantDetailsContainerProps {
-  userId: string;
-  plantId: string;
-}
-
-interface PlantDetailsData {
-  plant: Plant;
-  logs: LogEntry[];
-  environmentData: EnvironmentData[];
-  lastWatering: LogEntry | null;
-  lastFeeding: LogEntry | null;
-  lastTraining: LogEntry | null;
-  lastFlowering: LogEntry | null;
-  lastEnvironmentFromLogs: LogEntry | undefined;
-}
+import type {
+  PlantDetailsContainerProps,
+  PlantDetailsData,
+} from "@/types/plants";
 
 async function fetchPlantDetailsData(
   userId: string,

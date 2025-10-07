@@ -1,5 +1,6 @@
 "use client";
 
+import type { PlantCardProps } from "@/types/plants";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -9,22 +10,6 @@ import type { Plant } from "@/types";
 import { cn, formatDateWithLocale } from "@/lib/utils";
 import { Leaf, Calendar, Droplet, Zap, Scissors } from "lucide-react";
 import type { LogEntry } from "@/types";
-
-interface PlantCardProps {
-  plant: Plant;
-  lastWatering?: LogEntry;
-  lastFeeding?: LogEntry;
-  lastTraining?: LogEntry;
-  compact?: boolean;
-  detailed?: boolean;
-  /**
-   * Allows tailoring the card visuals for different breakpoints without
-   * duplicating the component. "mobile" applies a softer appearance that
-   * mirrors the previous dedicated mobile card styling.
-   */
-  variant?: "default" | "mobile";
-  className?: string;
-}
 
 export function PlantCard({
   plant,

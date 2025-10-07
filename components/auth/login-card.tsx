@@ -1,5 +1,6 @@
 "use client";
 
+import type { LoginCardProps } from "@/types/auth";
 import {
   Card,
   CardContent,
@@ -13,10 +14,6 @@ import { AuthTabs } from "./auth-tabs";
 import Link from "next/link";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
 import { Logo } from "@/components/common/logo";
-
-interface LoginCardProps {
-  className?: string;
-}
 
 export function LoginCard({ className = "" }: LoginCardProps) {
   const { t } = useTranslation("auth");

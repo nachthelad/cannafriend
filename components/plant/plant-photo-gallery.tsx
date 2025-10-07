@@ -1,5 +1,6 @@
 "use client";
 
+import type { PlantPhotoGalleryProps } from "@/types/plants";
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,14 +24,6 @@ import { ImageGalleryModal } from "@/components/plant/photos/image-gallery-modal
 import { Plus, Star, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
-import type { Plant } from "@/types";
-
-interface PlantPhotoGalleryProps {
-  plant: Plant;
-  onPhotosChange: (newPhotos: string[]) => Promise<void>;
-  onRemovePhoto: (index: number) => Promise<void>;
-  onSetCoverPhoto: (photoUrl: string) => Promise<void>;
-}
 
 export function PlantPhotoGallery({
   plant,
