@@ -13,7 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { getDocs, query } from "firebase/firestore";
-import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_REMINDERS_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
@@ -24,6 +24,7 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PushNotificationTest } from "@/components/reminders/push-notification-test";
 
 interface RemindersData {
   plants: Plant[];
@@ -50,8 +51,8 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
 function RemindersContent({ userId }: { userId: string }) {
   const { t } = useTranslation(["reminders", "common", "dashboard"]);
   const { roles } = useUserRoles();
+  const router = useRouter();
   const homePath = resolveHomePathForRoles(roles);
-  const [isAddReminderOpen, setIsAddReminderOpen] = useState(false);
 
   const cacheKey = `reminders-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -60,7 +61,7 @@ function RemindersContent({ userId }: { userId: string }) {
   const { plants, reminders } = resource.read();
 
   const handleAddReminder = () => {
-    setIsAddReminderOpen(true);
+    router.push(ROUTE_REMINDERS_NEW);
   };
 
   return (
@@ -82,6 +83,13 @@ function RemindersContent({ userId }: { userId: string }) {
         }
       />
 
+      {/* Development Test Component */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mb-6">
+          <PushNotificationTest />
+        </div>
+      )}
+
       {/* Mobile View */}
       <div className="md:hidden">
         <MobileReminders
@@ -89,8 +97,6 @@ function RemindersContent({ userId }: { userId: string }) {
           initialPlants={plants}
           initialReminders={reminders}
           showHeader={false}
-          isSchedulerOpen={isAddReminderOpen}
-          onSchedulerOpenChange={setIsAddReminderOpen}
         />
       </div>
 
@@ -100,8 +106,6 @@ function RemindersContent({ userId }: { userId: string }) {
           <ReminderSystem
             plants={plants}
             reminders={reminders}
-            externalShowAddForm={isAddReminderOpen}
-            onExternalShowAddFormChange={setIsAddReminderOpen}
           />
         ) : (
           <Card>

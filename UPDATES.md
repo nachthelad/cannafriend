@@ -5,9 +5,11 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
-- [MID]: implement push notifications system with Firestore integration and UI components for settings and reminders — 2025-10-02
+- [MINOR]: update push notifications implementation to use Firebase Admin SDK and improve service worker registration — 2025-10-07
 
-- [MINOR]: Ensure dashboard plant totals reflect actual counts — 2025-10-02
+- [MINOR]: bump version to 0.9.15 and update UPDATES.md with minor dashboard enhancements — 2025-10-07
+
+- [MINOR]: enhance error handling and toast notifications across components, implement theme synchronization in layout — 2025-10-02
 - [MINOR]: consolidate plant details and reminders functionality, enhance reminder system with new caching and data handling — 2025-10-01
 
 - [MINOR]: update plant details component and enhance image gallery modal with new features — 2025-09-24
