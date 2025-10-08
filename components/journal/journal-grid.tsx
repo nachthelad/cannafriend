@@ -7,20 +7,7 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { plantsCol, logsCol } from "@/lib/paths";
 import { query, getDocs, orderBy, limit, collectionGroup, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import type { LogEntry, Plant } from "@/types";
-
-interface JournalGridProps {
-  userId: string;
-  selectedPlant?: string;
-  selectedLogType?: string;
-  selectedDate?: Date;
-  onDelete?: (log: LogEntry) => void;
-}
-
-interface JournalData {
-  logs: LogEntry[];
-  plants: Plant[];
-}
+import type { JournalData, JournalGridProps, LogEntry, Plant } from "@/types";
 
 async function fetchJournalData(userId: string): Promise<JournalData> {
   const LOGS_PAGE_SIZE = 25;

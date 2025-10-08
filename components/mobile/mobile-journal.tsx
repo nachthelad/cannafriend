@@ -1,5 +1,11 @@
 "use client";
 
+import type {
+  MobileJournalData,
+  MobileJournalProps,
+  MobileJournalSortBy,
+  MobileJournalSortOrder,
+} from "@/types/mobile";
 import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
@@ -54,17 +60,7 @@ import type { Plant, LogEntry } from "@/types";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 
-interface MobileJournalProps {
-  userId: string;
-  language: string;
-}
-
-interface JournalData {
-  logs: LogEntry[];
-  plants: Plant[];
-}
-
-async function fetchJournalData(userId: string): Promise<JournalData> {
+async function fetchJournalData(userId: string): Promise<MobileJournalData> {
   // Fetch plants
   const plantsQueryRef = query(plantsCol(userId));
   const plantsSnap = await getDocs(plantsQueryRef);
@@ -120,9 +116,6 @@ async function fetchJournalData(userId: string): Promise<JournalData> {
   return { logs, plants };
 }
 
-type SortBy = "date" | "type" | "plant";
-type SortOrder = "asc" | "desc";
-
 function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const cacheKey = `mobile-journal-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -136,8 +129,8 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [sortBy, setSortBy] = useState<SortBy>("date");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [sortBy, setSortBy] = useState<MobileJournalSortBy>("date");
+  const [sortOrder, setSortOrder] = useState<MobileJournalSortOrder>("desc");
   const [showCalendar, setShowCalendar] = useState(false);
 
   // Filter and sort logs

@@ -1,11 +1,8 @@
 "use client";
 
+import type { ThinkingAnimationProps } from "@/types/ai";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-
-interface ThinkingAnimationProps {
-  className?: string;
-}
 
 export function ThinkingAnimation({ className = "" }: ThinkingAnimationProps) {
   const { i18n } = useTranslation();

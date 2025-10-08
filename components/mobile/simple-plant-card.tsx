@@ -3,24 +3,10 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
-import type { Plant } from "@/types";
+import type { SimplePlantCardProps } from "@/types";
 import { Leaf } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-interface SimplePlantCardProps {
-  plant: Plant;
-  language: string;
-  viewMode?: "grid" | "list";
-  /**
-   * Adds optional visual tweaks for responsive layouts without requiring a
-   * separate mobile-only component. "overlay" mirrors the richer styling of
-   * the previous mobile implementation.
-   */
-  variant?: "default" | "overlay";
-  showGrowType?: boolean;
-  className?: string;
-}
 
 export function SimplePlantCard({
   plant,

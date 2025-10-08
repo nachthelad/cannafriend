@@ -1,5 +1,6 @@
 "use client";
 
+import type { MobileDashboardProps } from "@/types/mobile";
 import Link from "next/link";
 import {
   ROUTE_SESSIONS,
@@ -36,16 +37,6 @@ import {
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
-
-interface MobileDashboardProps {
-  plants: Plant[];
-  recentLogs: LogEntry[];
-  remindersCount: number;
-  hasOverdue: boolean;
-  userEmail?: string;
-  reminders: any[];
-  isPremium: boolean;
-}
 
 export function MobileDashboard({
   plants,

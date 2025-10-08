@@ -1,38 +1,15 @@
 "use client";
 
+import type {
+  StripeSearchFilters,
+  StripeSearchItem,
+  StripeSearchProps,
+  StripeSearchScope,
+} from "@/types/admin";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
-export type StripeSearchScope = "all" | "payments" | "subscriptions";
-
-export type StripeSearchFilters = {
-  email: string;
-  scope: StripeSearchScope;
-};
-
-export type StripeSearchItem = {
-  type: "payment" | "subscription";
-  id: string;
-  status?: string;
-  customer_email?: string;
-  customer_id?: string;
-  amount?: number;
-  currency?: string;
-  date?: string;
-};
-
-interface StripeSearchProps {
-  filters: StripeSearchFilters;
-  items: StripeSearchItem[];
-  loading: boolean;
-  onFiltersChange: (next: Partial<StripeSearchFilters>) => void;
-  onSearch: () => void;
-  onReprocess: (item: StripeSearchItem) => void;
-  variant?: "desktop" | "mobile";
-  className?: string;
-}
 
 export function AdminStripeSearch({
   filters,

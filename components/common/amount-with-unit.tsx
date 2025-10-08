@@ -1,5 +1,6 @@
 "use client";
 
+import type { AmountWithUnitProps } from "@/types/common";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,15 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface AmountWithUnitProps {
-  inputId: string;
-  placeholder?: string;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
-  defaultUnit?: string;
-  unitOptions: { value: string; label?: string }[];
-  onUnitChange: (unit: string) => void;
-}
 
 export function AmountWithUnit({
   inputId,
@@ -44,4 +36,3 @@ export function AmountWithUnit({
     </div>
   );
 }
-

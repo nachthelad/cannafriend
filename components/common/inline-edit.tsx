@@ -1,21 +1,9 @@
 "use client";
 
+import type { InlineEditProps } from "@/types/common";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, Pencil } from "lucide-react";
-
-interface InlineEditProps {
-  value: string;
-  onSave: (newValue: string) => Promise<void> | void;
-  placeholder?: string;
-  className?: string;
-  inputClassName?: string;
-  showEditHint?: boolean;
-  forceEdit?: boolean;
-  onCancel?: () => void;
-  onStartEdit?: () => void;
-  clickToEdit?: boolean;
-}
 
 export function InlineEdit({
   value,

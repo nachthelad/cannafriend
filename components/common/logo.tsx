@@ -1,14 +1,7 @@
 "use client";
 
-import type React from "react";
+import type { LogoProps, LogoVariant } from "@/types/common";
 import { cn } from "@/lib/utils";
-
-type LogoVariant = "mark" | "badgeLight" | "badgeDark";
-
-interface LogoProps extends React.SVGProps<SVGSVGElement> {
-  size?: number | string;
-  variant?: LogoVariant;
-}
 
 /**
  * Cannafriend logo mark
@@ -84,3 +77,5 @@ export function Logo({
 }
 
 export default Logo;
+
+export type { LogoVariant } from "@/types/common";

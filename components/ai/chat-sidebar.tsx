@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChatSession, ChatSidebarProps } from "@/types/ai";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -33,22 +34,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-
-interface ChatSession {
-  id: string;
-  title: string;
-  lastUpdated: string;
-  chatType: "consumer" | "plant-analysis";
-}
-
-interface ChatSidebarProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  currentSessionId?: string;
-  onSessionSelect: (sessionId: string) => void;
-  onNewChat: () => void;
-  className?: string;
-}
 
 export function ChatSidebar({
   isOpen,

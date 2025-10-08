@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import type { LogEntry } from "@/types";
+import type { JournalEntriesProps, LogEntry } from "@/types";
 import { formatDateWithLocale } from "@/lib/utils";
 import {
   Droplet,
@@ -13,12 +13,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-
-interface JournalEntriesProps {
-  logs: LogEntry[];
-  showPlantName?: boolean;
-  onDelete?: (log: LogEntry) => void;
-}
 
 export function JournalEntries({
   logs,

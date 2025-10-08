@@ -1,5 +1,6 @@
 "use client";
 
+import type { MobileJournalEntryProps } from "@/types/mobile";
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,14 +36,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-
-interface MobileJournalEntryProps {
-  log: LogEntry;
-  showPlantName?: boolean;
-  onDelete?: (log: LogEntry) => void;
-  onEdit?: (log: LogEntry) => void;
-  language: string;
-}
 
 export function MobileJournalEntry({
   log,

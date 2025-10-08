@@ -1,5 +1,9 @@
 "use client";
 
+import type {
+  MobileReminderItemProps,
+  MobileRemindersProps,
+} from "@/types/mobile";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlarmClock, Bell, Check, Clock, Edit, MoreVertical, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,23 +78,6 @@ const hoursUntilReminder = (reminder: Reminder) => {
   if (!nextTime) return Number.POSITIVE_INFINITY;
   return (nextTime - Date.now()) / (60 * 60 * 1000);
 };
-
-interface MobileRemindersProps {
-  userId: string;
-  plants: Plant[];
-  initialReminders: Reminder[];
-}
-
-interface MobileReminderItemProps {
-  reminder: Reminder;
-  language: string;
-  isProcessing: boolean;
-  onMarkDone: (reminder: Reminder) => Promise<void>;
-  onSnooze: (reminder: Reminder, hours: number) => Promise<void>;
-  onToggleActive: (reminder: Reminder, isActive: boolean) => Promise<void>;
-  onEdit: (reminder: Reminder) => void;
-  onDelete: (reminder: Reminder) => Promise<void>;
-}
 
 export function MobileReminders({
   userId,

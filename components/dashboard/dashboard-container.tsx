@@ -30,27 +30,15 @@ import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import { Plus, Brain, Shield, Bell, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
-import type { Plant, LogEntry } from "@/types";
+import type {
+  DashboardContainerProps,
+  DashboardData,
+  LogEntry,
+  Plant,
+} from "@/types";
 import { auth } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-
-interface DashboardContainerProps {
-  userId: string;
-  userEmail: string;
-}
-
-interface DashboardData {
-  plants: Plant[];
-  lastWaterings: Record<string, LogEntry>;
-  lastFeedings: Record<string, LogEntry>;
-  lastTrainings: Record<string, LogEntry>;
-  recentLogs: LogEntry[];
-  remindersCount: number;
-  hasOverdue: boolean;
-  reminders: any[];
-  isPremium: boolean;
-}
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
   // Fetch plants

@@ -1,5 +1,6 @@
 "use client";
 
+import type { Feature, FeaturesSectionProps } from "@/types/marketing";
 import {
   Leaf,
   Calendar,
@@ -9,16 +10,6 @@ import {
   NotebookPen,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-interface Feature {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}
-
-interface FeaturesSectionProps {
-  className?: string;
-}
 
 export function FeaturesSection({ className = "" }: FeaturesSectionProps) {
   const { t } = useTranslation(["common"]);

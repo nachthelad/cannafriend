@@ -1,5 +1,6 @@
 "use client";
 
+import type { TimezoneSelectProps } from "@/types/common";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const COMMON_TIMEZONES = [
@@ -14,14 +15,6 @@ export const COMMON_TIMEZONES = [
   "Europe/London",
   "Europe/Paris",
 ] as const;
-
-interface TimezoneSelectProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  id?: string;
-  triggerClassName?: string;
-}
 
 export function TimezoneSelect({
   value,

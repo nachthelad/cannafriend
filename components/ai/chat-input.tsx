@@ -1,19 +1,11 @@
 "use client";
 
+import type { ChatInputProps } from "@/types/ai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Camera } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { forwardRef } from "react";
-
-interface ChatInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  onKeyPress: (e: React.KeyboardEvent) => void;
-  onSendMessage: () => void;
-  onShowImageUpload: () => void;
-  isLoading: boolean;
-}
 
 export const ChatInput = forwardRef<HTMLInputElement, ChatInputProps>(
   (

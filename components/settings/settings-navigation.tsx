@@ -1,27 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-type SettingsSectionId =
-  | "profile"
-  | "preferences"
-  | "billing"
-  | "notifications"
-  | "app-info"
-  | "danger";
-
-interface SettingsSection {
-  id: SettingsSectionId;
-  label: string;
-  isDestructive?: boolean;
-}
-
-interface SettingsNavigationProps {
-  sections: SettingsSection[];
-  activeSection: SettingsSectionId;
-  onSectionChange: (sectionId: SettingsSectionId) => void;
-  navigationTitle: string;
-}
+import type {
+  SettingsNavigationProps,
+  SettingsSection,
+  SettingsSectionId,
+} from "@/types";
 
 export function SettingsNavigation({
   sections,
@@ -112,5 +96,3 @@ export function SettingsNavigation({
     </div>
   );
 }
-
-export type { SettingsSectionId, SettingsSection };

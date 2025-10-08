@@ -8,6 +8,7 @@ import {
   useImperativeHandle,
   type Ref,
 } from "react";
+import type { ImageUploadProps, ImageUploadHandle } from "@/types/common";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -29,20 +30,6 @@ import {
   getImageAcceptAttribute,
   getTranslatedImageError,
 } from "@/lib/image-config";
-
-interface ImageUploadProps {
-  onImagesChange: (urls: string[]) => void;
-  maxImages?: number;
-  maxSizeMB?: number;
-  className?: string;
-  buttonSize?: "sm" | "default";
-  enableDropzone?: boolean;
-  hideDefaultTrigger?: boolean;
-}
-
-export interface ImageUploadHandle {
-  open: () => void;
-}
 
 function ImageUploadComponent(
   {
@@ -314,3 +301,5 @@ export const ImageUpload = forwardRef<ImageUploadHandle, ImageUploadProps>(
 );
 
 ImageUpload.displayName = "ImageUpload";
+
+export type { ImageUploadHandle } from "@/types/common";

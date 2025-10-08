@@ -1,6 +1,5 @@
 "use client";
 
-import type { TFunction } from "i18next";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,30 +27,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash2, Calendar, Clock, Pill, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Session } from "./types";
+import type { Session, SessionCardProps, SessionsListProps } from "@/types";
 import Image from "next/image";
-
-interface SessionsListProps {
-  sessions: Session[];
-  t: TFunction<["sessions", "common"]>;
-  onAddSession: () => void;
-  onEdit: (session: Session) => void;
-  onDelete: (sessionId: string) => void;
-  onToggleFavorite: (session: Session) => void;
-  isFavorite: (session: Session) => boolean;
-  hasActiveFilter: boolean;
-  onView?: (session: Session) => void;
-}
-
-interface SessionCardProps {
-  session: Session;
-  t: TFunction<["sessions", "common"]>;
-  onEdit: (session: Session) => void;
-  onDelete: (sessionId: string) => void;
-  onToggleFavorite: (session: Session) => void;
-  isFavorite: (session: Session) => boolean;
-  onView?: (session: Session) => void;
-}
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   year: "numeric",

@@ -3,13 +3,7 @@
 import type { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-interface TimeFieldProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}
+import type { TimeFieldProps } from "@/types";
 
 export function TimeField({
   value,

@@ -7,10 +7,7 @@ import { Bell, BellOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { useTranslation } from "react-i18next";
-
-interface PushNotificationsProps {
-  userId: string;
-}
+import type { PushNotificationsProps } from "@/types";
 
 export function PushNotifications({
   userId

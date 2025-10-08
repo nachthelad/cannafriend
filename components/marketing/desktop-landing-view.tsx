@@ -1,5 +1,6 @@
 "use client";
 
+import type { DesktopLandingViewProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { LoginModal } from "@/components/auth/login-modal";
@@ -10,17 +11,6 @@ import { LandingFooter } from "@/components/marketing/landing-footer";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import Logo from "@/components/common/logo";
-import type { BeforeInstallPromptEvent } from "@/types";
-
-interface DesktopLandingViewProps {
-  isLoggedIn: boolean;
-  loginOpen: boolean;
-  onLoginOpenChange: (open: boolean) => void;
-  onLoginClick: () => void;
-  onAuthStart?: () => void;
-  deferredPrompt: BeforeInstallPromptEvent | null;
-  onInstallPWA: () => void;
-}
 
 export function DesktopLandingView({
   isLoggedIn,
