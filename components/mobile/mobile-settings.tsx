@@ -28,25 +28,12 @@ import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
 import { invalidateSettingsCache } from "@/lib/suspense-cache";
-import type { Roles } from "@/types";
-
-interface MobileSettingsProps {
-  userId: string;
-  email?: string | null;
-  providerId?: string | null;
-  showHeader?: boolean;
-}
-
-interface PreferencesState {
-  timezone: string;
-  darkMode: boolean;
-  roles: Roles;
-}
-
-interface SettingsData {
-  preferences: PreferencesState;
-  subscription: SubscriptionDetails | null;
-}
+import type {
+  MobileSettingsProps,
+  PreferencesState,
+  Roles,
+  SettingsData,
+} from "@/types";
 
 async function fetchSettingsData(userId: string): Promise<SettingsData> {
   const userRef = userDoc(userId);

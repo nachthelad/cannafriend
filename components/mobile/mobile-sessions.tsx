@@ -1,5 +1,10 @@
 "use client";
 
+import type {
+  MobileSessionsProps,
+  SessionDetailViewProps,
+  SessionListItemProps,
+} from "@/types/mobile";
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -47,23 +52,6 @@ import { TimeField } from "@/components/sessions/time-field";
 import { cn } from "@/lib/utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 
-interface MobileSessionsProps {
-  sessions: Session[];
-  onAddSession: () => void;
-  onEdit: (session: SessionEditFormValues & { id: string }) => Promise<void>;
-  onDelete: (sessionId: string) => void;
-  onToggleFavorite: (session: Session) => void;
-  isFavorite: (session: Session) => boolean;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  filterMethod: string;
-  onFilterMethodChange: (method: string) => void;
-  sortBy: string;
-  onSortByChange: (sortBy: string) => void;
-  availableMethods: string[];
-  backHref: string;
-}
-
 function formatDate(iso?: string | null) {
   if (!iso) return "";
   try {
@@ -89,12 +77,6 @@ function formatTime(iso?: string | null) {
   } catch {
     return "";
   }
-}
-
-interface SessionListItemProps {
-  session: Session;
-  t: TFunction<["sessions", "common"]>;
-  onView: () => void;
 }
 
 function SessionListItem({ session, t, onView }: SessionListItemProps) {
@@ -132,14 +114,6 @@ function SessionListItem({ session, t, onView }: SessionListItemProps) {
       </div>
     </div>
   );
-}
-
-export interface SessionDetailViewProps {
-  session: Session;
-  t: TFunction<["sessions", "common"]>;
-  onBack: () => void;
-  onEdit: (session: SessionEditFormValues & { id: string }) => Promise<void>;
-  onDelete: (sessionId: string) => void;
 }
 
 export function SessionDetailView({
@@ -1114,4 +1088,6 @@ export function MobileSessions({
     </div>
   );
 }
+
+export type { SessionDetailViewProps } from "@/types/mobile";
 

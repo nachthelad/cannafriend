@@ -1,14 +1,11 @@
 "use client";
 
+import type { MobileLoginSectionProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { AuthTabs } from "@/components/auth/auth-tabs";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-
-interface MobileLoginSectionProps {
-  className?: string;
-}
 
 export function MobileLoginSection({
   className = "",

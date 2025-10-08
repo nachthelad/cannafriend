@@ -1,14 +1,9 @@
 "use client";
 
+import type { MobileHeaderProps } from "@/types/marketing";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
-
-interface MobileHeaderProps {
-  className?: string;
-  isLoggedIn?: boolean;
-  onPrimaryClick?: () => void;
-}
 
 export function MobileHeader({
   className = "",

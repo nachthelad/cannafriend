@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { cn } from "@/lib/utils";
-import type { RoleSelectorProps } from "@/types/common";
+import type { RoleSelectorProps, Roles } from "@/types";
 
 export function RoleSelector({
   value,

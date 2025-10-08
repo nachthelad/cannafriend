@@ -1,17 +1,10 @@
 "use client";
 
+import type { HeroSectionProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Download, PlayCircle, Leaf, Camera, Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
-import type { BeforeInstallPromptEvent } from "@/types";
-
-interface HeroSectionProps {
-  onLoginClick: () => void;
-  deferredPrompt: BeforeInstallPromptEvent | null;
-  onInstallPWA: () => void;
-  isLoggedIn: boolean;
-}
 
 export function HeroSection({
   onLoginClick,

@@ -1,10 +1,16 @@
 export * from './entities';
 export * from './auth';
 export * from './plants';
+export * from './journal';
 export * from './common';
 export * from './admin';
 export * from './ai';
 export * from './layout';
+export * from './marketing';
+export * from './mobile';
+export * from './reminders';
+export * from './dashboard';
+export * from './stash';
 export * from './firestore';
 export * from './pwa';
 

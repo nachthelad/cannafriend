@@ -1,17 +1,10 @@
 "use client";
 
+import type { CTASectionProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, PlayCircle, Smartphone, Leaf, Shield, Zap } from "lucide-react";
-import type { BeforeInstallPromptEvent } from "@/types";
-
-interface CTASectionProps {
-  onLoginClick: () => void;
-  deferredPrompt: BeforeInstallPromptEvent | null;
-  onInstallPWA: () => void;
-  isLoggedIn: boolean;
-}
 
 export function CTASection({
   onLoginClick,

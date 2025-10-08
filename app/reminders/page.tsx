@@ -18,18 +18,18 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { useTranslation } from "react-i18next";
-import type { Plant, Reminder } from "@/types";
+import type {
+  Plant,
+  Reminder,
+  RemindersContentProps,
+  RemindersData,
+} from "@/types";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PushNotificationTest } from "@/components/reminders/push-notification-test";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
-
-interface RemindersData {
-  plants: Plant[];
-  reminders: Reminder[];
-}
 
 async function fetchRemindersData(userId: string): Promise<RemindersData> {
   const [plantsSnapshot, remindersSnapshot] = await Promise.all([
@@ -48,7 +48,7 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
   return { plants, reminders };
 }
 
-function RemindersContent({ userId }: { userId: string }) {
+function RemindersContent({ userId }: RemindersContentProps) {
   const { t } = useTranslation(["reminders", "common", "dashboard"]);
   const { roles } = useUserRoles();
   const router = useRouter();

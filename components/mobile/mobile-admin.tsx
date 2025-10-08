@@ -1,28 +1,11 @@
 "use client";
 
+import type { ListedUser, MobileAdminProps } from "@/types/mobile";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Crown, User, Mail, Calendar, Copy, Hash } from "lucide-react";
-
-type ListedUser = {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  premium: boolean;
-  createdAt?: number;
-};
-
-interface MobileAdminProps {
-  users: ListedUser[];
-  loading: boolean;
-  sortDir: "newest" | "oldest";
-  setSortDir: (dir: "newest" | "oldest") => void;
-  fetchUsers: () => void;
-  togglePremium: (user: ListedUser, premium: boolean) => void;
-  copyToClipboard: (text: string, label?: string) => void;
-}
 
 export function MobileAdmin({
   users,
