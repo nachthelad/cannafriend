@@ -1,5 +1,10 @@
 "use client";
 
+import type {
+  AdminUsersTableProps,
+  AdminUser,
+  SortDirection,
+} from "@/types/admin";
 import { useMemo } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,31 +22,6 @@ import {
   RefreshCw,
   User,
 } from "lucide-react";
-
-export type SortDirection = "newest" | "oldest";
-
-export type AdminUser = {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  premium: boolean;
-  createdAt?: number;
-};
-
-interface AdminUsersTableProps {
-  adminEmail: string;
-  users: AdminUser[];
-  loading: boolean;
-  sortDir: SortDirection;
-  onSortChange: (dir: SortDirection) => void;
-  onRefresh: () => void;
-  onTogglePremium: (user: AdminUser, premium: boolean) => void;
-  onCopy: (value: string, label?: string) => void;
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-  variant?: "desktop" | "mobile";
-  className?: string;
-}
 
 export function AdminUsersTable({
   adminEmail,

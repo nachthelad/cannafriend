@@ -1,38 +1,16 @@
 "use client";
 
+import type {
+  UnifiedSearchFilters,
+  UnifiedSearchItem,
+  UnifiedSearchProps,
+  UnifiedSearchScope,
+} from "@/types/admin";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-export type UnifiedSearchScope = "all" | "payments" | "preapproval";
-
-export type UnifiedSearchFilters = {
-  uid: string;
-  status: string;
-  scope: UnifiedSearchScope;
-};
-
-export type UnifiedSearchItem = {
-  type: "payment" | "preapproval";
-  id: string;
-  status?: string;
-  payer_email?: string;
-  external_reference?: string;
-  date?: string | null;
-};
-
-interface UnifiedSearchProps {
-  filters: UnifiedSearchFilters;
-  items: UnifiedSearchItem[];
-  loading: boolean;
-  onFiltersChange: (next: Partial<UnifiedSearchFilters>) => void;
-  onSearch: () => void;
-  onReprocess: (item: UnifiedSearchItem) => void;
-  variant?: "desktop" | "mobile";
-  className?: string;
-}
 
 export function AdminUnifiedSearch({
   filters,

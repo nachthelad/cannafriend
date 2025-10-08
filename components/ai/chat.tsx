@@ -1,5 +1,6 @@
 "use client";
 
+import type { AIChatProps, AIImageAttachment, AIMessage } from "@/types/ai";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
@@ -19,20 +20,6 @@ import { ChatInput } from "@/components/ai/chat-input";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-interface AIMessage {
-  role: "user" | "assistant";
-  content: string;
-  images?: { url: string; type: string }[];
-  timestamp: string;
-}
-
-interface AIChatProps {
-  sessionId?: string;
-  className?: string;
-  sidebarOpen?: boolean;
-  onToggleSidebar?: () => void;
-}
-
 export function AIChat({
   sessionId,
   className,
@@ -44,7 +31,7 @@ export function AIChat({
   const { user } = useAuthUser();
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
-  const [images, setImages] = useState<{ url: string; type: string }[]>([]);
+  const [images, setImages] = useState<AIImageAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId
@@ -174,7 +161,10 @@ export function AIChat({
   };
 
   const handleImageUpload = (urls: string[]) => {
-    const newImages = urls.map((url) => ({ url, type: "image/jpeg" }));
+    const newImages: AIImageAttachment[] = urls.map((url) => ({
+      url,
+      type: "image/jpeg",
+    }));
     setImages((prev) => [...prev, ...newImages]);
   };
 

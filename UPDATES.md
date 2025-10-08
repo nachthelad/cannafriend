@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: add mobile reminders component and integrate it into reminders page for improved mobile experience — 2025-10-08
 - [MINOR]: remove AnimatedLogo component and replace with FormSkeleton in various pages for improved loading states — 2025-10-07
 - [MINOR]: update Vercel deployment instructions and clean up cron job configuration in documentation — 2025-10-07
 

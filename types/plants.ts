@@ -1,4 +1,4 @@
-import type { Plant, LogEntry, EnvironmentData, Reminder } from "@/types";
+import type { Plant, LogEntry, EnvironmentData, Reminder } from "./entities";
 
 export interface PlantCardProps {
   plant: Plant;

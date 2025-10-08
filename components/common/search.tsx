@@ -1,17 +1,11 @@
 "use client";
 
+import type { SearchProps } from "@/types/common";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search as SearchIcon, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-interface SearchProps {
-  placeholder?: string;
-  onSearch: (query: string) => void;
-  onClear?: () => void;
-  className?: string;
-}
 
 export function Search({
   placeholder,

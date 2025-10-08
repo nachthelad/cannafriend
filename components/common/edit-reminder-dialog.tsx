@@ -28,19 +28,15 @@ import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { AlertCircle } from "lucide-react";
-import type { Plant, Reminder } from "@/types";
+import type { Reminder } from "@/types";
+import type {
+  EditReminderDialogProps,
+  EditReminderFormData,
+} from "@/types/common";
 import {
   invalidateDashboardCache,
   invalidateRemindersCache,
 } from "@/lib/suspense-cache";
-
-interface EditReminderDialogProps {
-  reminder: Reminder | null;
-  plants: Plant[];
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onReminderUpdated: () => void;
-}
 
 // Form validation schema
 const createEditReminderFormSchema = (t: any) =>
@@ -66,10 +62,6 @@ const createEditReminderFormSchema = (t: any) =>
       { message: t("intervalInvalid", { ns: "validation" }) }
     ),
   });
-
-type EditReminderFormData = z.infer<
-  ReturnType<typeof createEditReminderFormSchema>
->;
 
 export function EditReminderDialog({
   reminder,

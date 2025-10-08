@@ -1,17 +1,8 @@
 "use client";
 
 import { useId } from "react";
-import type { Roles } from "@/types";
 import { cn } from "@/lib/utils";
-
-interface RoleSelectorProps {
-  value: Roles;
-  onChange: (roles: Roles) => void;
-  growerLabel: string;
-  consumerLabel: string;
-  className?: string;
-  optionClassName?: string;
-}
+import type { RoleSelectorProps } from "@/types/common";
 
 export function RoleSelector({
   value,
