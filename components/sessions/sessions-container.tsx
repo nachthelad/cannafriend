@@ -32,15 +32,12 @@ import {
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import type {
   Session,
+  SessionsContainerProps,
   SessionsData,
   SessionEditFormValues,
-} from "./types";
+} from "@/types";
 import { auth } from "@/lib/firebase";
 import { useUserRoles } from "@/hooks/use-user-roles";
-
-interface SessionsContainerProps {
-  userId: string;
-}
 
 async function fetchSessionsData(userId: string): Promise<SessionsData> {
   const ref = sessionsCol(userId);

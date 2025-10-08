@@ -1,15 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-
-interface AccountSummaryProps {
-  title: string;
-  // description: string;
-  email?: string | null;
-  providerId?: string | null;
-  signOutLabel: string;
-  onSignOut: () => void;
-}
+import type { AccountSummaryProps } from "@/types";
 
 export function AccountSummary({
   title,

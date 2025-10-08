@@ -44,10 +44,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
-import type {
-  Session,
-  SessionEditFormValues,
-} from "@/components/sessions/types";
+import type { Session, SessionEditFormValues } from "@/types";
 import { TimeField } from "@/components/sessions/time-field";
 import { cn } from "@/lib/utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";

@@ -1,6 +1,5 @@
 "use client";
 
-import type { TFunction } from "i18next";
 import { Plus, Search, Filter, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,20 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface SessionsHeaderProps {
-  t: TFunction<["sessions", "common"]>;
-  onAddSession: () => void;
-  onOpenAssistant: () => void;
-  isPremium: boolean;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  filterMethod: string;
-  onFilterMethodChange: (method: string) => void;
-  sortBy: string;
-  onSortByChange: (sortBy: string) => void;
-  availableMethods: string[];
-}
+import type { SessionsHeaderProps } from "@/types";
 
 export function SessionsHeader({
   t,

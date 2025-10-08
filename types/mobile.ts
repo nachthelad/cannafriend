@@ -1,8 +1,8 @@
 import type { TFunction } from "i18next";
 import type { Plant, LogEntry, Reminder } from "./entities";
 import type { Roles } from "./firestore";
-import type { Session, SessionEditFormValues } from "@/components/sessions/types";
-import type { SubscriptionDetails } from "@/components/settings/subscription-management";
+import type { Session, SessionEditFormValues } from "./sessions";
+import type { SubscriptionDetails } from "./settings";
 
 export type ListedUser = {
   uid: string;
@@ -136,17 +136,13 @@ export interface MobileSettingsProps {
   showHeader?: boolean;
 }
 
-export interface PreferencesState {
+export interface MobilePreferencesState {
   timezone: string;
   darkMode: boolean;
   roles: Roles;
 }
 
-export type MobilePreferencesState = PreferencesState;
-
-export interface SettingsData {
-  preferences: PreferencesState;
+export interface MobileSettingsData {
+  preferences: MobilePreferencesState;
   subscription: SubscriptionDetails | null;
 }
-
-export type MobileSettingsData = SettingsData;

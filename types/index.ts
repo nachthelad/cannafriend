@@ -7,10 +7,14 @@ export * from './admin';
 export * from './ai';
 export * from './layout';
 export * from './marketing';
+export * from './providers';
+export * from './sessions';
+export * from './ui';
+export * from './settings';
 export * from './mobile';
 export * from './reminders';
 export * from './dashboard';
 export * from './stash';
+export * from './nutrients';
 export * from './firestore';
 export * from './pwa';
-

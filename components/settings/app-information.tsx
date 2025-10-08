@@ -1,17 +1,6 @@
 "use client";
 
-export interface AppInformationLine {
-  label: string;
-  value: string;
-}
-
-interface AppInformationProps {
-  title: string;
-  // description?: string;
-  versionLabel: string;
-  version?: string | null;
-  infoLines?: AppInformationLine[];
-}
+import type { AppInformationLine, AppInformationProps } from "@/types";
 
 export function AppInformation({
   title,
