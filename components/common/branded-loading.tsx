@@ -1,16 +1,14 @@
 "use client";
 
-import type React from "react";
+import type {
+  BrandedLoadingProps,
+  ButtonLoadingProps,
+  PageLoadingProps,
+  CardLoadingProps,
+} from "@/types/common";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface BrandedLoadingProps {
-  size?: "sm" | "md" | "lg";
-  variant?: "default" | "minimal" | "with-text";
-  text?: string;
-  className?: string;
-}
 
 /**
  * Branded loading component with different variants and sizes.
@@ -78,17 +76,6 @@ export function BrandedLoading({
   );
 }
 
-interface ButtonLoadingProps {
-  children: React.ReactNode;
-  isLoading: boolean;
-  loadingText?: string;
-  size?: "sm" | "md" | "lg";
-  disabled?: boolean;
-  className?: string;
-  onClick?: () => void;
-  variant?: "default" | "outline" | "ghost";
-}
-
 /**
  * Button with integrated loading state that keeps spacing consistent while disabled.
  */
@@ -102,7 +89,7 @@ export function ButtonWithLoading({
   onClick,
   variant = "default",
   ...props
-}: ButtonLoadingProps & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+}: ButtonLoadingProps) {
   const baseClasses = "inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
   
   const sizeClasses = {
@@ -136,12 +123,6 @@ export function ButtonWithLoading({
   );
 }
 
-interface PageLoadingProps {
-  title?: string;
-  description?: string;
-  className?: string;
-}
-
 /**
  * Full page loading component for route transitions
  */
@@ -163,12 +144,6 @@ export function PageLoading({
       )}
     </div>
   );
-}
-
-interface CardLoadingProps {
-  lines?: number;
-  showHeader?: boolean;
-  className?: string;
 }
 
 /**

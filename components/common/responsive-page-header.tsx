@@ -1,48 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ResponsivePageHeaderProps } from "@/types/common";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface ResponsivePageHeaderProps {
-  title: ReactNode;
-  description?: ReactNode;
-  /**
-   * URL to navigate when the back button is pressed. If omitted, no back button is rendered.
-   */
-  backHref?: string;
-  /**
-   * Optional click handler for cases where navigation is handled imperatively.
-   */
-  onBackClick?: () => void;
-  /**
-   * Extra class names applied to the outer header element.
-   */
-  className?: string;
-  /**
-   * Content rendered below the title/description block on mobile viewports. Useful for search bars or filters.
-   */
-  mobileControls?: ReactNode;
-  /**
-   * Content rendered to the right of the title on mobile viewports. Typically icon-only action buttons.
-   */
-  mobileActions?: ReactNode;
-  /**
-   * Content rendered to the right of the title on desktop viewports. Typically action buttons or filters.
-   */
-  desktopActions?: ReactNode;
-  /**
-   * Whether the header should stick to the top of the viewport. Enabled by default for mobile parity.
-   */
-  sticky?: boolean;
-  /**
-   * Controls whether the mobile back button is rendered when a back action is provided.
-   */
-  showMobileBackButton?: boolean;
-}
 
 export function ResponsivePageHeader({
   title,

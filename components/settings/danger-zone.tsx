@@ -13,19 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-interface DangerZoneProps {
-  title: string;
-  description: string;
-  triggerLabel: string;
-  dialogTitle: string;
-  dialogDescription: string;
-  confirmLabel: string;
-  cancelLabel: string;
-  deletingLabel: string;
-  isDeleting: boolean;
-  onConfirm: () => void;
-}
+import type { DangerZoneProps } from "@/types";
 
 export function DangerZone({
   title,

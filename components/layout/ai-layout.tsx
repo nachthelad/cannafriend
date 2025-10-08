@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import type { AILayoutProps } from "@/types/layout";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
@@ -9,11 +9,6 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Settings, Brain, Menu } from "lucide-react";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
-
-interface AILayoutProps {
-  children: React.ReactNode;
-  onToggleSidebar?: () => void;
-}
 
 export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
   const { t } = useTranslation(["nav", "common", "aiAssistant"]);

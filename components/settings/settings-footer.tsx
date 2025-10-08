@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
-
-interface SettingsFooterProps {
-  privacyLabel: string;
-  termsLabel: string;
-}
+import type { SettingsFooterProps } from "@/types";
 
 export function SettingsFooter({
   privacyLabel,

@@ -4,21 +4,17 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
-import {
-  AdminUsersTable,
+import { AdminUsersTable } from "@/components/admin/users-table";
+import { AdminMpSearch } from "@/components/admin/mp-search";
+import { AdminStripeSearch } from "@/components/admin/stripe-search";
+import type {
   AdminUser,
   SortDirection,
-} from "@/components/admin/users-table";
-import {
-  AdminMpSearch,
   MpSearchFilters,
   MpSearchItem,
-} from "@/components/admin/mp-search";
-import {
-  AdminStripeSearch,
   StripeSearchFilters,
   StripeSearchItem,
-} from "@/components/admin/stripe-search";
+} from "@/types/admin";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { useToast } from "@/hooks/use-toast";

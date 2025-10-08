@@ -8,18 +8,10 @@ import { invalidateDashboardCache, invalidateSettingsCache } from "@/lib/suspens
 
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
-import {
-  SubscriptionDetails,
-  SubscriptionManagement,
-  type SubscriptionLine,
-} from "@/components/settings/subscription-management";
+import { SubscriptionManagement } from "@/components/settings/subscription-management";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { AppInformation } from "@/components/settings/app-information";
-import {
-  SettingsNavigation,
-  type SettingsSectionId,
-  type SettingsSection,
-} from "@/components/settings/settings-navigation";
+import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { PushNotifications } from "@/components/settings/push-notifications";
 import { useToast } from "@/hooks/use-toast";
@@ -31,25 +23,17 @@ import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
-import type { Roles } from "@/types";
-
-interface PreferencesState {
-  timezone: string;
-  darkMode: boolean;
-  roles: Roles;
-}
-
-interface SettingsData {
-  preferences: PreferencesState;
-  subscription: SubscriptionDetails | null;
-}
-
-interface SettingsContentProps {
-  userId: string;
-  email?: string | null;
-  providerId?: string | null;
-  showHeader?: boolean;
-}
+import type {
+  SettingsContainerProps,
+  SettingsContentProps,
+  SettingsData,
+  SettingsPreferencesState,
+  SettingsSection,
+  SettingsSectionId,
+  Roles,
+  SubscriptionDetails,
+  SubscriptionLine,
+} from "@/types";
 
 async function fetchSettingsData(userId: string): Promise<SettingsData> {
   const userRef = userDoc(userId);
@@ -57,7 +41,7 @@ async function fetchSettingsData(userId: string): Promise<SettingsData> {
 
   let timezone = "";
   let darkMode = true;
-  let roles: Roles = { grower: true, consumer: false };
+  let roles: SettingsPreferencesState["roles"] = { grower: true, consumer: false };
 
   if (userSnap.exists()) {
     const data = userSnap.data() as any;
@@ -111,10 +95,10 @@ function SettingsContent({
     resource.read();
 
   const [preferences, setPreferences] =
-    useState<PreferencesState>(initialPreferences);
+    useState<SettingsPreferencesState>(initialPreferences);
 
   const persistPreferences = useCallback(
-    (nextPreferences: PreferencesState) => {
+    (nextPreferences: SettingsPreferencesState) => {
       try {
         localStorage.setItem(
           `cf:userSettings:${userId}`,
@@ -127,7 +111,7 @@ function SettingsContent({
     [userId]
   );
 
-  const previousPreferencesRef = useRef<PreferencesState | null>(null);
+  const previousPreferencesRef = useRef<SettingsPreferencesState | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
     useState(false);
@@ -592,7 +576,7 @@ export function SettingsContainer({
   email,
   providerId,
   showHeader,
-}: SettingsContentProps) {
+}: SettingsContainerProps) {
   return (
     <SettingsContent
       userId={userId}

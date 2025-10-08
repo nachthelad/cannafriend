@@ -45,28 +45,12 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-
-interface StashContainerProps {
-  userId: string;
-}
-
-type StashItem = {
-  id: string;
-  name: string;
-  type: "flower" | "concentrate" | "edible";
-  amount?: string;
-  unit?: string; // g, ml, units
-  thc?: string;
-  cbd?: string;
-  addedAt?: string; // ISO
-  vendor?: string;
-  price?: string;
-  notes?: string;
-};
-
-interface StashData {
-  items: StashItem[];
-}
+import type {
+  StashContainerProps,
+  StashData,
+  StashFormValues,
+  StashItem,
+} from "@/types";
 
 async function fetchStashData(userId: string): Promise<StashData> {
   const ref = stashCol(userId);
@@ -102,19 +86,7 @@ function StashContent({ userId }: StashContainerProps) {
     setItems(initialItems);
   }, [initialItems]);
 
-  type StashForm = {
-    name: string;
-    type: "flower" | "concentrate" | "edible";
-    amount: string;
-    unit: string;
-    thc?: string;
-    cbd?: string;
-    vendor?: string;
-    price?: string;
-    notes?: string;
-  };
-
-  const buildUpdatePayload = (form: StashForm) => {
+  const buildUpdatePayload = (form: StashFormValues) => {
     const payload: Record<string, any> = {
       name: form.name.trim(),
       type: form.type,
@@ -147,7 +119,7 @@ function StashContent({ userId }: StashContainerProps) {
     setValue,
     watch,
     reset,
-  } = useForm<StashForm>({
+  } = useForm<StashFormValues>({
     defaultValues: {
       name: "",
       type: "flower",
@@ -194,7 +166,7 @@ function StashContent({ userId }: StashContainerProps) {
     reset();
   };
 
-  const onSubmit = async (data: StashForm) => {
+  const onSubmit = async (data: StashFormValues) => {
     if (!userId || !editing) return;
     setSaving(true);
     try {

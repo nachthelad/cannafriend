@@ -1,38 +1,16 @@
 "use client";
 
+import type {
+  MpSearchFilters,
+  MpSearchItem,
+  MpSearchProps,
+  MpSearchScope,
+} from "@/types/admin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-export type MpSearchScope = "all" | "payments" | "preapproval";
-
-export type MpSearchFilters = {
-  uid: string;
-  status: string;
-  scope: MpSearchScope;
-};
-
-export type MpSearchItem = {
-  type: "payment" | "preapproval";
-  id: string;
-  status?: string;
-  payer_email?: string;
-  external_reference?: string;
-  date?: string | null;
-};
-
-interface MpSearchProps {
-  filters: MpSearchFilters;
-  items: MpSearchItem[];
-  loading: boolean;
-  onFiltersChange: (next: Partial<MpSearchFilters>) => void;
-  onSearch: () => void;
-  onReprocess: (item: MpSearchItem) => void;
-  variant?: "desktop" | "mobile";
-  className?: string;
-}
 
 export function AdminMpSearch({
   filters,

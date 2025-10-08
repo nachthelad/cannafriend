@@ -13,45 +13,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-export interface SubscriptionDetails {
-  premium: boolean;
-  premium_until: number | null;
-  remaining_ms: number | null;
-  recurring: boolean | null;
-  preapproval_status: string | null;
-  last_payment?: {
-    id: string;
-    status?: string;
-    date_approved?: string;
-  } | null;
-}
-
-export interface SubscriptionLine {
-  label: string;
-  value: string;
-}
-
-interface SubscriptionManagementProps {
-  title: string;
-  statusLabel: string;
-  activeLabel: string;
-  inactiveLabel: string;
-  upgradeLabel: string;
-  upgradeDescription?: string;
-  onUpgrade: () => void;
-  onCancel: () => void;
-  cancelLabel: string;
-  dialogCancelLabel: string;
-  cancelConfirmTitle: string;
-  cancelConfirmDescription: string;
-  cancelConfirmActionLabel: string;
-  cancelingLabel: string;
-  isPremium: boolean;
-  isCancelling: boolean;
-  subscriptionLines?: SubscriptionLine[];
-  note?: string;
-}
+import type {
+  SubscriptionDetails,
+  SubscriptionLine,
+  SubscriptionManagementProps,
+} from "@/types";
 
 export function SubscriptionManagement({
   title,

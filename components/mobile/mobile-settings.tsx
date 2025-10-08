@@ -10,11 +10,7 @@ import { useTheme } from "next-themes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
-import {
-  SubscriptionManagement,
-  type SubscriptionDetails,
-  type SubscriptionLine,
-} from "@/components/settings/subscription-management";
+import { SubscriptionManagement } from "@/components/settings/subscription-management";
 import { AppInformation } from "@/components/settings/app-information";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
@@ -28,27 +24,16 @@ import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
 import { invalidateSettingsCache } from "@/lib/suspense-cache";
-import type { Roles } from "@/types";
+import type {
+  MobilePreferencesState,
+  MobileSettingsData,
+  MobileSettingsProps,
+  Roles,
+  SubscriptionDetails,
+  SubscriptionLine,
+} from "@/types";
 
-interface MobileSettingsProps {
-  userId: string;
-  email?: string | null;
-  providerId?: string | null;
-  showHeader?: boolean;
-}
-
-interface PreferencesState {
-  timezone: string;
-  darkMode: boolean;
-  roles: Roles;
-}
-
-interface SettingsData {
-  preferences: PreferencesState;
-  subscription: SubscriptionDetails | null;
-}
-
-async function fetchSettingsData(userId: string): Promise<SettingsData> {
+async function fetchSettingsData(userId: string): Promise<MobileSettingsData> {
   const userRef = userDoc(userId);
   const userSnap = await getDoc(userRef);
 
@@ -108,11 +93,11 @@ function MobileSettingsContent({
     resource.read();
 
   const [preferences, setPreferences] =
-    useState<PreferencesState>(initialPreferences);
+    useState<MobilePreferencesState>(initialPreferences);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
     useState(false);
-  const previousPreferencesRef = useRef<PreferencesState | null>(null);
+  const previousPreferencesRef = useRef<MobilePreferencesState | null>(null);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {

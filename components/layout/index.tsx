@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import type { LayoutProps } from "@/types/layout";
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -41,10 +41,6 @@ import {
   resolveHomePathForRoles,
 } from "@/lib/routes";
 import { CookieConsent } from "@/components/common/cookie-consent";
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
 
 export function Layout({ children }: LayoutProps) {
   const { t } = useTranslation([

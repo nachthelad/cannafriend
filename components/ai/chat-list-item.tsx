@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChatListItemData, ChatListItemProps } from "@/types/ai";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,24 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { InlineEdit } from "@/components/common/inline-edit";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import React from "react";
-
-export interface ChatListItemData {
-  id: string;
-  title: string;
-  lastUpdated: string;
-}
-
-interface ChatListItemProps {
-  session: ChatListItemData;
-  active?: boolean;
-  variant?: "mobile" | "desktop";
-  onSelect: (id: string) => void;
-  onRename: (id: string, newTitle: string) => Promise<void> | void;
-  onDelete: (id: string) => void;
-  setEditingId: (id: string | null) => void;
-  editingId: string | null;
-}
 
 export function ChatListItem({
   session,
@@ -120,3 +103,5 @@ export function ChatListItem({
 }
 
 export default ChatListItem;
+
+export type { ChatListItemData } from "@/types/ai";

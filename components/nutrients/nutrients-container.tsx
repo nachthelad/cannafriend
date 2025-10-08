@@ -42,22 +42,7 @@ import {
 import { Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-
-interface NutrientsContainerProps {
-  userId: string;
-}
-
-interface NutrientMix {
-  id: string;
-  name: string;
-  npk?: string;
-  notes?: string;
-  createdAt: string;
-}
-
-interface NutrientsData {
-  mixes: NutrientMix[];
-}
+import type { NutrientMixView, NutrientsContainerProps, NutrientsData } from "@/types";
 
 async function fetchNutrientsData(userId: string): Promise<NutrientsData> {
   const q = query(
@@ -65,7 +50,7 @@ async function fetchNutrientsData(userId: string): Promise<NutrientsData> {
     orderBy("createdAt", "desc")
   );
   const snap = await getDocs(q);
-  const mixes: NutrientMix[] = [];
+  const mixes: NutrientMixView[] = [];
   snap.forEach((d) => mixes.push({ id: d.id, ...(d.data() as any) }));
 
   return { mixes };
@@ -83,8 +68,8 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
   );
   const { mixes: initialMixes } = resource.read();
 
-  const [mixes, setMixes] = useState<NutrientMix[]>(initialMixes);
-  const previousMixesRef = useRef<NutrientMix[] | null>(null);
+  const [mixes, setMixes] = useState<NutrientMixView[]>(initialMixes);
+  const previousMixesRef = useRef<NutrientMixView[] | null>(null);
 
   useEffect(() => {
     if (previousMixesRef.current === initialMixes) {
@@ -109,7 +94,7 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
         orderBy("createdAt", "desc")
       );
       const snap = await getDocs(q);
-      const list: NutrientMix[] = [];
+      const list: NutrientMixView[] = [];
       snap.forEach((d) => list.push({ id: d.id, ...(d.data() as any) }));
       setMixes(list);
     } catch (error) {
@@ -117,7 +102,7 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
     }
   };
 
-  const handleDelete = async (mix: NutrientMix) => {
+  const handleDelete = async (mix: NutrientMixView) => {
     if (!userId) return;
     await deleteDoc(doc(db, buildNutrientMixPath(userId, mix.id)));
     await fetchMixes();

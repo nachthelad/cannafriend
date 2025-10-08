@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
+import type { MobileDatePickerProps } from "@/types";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +15,6 @@ import {
 import { LocalizedCalendar as Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 import { formatDateObjectWithLocale } from "@/lib/utils";
-
-type MobileDatePickerProps = {
-  selected: Date | undefined;
-  onSelect: (date: Date | undefined) => void;
-  locale: any; // date-fns locale
-};
 
 export function MobileDatePicker({
   selected,

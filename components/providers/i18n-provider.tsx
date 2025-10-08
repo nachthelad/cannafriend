@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import type { I18nProviderProps } from "@/types";
 import { initReactI18next } from "react-i18next";
 import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
@@ -36,10 +37,6 @@ import enLanding from "@/lib/locales/en/landing.json";
 import esLanding from "@/lib/locales/es/landing.json";
 import enPremium from "@/lib/locales/en/premium.json";
 import esPremium from "@/lib/locales/es/premium.json";
-
-interface I18nProviderProps {
-  children: React.ReactNode;
-}
 
 // Initialize i18n synchronously to ensure consistency
 if (typeof window === "undefined" || !i18n.isInitialized) {

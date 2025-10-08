@@ -1,5 +1,6 @@
 "use client";
 
+import type { MobilePlantPageProps } from "@/types/mobile";
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -54,20 +55,6 @@ import {
   invalidatePlantDetails,
   invalidatePlantsCache,
 } from "@/lib/suspense-cache";
-
-interface MobilePlantPageProps {
-  plant: Plant;
-  userId: string;
-  lastWatering?: LogEntry;
-  lastFeeding?: LogEntry;
-  lastTraining?: LogEntry;
-  lastEnvironment?: LogEntry;
-  onAddPhoto?: (plant: Plant) => void;
-  onRemovePhoto?: (index: number) => void;
-  onSetCoverPhoto?: (photoUrl: string) => void;
-  onUpdate?: (patch: Partial<Plant>) => void;
-  language: string;
-}
 
 export function MobilePlantPage({
   plant,

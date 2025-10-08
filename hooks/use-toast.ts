@@ -3,7 +3,7 @@
 // Inspired by react-hot-toast library
 import * as React from "react";
 
-import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
+import type { ToastActionElement, ToastProps } from "@/types";
 
 const TOAST_LIMIT = 1;
 // Deprecated: use '@/components/ui/use-toast' instead. This stub re-exports the same API.

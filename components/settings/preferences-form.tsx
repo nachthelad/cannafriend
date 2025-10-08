@@ -1,29 +1,11 @@
 "use client";
 
-import type { Roles } from "@/types";
+import type { PreferencesFormProps } from "@/types";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TimezoneSelect } from "@/components/common/timezone-select";
 import { LanguageSelect } from "@/components/common/language-select";
 import { RoleSelector } from "@/components/common/role-selector";
-
-interface PreferencesFormProps {
-  title: string;
-  // description: string;
-  languageLabel: string;
-  timezoneLabel: string;
-  timezonePlaceholder: string;
-  timezoneValue: string;
-  onTimezoneChange: (value: string) => void;
-  darkModeLabel: string;
-  darkModeChecked: boolean;
-  onDarkModeChange: (checked: boolean) => void;
-  rolesLabel: string;
-  rolesValue: Roles;
-  onRolesChange: (roles: Roles) => void;
-  growerLabel: string;
-  consumerLabel: string;
-}
 
 export function PreferencesForm({
   title,
