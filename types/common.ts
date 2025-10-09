@@ -99,6 +99,8 @@ export interface ResponsivePageHeaderProps {
   desktopActions?: ReactNode;
   sticky?: boolean;
   showMobileBackButton?: boolean;
+  showDesktopBackButton?: boolean;
+  desktopBackLabel?: ReactNode;
 }
 
 export interface RoleSelectorProps {
