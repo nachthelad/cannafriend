@@ -18,6 +18,8 @@ export function ResponsivePageHeader({
   desktopActions,
   sticky = true,
   showMobileBackButton = true,
+  showDesktopBackButton = false,
+  desktopBackLabel,
 }: ResponsivePageHeaderProps) {
   const renderBackButton = backHref || onBackClick;
 
@@ -46,6 +48,27 @@ export function ResponsivePageHeader({
                   </Link>
                 ) : (
                   <ArrowLeft className="h-5 w-5" />
+                )}
+              </Button>
+            ) : null}
+            {renderBackButton && showDesktopBackButton ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden gap-2 px-3 py-2 sm:inline-flex sm:flex-shrink-0"
+                onClick={onBackClick}
+                asChild={Boolean(backHref)}
+              >
+                {backHref ? (
+                  <Link href={backHref} aria-label="Go back">
+                    <ArrowLeft className="h-4 w-4" />
+                    {desktopBackLabel ? <span>{desktopBackLabel}</span> : null}
+                  </Link>
+                ) : (
+                  <>
+                    <ArrowLeft className="h-4 w-4" />
+                    {desktopBackLabel ? <span>{desktopBackLabel}</span> : null}
+                  </>
                 )}
               </Button>
             ) : null}

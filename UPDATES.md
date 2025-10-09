@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: [minor]: update landing footer to display app version dynamically and adjust copyright year in translations — 2025-10-09
 - [MINOR]: streamline type imports and enhance code organization by consolidating session and settings types across components — 2025-10-09
 
 - [MINOR]: enhance type definitions and improve code organization by consolidating types across components — 2025-10-08
