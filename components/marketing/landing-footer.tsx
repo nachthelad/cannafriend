@@ -7,6 +7,7 @@ import Logo from "@/components/common/logo";
 
 export function LandingFooter() {
   const { t } = useTranslation(["landing", "common", "aiAssistant"]);
+  const appVersion = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-border/50">
@@ -79,7 +80,7 @@ export function LandingFooter() {
             {t("footer.copyright", { ns: "landing" })}
           </div>
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            {t("footer.version", { ns: "landing" })}
+            {t("footer.version", { ns: "landing", version: appVersion })}
           </div>
         </div>
       </div>
