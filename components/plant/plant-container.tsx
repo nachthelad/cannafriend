@@ -491,32 +491,29 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
                   >
                     {t(`growType.${type}`, { ns: "plants" })}
                   </Badge>
-            ))}
-          </div>
-        </div>
+                ))}
+              </div>
+            </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center justify-between rounded-md border border-border px-3 py-3">
-          <div className="flex-1">
-            <p className="text-sm font-medium">
-              {t("filters.status", { ns: "plants" })}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {t("filters.showEndedDescription", { ns: "plants" })}
-            </p>
-          </div>
-          <Switch
-            checked={includeEnded}
-            onCheckedChange={setIncludeEnded}
-            aria-label={t("filters.showEnded", { ns: "plants" })}
-          />
-        </div>
+            {/* Status Filter */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium">
+                {t("filters.showEndedTitle", { ns: "plants" })}
+              </p>
+              <div>
+                <Switch
+                  checked={includeEnded}
+                  onCheckedChange={setIncludeEnded}
+                  aria-label={t("filters.showEnded", { ns: "plants" })}
+                />
+              </div>
+            </div>
 
-        {/* Clear Filters */}
-        {activeFiltersCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={() => {
+            {/* Clear Filters */}
+            {activeFiltersCount > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => {
                   clearFilters();
                   setShowFilters(false);
                 }}
