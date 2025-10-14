@@ -10,7 +10,7 @@ console.log('Add these to your .env.local file:');
 console.log('');
 console.log(`NEXT_PUBLIC_VAPID_PUBLIC_KEY=${vapidKeys.publicKey}`);
 console.log(`VAPID_PRIVATE_KEY=${vapidKeys.privateKey}`);
-console.log(`VAPID_EMAIL=your-email@cannafriend.com`);
+console.log(`VAPID_EMAIL=${process.env.DEV_EMAIL || "nachthelad.dev@gmail.com"}`);
 console.log('');
 console.log('Public Key (for client-side):');
 console.log(vapidKeys.publicKey);

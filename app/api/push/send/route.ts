@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { ADMIN_EMAIL } from "@/lib/constants";
+import { ADMIN_EMAIL, DEV_EMAIL } from "@/lib/constants";
 import webpush from "web-push";
 
 export const runtime = "nodejs";
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     // Configure VAPID details
     webpush.setVapidDetails(
-      'mailto:' + (process.env.VAPID_EMAIL || 'your-email@cannafriend.com'),
+      'mailto:' + (process.env.VAPID_EMAIL || DEV_EMAIL),
       process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
       process.env.VAPID_PRIVATE_KEY!
     );
