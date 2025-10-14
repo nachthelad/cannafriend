@@ -30,6 +30,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PushNotificationTest } from "@/components/reminders/push-notification-test";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 async function fetchRemindersData(userId: string): Promise<RemindersData> {
   const [plantsSnapshot, remindersSnapshot] = await Promise.all([
@@ -37,9 +38,9 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
     getDocs(query(remindersCol(userId))),
   ]);
 
-  const plants = plantsSnapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() } as Plant)
-  );
+  const plants = plantsSnapshot.docs
+    .map((doc) => normalizePlant(doc.data(), doc.id))
+    .filter(isPlantGrowing);
 
   const reminders = remindersSnapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as Reminder)
@@ -59,6 +60,10 @@ function RemindersContent({ userId }: RemindersContentProps) {
     fetchRemindersData(userId)
   );
   const { plants, reminders } = resource.read();
+
+  const hasGrowingPlants = plants.length > 0;
+  const hasReminders = reminders.length > 0;
+  const shouldShowManager = hasGrowingPlants || hasReminders;
 
   const handleAddReminder = () => {
     router.push(ROUTE_REMINDERS_NEW);
@@ -90,8 +95,19 @@ function RemindersContent({ userId }: RemindersContentProps) {
         </div>
       )}
 
-      {plants.length > 0 ? (
+      {shouldShowManager ? (
         <>
+          {!hasGrowingPlants && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>{t("allPlantsEnded", { ns: "reminders" })}</CardTitle>
+                <CardDescription>
+                  {t("allPlantsEndedDesc", { ns: "reminders" })}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
+
           <div className="md:hidden">
             <MobileReminders
               userId={userId}

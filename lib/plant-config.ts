@@ -17,6 +17,14 @@ export const GROW_TYPES = {
 
 export type GrowType = (typeof GROW_TYPES)[keyof typeof GROW_TYPES];
 
+// Plant lifecycle status
+export const PLANT_STATUS = {
+  GROWING: "growing",
+  ENDED: "ended",
+} as const;
+
+export type PlantStatus = (typeof PLANT_STATUS)[keyof typeof PLANT_STATUS];
+
 // Light schedules
 export const LIGHT_SCHEDULES = {
   VEGETATIVE: "18/6",

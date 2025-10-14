@@ -7,6 +7,7 @@ import type { SimplePlantCardProps } from "@/types";
 import { Leaf } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { PLANT_STATUS } from "@/lib/plant-config";
 
 export function SimplePlantCard({
   plant,
@@ -75,6 +76,11 @@ export function SimplePlantCard({
                 ? t("seedType.autoflowering", { ns: "plants" })
                 : t("seedType.photoperiodic", { ns: "plants" })}
             </Badge>
+            {plant.status === PLANT_STATUS.ENDED && (
+              <Badge variant="destructive" className="text-xs w-fit">
+                {t("status.ended", { ns: "plants" })}
+              </Badge>
+            )}
             {showGrowType && (
               <Badge variant="outline" className="text-xs w-fit">
                 {plant.growType === "indoor"
@@ -148,6 +154,11 @@ export function SimplePlantCard({
               ? t("seedType.autoflowering", { ns: "plants" })
               : t("seedType.photoperiodic", { ns: "plants" })}
           </Badge>
+          {plant.status === PLANT_STATUS.ENDED && (
+            <Badge className="text-xs bg-red-500/80 text-white border-transparent w-fit">
+              {t("status.ended", { ns: "plants" })}
+            </Badge>
+          )}
           {showGrowType && (
             <Badge
               variant="outline"

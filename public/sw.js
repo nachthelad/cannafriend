@@ -27,6 +27,33 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
+self.addEventListener('message', (event) => {
+  // Allow clients to request immediate activation of the updated worker.
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+
+    event.waitUntil((async () => {
+      await new Promise((resolve) => {
+        const checkActivation = () => {
+          if (self.registration.active === self) {
+            resolve();
+            return;
+          }
+          setTimeout(checkActivation, 50);
+        };
+        checkActivation();
+      });
+
+      await self.clients.claim();
+
+      const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clientList) {
+        client.postMessage({ type: 'RELOAD_PAGE' });
+      }
+    })());
+  }
+});
+
 // Runtime caching
 const { registerRoute } = workbox.routing;
 const { CacheFirst, StaleWhileRevalidate, NetworkFirst } = workbox.strategies;

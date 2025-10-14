@@ -33,6 +33,7 @@ import type {
   PlantLogsContainerProps,
   PlantLogsData,
 } from "@/types/plants";
+import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantData(
   userId: string,
@@ -44,7 +45,7 @@ async function fetchPlantData(
     throw new Error("Plant not found");
   }
 
-  const plant = { id: plantSnap.id, ...plantSnap.data() } as Plant;
+  const plant = normalizePlant(plantSnap.data(), plantSnap.id);
   return { plant };
 }
 

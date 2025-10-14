@@ -10,6 +10,7 @@ import type { Plant } from "@/types";
 import { cn, formatDateWithLocale } from "@/lib/utils";
 import { Leaf, Calendar, Droplet, Zap, Scissors } from "lucide-react";
 import type { LogEntry } from "@/types";
+import { PLANT_STATUS } from "@/lib/plant-config";
 
 export function PlantCard({
   plant,
@@ -79,6 +80,14 @@ export function PlantCard({
           >
             {plant.name}
           </h3>
+          {plant.status === PLANT_STATUS.ENDED && (
+            <Badge
+              variant="destructive"
+              className="mt-2 w-fit bg-red-500/90 text-white border-transparent backdrop-blur-sm"
+            >
+              {t("status.ended", { ns: "plants" })}
+            </Badge>
+          )}
           {isMobileVariant && (
             <div className="mt-1 flex items-center">
               <Badge
@@ -105,6 +114,11 @@ export function PlantCard({
           >
             {detailed ? (
               <div className="flex flex-wrap gap-2">
+                {plant.status === PLANT_STATUS.ENDED && (
+                  <Badge variant="outline" className="border-red-400 text-red-500">
+                    {t("status.ended", { ns: "plants" })}
+                  </Badge>
+                )}
                 <Badge
                   variant={
                     plant.seedType === "autoflowering" ? "default" : "outline"

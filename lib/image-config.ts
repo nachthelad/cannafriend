@@ -22,7 +22,7 @@ export const ALLOWED_IMAGE_EXTENSIONS = [
 
 // Upload limits
 export const DEFAULT_MAX_IMAGES = 5;
-export const DEFAULT_MAX_SIZE_MB = 10;
+export const DEFAULT_MAX_SIZE_MB = 4;
 
 // Storage configuration
 export const STORAGE_IMAGES_PATH = "images";

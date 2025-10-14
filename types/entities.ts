@@ -1,4 +1,9 @@
-import type { SeedType, GrowType, LightSchedule } from "@/lib/plant-config";
+import type {
+  SeedType,
+  GrowType,
+  LightSchedule,
+  PlantStatus,
+} from "@/lib/plant-config";
 import type { LogType, WateringMethod } from "@/lib/log-config";
 
 export interface Plant {
@@ -12,6 +17,8 @@ export interface Plant {
   photos?: string[];
   coverPhoto?: string;
   createdAt: string;
+  status: PlantStatus;
+  endedAt?: string | null;
 }
 
 export interface LogEntry {
@@ -31,6 +38,7 @@ export interface LogEntry {
   ph?: number;
   light?: number;
   lightSchedule?: string;
+  status?: PlantStatus;
 }
 
 export interface EnvironmentData {

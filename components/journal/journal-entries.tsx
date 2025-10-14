@@ -10,6 +10,7 @@ import {
   Thermometer,
   FileText,
   Flower,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -43,6 +44,8 @@ export function JournalEntries({
         return <Thermometer className="h-4 w-4 text-red-500" />;
       case "flowering":
         return <Flower className="h-4 w-4 text-pink-500" />;
+      case "endCycle":
+        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
       default:
         return <FileText className="h-4 w-4 text-gray-500" />;
     }
@@ -68,6 +71,8 @@ export function JournalEntries({
               log.lightSchedule
             }`
           : t("logType.flowering", { ns: "journal" });
+      case "endCycle":
+        return t("logType.endCycle", { ns: "journal" });
       default:
         return t("logType.note", { ns: "journal" });
     }

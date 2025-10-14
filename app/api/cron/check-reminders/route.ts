@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import webpush from "web-push";
 
 export const runtime = "nodejs";
 
@@ -15,6 +14,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("Checking for overdue reminders...");
+
+    // Import dependencies at runtime to keep bundle lean and avoid edge constraints
+    const webpushModule = await import("web-push");
+    const webpush = webpushModule.default ?? webpushModule;
 
     // Import Firebase Admin at runtime (server-only)
     const { adminDb } = await import("@/lib/firebase-admin");

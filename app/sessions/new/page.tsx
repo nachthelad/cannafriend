@@ -352,6 +352,7 @@ export default function NewSessionPage() {
               }
               maxSizeMB={5}
               hideDefaultTrigger
+              userId={userId ?? undefined}
             />
             {photos.length > 0 && (
               <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">

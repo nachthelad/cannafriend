@@ -412,6 +412,7 @@ export function AIChat({
           maxImages={3}
           className="sr-only"
           hideDefaultTrigger
+          userId={user?.uid}
         />
       </div>
     </div>

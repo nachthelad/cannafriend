@@ -48,5 +48,7 @@
   "customDays": "Días personalizados",
   "editReminder": "Editar Recordatorio",
   "editReminderDesc": "Actualiza la configuración de tu recordatorio",
-  "updatedMessage": "El recordatorio se ha actualizado exitosamente"
+  "updatedMessage": "El recordatorio se ha actualizado exitosamente",
+  "allPlantsEnded": "Todas tus plantas están marcadas como finalizadas",
+  "allPlantsEndedDesc": "Los recordatorios seguirán activos hasta que los desactives o elimines. Usa los controles de abajo para gestionarlos."
 }
