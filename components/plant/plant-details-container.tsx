@@ -50,6 +50,7 @@ import type {
   PlantDetailsContainerProps,
   PlantDetailsData,
 } from "@/types/plants";
+import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantDetailsData(
   userId: string,
@@ -63,7 +64,7 @@ async function fetchPlantDetailsData(
     throw new Error("Plant not found");
   }
 
-  const plant = { id: plantSnap.id, ...plantSnap.data() } as Plant;
+  const plant = normalizePlant(plantSnap.data(), plantSnap.id);
 
   // Fetch logs
   const logsRef = logsCol(userId, plantId);
@@ -227,7 +228,11 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const handlePhotosChange = async (newPhotos: string[]) => {
     if (!userId) return;
     try {
-      const updated = [...(plant.photos || []), ...newPhotos];
+      const existing = plant.photos || [];
+      const merged = [...existing, ...newPhotos];
+      const updated = merged.filter(
+        (url, index) => merged.indexOf(url) === index
+      );
       await updateDoc(plantDocRef(userId, plantId), { photos: updated });
 
       setPlant((prev) => ({ ...prev, photos: updated }));
@@ -373,6 +378,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               onPhotosChange={handlePhotosChange}
               onRemovePhoto={handleRemovePhoto}
               onSetCoverPhoto={handleSetCoverPhoto}
+              userId={userId}
             />
           </div>
 

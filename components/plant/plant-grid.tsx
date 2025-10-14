@@ -16,6 +16,7 @@ import type {
   SortBy,
   SortOrder,
 } from "@/types/plants";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
   const PAGE_SIZE = 12;
@@ -24,8 +25,7 @@ async function fetchPlantsData(userId: string): Promise<PlantGridData> {
 
   const plants: Plant[] = [];
   for (const d of snap.docs) {
-    const p = { id: d.id, ...d.data() } as Plant;
-    plants.push(p);
+    plants.push(normalizePlant(d.data(), d.id));
   }
 
   // fetch last logs for all plants in parallel
@@ -67,16 +67,22 @@ function PlantGridContent({
   sortOrder = "desc",
   seedTypeFilter = "all",
   growTypeFilter = "all",
+  includeEnded = false,
 }: PlantGridProps) {
   const cacheKey = `plants-grid-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));
   const { plants, lastWaterings, lastFeedings, lastTrainings } =
     resource.read();
 
+  const basePlants = useMemo(
+    () => (includeEnded ? plants : plants.filter(isPlantGrowing)),
+    [plants, includeEnded]
+  );
+
   // Configure Fuse.js for intelligent search with Spanish translations
   const fuse = useMemo(() => {
     // Create searchable data with translations
-    const searchableData = plants.map(plant => ({
+    const searchableData = basePlants.map(plant => ({
       ...plant,
       // Add Spanish translations for search
       seedTypeEs: plant.seedType === 'autoflowering' ? 'autofloreciente' : 'fotoperiódica',
@@ -98,10 +104,10 @@ function PlantGridContent({
       includeMatches: false,    // Don't need to highlight matches for now
       minMatchCharLength: 2,    // Require at least 2 characters to match
     });
-  }, [plants]);
+  }, [basePlants]);
 
   // Apply filters and search
-  let filtered = plants;
+  let filtered = basePlants;
 
   // Intelligent search with Fuse.js
   if (searchTerm && searchTerm.trim().length >= 2) {

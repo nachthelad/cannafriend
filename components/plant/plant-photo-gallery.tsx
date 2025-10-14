@@ -30,6 +30,7 @@ export function PlantPhotoGallery({
   onPhotosChange,
   onRemovePhoto,
   onSetCoverPhoto,
+  userId,
 }: PlantPhotoGalleryProps) {
   const { t } = useTranslation(["plants", "common"]);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
@@ -368,6 +369,7 @@ export function PlantPhotoGallery({
         hideDefaultTrigger
         maxImages={10}
         className="sr-only"
+        userId={userId}
       />
 
       {/* Lightbox Modal */}

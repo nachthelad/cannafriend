@@ -116,7 +116,10 @@
     "growType": "Tipo de Cultivo",
     "active": "Filtros activos",
     "all": "Todos",
-    "clear": "Limpiar filtros"
+    "clear": "Limpiar filtros",
+    "status": "Estado",
+    "showEnded": "Mostrar plantas finalizadas",
+    "showEndedDescription": "Incluir plantas que ya terminaron su ciclo"
   },
   "sortByName": "Ordenar por Nombre",
   "sortByDate": "Ordenar por Fecha",
@@ -172,5 +175,9 @@
   },
   "logForm": {
     "date": "Fecha"
+  },
+  "status": {
+    "growing": "En crecimiento",
+    "ended": "Ciclo finalizado"
   }
 }

@@ -8,6 +8,7 @@ import { plantsCol, logsCol } from "@/lib/paths";
 import { query, getDocs, orderBy, limit, collectionGroup, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { JournalData, JournalGridProps, LogEntry, Plant } from "@/types";
+import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchJournalData(userId: string): Promise<JournalData> {
   const LOGS_PAGE_SIZE = 25;
@@ -18,7 +19,7 @@ async function fetchJournalData(userId: string): Promise<JournalData> {
 
   const plants: Plant[] = [];
   plantsSnap.forEach((docSnap) => {
-    plants.push({ id: docSnap.id, ...docSnap.data() } as Plant);
+    plants.push(normalizePlant(docSnap.data(), docSnap.id));
   });
 
   // Try collectionGroup for logs

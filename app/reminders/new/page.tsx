@@ -42,6 +42,7 @@ import { ROUTE_LOGIN, ROUTE_REMINDERS } from "@/lib/routes";
 import { plantsCol } from "@/lib/paths";
 import { onAuthStateChanged } from "firebase/auth";
 import type { Plant, Reminder } from "@/types";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 function ReminderFormSkeleton() {
   return (
@@ -168,9 +169,9 @@ export default function NewReminderPage() {
         // Fetch plants
         try {
           const plantsSnapshot = await getDocs(query(plantsCol(user.uid)));
-          const plantsData = plantsSnapshot.docs.map(
-            (doc) => ({ id: doc.id, ...doc.data() } as Plant)
-          );
+          const plantsData = plantsSnapshot.docs
+            .map((doc) => normalizePlant(doc.data(), doc.id))
+            .filter(isPlantGrowing);
           setPlants(plantsData);
         } catch (error: any) {
           handleFirebaseError(error, "loading plants");

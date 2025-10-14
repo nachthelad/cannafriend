@@ -9,6 +9,7 @@ export const LOG_TYPES = {
   ENVIRONMENT: "environment",
   NOTE: "note",
   FLOWERING: "flowering",
+  END_CYCLE: "endCycle",
 } as const;
 
 export type LogType = (typeof LOG_TYPES)[keyof typeof LOG_TYPES];
@@ -49,6 +50,7 @@ export const LOG_TYPE_OPTIONS = [
   { value: LOG_TYPES.TRAINING, label: "logType.training" },
   { value: LOG_TYPES.ENVIRONMENT, label: "logType.environment" },
   { value: LOG_TYPES.FLOWERING, label: "logType.flowering" },
+  { value: LOG_TYPES.END_CYCLE, label: "logType.endCycle" },
   { value: LOG_TYPES.NOTE, label: "logType.note" },
 ] as const;
 

@@ -53,6 +53,7 @@ export interface ImageUploadProps {
   buttonSize?: "sm" | "default";
   enableDropzone?: boolean;
   hideDefaultTrigger?: boolean;
+  userId?: string;
 }
 
 export interface ImageUploadHandle {

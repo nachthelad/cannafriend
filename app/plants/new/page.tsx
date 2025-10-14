@@ -35,6 +35,7 @@ import { es, enUS } from "date-fns/locale";
 import {
   SEED_TYPES,
   GROW_TYPES,
+  PLANT_STATUS,
   requiresLightSchedule,
   isValidLightSchedule,
   type SeedType,
@@ -119,6 +120,8 @@ export default function NewPlantPage() {
         photos: photos.length > 0 ? photos : null,
         coverPhoto: photos.length > 0 ? photos[0] : null,
         createdAt: new Date().toISOString(),
+        status: PLANT_STATUS.GROWING,
+        endedAt: null,
       };
 
       const plantsRef = collection(db, "users", userId, "plants");
@@ -345,6 +348,7 @@ export default function NewPlantPage() {
                   onImagesChange={setPhotos}
                   maxImages={DEFAULT_MAX_IMAGES}
                   maxSizeMB={DEFAULT_MAX_SIZE_MB}
+                  userId={userId ?? undefined}
                 />
                 {photos.length > 0 && (
                   <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
