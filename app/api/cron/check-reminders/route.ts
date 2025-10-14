@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DEV_EMAIL } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Configure VAPID for web-push
     webpush.setVapidDetails(
-      'mailto:' + (process.env.VAPID_EMAIL || 'your-email@cannafriend.com'),
+      'mailto:' + (process.env.VAPID_EMAIL || DEV_EMAIL),
       process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
       process.env.VAPID_PRIVATE_KEY!
     );
