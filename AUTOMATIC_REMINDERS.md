@@ -53,12 +53,12 @@ CRON_SECRET=your-random-secret-key-here
 ```
 
 ### 2. Vercel Deployment (Optional)
-Vercel Cron Jobs require a paid plan. The project keeps the cron **disabled by default** so free-tier deployments avoid quota limits. To re-enable the hourly job, add the following to `vercel.json`:
+Vercel Cron Jobs require a paid plan. The project keeps the cron **disabled by default** so free-tier deployments avoid quota limits. To re-enable the hourly job, add the following to `vercel.json` (include the secret query parameter so the GET request authenticates):
 ```json
 {
   "crons": [
     {
-      "path": "/api/cron/check-reminders",
+      "path": "/api/cron/check-reminders?secret=your-random-secret-key-here",
       "schedule": "0 * * * *"
     }
   ]
@@ -75,6 +75,11 @@ You can manually trigger the cron job:
 curl -X POST http://localhost:3001/api/cron/check-reminders \
   -H "Authorization: Bearer your-cron-secret" \
   -H "Content-Type: application/json"
+```
+
+Or trigger the same logic with a GET request using the query parameter:
+```bash
+curl "http://localhost:3001/api/cron/check-reminders?secret=your-cron-secret"
 ```
 
 ### User Testing Flow
