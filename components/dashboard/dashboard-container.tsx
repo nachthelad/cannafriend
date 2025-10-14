@@ -238,7 +238,9 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <div>
                   <CardTitle>{t("yourPlants", { ns: "dashboard" })}</CardTitle>
-                  <CardDescription>{plants.length} en total</CardDescription>
+                  <CardDescription>
+                    {plants.length} {t("inTotal", { ns: "dashboard" })}
+                  </CardDescription>
                 </div>
                 <Button asChild variant="outline" size="sm">
                   <Link href={ROUTE_PLANTS}>{t("view", { ns: "common" })}</Link>

@@ -119,6 +119,7 @@
     "clear": "Clear filters",
     "status": "Status",
     "showEnded": "Show ended plants",
+    "showEndedTitle": "Include plants that have finished their cycle",
     "showEndedDescription": "Include plants that have finished their cycle"
   },
   "sortByName": "Sort by Name",

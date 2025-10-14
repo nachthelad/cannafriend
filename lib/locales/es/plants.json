@@ -119,6 +119,7 @@
     "clear": "Limpiar filtros",
     "status": "Estado",
     "showEnded": "Mostrar plantas finalizadas",
+    "showEndedTitle": "Incluir plantas que ya terminaron su ciclo",
     "showEndedDescription": "Incluir plantas que ya terminaron su ciclo"
   },
   "sortByName": "Ordenar por Nombre",
