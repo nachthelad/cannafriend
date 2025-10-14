@@ -23,6 +23,8 @@
   "dueSoon": "Due soon",
   "markDone": "Mark done",
   "days": "days",
+  "allPlantsEnded": "All of your plants are marked as ended",
+  "allPlantsEndedDesc": "Reminders stay active until you disable or delete them. Use the toggles below to manage any remaining alerts.",
   "wateringTitle": "Watering",
   "wateringDesc": "Water your plant",
   "feedingTitle": "Feeding",

@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: implement plant lifecycle management by adding end cycle functionality, including status updates and UI enhancements for journal and plant components — 2025-10-14
+
 - [MINOR]: optimize reminder check route by importing web-push module at runtime to reduce bundle size and enhance performance; add immediate activation handling in service worker for improved user experience — 2025-10-14
 - [MINOR]: enhance privacy and terms pages with improved structure and translation handling, including dynamic content rendering and consistent styling — 2025-10-14
 - [MINOR]: [minor]: update landing footer to display app version dynamically and adjust copyright year in translations — 2025-10-09

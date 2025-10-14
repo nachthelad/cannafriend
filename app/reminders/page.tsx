@@ -61,6 +61,10 @@ function RemindersContent({ userId }: RemindersContentProps) {
   );
   const { plants, reminders } = resource.read();
 
+  const hasGrowingPlants = plants.length > 0;
+  const hasReminders = reminders.length > 0;
+  const shouldShowManager = hasGrowingPlants || hasReminders;
+
   const handleAddReminder = () => {
     router.push(ROUTE_REMINDERS_NEW);
   };
@@ -91,8 +95,19 @@ function RemindersContent({ userId }: RemindersContentProps) {
         </div>
       )}
 
-      {plants.length > 0 ? (
+      {shouldShowManager ? (
         <>
+          {!hasGrowingPlants && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>{t("allPlantsEnded", { ns: "reminders" })}</CardTitle>
+                <CardDescription>
+                  {t("allPlantsEndedDesc", { ns: "reminders" })}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
+
           <div className="md:hidden">
             <MobileReminders
               userId={userId}
