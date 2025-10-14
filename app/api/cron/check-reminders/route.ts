@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 // This endpoint can be triggered by Vercel Cron Jobs (paid plans) or manually.
 // To enable the scheduled job, add to vercel.json: { "crons": [{ "path": "/api/cron/check-reminders?secret=<value>", "schedule": "0 * * * *" }] }
 
-export async function runReminderCron(request: NextRequest) {
+async function runReminderCron(request: NextRequest) {
   try {
     // Verify this is called by Vercel Cron (optional security check)
     const authHeader = request.headers.get("authorization");
