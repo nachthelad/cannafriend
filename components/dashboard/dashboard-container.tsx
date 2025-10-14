@@ -39,6 +39,7 @@ import type {
 import { auth } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
   // Fetch plants
@@ -54,7 +55,12 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   // Fetch plants and their last logs in parallel (limited)
   const plantDocs = plantsSnapshot.docs;
   for (const plantDoc of plantDocs) {
-    const plantData = { id: plantDoc.id, ...plantDoc.data() } as Plant;
+    const plantData = normalizePlant(plantDoc.data(), plantDoc.id);
+
+    if (!isPlantGrowing(plantData)) {
+      continue;
+    }
+
     plants.push(plantData);
 
     try {

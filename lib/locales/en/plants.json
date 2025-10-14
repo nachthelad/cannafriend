@@ -116,7 +116,10 @@
     "growType": "Grow Type",
     "active": "Active filters",
     "all": "All",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "status": "Status",
+    "showEnded": "Show ended plants",
+    "showEndedDescription": "Include plants that have finished their cycle"
   },
   "sortByName": "Sort by Name",
   "sortByDate": "Sort by Date",
@@ -172,5 +175,9 @@
   },
   "logForm": {
     "date": "Date"
+  },
+  "status": {
+    "growing": "Growing",
+    "ended": "Cycle ended"
   }
 }

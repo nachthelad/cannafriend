@@ -30,6 +30,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PushNotificationTest } from "@/components/reminders/push-notification-test";
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 async function fetchRemindersData(userId: string): Promise<RemindersData> {
   const [plantsSnapshot, remindersSnapshot] = await Promise.all([
@@ -37,9 +38,9 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
     getDocs(query(remindersCol(userId))),
   ]);
 
-  const plants = plantsSnapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() } as Plant)
-  );
+  const plants = plantsSnapshot.docs
+    .map((doc) => normalizePlant(doc.data(), doc.id))
+    .filter(isPlantGrowing);
 
   const reminders = remindersSnapshot.docs.map(
     (doc) => ({ id: doc.id, ...doc.data() } as Reminder)

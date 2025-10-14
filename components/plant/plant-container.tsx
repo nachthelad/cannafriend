@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +53,7 @@ import type {
   SortBy,
   SortOrder,
 } from "@/types/plants";
+import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantsData(userId: string): Promise<PlantContainerData> {
   const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
@@ -59,7 +61,7 @@ async function fetchPlantsData(userId: string): Promise<PlantContainerData> {
   const plants: Plant[] = [];
 
   snap.forEach((d) => {
-    plants.push({ id: d.id, ...d.data() } as Plant);
+    plants.push(normalizePlant(d.data(), d.id));
   });
 
   return { plants };
@@ -83,6 +85,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
   const [seedTypeFilter, setSeedTypeFilter] = useState("all");
   const [growTypeFilter, setGrowTypeFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [includeEnded, setIncludeEnded] = useState(false);
 
   // Get unique filter options from plants
   const seedTypes = [...new Set(plants.map((p) => p.seedType).filter(Boolean))];
@@ -93,12 +96,14 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
     seedTypeFilter !== "all",
     growTypeFilter !== "all",
     searchTerm.trim() !== "",
+    includeEnded,
   ].filter(Boolean).length;
 
   const clearFilters = () => {
     setSeedTypeFilter("all");
     setGrowTypeFilter("all");
     setSearchTerm("");
+    setIncludeEnded(false);
   };
 
   const handleAddPlant = () => router.push(ROUTE_PLANTS_NEW);
@@ -166,6 +171,18 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
               </Badge>
             )}
           </Button>
+
+          {/* Status Toggle (desktop) */}
+          <div className="hidden sm:flex items-center gap-2 h-11 rounded-md border border-border px-3">
+            <span className="text-sm text-muted-foreground">
+              {t("filters.showEnded", { ns: "plants" })}
+            </span>
+            <Switch
+              checked={includeEnded}
+              onCheckedChange={setIncludeEnded}
+              aria-label={t("filters.showEnded", { ns: "plants" })}
+            />
+          </div>
 
           {/* View Mode Toggle */}
           <Button
@@ -253,6 +270,16 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
                 onClick={() => setGrowTypeFilter("all")}
               >
                 {t(`growType.${growTypeFilter}`, { ns: "plants" })}
+                <X className="h-3 w-3" />
+              </Badge>
+            )}
+            {includeEnded && (
+              <Badge
+                variant="secondary"
+                className="gap-1 cursor-pointer"
+                onClick={() => setIncludeEnded(false)}
+              >
+                {t("status.ended", { ns: "plants" })}
                 <X className="h-3 w-3" />
               </Badge>
             )}
@@ -378,6 +405,14 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
                 </button>
               </Badge>
             )}
+            {includeEnded && (
+              <Badge variant="secondary" className="gap-1">
+                {t("status.ended", { ns: "plants" })}
+                <button onClick={() => setIncludeEnded(false)}>
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
             {activeFiltersCount > 1 && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 {t("clearAll", { ns: "common" })}
@@ -397,6 +432,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
           sortOrder={sortOrder}
           seedTypeFilter={seedTypeFilter}
           growTypeFilter={growTypeFilter}
+          includeEnded={includeEnded}
         />
       </div>
 
@@ -455,15 +491,32 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
                   >
                     {t(`growType.${type}`, { ns: "plants" })}
                   </Badge>
-                ))}
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/* Clear Filters */}
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="outline"
-                onClick={() => {
+        {/* Status Filter */}
+        <div className="flex items-center justify-between rounded-md border border-border px-3 py-3">
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              {t("filters.status", { ns: "plants" })}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t("filters.showEndedDescription", { ns: "plants" })}
+            </p>
+          </div>
+          <Switch
+            checked={includeEnded}
+            onCheckedChange={setIncludeEnded}
+            aria-label={t("filters.showEnded", { ns: "plants" })}
+          />
+        </div>
+
+        {/* Clear Filters */}
+        {activeFiltersCount > 0 && (
+          <Button
+            variant="outline"
+            onClick={() => {
                   clearFilters();
                   setShowFilters(false);
                 }}

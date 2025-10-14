@@ -71,6 +71,7 @@ export interface PlantPhotoGalleryProps {
   onPhotosChange: (newPhotos: string[]) => Promise<void>;
   onRemovePhoto: (index: number) => Promise<void>;
   onSetCoverPhoto: (photoUrl: string) => Promise<void>;
+  userId: string;
 }
 
 export interface PlantGridProps {
@@ -81,6 +82,7 @@ export interface PlantGridProps {
   sortOrder?: SortOrder;
   seedTypeFilter?: string;
   growTypeFilter?: string;
+  includeEnded?: boolean;
 }
 
 export interface PlantGridData {

@@ -22,7 +22,8 @@
     "training": "Entrenamiento",
     "environment": "Ambiente",
     "flowering": "Floración",
-    "note": "Nota"
+    "note": "Nota",
+    "endCycle": "Ciclo finalizado"
   },
   "logForm": {
     "title": "Agregar Registro",
@@ -48,7 +49,9 @@
     "success": "Registro guardado",
     "successDesc": "Tu registro ha sido guardado exitosamente",
     "error": "Error guardando registro",
-    "errorDesc": "No se pudo guardar el registro. Inténtalo de nuevo."
+    "errorDesc": "No se pudo guardar el registro. Inténtalo de nuevo.",
+    "endCycleTitle": "Finalizar ciclo",
+    "endCycleDescription": "Marca esta planta como cosechada y la ocultará de tu lista activa."
   },
   "logsFor": "Registros para",
   "addLogFor": "Agregar registro para",

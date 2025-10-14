@@ -2,6 +2,7 @@
 
 import type { PlantDetailsProps } from "@/types/plants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import type { Plant } from "@/types";
 import { formatDateWithLocale, calculateAgeInDays } from "@/lib/utils";
@@ -17,9 +18,9 @@ import {
 } from "lucide-react";
 import type { LogEntry } from "@/types";
 import { InlineEdit } from "@/components/common/inline-edit";
-import { updateDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { userDoc, plantDoc } from "@/lib/paths";
+import { updateDoc } from "firebase/firestore";
+import { plantDoc } from "@/lib/paths";
+import { PLANT_STATUS } from "@/lib/plant-config";
 
 export function PlantDetails({
   plant,
@@ -79,11 +80,36 @@ export function PlantDetails({
                 placeholder={t("newPlant.seedBankPlaceholder")}
                 className="flex-1"
               />
-            </div>
           </div>
+        </div>
 
-          {/* Seed Type */}
-          <div className="space-y-1">
+        <div className="space-y-1">
+          <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("plantPage.plantStatus")}
+          </div>
+          <div className="flex items-center text-base font-medium text-foreground gap-2">
+            <Badge
+              variant={
+                plant.status === PLANT_STATUS.ENDED ? "destructive" : "outline"
+              }
+              className={
+                plant.status === PLANT_STATUS.ENDED
+                  ? "bg-red-500/90 text-white border-transparent"
+                  : undefined
+              }
+            >
+              {t(`status.${plant.status}`, { ns: "plants" })}
+            </Badge>
+            {plant.status === PLANT_STATUS.ENDED && plant.endedAt && (
+              <span className="text-xs text-muted-foreground">
+                {formatDateWithLocale(plant.endedAt, "PPP", language)}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Seed Type */}
+        <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("newPlant.seedType")}
             </div>

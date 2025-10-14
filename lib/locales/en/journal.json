@@ -22,6 +22,7 @@
     "training": "Training",
     "environment": "Environment",
     "flowering": "Flowering",
+    "endCycle": "Cycle ended",
     "note": "Note"
   },
   "logForm": {
@@ -48,7 +49,9 @@
     "success": "Log saved",
     "successDesc": "Your log entry has been saved successfully",
     "error": "Error saving log",
-    "errorDesc": "Could not save log entry. Please try again."
+    "errorDesc": "Could not save log entry. Please try again.",
+    "endCycleTitle": "End growth cycle",
+    "endCycleDescription": "Marks this plant as harvested and hides it from the active dashboard."
   },
   "logsFor": "Logs for",
   "addLogFor": "Add log for",

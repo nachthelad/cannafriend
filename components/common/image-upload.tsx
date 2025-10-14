@@ -39,6 +39,7 @@ function ImageUploadComponent(
     buttonSize = "sm",
     enableDropzone = false,
     hideDefaultTrigger = false,
+    userId: providedUserId,
   }: ImageUploadProps,
   ref: Ref<ImageUploadHandle>
 ) {
@@ -81,8 +82,8 @@ function ImageUploadComponent(
   }, [enableDropzone]);
 
   const uploadImage = async (file: File): Promise<string> => {
-    const userId = auth.currentUser?.uid;
-    if (!userId) {
+    const resolvedUserId = providedUserId ?? auth.currentUser?.uid;
+    if (!resolvedUserId) {
       throw new Error(getTranslatedImageError(IMAGE_ERROR_KEYS.USER_NOT_AUTHENTICATED, t));
     }
 
@@ -100,12 +101,17 @@ function ImageUploadComponent(
     }
 
     const fileName = generateImageFileName(processed.name);
-    const storagePath = getImageStoragePath(userId, fileName);
+    const storagePath = getImageStoragePath(resolvedUserId, fileName);
     const storageRef = createStorageRef(storage, storagePath);
 
-    const task = uploadBytesResumable(storageRef, processed, {
-      cacheControl: "public,max-age=31536000,immutable",
-    });
+    const task = uploadBytesResumable(
+      storageRef,
+      processed,
+      {
+        cacheControl: "public,max-age=31536000,immutable",
+        contentType: processed.type,
+      }
+    );
     await new Promise<void>((resolve, reject) => {
       task.on(
         "state_changed",

@@ -59,6 +59,7 @@ import {
 import type { Plant, LogEntry } from "@/types";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
+import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchJournalData(userId: string): Promise<MobileJournalData> {
   // Fetch plants
@@ -66,7 +67,7 @@ async function fetchJournalData(userId: string): Promise<MobileJournalData> {
   const plantsSnap = await getDocs(plantsQueryRef);
   const plants: Plant[] = [];
   plantsSnap.forEach((docSnap) => {
-    plants.push({ id: docSnap.id, ...docSnap.data() } as Plant);
+    plants.push(normalizePlant(docSnap.data(), docSnap.id));
   });
 
   // Fetch logs using collectionGroup

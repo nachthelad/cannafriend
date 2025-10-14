@@ -22,12 +22,12 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
-import { Calendar, AlertCircle } from "lucide-react";
+import { Calendar, AlertCircle, AlertTriangle } from "lucide-react";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { auth, db } from "@/lib/firebase";
-import { collection, addDoc, getDocs, query } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, updateDoc } from "firebase/firestore";
 import {
   invalidateDashboardCache,
   invalidateJournalCache,
@@ -44,7 +44,7 @@ import {
   type TrainingMethod,
 } from "@/lib/log-config";
 import { buildLogsPath, buildEnvironmentPath } from "@/lib/firebase-config";
-import { plantsCol } from "@/lib/paths";
+import { plantDoc, plantsCol } from "@/lib/paths";
 import { formatDateObjectWithLocale } from "@/lib/utils";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import {
@@ -56,6 +56,8 @@ import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 import { AmountWithUnit } from "@/components/common/amount-with-unit";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { PLANT_STATUS } from "@/lib/plant-config";
+import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 function JournalFormSkeleton() {
   return (
@@ -281,10 +283,9 @@ function NewJournalPageContent() {
       try {
         const q = query(plantsCol(userId));
         const snapshot = await getDocs(q);
-        const plantsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Plant[];
+        const plantsData = snapshot.docs
+          .map((doc) => normalizePlant(doc.data(), doc.id))
+          .filter(isPlantGrowing);
         setPlants(plantsData);
 
         // Set default plant if provided in URL or use first plant
@@ -374,6 +375,12 @@ function NewJournalPageContent() {
             lightSchedule: (data.lightSchedule || "").trim() || undefined,
           };
           break;
+        case LOG_TYPES.END_CYCLE:
+          logData = {
+            ...logData,
+            status: PLANT_STATUS.ENDED,
+          };
+          break;
       }
 
       // Save log
@@ -382,6 +389,14 @@ function NewJournalPageContent() {
         buildLogsPath(auth.currentUser!.uid, selectedPlantId)
       );
       await addDoc(logsRef, logData);
+
+      if (data.logType === LOG_TYPES.END_CYCLE) {
+        const plantRef = plantDoc(auth.currentUser!.uid, selectedPlantId);
+        await updateDoc(plantRef, {
+          status: PLANT_STATUS.ENDED,
+          endedAt: data.date.toISOString(),
+        });
+      }
 
       // Invalidate caches to refresh journal, plants (for last watering/feeding), and dashboard
       invalidateJournalCache(auth.currentUser!.uid);
@@ -517,6 +532,20 @@ function NewJournalPageContent() {
               </div>
             )}
           </div>
+
+          {logType === LOG_TYPES.END_CYCLE && (
+            <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <AlertTriangle className="h-5 w-5 flex-shrink-0 text-amber-500" />
+              <div>
+                <p className="font-semibold">
+                  {t("logForm.endCycleTitle", { ns: "journal" })}
+                </p>
+                <p className="text-xs md:text-sm text-amber-700/90">
+                  {t("logForm.endCycleDescription", { ns: "journal" })}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Date Selection */}
           <div className="space-y-3">
