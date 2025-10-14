@@ -4,13 +4,19 @@ import { DEV_EMAIL } from "@/lib/constants";
 export const runtime = "nodejs";
 
 // This endpoint can be triggered by Vercel Cron Jobs (paid plans) or manually.
-// To enable the scheduled job, add to vercel.json: { "crons": [{ "path": "/api/cron/check-reminders", "schedule": "0 * * * *" }] }
+// To enable the scheduled job, add to vercel.json: { "crons": [{ "path": "/api/cron/check-reminders?secret=<value>", "schedule": "0 * * * *" }] }
 
-export async function POST(request: NextRequest) {
+export async function runReminderCron(request: NextRequest) {
   try {
     // Verify this is called by Vercel Cron (optional security check)
     const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const headerSecret = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : null;
+    const querySecret = request.nextUrl.searchParams.get("secret");
+    const providedSecret = headerSecret ?? querySecret ?? undefined;
+
+    if (!providedSecret || providedSecret !== process.env.CRON_SECRET) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
@@ -147,6 +153,14 @@ export async function POST(request: NextRequest) {
       message: error instanceof Error ? error.message : "Unknown error"
     }, { status: 500 });
   }
+}
+
+export async function POST(request: NextRequest) {
+  return runReminderCron(request);
+}
+
+export async function GET(request: NextRequest) {
+  return runReminderCron(request);
 }
 
 function getNotificationTitle(reminder: any): string {
