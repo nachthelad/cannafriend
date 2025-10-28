@@ -1,30 +1,16 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import dynamic from "next/dynamic";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
-// Defer heavy marketing views to reduce initial JS and split per-viewport
-const MobileLandingView = dynamic(
-  () =>
-    import("@/components/marketing/mobile-landing-view").then(
-      (m) => m.MobileLandingView
-    ),
-  { ssr: false, loading: () => <div className="p-8" /> }
-);
-const DesktopLandingView = dynamic(
-  () =>
-    import("@/components/marketing/desktop-landing-view").then(
-      (m) => m.DesktopLandingView
-    ),
-  { ssr: false, loading: () => <div className="p-8" /> }
-);
+import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
+import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
 import { useTranslation } from "react-i18next";
 import type { BeforeInstallPromptEvent, Roles, UserProfile } from "@/types";
 
@@ -52,6 +38,7 @@ export default function Home() {
       if (user) {
         // User is logged in, set redirect flag and show loading
         setShouldRedirect(true);
+        setIsLoggedIn(true);
         setLoginOpen(false);
 
         // User is logged in, redirect to appropriate home page
@@ -188,24 +175,20 @@ export default function Home() {
 
       {/* Mobile Layout - Direct Login Screen */}
       <div className="block lg:hidden">
-        <Suspense fallback={<div className="p-8" />}>
-          <MobileLandingView />
-        </Suspense>
+        <MobileLandingView />
       </div>
 
       {/* Desktop Layout - Marketing Page */}
       <div className="hidden lg:block">
-        <Suspense fallback={<div className="p-8" />}>
-          <DesktopLandingView
-            isLoggedIn={isLoggedIn}
-            loginOpen={loginOpen}
-            onLoginOpenChange={setLoginOpen}
-            onLoginClick={handleDesktopLoginClick}
-            onAuthStart={() => {}}
-            deferredPrompt={deferredPrompt}
-            onInstallPWA={handleInstallPWA}
-          />
-        </Suspense>
+        <DesktopLandingView
+          isLoggedIn={isLoggedIn}
+          loginOpen={loginOpen}
+          onLoginOpenChange={setLoginOpen}
+          onLoginClick={handleDesktopLoginClick}
+          onAuthStart={() => {}}
+          deferredPrompt={deferredPrompt}
+          onInstallPWA={handleInstallPWA}
+        />
       </div>
 
       {/* Cookie consent banner */}

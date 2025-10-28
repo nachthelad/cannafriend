@@ -9,13 +9,11 @@ workbox.setConfig({ debug: false });
 
 // Precache minimal app shell and key routes
 const PRECACHE_URLS = [
-  '/',
-  '/plants',
-  '/journal',
   '/offline',
 ];
 
 workbox.precaching.precacheAndRoute(PRECACHE_URLS.map((url) => ({ url, revision: null }))); // revision null for manual list
+workbox.precaching.cleanupOutdatedCaches();
 
 // Navigation preload
 self.addEventListener('activate', (event) => {
@@ -30,6 +28,20 @@ self.addEventListener('activate', (event) => {
       cachedRequests
         .filter((request) => new URL(request.url).pathname === '/api/version')
         .map((request) => apiCache.delete(request))
+    );
+
+    // Remove legacy precached navigations that could serve stale shells
+    const precacheCacheNames = await caches.keys();
+    await Promise.all(
+      precacheCacheNames
+        .filter((name) => name.startsWith('workbox-precache'))
+        .map(async (cacheName) => {
+          const cache = await caches.open(cacheName);
+          await Promise.all(
+            ['/', '/plants', '/journal']
+              .map((url) => cache.delete(url).catch(() => false))
+          );
+        })
     );
 
     await self.clients.claim();
