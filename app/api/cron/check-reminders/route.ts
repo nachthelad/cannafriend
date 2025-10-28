@@ -87,36 +87,42 @@ async function runReminderCron(request: NextRequest) {
         const subscriptionSnap = await db.collection("pushSubscriptions").doc(reminder.userId).get();
         const subscription = subscriptionSnap.data();
 
-        if (subscription?.endpoint) {
-          // Send push notification
-          const notificationPayload = {
-            title: getNotificationTitle(reminder),
-            body: getNotificationBody(reminder),
-            icon: '/icon-192x192.png',
-            badge: '/icon-192x192.png',
-            tag: `reminder-${reminder.id}`,
-            data: {
-              url: `/plants/${reminder.plantId}`,
-              reminderId: reminder.id,
-              plantId: reminder.plantId
-            },
-            actions: [
-              { action: 'view_plant', title: 'View Plant' },
-              { action: 'mark_done', title: 'Mark Done' }
-            ]
-          };
-
-          await webpush.sendNotification(
-            {
-              endpoint: subscription.endpoint,
-              keys: subscription.keys
-            },
-            JSON.stringify(notificationPayload)
+        if (!subscription?.endpoint) {
+          console.warn(
+            `Missing push subscription for reminder ${reminder.id} (user ${reminder.userId}); skipping notification.`
           );
-
-          sentCount++;
-          console.log(`Sent notification for reminder ${reminder.id} to user ${reminder.userId}`);
+          errorCount++;
+          continue;
         }
+
+        // Send push notification
+        const notificationPayload = {
+          title: getNotificationTitle(reminder),
+          body: getNotificationBody(reminder),
+          icon: '/icon-192x192.png',
+          badge: '/icon-192x192.png',
+          tag: `reminder-${reminder.id}`,
+          data: {
+            url: `/plants/${reminder.plantId}`,
+            reminderId: reminder.id,
+            plantId: reminder.plantId
+          },
+          actions: [
+            { action: 'view_plant', title: 'View Plant' },
+            { action: 'mark_done', title: 'Mark Done' }
+          ]
+        };
+
+        await webpush.sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            keys: subscription.keys
+          },
+          JSON.stringify(notificationPayload)
+        );
+
+        sentCount++;
+        console.log(`Sent notification for reminder ${reminder.id} to user ${reminder.userId}`);
 
         // Update reminder with next occurrence
         const nextReminderDate = new Date(reminder.nextReminder);
