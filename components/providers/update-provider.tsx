@@ -7,20 +7,24 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 export function UpdateProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation(["common"]);
-  const { updateAvailable, reload } = useAppVersion(60_000);
+  const { updateAvailable, reload, hasReloaded } = useAppVersion(60_000);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (updateAvailable) setOpen(true);
   }, [updateAvailable]);
+
+  useEffect(() => {
+    if (updateAvailable && !hasReloaded) {
+      reload();
+    }
+  }, [updateAvailable, hasReloaded, reload]);
 
   // Enforce modal when update is available; prevent closing via overlay
   const handleOpenChange = (next: boolean) => {
@@ -43,9 +47,6 @@ export function UpdateProvider({ children }: { children: React.ReactNode }) {
               {t("updates.description", { ns: "common" })}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button onClick={reload}>{t("updates.reload", { ns: "common" })}</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
