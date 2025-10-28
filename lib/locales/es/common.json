@@ -291,7 +291,7 @@
   },
   "updates": {
     "title": "Actualización disponible",
-    "description": "Hay una nueva versión de la app disponible. Por favor, actualiza para continuar.",
+    "description": "Hay una nueva versión lista. Vamos a refrescar automáticamente para que tengas la experiencia más reciente.",
     "reload": "Actualizar ahora",
     "later": "Más tarde"
   },

@@ -292,7 +292,7 @@
   },
   "updates": {
     "title": "Update available",
-    "description": "A new version of the app is available. Please update to continue.",
+    "description": "A new version is ready. We're refreshing automatically to bring you the latest experience.",
     "reload": "Update now",
     "later": "Later"
   },

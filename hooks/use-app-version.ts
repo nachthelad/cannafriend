@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type VersionInfo = {
   version: string;
@@ -22,8 +22,10 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
   );
 
   const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [hasReloaded, setHasReloaded] = useState(false);
   const [server, setServer] = useState<VersionInfo | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const reloadTriggeredRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +50,7 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
         const buildTimeDiffers = Boolean(
           useBuildTimeFallback && data.buildTime && data.buildTime !== current.buildTime
         );
-        if (versionDiffers || buildTimeDiffers) setUpdateAvailable(true);
+        setUpdateAvailable(versionDiffers || buildTimeDiffers);
       } catch {
         // ignore network errors
       }
@@ -73,7 +75,10 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
     };
   }, [current.buildTime, current.version, pollIntervalMs]);
 
-  const reload = async () => {
+  const reload = useCallback(async () => {
+    if (reloadTriggeredRef.current) return;
+    reloadTriggeredRef.current = true;
+    setHasReloaded(true);
     try {
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -101,9 +106,16 @@ export function useAppVersion(pollIntervalMs: number = 60_000) {
       url.searchParams.set('_v', String(Date.now()));
       window.location.replace(url.toString());
     }
-  };
+  }, []);
 
   const dismiss = () => setUpdateAvailable(false);
 
-  return { current, server, updateAvailable, reload, dismiss } as const;
+  return {
+    current,
+    server,
+    updateAvailable,
+    reload,
+    dismiss,
+    hasReloaded,
+  } as const;
 }
