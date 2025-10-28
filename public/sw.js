@@ -23,6 +23,15 @@ self.addEventListener('activate', (event) => {
     if ('navigationPreload' in self.registration) {
       await self.registration.navigationPreload.enable();
     }
+
+    const apiCache = await caches.open('api-json-cache');
+    const cachedRequests = await apiCache.keys();
+    await Promise.all(
+      cachedRequests
+        .filter((request) => new URL(request.url).pathname === '/api/version')
+        .map((request) => apiCache.delete(request))
+    );
+
     await self.clients.claim();
   })());
 });
@@ -56,7 +65,7 @@ self.addEventListener('message', (event) => {
 
 // Runtime caching
 const { registerRoute } = workbox.routing;
-const { CacheFirst, StaleWhileRevalidate, NetworkFirst } = workbox.strategies;
+const { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } = workbox.strategies;
 const { ExpirationPlugin } = workbox.expiration;
 const { BackgroundSyncPlugin } = workbox.backgroundSync;
 
@@ -75,9 +84,17 @@ registerRoute(
   new CacheFirst({ cacheName: 'next-static-cache', plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 365 * 24 * 60 * 60 })] })
 );
 
+// API version endpoint – always fetch the latest version
+registerRoute(
+  ({ url }) => url.pathname === '/api/version',
+  new NetworkOnly()
+);
+
 // API/JSON responses
 registerRoute(
-  ({ url, request }) => url.pathname.startsWith('/api/') || request.destination === 'document' && url.pathname.endsWith('.json'),
+  ({ url, request }) =>
+    (url.pathname.startsWith('/api/') && url.pathname !== '/api/version')
+    || (request.destination === 'document' && url.pathname.endsWith('.json')),
   new StaleWhileRevalidate({ cacheName: 'api-json-cache' })
 );
 
