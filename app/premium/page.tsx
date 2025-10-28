@@ -28,7 +28,10 @@ export default function PremiumPage() {
 
   // After returning from MercadoPago, force-sync custom claims and refresh token
   useEffect(() => {
-    const search = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const search =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : null;
     const status = search?.get("status");
     if (status === "completed" && user) {
       (async () => {
@@ -114,8 +117,13 @@ export default function PremiumPage() {
         });
         return;
       } else {
-        const detail = typeof data?.details === "string" ? ` (${data.details.slice(0,180)})` : "";
-        throw new Error((data.error || "Failed to create subscription") + detail);
+        const detail =
+          typeof data?.details === "string"
+            ? ` (${data.details.slice(0, 180)})`
+            : "";
+        throw new Error(
+          (data.error || "Failed to create subscription") + detail
+        );
       }
     } catch (error: any) {
       toast({
@@ -149,9 +157,6 @@ export default function PremiumPage() {
             <CardTitle className="text-xl">
               {t("featuresTitle", { ns: "premium" })}
             </CardTitle>
-            <CardDescription>
-              {t("featuresSubtitle", { ns: "premium" })}
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-4">
@@ -219,34 +224,6 @@ export default function PremiumPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <Card className="border-2 hover:border-primary/50 transition-colors">
             <CardHeader className="text-center">
-              <div className="mx-auto mb-2 w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <CardTitle>
-                {t("payment.stripe.title", { ns: "premium" })}
-              </CardTitle>
-              <CardDescription>
-                {t("payment.stripe.description", { ns: "premium" })}
-              </CardDescription>
-              <div className="text-2xl font-bold text-primary mt-2">
-                {t("payment.stripe.price", { ns: "premium" })}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={handleStripePayment}
-                disabled={loading === "stripe"}
-                className="w-full"
-              >
-                {loading === "stripe"
-                  ? t("payment.stripe.processing", { ns: "premium" })
-                  : t("payment.stripe.button", { ns: "premium" })}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:border-primary/50 transition-colors">
-            <CardHeader className="text-center">
               <div className="mx-auto mb-2 w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
                 <Banknote className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
@@ -269,6 +246,34 @@ export default function PremiumPage() {
                 {loading === "mercadopago"
                   ? t("payment.mercadoPago.processing", { ns: "premium" })
                   : t("payment.mercadoPago.button", { ns: "premium" })}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 hover:border-primary/50 transition-colors">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-2 w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <CardTitle>
+                {t("payment.stripe.title", { ns: "premium" })}
+              </CardTitle>
+              <CardDescription>
+                {t("payment.stripe.description", { ns: "premium" })}
+              </CardDescription>
+              <div className="text-2xl font-bold text-primary mt-2">
+                {t("payment.stripe.price", { ns: "premium" })}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={handleStripePayment}
+                disabled={loading === "stripe"}
+                className="w-full"
+              >
+                {loading === "stripe"
+                  ? t("payment.stripe.processing", { ns: "premium" })
+                  : t("payment.stripe.button", { ns: "premium" })}
               </Button>
             </CardContent>
           </Card>
