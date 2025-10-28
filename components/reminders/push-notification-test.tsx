@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, BellOff, TestTube } from "lucide-react";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
+import { getVapidPublicKey, urlBase64ToUint8Array } from "@/lib/push-notifications";
 
 export function PushNotificationTest() {
   const [isTestingNotification, setIsTestingNotification] = useState(false);
@@ -137,24 +138,43 @@ export function PushNotificationTest() {
         });
 
         // Also subscribe the user to push notifications
-        if (user && 'serviceWorker' in navigator) {
+        if (user && 'serviceWorker' in navigator && 'PushManager' in window) {
           const registration = await navigator.serviceWorker.ready;
+          const vapidPublicKey = getVapidPublicKey();
+
+          if (!vapidPublicKey) {
+            throw new Error("VAPID public key not configured");
+          }
 
           const subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
           });
 
           // Send subscription to server
           const token = await user.getIdToken();
-          await fetch("/api/push/subscribe", {
+          const subscribeResponse = await fetch("/api/push/subscribe", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ subscription }),
+            body: JSON.stringify(subscription),
           });
+
+          if (!subscribeResponse.ok) {
+            const errorData = await subscribeResponse.json().catch(() => null);
+            const errorMessage =
+              errorData?.error || errorData?.message || subscribeResponse.statusText || "Failed to save subscription";
+
+            console.error("Failed to save push subscription:", errorData);
+            toast({
+              title: "Subscription Failed",
+              description: errorMessage,
+              variant: "destructive",
+            });
+            return;
+          }
 
           toast({
             title: "Successfully Subscribed!",
