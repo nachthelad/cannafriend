@@ -538,7 +538,7 @@ function SettingsContent({
   }, [activeSection, sections]);
 
   return (
-    <div className="min-h-screen flex flex-col gap-6 p-4 md:px-0 md:py-6">
+    <div className="flex flex-col gap-6 p-4 md:px-0 md:py-6 md:gap-8">
       {showHeader ? (
         <header className="md:mb-4">
           <h1 className="text-xl font-bold md:text-3xl">
@@ -550,7 +550,7 @@ function SettingsContent({
         </header>
       ) : null}
 
-      <div className="flex-1 flex flex-col md:flex-row md:items-start md:gap-8">
+      <div className="flex flex-col md:flex-row md:items-start md:gap-8">
         <SettingsNavigation
           sections={sections}
           activeSection={activeSection}
@@ -558,7 +558,7 @@ function SettingsContent({
           navigationTitle={t("settings.title")}
         />
 
-        <div className="flex-1 min-w-0 space-y-6 md:space-y-8">
+        <div className="md:flex-1 min-w-0 space-y-6 md:space-y-8">
           {renderActiveSection ? renderActiveSection() : null}
         </div>
       </div>
