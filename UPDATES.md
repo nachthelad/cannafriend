@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: improve landing page rendering and prevent stale update prompts — 2025-10-28
 - [MINOR]: update PremiumPage to switch payment methods from Stripe to MercadoPago, adjust translations, and improve code formatting — 2025-10-28
 
 - [MINOR]: Fix landing page rendering and prevent stale update prompts — 2025-10-28

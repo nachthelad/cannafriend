@@ -165,9 +165,9 @@ export function Layout({ children }: LayoutProps) {
   });
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar for desktop */}
-      <aside className="hidden md:flex w-64 flex-col border-r bg-card">
+      <aside className="hidden md:flex w-64 flex-col border-r bg-card h-full">
         <div className="flex h-14 items-center border-b px-4">
           <Link
             href={homeHref}
@@ -236,7 +236,7 @@ export function Layout({ children }: LayoutProps) {
       </aside>
 
       {/* Main content */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Page content */}
         <main className="flex-1 overflow-auto p-4 pb-41 md:pb-6 md:p-6">
           <div className="mx-auto">{children}</div>

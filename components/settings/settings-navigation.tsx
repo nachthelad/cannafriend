@@ -17,7 +17,7 @@ export function SettingsNavigation({
     sections.find((section) => section.id === activeSection) ?? sections[0];
 
   return (
-    <div className="md:w-64 md:flex-shrink-0">
+    <div className="md:w-64 md:flex-shrink-0 md:self-start">
       {/* Mobile navigation */}
       <div className="md:hidden mb-6 overflow-x-auto">
         <div className="flex gap-2 rounded-lg border border-border bg-card p-2">
@@ -54,7 +54,7 @@ export function SettingsNavigation({
       {/* Desktop navigation */}
       <nav
         aria-label={navigationTitle}
-        className="sticky top-24 hidden space-y-1 border-r bg-card p-2 md:block min-h-[calc(100vh-12rem)]"
+        className="sticky top-24 hidden space-y-1 border-r bg-card p-2 md:block"
       >
         {sections.map((section, index) => {
           const isActive = section.id === activeSectionEntry.id;
