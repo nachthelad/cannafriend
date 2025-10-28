@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update dashboard and plant components for improved translations and UI consistency; add new translation keys for status filters — 2025-10-28
 - [MINOR]: update VAPID email configuration to use DEV_EMAIL constant for consistency across push and reminder routes; adjust VAPID key generation script to reflect new email handling — 2025-10-14
 - [MID]: enhance reminders page with conditional rendering for plant and reminder management, including new translations for empty states — 2025-10-14
 - [MID]: implement plant lifecycle management by adding end cycle functionality, including status updates and UI enhancements for journal and plant components — 2025-10-14
