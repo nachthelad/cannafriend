@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bell, BellOff, TestTube } from "lucide-react";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
-import { getVapidPublicKey, urlBase64ToUint8Array } from "@/lib/push-notifications";
+import { getApplicationServerKey, getVapidPublicKey } from "@/lib/push-notifications";
 
 export function PushNotificationTest() {
   const [isTestingNotification, setIsTestingNotification] = useState(false);
@@ -148,7 +148,7 @@ export function PushNotificationTest() {
 
           const subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+            applicationServerKey: getApplicationServerKey(vapidPublicKey),
           });
 
           // Send subscription to server

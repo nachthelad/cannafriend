@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { useTranslation } from "react-i18next";
 import type { PushNotificationsProps } from "@/types";
-import { getVapidPublicKey, urlBase64ToUint8Array } from "@/lib/push-notifications";
+import { getApplicationServerKey, getVapidPublicKey } from "@/lib/push-notifications";
 
 export function PushNotifications({
   userId
@@ -89,7 +89,7 @@ export function PushNotifications({
       console.log("Subscribing to push manager...");
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: getApplicationServerKey(vapidPublicKey)
       });
       console.log("Push subscription created:", subscription.endpoint.substring(0, 50));
 
