@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
@@ -39,6 +39,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  ImageUpload,
+  type ImageUploadHandle,
+} from "@/components/common/image-upload";
 import {
   invalidateDashboardCache,
   invalidatePlantsCache,
@@ -152,6 +156,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const [plant, setPlant] = useState<Plant>(initialPlant);
   const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
   const [isDeleting, setIsDeleting] = useState(false);
+  const mobileImageUploadRef = useRef<ImageUploadHandle>(null);
 
   // Update local state when Suspense data changes
   useEffect(() => {
@@ -298,7 +303,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
-
     } catch (error: any) {
       handleFirebaseError(error, "remove photo");
     }
@@ -315,7 +319,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
-
     } catch (error: any) {
       handleFirebaseError(error, "set cover photo");
     }
@@ -349,13 +352,21 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastTraining={lastTraining || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
           onAddPhoto={async () => {
-            // Mobile photo upload would need implementation
-            // For now, redirect to desktop or implement mobile gallery
+            mobileImageUploadRef.current?.open();
           }}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}
           onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
           language={i18n.language}
+        />
+        {/* Hidden Image Upload for Mobile */}
+        <ImageUpload
+          ref={mobileImageUploadRef}
+          onImagesChange={handlePhotosChange}
+          hideDefaultTrigger
+          maxSizeMB={5}
+          className="sr-only"
+          userId={userId}
         />
       </div>
 
@@ -463,4 +474,3 @@ export function PlantDetailsContainer({
     </Suspense>
   );
 }
-
