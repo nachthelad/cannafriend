@@ -32,7 +32,7 @@ export function ResponsivePageHeader({
       )}
     >
       <div className="px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {renderBackButton && showMobileBackButton ? (
               <Button
@@ -82,18 +82,7 @@ export function ResponsivePageHeader({
                 </p>
               ) : null}
             </div>
-            {mobileControls ? (
-              <div className="space-y-3 sm:hidden">{mobileControls}</div>
-            ) : null}
           </div>
-
-          {/* Mobile Actions - show only on mobile */}
-          {mobileActions ? (
-            <div className="flex items-start gap-2 mt-1 sm:hidden flex-shrink-0">
-              {mobileActions}
-            </div>
-          ) : null}
-
           {/* Desktop Actions - show only on desktop */}
           {desktopActions ? (
             <div className="hidden sm:flex items-center gap-2 mt-1 flex-shrink-0">
@@ -101,6 +90,18 @@ export function ResponsivePageHeader({
             </div>
           ) : null}
         </div>
+
+        {/* Mobile-specific controls stacked below the title */}
+        {mobileControls || mobileActions ? (
+          <div className="mt-3 flex flex-col gap-3 sm:hidden">
+            {mobileControls ? (
+              <div className="space-y-3">{mobileControls}</div>
+            ) : null}
+            {mobileActions ? (
+              <div className="flex items-start gap-2">{mobileActions}</div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </header>
   );
