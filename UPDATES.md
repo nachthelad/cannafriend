@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: add mobile image upload functionality in plant details — 2025-11-10
 - [MINOR]: enhance layout and settings components for improved responsiveness and consistency — 2025-11-01
 - [MINOR]: improve landing page rendering and prevent stale update prompts — 2025-10-28
 - [MINOR]: update PremiumPage to switch payment methods from Stripe to MercadoPago, adjust translations, and improve code formatting — 2025-10-28
