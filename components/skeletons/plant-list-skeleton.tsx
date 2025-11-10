@@ -5,66 +5,65 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function PlantListSkeleton() {
   return (
-    <div className="space-y-6">
-      {/* Header with filters and actions */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div>
-          <Skeleton className="h-8 w-32 mb-2" /> {/* Title */}
-          <Skeleton className="h-5 w-48" /> {/* Description */}
+    <>
+      {/* Mobile Controls Skeleton */}
+      <div className="md:hidden px-4 space-y-4 mb-6">
+        <div className="flex items-center gap-2">
+          {/* Search Bar Skeleton */}
+          <Skeleton className="h-11 flex-1 rounded-md" />
+          {/* Filter, List, Sort buttons */}
+          <Skeleton className="h-11 w-11 rounded-md" />
+          <Skeleton className="h-11 w-11 rounded-md" />
+          <Skeleton className="h-11 w-11 rounded-md" />
         </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-10 w-24" /> {/* Filter button */}
-          <Skeleton className="h-10 w-32" /> {/* Add plant button */}
+      </div>
+
+      {/* Desktop Controls Skeleton */}
+      <div className="hidden md:block px-6 mb-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Skeleton className="h-10 flex-1 max-w-md rounded-md" />
+          <Skeleton className="h-10 w-24 rounded-md" />
+          <Skeleton className="h-10 w-32 rounded-md" />
+          <Skeleton className="h-10 w-24 rounded-md" />
         </div>
       </div>
 
       {/* Plant grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <PlantCardSkeleton key={i} />
-        ))}
+      <div className="px-4 md:px-6">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <PlantCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export function PlantCardSkeleton() {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative">
-        <Skeleton className="h-48 w-full" /> {/* Plant image */}
-        <div className="absolute top-3 right-3">
-          <Skeleton className="h-6 w-20 rounded-full" /> {/* Status badge */}
-        </div>
-        <div className="absolute bottom-3 left-3">
-          <Skeleton className="h-8 w-8 rounded-full" /> {/* Menu button */}
+    <Card className="overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5">
+      <div className="relative aspect-[4/3] sm:aspect-video">
+        {/* Plant image skeleton - main background */}
+        <Skeleton className="h-full w-full rounded-none" />
+        
+        {/* Dark gradient overlay at bottom to simulate text overlay area */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        
+        {/* Plant name and badges overlay at bottom - using darker skeleton for visibility */}
+        <div className="absolute bottom-2 left-2 right-2 z-10">
+          {/* Plant name skeleton */}
+          <div className="mb-2">
+            <Skeleton className="h-6 w-28 bg-foreground/20" />
+          </div>
+          
+          {/* Badges skeleton - pill-shaped */}
+          <div className="flex gap-2 flex-wrap">
+            <Skeleton className="h-5 w-20 rounded-full bg-foreground/20" />
+            <Skeleton className="h-5 w-16 rounded-full bg-foreground/20" />
+          </div>
         </div>
       </div>
-      <CardContent className="p-4">
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <Skeleton className="h-6 w-32" /> {/* Plant name */}
-            <div className="flex gap-2">
-              <Skeleton className="h-4 w-16 rounded-full" /> {/* Type badge */}
-              <Skeleton className="h-4 w-20 rounded-full" /> {/* Stage badge */}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <Skeleton className="h-4 w-12" /> {/* Age label */}
-              <Skeleton className="h-4 w-16" /> {/* Age value */}
-            </div>
-            <div className="flex justify-between">
-              <Skeleton className="h-4 w-20" /> {/* Last update label */}
-              <Skeleton className="h-4 w-14" /> {/* Last update value */}
-            </div>
-          </div>
-          <div className="flex justify-between items-center pt-2">
-            <Skeleton className="h-8 w-20" /> {/* View button */}
-            <Skeleton className="h-8 w-8 rounded-full" /> {/* Options button */}
-          </div>
-        </div>
-      </CardContent>
     </Card>
   );
 }

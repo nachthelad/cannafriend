@@ -32,7 +32,7 @@ export function ResponsivePageHeader({
       )}
     >
       <div className="px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {renderBackButton && showMobileBackButton ? (
               <Button
@@ -73,9 +73,18 @@ export function ResponsivePageHeader({
               </Button>
             ) : null}
             <div className="space-y-1 flex-1 min-w-0">
-              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                {title}
-              </h1>
+              {/* Title and mobile actions on same line */}
+              <div className="flex items-center justify-between gap-3">
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                  {title}
+                </h1>
+                {/* Mobile Actions - show on mobile, same line as title */}
+                {mobileActions ? (
+                  <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
+                    {mobileActions}
+                  </div>
+                ) : null}
+              </div>
               {description ? (
                 <p className="text-sm text-muted-foreground sm:text-base">
                   {description}
@@ -83,23 +92,18 @@ export function ResponsivePageHeader({
               ) : null}
             </div>
           </div>
-          {/* Desktop Actions - show only on desktop */}
+          {/* Desktop Actions - show only on desktop, aligned with title */}
           {desktopActions ? (
-            <div className="hidden sm:flex items-center gap-2 mt-1 flex-shrink-0">
+            <div className="hidden sm:flex items-center gap-2 flex-shrink-0 sm:self-start">
               {desktopActions}
             </div>
           ) : null}
         </div>
 
         {/* Mobile-specific controls stacked below the title */}
-        {mobileControls || mobileActions ? (
+        {mobileControls ? (
           <div className="mt-3 flex flex-col gap-3 sm:hidden">
-            {mobileControls ? (
-              <div className="space-y-3">{mobileControls}</div>
-            ) : null}
-            {mobileActions ? (
-              <div className="flex items-start gap-2">{mobileActions}</div>
-            ) : null}
+            <div className="space-y-3">{mobileControls}</div>
           </div>
         ) : null}
       </div>
