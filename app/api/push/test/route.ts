@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
     const testNotification = {
       title: "🧪 Test Notification",
       body: "Push notifications are working correctly! This is a test from your Cannafriend app.",
-      icon: '/icon-192x192.png',
-      badge: '/icon-192x192.png',
+      icon: '/web-app-manifest-192x192.png',
+      badge: '/web-app-manifest-192x192.png',
       tag: `test-${Date.now()}`,
       data: {
         url: "/",

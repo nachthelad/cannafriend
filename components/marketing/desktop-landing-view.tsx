@@ -10,7 +10,7 @@ import { CTASection } from "@/components/marketing/cta-section";
 import { LandingFooter } from "@/components/marketing/landing-footer";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { ThemeToggle } from "@/components/common/theme-toggle";
-import Logo from "@/components/common/logo";
+import ThemeLogo from "@/components/common/theme-logo";
 
 export function DesktopLandingView({
   isLoggedIn,
@@ -31,7 +31,7 @@ export function DesktopLandingView({
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <Logo size={32} className="text-primary" />
+              <ThemeLogo size={32} className="text-primary" />
               <span className="text-xl font-bold text-gray-900 dark:text-white">
                 {t("app.name", { ns: "common" })}
               </span>

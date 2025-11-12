@@ -99,8 +99,8 @@ async function runReminderCron(request: NextRequest) {
         const notificationPayload = {
           title: getNotificationTitle(reminder),
           body: getNotificationBody(reminder),
-          icon: '/icon-192x192.png',
-          badge: '/icon-192x192.png',
+          icon: '/web-app-manifest-192x192.png',
+          badge: '/web-app-manifest-192x192.png',
           tag: `reminder-${reminder.id}`,
           data: {
             url: `/plants/${reminder.plantId}`,
