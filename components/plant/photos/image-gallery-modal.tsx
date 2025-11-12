@@ -2,7 +2,12 @@
 
 import type { ImageGalleryModalProps } from "@/types/plants";
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -43,6 +48,11 @@ export function ImageGalleryModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>
+            {t("plantPage.photoGallery", { ns: "plants" })}
+          </DialogTitle>
+        </DialogHeader>
         <div className="relative h-full">
           {/* Botón de cerrar */}
           <Button
