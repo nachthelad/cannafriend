@@ -12,11 +12,11 @@ import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
 export const metadata: Metadata = {
-  title: "Cannafriend - Plant Growth Tracker & Journal",
+  title: "cannafriend",
   description:
-    "Track your plant growth and maintenance with detailed logging, environmental monitoring, and journal features. Professional plant cultivation tracking app.",
+    "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
   keywords:
-    "plant growth, plant tracker, cultivation journal, plant care, growth monitoring, plant management",
+    "plant growth, plant tracker, cultivation journal, plant care, growth monitoring, plant management, registro de crecimiento de plantas, registro de seguimiento de plantas, registro de cultivo de plantas, registro de monitoreo ambiental, registro de gestión de plantas",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -25,10 +25,26 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      {
+        url: "/favicon-96x96.png",
+        sizes: "96x96",
+        type: "image/png",
+      },
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        media: "(prefers-color-scheme: dark)",
+        url: "/favicon-96x96.png",
+        sizes: "96x96",
+        type: "image/png",
+      },
     ],
-    apple: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   robots: {
     index: true,
@@ -57,18 +73,18 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Cannafriend" />
         <meta name="author" content="Cannafriend Team" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link
           rel="icon"
           type="image/png"
-          sizes="16x16"
-          href="/favicon-16x16.png"
+          sizes="96x96"
+          href="/favicon-96x96.png"
         />
         <link
           rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon-32x32.png"
+          type="image/svg+xml"
+          href="/favicon.svg"
+          media="(prefers-color-scheme: light)"
         />
         <script
           dangerouslySetInnerHTML={{
@@ -109,4 +125,3 @@ export default function RootLayout({
     </html>
   );
 }
-

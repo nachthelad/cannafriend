@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
             JSON.stringify({
               title: notification.title,
               body: notification.body,
-              icon: notification.icon || '/icon-192x192.png',
-              badge: notification.badge || '/icon-192x192.png',
+              icon: notification.icon || '/web-app-manifest-192x192.png',
+              badge: notification.badge || '/web-app-manifest-192x192.png',
               tag: notification.tag || 'default',
               data: notification.data || {},
               actions: notification.actions || []

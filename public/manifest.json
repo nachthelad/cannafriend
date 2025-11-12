@@ -1,7 +1,7 @@
 {
-  "name": "Cannafriend - Plant Growth Tracker",
-  "short_name": "Cannafriend",
-  "description": "Track your plant growth and maintenance with detailed logging and environmental monitoring",
+  "name": "cannafriend",
+  "short_name": "cannafriend",
+  "description_es": "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -12,13 +12,13 @@
   "categories": ["lifestyle", "productivity", "utilities"],
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

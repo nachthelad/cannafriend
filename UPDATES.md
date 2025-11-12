@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: enhance skeleton components for improved mobile and desktop layouts — 2025-11-12
 - [MINOR]: improve layout of responsive page header for mobile and desktop — 2025-11-10
 
 - [MID]: add mobile image upload functionality in plant details — 2025-11-10

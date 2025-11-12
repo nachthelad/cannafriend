@@ -3,12 +3,12 @@ import path from "node:path";
 import sharp from "sharp";
 
 const ROOT = path.resolve(process.cwd());
-const logoSvg = path.join(ROOT, "public", "logo.svg");
+const logoSvg = path.join(ROOT, "public", "favicon.svg");
 const outDir = path.join(ROOT, "public");
 
 async function ensure() {
   await fs.access(logoSvg).catch(() => {
-    throw new Error(`public/logo.svg not found`);
+    throw new Error(`public/favicon.svg not found`);
   });
 }
 
@@ -17,10 +17,10 @@ async function generate() {
   const svg = await fs.readFile(logoSvg);
 
   const tasks = [
-    { name: "icon-192x192.png", size: 192 },
-    { name: "icon-512x512.png", size: 512 },
-    { name: "favicon-32x32.png", size: 32 },
-    { name: "favicon-16x16.png", size: 16 },
+    { name: "web-app-manifest-192x192.png", size: 192 },
+    { name: "web-app-manifest-512x512.png", size: 512 },
+    { name: "apple-touch-icon.png", size: 180 },
+    { name: "favicon-96x96.png", size: 96 },
   ];
 
   for (const t of tasks) {

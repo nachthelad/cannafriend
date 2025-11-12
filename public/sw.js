@@ -152,8 +152,8 @@ self.addEventListener('push', (event) => {
   let notificationData = {
     title: 'Cannafriend',
     body: 'You have a new notification',
-    icon: '/icon-192x192.png',
-    badge: '/icon-192x192.png',
+    icon: '/web-app-manifest-192x192.png',
+    badge: '/web-app-manifest-192x192.png',
     tag: 'default',
     data: {},
     actions: []

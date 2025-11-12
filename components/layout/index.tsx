@@ -24,6 +24,7 @@ import { useUserRoles } from "@/hooks/use-user-roles";
 import { usePremium } from "@/hooks/use-premium";
 import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
+import DarkModeLogo from "@/components/common/darkmode-logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -173,7 +174,7 @@ export function Layout({ children }: LayoutProps) {
             href={homeHref}
             className="flex items-center gap-2 font-semibold"
           >
-            <Logo size={20} className="text-primary" />
+            <DarkModeLogo size={20} />
             <span className="text-xl">{t("app.name", { ns: "common" })}</span>
             {isPremium && (
               <span className="text-xs font-medium text-primary opacity-70 ml-1">

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { AuthTabs } from "@/components/auth/auth-tabs";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
-import Logo from "@/components/common/logo";
+import ThemeLogo from "@/components/common/theme-logo";
 
 export function MobileLandingView() {
   const { t } = useTranslation("common");
@@ -13,7 +13,7 @@ export function MobileLandingView() {
     <div className="min-h-screen flex flex-col justify-center p-6">
       {/* Logo and App Name */}
       <div className="text-center mb-8">
-        <Logo size={48} className="text-primary mx-auto mb-4" />
+        <ThemeLogo size={48} className="text-primary mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {t("app.name")}
         </h1>

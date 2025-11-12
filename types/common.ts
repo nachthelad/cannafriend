@@ -1,4 +1,9 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SVGProps } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from "react";
 import type { Plant, Reminder } from "./entities";
 import type { Roles } from "./firestore";
 
@@ -84,7 +89,7 @@ export interface InlineEditProps {
 
 export type LogoVariant = "mark" | "badgeLight" | "badgeDark";
 
-export interface LogoProps extends SVGProps<SVGSVGElement> {
+export interface LogoProps extends HTMLAttributes<HTMLSpanElement> {
   size?: number | string;
   variant?: LogoVariant;
 }
