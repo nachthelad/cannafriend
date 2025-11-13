@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next";
 import type { Plant, LogEntry, Reminder } from "./entities";
+import type { UploadingState } from "./common";
 import type { Roles } from "./firestore";
 import type { Session, SessionEditFormValues } from "./sessions";
 import type { SubscriptionDetails } from "./settings";
@@ -79,6 +80,7 @@ export interface MobilePlantPageProps {
   onSetCoverPhoto?: (photoUrl: string) => void;
   onUpdate?: (patch: Partial<Plant>) => void;
   language: string;
+  photoUploadState?: UploadingState;
 }
 
 export interface MobileRemindersProps {

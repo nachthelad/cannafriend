@@ -50,8 +50,10 @@ export interface EditReminderFormData {
   interval: string;
 }
 
+export type UploadingState = "idle" | "prompt" | "uploading";
+
 export interface ImageUploadProps {
-  onImagesChange: (urls: string[]) => void;
+  onImagesChange: (urls: string[]) => Promise<void> | void;
   maxImages?: number;
   maxSizeMB?: number;
   className?: string;
@@ -59,6 +61,7 @@ export interface ImageUploadProps {
   enableDropzone?: boolean;
   hideDefaultTrigger?: boolean;
   userId?: string;
+  onUploadingChange?: (isUploading: boolean) => void;
 }
 
 export interface ImageUploadHandle {

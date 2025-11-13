@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: add header and title to image gallery modal for improved accessibility — 2025-11-13
 - [MINOR]: update notification icons and improve logo handling across the application — 2025-11-12
 - [MINOR]: enhance skeleton components for improved mobile and desktop layouts — 2025-11-12
 - [MINOR]: improve layout of responsive page header for mobile and desktop — 2025-11-10

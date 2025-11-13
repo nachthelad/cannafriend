@@ -27,6 +27,7 @@ import {
   FileText,
   Trash2,
   Star,
+  Loader2,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -68,6 +69,7 @@ export function MobilePlantPage({
   onSetCoverPhoto,
   onUpdate,
   language,
+  photoUploadState = "idle",
 }: MobilePlantPageProps) {
   const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
@@ -76,6 +78,8 @@ export function MobilePlantPage({
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const showUploadOverlay =
+    photoUploadState !== undefined && photoUploadState !== "idle";
 
   // Get all available images (coverPhoto + photos)
   const allImages = [
@@ -170,6 +174,17 @@ export function MobilePlantPage({
 
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+          {showUploadOverlay && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-dashed border-primary/60">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+              <p className="mt-3 text-sm text-white/80">
+                {t("imageUpload.uploading", { ns: "common" })}
+              </p>
+            </div>
+          )}
 
           {/* Navigation Header */}
           <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10">
