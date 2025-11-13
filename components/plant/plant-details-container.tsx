@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
@@ -54,6 +54,7 @@ import type {
   PlantDetailsContainerProps,
   PlantDetailsData,
 } from "@/types/plants";
+import type { UploadingState } from "@/types/common";
 import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantDetailsData(
@@ -156,7 +157,47 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const [plant, setPlant] = useState<Plant>(initialPlant);
   const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [mobileUploadState, setMobileUploadState] =
+    useState<UploadingState>("idle");
   const mobileImageUploadRef = useRef<ImageUploadHandle>(null);
+  const mobileUploadPromptTimeoutRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearMobilePromptTimeout = useCallback(() => {
+    if (mobileUploadPromptTimeoutRef.current) {
+      clearTimeout(mobileUploadPromptTimeoutRef.current);
+      mobileUploadPromptTimeoutRef.current = null;
+    }
+  }, []);
+
+  const scheduleMobilePromptReset = useCallback(() => {
+    clearMobilePromptTimeout();
+    mobileUploadPromptTimeoutRef.current = setTimeout(() => {
+      setMobileUploadState((state) => (state === "prompt" ? "idle" : state));
+      mobileUploadPromptTimeoutRef.current = null;
+    }, 3000);
+  }, [clearMobilePromptTimeout]);
+
+  const handleMobileAddPhoto = useCallback(() => {
+    setMobileUploadState("prompt");
+    scheduleMobilePromptReset();
+    mobileImageUploadRef.current?.open();
+  }, [scheduleMobilePromptReset]);
+
+  const handleMobileUploadingChange = useCallback(
+    (isUploading: boolean) => {
+      clearMobilePromptTimeout();
+      setMobileUploadState(isUploading ? "uploading" : "idle");
+    },
+    [clearMobilePromptTimeout]
+  );
+
+  useEffect(
+    () => () => {
+      clearMobilePromptTimeout();
+    },
+    [clearMobilePromptTimeout]
+  );
 
   // Update local state when Suspense data changes
   useEffect(() => {
@@ -351,13 +392,12 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastFeeding={lastFeeding || undefined}
           lastTraining={lastTraining || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
-          onAddPhoto={async () => {
-            mobileImageUploadRef.current?.open();
-          }}
+          onAddPhoto={handleMobileAddPhoto}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}
           onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
           language={i18n.language}
+          photoUploadState={mobileUploadState}
         />
         {/* Hidden Image Upload for Mobile */}
         <ImageUpload
@@ -367,6 +407,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           maxSizeMB={5}
           className="sr-only"
           userId={userId}
+          onUploadingChange={handleMobileUploadingChange}
         />
       </div>
 

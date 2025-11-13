@@ -1,7 +1,7 @@
 "use client";
 
 import type { PlantPhotoGalleryProps } from "@/types/plants";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useEmblaCarousel from "embla-carousel-react";
@@ -21,7 +21,7 @@ import {
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
 import { ImageGalleryModal } from "@/components/plant/photos/image-gallery-modal";
-import { Plus, Star, Trash2 } from "lucide-react";
+import { Loader2, Plus, Star, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 
@@ -39,6 +39,8 @@ export function PlantPhotoGallery({
   );
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [showUploadPrompt, setShowUploadPrompt] = useState(false);
 
   // Embla Carousel for thumbnails
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -60,6 +62,24 @@ export function PlantPhotoGallery({
     setLightboxIndex(index >= 0 ? index : 0);
     setIsLightboxOpen(true);
   };
+
+  const handleOpenUpload = useCallback(() => {
+    setShowUploadPrompt(true);
+    imageUploadRef.current?.open();
+  }, []);
+
+  const handleUploadingChange = useCallback((state: boolean) => {
+    setIsUploadingPhoto(state);
+    setShowUploadPrompt(state);
+  }, []);
+
+  useEffect(() => {
+    if (!showUploadPrompt || isUploadingPhoto) return;
+    const timeout = setTimeout(() => setShowUploadPrompt(false), 2500);
+    return () => clearTimeout(timeout);
+  }, [showUploadPrompt, isUploadingPhoto]);
+
+  const showUploadOverlay = isUploadingPhoto || showUploadPrompt;
 
   return (
     <div className="space-y-6">
@@ -218,7 +238,7 @@ export function PlantPhotoGallery({
                     size="sm"
                     variant="outline"
                     className="w-full"
-                    onClick={() => imageUploadRef.current?.open()}
+                    onClick={handleOpenUpload}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -237,6 +257,16 @@ export function PlantPhotoGallery({
                   }
                 }}
               >
+                {showUploadOverlay && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm text-center">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-dashed border-primary/50">
+                      <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                    </div>
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      {t("imageUpload.uploading", { ns: "common" })}
+                    </p>
+                  </div>
+                )}
                 {selectedPhoto || coverPhoto || photos[0] ? (
                   <>
                     <Image
@@ -264,7 +294,7 @@ export function PlantPhotoGallery({
                       <div className="text-muted-foreground mb-4">
                         {t("photos.noPhotos", { ns: "plants" })}
                       </div>
-                      <Button onClick={() => imageUploadRef.current?.open()}>
+                      <Button onClick={handleOpenUpload}>
                         <Plus className="mr-2 h-4 w-4" />
                         {t("photos.addFirstPhoto", { ns: "plants" })}
                       </Button>
@@ -288,6 +318,16 @@ export function PlantPhotoGallery({
               if (currentPhoto) openLightbox(currentPhoto);
             }}
           >
+            {showUploadOverlay && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm text-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-dashed border-primary/50">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {t("imageUpload.uploading", { ns: "common" })}
+                </p>
+              </div>
+            )}
             {selectedPhoto || coverPhoto || photos[0] ? (
               <Image
                 src={
@@ -305,7 +345,7 @@ export function PlantPhotoGallery({
                   <div className="text-muted-foreground mb-4">
                     {t("photos.noPhotos", { ns: "plants" })}
                   </div>
-                  <Button onClick={() => imageUploadRef.current?.open()}>
+                  <Button onClick={handleOpenUpload}>
                     <Plus className="mr-2 h-4 w-4" />
                     {t("photos.addFirstPhoto", { ns: "plants" })}
                   </Button>
@@ -353,7 +393,7 @@ export function PlantPhotoGallery({
             <Button
               className="w-full h-12 text-base"
               variant="outline"
-              onClick={() => imageUploadRef.current?.open()}
+              onClick={handleOpenUpload}
             >
               <Plus className="mr-2 h-5 w-5" />
               {t("photos.addPhotos", { ns: "plants" })}
@@ -370,6 +410,7 @@ export function PlantPhotoGallery({
         maxImages={10}
         className="sr-only"
         userId={userId}
+        onUploadingChange={handleUploadingChange}
       />
 
       {/* Lightbox Modal */}
