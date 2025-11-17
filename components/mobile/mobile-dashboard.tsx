@@ -33,10 +33,12 @@ import {
   Shield,
   Box,
   FilePen,
+  NotebookPen,
 } from "lucide-react";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
+import { FastLogAction } from "@/components/dashboard/fast-log-action";
 
 export function MobileDashboard({
   plants,
@@ -240,6 +242,24 @@ export function MobileDashboard({
                 icon={Bell}
                 label={t("reminders", { ns: "dashboard" })}
                 href={ROUTE_REMINDERS}
+              />
+              <FastLogAction
+                plants={plants}
+                renderTrigger={({ onClick, disabled }) => (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full h-16 flex flex-col gap-1"
+                    onClick={onClick}
+                    disabled={disabled}
+                  >
+                    <NotebookPen className="h-5 w-5" />
+                    <span className="text-xs">
+                      {t("fastLogTitle", { ns: "dashboard" })}
+                    </span>
+                  </Button>
+                )}
               />
             </>
           )}
