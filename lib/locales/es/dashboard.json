@@ -14,5 +14,12 @@
   "plantsGrowing": "plantas creciendo",
   "latestActivity": "Última actividad",
   "startGrowingJourney": "Comienza tu aventura de cultivo agregando tu primera planta",
-  "showingLastEntries": "Mostrando los últimos 5 registros"
+  "showingLastEntries": "Mostrando los últimos 5 registros",
+  "addLog": "Registrar actividad",
+  "addLogDescription": "Elige una planta activa para crear un registro rápido.",
+  "addLogEmpty": "Agrega una planta activa para empezar a registrar",
+  "fastLogTitle": "Registro rápido",
+  "fastLogDescription": "Elige una planta activa para crear un registro rápido.",
+  "fastLogEmpty": "Agrega una planta activa para empezar a registrar",
+  "fastLogAddPlant": "Agregar Planta"
 }

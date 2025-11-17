@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update favicon and app icons for improved visual consistency — 2025-11-17
 - [MINOR]: enhance image upload handling and loading indicators across components — 2025-11-13
 - [MINOR]: add header and title to image gallery modal for improved accessibility — 2025-11-13
 - [MINOR]: update notification icons and improve logo handling across the application — 2025-11-12
