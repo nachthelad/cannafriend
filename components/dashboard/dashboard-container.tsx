@@ -27,7 +27,7 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, Brain, Shield, Bell, Package } from "lucide-react";
+import { Plus, Brain, Shield, Bell, Package, NotebookPen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import type {
@@ -40,6 +40,7 @@ import { auth } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
+import { FastLogAction } from "@/components/dashboard/fast-log-action";
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
   // Fetch plants
@@ -320,6 +321,21 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                     {t("stash.title", { ns: "common" })}
                   </Link>
                 </Button>
+                {roles?.grower && (
+                  <FastLogAction
+                    plants={plants}
+                    renderTrigger={({ onClick, disabled }) => (
+                      <Button
+                        variant="outline"
+                        onClick={onClick}
+                        disabled={disabled}
+                      >
+                        <NotebookPen className="h-4 w-4 mr-1" />
+                        {t("addLog", { ns: "dashboard" })}
+                      </Button>
+                    )}
+                  />
+                )}
                 {isAdmin && (
                   <Button asChild>
                     <Link href={ROUTE_ADMIN}>
