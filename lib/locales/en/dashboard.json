@@ -14,5 +14,8 @@
   "plantsGrowing": "plants growing",
   "latestActivity": "Latest activity",
   "startGrowingJourney": "Start your growing journey by adding your first plant",
-  "showingLastEntries": "Showing last 5 entries"
+  "showingLastEntries": "Showing last 5 entries",
+  "addLog": "Log Plant Activity",
+  "addLogDescription": "Choose a plant to start a quick log entry.",
+  "addLogEmpty": "Add an active plant to start logging"
 }
