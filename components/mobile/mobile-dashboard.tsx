@@ -256,7 +256,7 @@ export function MobileDashboard({
                   >
                     <NotebookPen className="h-5 w-5" />
                     <span className="text-xs">
-                      {t("addLog", { ns: "dashboard" })}
+                      {t("fastLogTitle", { ns: "dashboard" })}
                     </span>
                   </Button>
                 )}

@@ -44,9 +44,9 @@ export function FastLogAction({ plants, renderTrigger }: FastLogActionProps) {
       })}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("addLog", { ns: "dashboard" })}</DialogTitle>
+          <DialogTitle>{t("fastLogTitle", { ns: "dashboard" })}</DialogTitle>
           <DialogDescription>
-            {t("addLogDescription", { ns: "dashboard" })}
+            {t("fastLogDescription", { ns: "dashboard" })}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -64,11 +64,11 @@ export function FastLogAction({ plants, renderTrigger }: FastLogActionProps) {
           ) : (
             <div className="space-y-4 text-center">
               <p className="text-sm text-muted-foreground">
-                {t("addLogEmpty", { ns: "dashboard" })}
+                {t("fastLogEmpty", { ns: "dashboard" })}
               </p>
               <Button asChild>
                 <Link href={ROUTE_PLANTS_NEW}>
-                  {t("addPlant", { ns: "dashboard" })}
+                  {t("fastLogAddPlant", { ns: "dashboard" })}
                 </Link>
               </Button>
             </div>

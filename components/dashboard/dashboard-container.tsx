@@ -331,7 +331,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                         disabled={disabled}
                       >
                         <NotebookPen className="h-4 w-4 mr-1" />
-                        {t("addLog", { ns: "dashboard" })}
+                        {t("fastLogTitle", { ns: "dashboard" })}
                       </Button>
                     )}
                   />

@@ -17,5 +17,9 @@
   "showingLastEntries": "Showing last 5 entries",
   "addLog": "Log Plant Activity",
   "addLogDescription": "Choose a plant to start a quick log entry.",
-  "addLogEmpty": "Add an active plant to start logging"
+  "addLogEmpty": "Add an active plant to start logging",
+  "fastLogTitle": "Quick Log",
+  "fastLogDescription": "Choose an active plant to create a fast log entry.",
+  "fastLogEmpty": "Add an active plant to start logging",
+  "fastLogAddPlant": "Add Plant"
 }
