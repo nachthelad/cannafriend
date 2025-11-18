@@ -35,6 +35,7 @@ export interface PlantDetailsProps {
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
   lastFlowering?: LogEntry;
+  lastLighting?: LogEntry;
   onUpdate?: (patch: Partial<Plant>) => void;
 }
 
@@ -51,6 +52,7 @@ export interface PlantDetailsData {
   lastFeeding: LogEntry | null;
   lastTraining: LogEntry | null;
   lastFlowering: LogEntry | null;
+  lastLighting: LogEntry | null;
   lastEnvironmentFromLogs: LogEntry | undefined;
 }
 

@@ -86,11 +86,13 @@ async function fetchPlantDetailsData(
   const feedingLogs = logs.filter((log) => log.type === "feeding");
   const trainingLogs = logs.filter((log) => log.type === "training");
   const floweringLogs = logs.filter((log) => log.type === "flowering");
+  const lightingLogs = logs.filter((log) => !!log.lightSchedule);
 
   const lastWatering = wateringLogs[0] || null;
   const lastFeeding = feedingLogs[0] || null;
   const lastTraining = trainingLogs[0] || null;
   const lastFlowering = floweringLogs[0] || null;
+  const lastLighting = lightingLogs[0] || null;
 
   // Get latest environment data from journal logs
   const environmentLogs = logs.filter(
@@ -127,6 +129,7 @@ async function fetchPlantDetailsData(
     lastFeeding,
     lastTraining,
     lastFlowering,
+    lastLighting,
     lastEnvironmentFromLogs,
   };
 }
@@ -151,6 +154,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     lastFeeding,
     lastTraining,
     lastFlowering,
+    lastLighting,
     lastEnvironmentFromLogs,
   } = resource.read();
 
@@ -391,6 +395,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastWatering={lastWatering || undefined}
           lastFeeding={lastFeeding || undefined}
           lastTraining={lastTraining || undefined}
+          lastLighting={lastLighting || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
           onAddPhoto={handleMobileAddPhoto}
           onRemovePhoto={handleRemovePhoto}
@@ -443,6 +448,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               lastFeeding={lastFeeding || undefined}
               lastTraining={lastTraining || undefined}
               lastFlowering={lastFlowering || undefined}
+              lastLighting={lastLighting || undefined}
               onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
             />
 
