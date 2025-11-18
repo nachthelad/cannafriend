@@ -25,7 +25,11 @@ export async function POST(request: NextRequest) {
     // Verify the Firebase token and get admin instances
     const { adminAuth, adminDb } = await import("@/lib/firebase-admin");
     const decodedToken = await adminAuth().verifyIdToken(token);
-    userId = decodedToken.uid;
+    userId = decodedToken.uid || null;
+
+    if (!userId) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
 
     console.log("Testing push notification for user:", userId);
 

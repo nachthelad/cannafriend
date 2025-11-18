@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: enhance reminder system with new alarm-style notifications and migration for legacy reminders — 2025-11-18
 - [MINOR]: streamline journal data fetching and enhance desktop layout — 2025-11-18
 - [MID]: add lastLighting support to plant details and mobile plant page — 2025-11-18
 
