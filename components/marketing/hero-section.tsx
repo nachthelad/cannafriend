@@ -4,7 +4,7 @@ import type { HeroSectionProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Download, PlayCircle, Leaf, Camera, Brain } from "lucide-react";
-import Logo from "@/components/common/logo";
+import ThemeLogo from "@/components/common/theme-logo";
 
 export function HeroSection({
   onLoginClick,
@@ -19,7 +19,7 @@ export function HeroSection({
       <div className="max-w-7xl mx-auto text-center">
         {/* Logo and Title */}
         <div className="mb-8">
-          <Logo size={72} className="text-primary mx-auto mb-6" />
+          <ThemeLogo size={72} className="text-primary mx-auto mb-6" />
           <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-6">
             {t("app.name", { ns: "common" })}
           </h1>

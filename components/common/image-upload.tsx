@@ -40,6 +40,7 @@ function ImageUploadComponent(
     enableDropzone = false,
     hideDefaultTrigger = false,
     userId: providedUserId,
+    onUploadingChange,
   }: ImageUploadProps,
   ref: Ref<ImageUploadHandle>
 ) {
@@ -178,13 +179,25 @@ function ImageUploadComponent(
 
       // Llamar callback con las nuevas URLs
       if (newUrls.length > 0) {
-        onImagesChange(newUrls);
-        toast({
-          title: t("imageUpload.uploadSuccess", { ns: "common" }),
-          description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${
-            newUrls.length
-          }`,
-        });
+        try {
+          await onImagesChange(newUrls);
+          toast({
+            title: t("imageUpload.uploadSuccess", { ns: "common" }),
+            description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${
+              newUrls.length
+            }`,
+          });
+        } catch (error) {
+          console.error("Error after uploading images:", error);
+          toast({
+            variant: "destructive",
+            title: t("imageUpload.uploadError", { ns: "common" }),
+            description: getTranslatedImageError(
+              IMAGE_ERROR_KEYS.UPLOAD_FAILED,
+              t
+            ),
+          });
+        }
       }
     } catch (error) {
       console.error("Error in file upload:", error);
@@ -225,6 +238,10 @@ function ImageUploadComponent(
     if (!dropzoneEnabled) return;
     event.preventDefault();
   };
+
+  useEffect(() => {
+    onUploadingChange?.(uploading);
+  }, [uploading, onUploadingChange]);
 
   return (
     <div className={cn(dropzoneEnabled || !hideDefaultTrigger ? "space-y-3" : undefined, className)}>

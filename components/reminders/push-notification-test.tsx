@@ -63,22 +63,38 @@ export function PushNotificationTest() {
       const response = await fetch("/api/push/test", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      const data = await response.json();
+      type PushTestResponse = {
+        error?: string;
+        message?: string;
+        statusCode?: number;
+      };
+
+      const data: PushTestResponse = await response.json().catch(() => ({} as PushTestResponse));
 
       if (!response.ok) {
-        if (data.error === "no_subscription") {
+        if (data.error === "no_subscription" || data.error === "subscription_gone") {
+          setHasNotificationPermission(false);
           toast({
-            title: "No Push Subscription",
-            description: "Please enable push notifications in Settings → Notifications",
+            title: "Push Not Enabled",
+            description: "Please enable push notifications in Settings -> Notifications",
+            variant: "destructive",
+          });
+        } else if (data.error === "missing_vapid_keys") {
+          toast({
+            title: "Server Not Configured",
+            description: "Push notifications are not configured on the server yet.",
             variant: "destructive",
           });
         } else {
-          throw new Error(data.message || "Failed to send test notification");
+          const message =
+            data.message ||
+            (data.statusCode ? `Server returned ${data.statusCode}` : "Failed to send test notification");
+          throw new Error(message);
         }
         return;
       }
@@ -87,7 +103,6 @@ export function PushNotificationTest() {
         title: "Test Notification Sent!",
         description: "Check your device for the test notification",
       });
-
     } catch (error) {
       console.error("Test notification error:", error);
       toast({
@@ -236,7 +251,7 @@ export function PushNotificationTest() {
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
             {hasNotificationPermission ? (
-              "✅ Notifications are enabled. You can test the notification system."
+              "Notifications are enabled. You can test the notification system."
             ) : (
               "⚠️ Click the button below to enable notifications for plant reminders."
             )}

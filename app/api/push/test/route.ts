@@ -5,6 +5,8 @@ export const runtime = "nodejs";
 
 // Test endpoint to send a sample notification to the current user
 export async function POST(request: NextRequest) {
+  let userId: string | null = null;
+
   try {
     console.log("=== PUSH TEST API CALLED ===");
 
@@ -23,20 +25,36 @@ export async function POST(request: NextRequest) {
     // Verify the Firebase token and get admin instances
     const { adminAuth, adminDb } = await import("@/lib/firebase-admin");
     const decodedToken = await adminAuth().verifyIdToken(token);
-    const userId = decodedToken.uid;
+    userId = decodedToken.uid || null;
+
+    if (!userId) {
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    }
 
     console.log("Testing push notification for user:", userId);
 
     // Debug VAPID keys
-    console.log("VAPID Public Key length:", process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.length);
-    console.log("VAPID Private Key length:", process.env.VAPID_PRIVATE_KEY?.length);
-    console.log("VAPID Email:", process.env.VAPID_EMAIL);
+    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+    const vapidEmail = process.env.VAPID_EMAIL || "nacho.vent@gmail.com";
+
+    console.log("VAPID Public Key length:", vapidPublicKey?.length);
+    console.log("VAPID Private Key length:", vapidPrivateKey?.length);
+    console.log("VAPID Email:", vapidEmail);
+
+    if (!vapidPublicKey || !vapidPrivateKey) {
+      console.warn("Missing VAPID keys, cannot send push notifications");
+      return NextResponse.json({
+        error: "missing_vapid_keys",
+        message: "Push notifications are not configured on the server",
+      }, { status: 500 });
+    }
 
     // Configure VAPID for web-push
     webpush.setVapidDetails(
-      'mailto:' + (process.env.VAPID_EMAIL || 'nacho.vent@gmail.com'),
-      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-      process.env.VAPID_PRIVATE_KEY!
+      'mailto:' + vapidEmail,
+      vapidPublicKey,
+      vapidPrivateKey
     );
 
     // Get user's push subscription using Firebase Admin
@@ -73,8 +91,8 @@ export async function POST(request: NextRequest) {
     const testNotification = {
       title: "🧪 Test Notification",
       body: "Push notifications are working correctly! This is a test from your Cannafriend app.",
-      icon: '/icon-192x192.png',
-      badge: '/icon-192x192.png',
+      icon: '/web-app-manifest-192x192.png',
+      badge: '/web-app-manifest-192x192.png',
       tag: `test-${Date.now()}`,
       data: {
         url: "/",
@@ -112,9 +130,30 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
+    // Handle invalid/expired subscriptions so the client can resubscribe
+    if (error.statusCode === 404 || error.statusCode === 410) {
+      try {
+        if (userId) {
+          const { adminDb } = await import("@/lib/firebase-admin");
+          await adminDb().collection("pushSubscriptions").doc(userId).delete();
+        }
+      } catch (cleanupError) {
+        console.error("Failed to clean up invalid subscription", cleanupError);
+      }
+
+      return NextResponse.json({
+        error: "subscription_gone",
+        message: "Your push subscription expired or was revoked. Please re-enable notifications in Settings.",
+      }, { status: 410 });
+    }
+
+    const statusCode = typeof error.statusCode === "number" ? error.statusCode : 500;
+    const message = error instanceof Error ? error.message : "Unknown error";
+
     return NextResponse.json({
       error: "internal_error",
-      message: error instanceof Error ? error.message : "Unknown error"
-    }, { status: 500 });
+      message,
+      statusCode,
+    }, { status: statusCode });
   }
 }

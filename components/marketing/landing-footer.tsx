@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { ROUTE_PRIVACY, ROUTE_TERMS } from "@/lib/routes";
-import Logo from "@/components/common/logo";
+import ThemeLogo from "@/components/common/theme-logo";
 
 export function LandingFooter() {
   const { t } = useTranslation(["landing", "common", "aiAssistant"]);
@@ -16,7 +16,7 @@ export function LandingFooter() {
           {/* Brand Section */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
-              <Logo size={32} className="text-primary mr-3" />
+              <ThemeLogo size={32} className="text-primary mr-3" />
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 {t("app.name", { ns: "common" })}
               </h3>

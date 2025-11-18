@@ -5,6 +5,19 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: simplify reminder item logic by removing unnecessary language prop and updating overdue check — 2025-11-18
+- [MINOR]: remove default value for isActive in reminder schema to ensure explicit state management — 2025-11-18
+- [MINOR]: handle unauthorized access by validating user ID from Firebase token — 2025-11-18
+- [MID]: enhance reminder system with new alarm-style notifications and migration for legacy reminders — 2025-11-18
+- [MINOR]: streamline journal data fetching and enhance desktop layout — 2025-11-18
+- [MID]: add lastLighting support to plant details and mobile plant page — 2025-11-18
+
+- [MINOR]: update dashboard logging terminology to 'fast log' for consistency — 2025-11-18
+- [MINOR]: update favicon and app icons for improved visual consistency — 2025-11-17
+- [MINOR]: enhance image upload handling and loading indicators across components — 2025-11-13
+- [MINOR]: add header and title to image gallery modal for improved accessibility — 2025-11-13
+- [MINOR]: update notification icons and improve logo handling across the application — 2025-11-12
+- [MINOR]: enhance skeleton components for improved mobile and desktop layouts — 2025-11-12
 - [MINOR]: improve layout of responsive page header for mobile and desktop — 2025-11-10
 
 - [MID]: add mobile image upload functionality in plant details — 2025-11-10

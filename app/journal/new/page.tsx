@@ -23,7 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
 import { Calendar, AlertCircle, AlertTriangle } from "lucide-react";
-import { ROUTE_JOURNAL } from "@/lib/routes";
+import { ROUTE_DASHBOARD, ROUTE_JOURNAL } from "@/lib/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { auth, db } from "@/lib/firebase";
@@ -306,6 +306,20 @@ function NewJournalPageContent() {
     }
   }, [userId, urlPlantId]);
 
+  const getReturnPath = () => {
+    if (returnTo === "plant" && urlPlantId) {
+      return `/plants/${urlPlantId}`;
+    }
+    if (returnTo === "dashboard") {
+      return ROUTE_DASHBOARD;
+    }
+    return ROUTE_JOURNAL;
+  };
+
+  const navigateBack = () => {
+    router.push(getReturnPath());
+  };
+
   const onSubmit = async (data: LogFormData) => {
     if (!auth.currentUser || !data.date || !selectedPlantId) return;
 
@@ -409,12 +423,7 @@ function NewJournalPageContent() {
         description: t("logForm.successDesc", { ns: "journal" }),
       });
 
-      // Redirect back to plant page if coming from there, otherwise to journal
-      if (returnTo === "plant" && urlPlantId) {
-        router.push(`/plants/${urlPlantId}`);
-      } else {
-        router.push(ROUTE_JOURNAL);
-      }
+      navigateBack();
     } catch (error: any) {
       console.error("Error adding log:", error);
       toast({
@@ -438,11 +447,7 @@ function NewJournalPageContent() {
 
   const handleFormSubmit = handleSubmit(onSubmit as any);
   const handleBack = () => {
-    if (returnTo === "plant" && urlPlantId) {
-      router.push(`/plants/${urlPlantId}`);
-    } else {
-      router.push(ROUTE_JOURNAL);
-    }
+    navigateBack();
   };
 
   return (
@@ -887,14 +892,7 @@ function NewJournalPageContent() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                // Go back to plant page if coming from there, otherwise to journal
-                if (returnTo === "plant" && urlPlantId) {
-                  router.push(`/plants/${urlPlantId}`);
-                } else {
-                  router.push(ROUTE_JOURNAL);
-                }
-              }}
+              onClick={navigateBack}
               className="flex-1 min-h-[48px] text-base"
               disabled={isLoading}
             >

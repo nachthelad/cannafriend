@@ -4,80 +4,13 @@ import { Suspense } from "react";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import { plantsCol, logsCol } from "@/lib/paths";
-import { query, getDocs, orderBy, limit, collectionGroup, where } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import type { JournalData, JournalGridProps, LogEntry, Plant } from "@/types";
-import { normalizePlant } from "@/lib/plant-utils";
-
-async function fetchJournalData(userId: string): Promise<JournalData> {
-  const LOGS_PAGE_SIZE = 25;
-
-  // Fetch plants first
-  const plantsQueryRef = query(plantsCol(userId));
-  const plantsSnap = await getDocs(plantsQueryRef);
-
-  const plants: Plant[] = [];
-  plantsSnap.forEach((docSnap) => {
-    plants.push(normalizePlant(docSnap.data(), docSnap.id));
-  });
-
-  // Try collectionGroup for logs
-  const logs: LogEntry[] = [];
-
-  try {
-    const logsGroup = collectionGroup(db, "logs");
-    const cgQuery = query(
-      logsGroup,
-      where("userId", "==", userId),
-      orderBy("date", "desc"),
-      limit(LOGS_PAGE_SIZE)
-    );
-    const cgSnap = await getDocs(cgQuery);
-
-    cgSnap.forEach((docSnap) => {
-      const logData = docSnap.data();
-      const plant = plants.find(p => p.id === logData.plantId);
-      logs.push({
-        id: docSnap.id,
-        ...logData,
-        plantName: plant?.name || 'Unknown Plant',
-      } as LogEntry);
-    });
-  } catch (e) {
-    // Fallback: fetch per-plant
-    for (const plant of plants) {
-      const lq = query(
-        logsCol(userId, plant.id),
-        orderBy("date", "desc"),
-        limit(LOGS_PAGE_SIZE)
-      );
-      const ls = await getDocs(lq);
-      ls.forEach((docSnap) => {
-        logs.push({
-          id: docSnap.id,
-          ...(docSnap.data() as any),
-          plantId: plant.id,
-          plantName: plant.name,
-        } as LogEntry);
-      });
-    }
-
-    // Sort by date desc
-    logs.sort(
-      (a, b) =>
-        new Date(b.date as string).getTime() -
-        new Date(a.date as string).getTime()
-    );
-  }
-
-  return { logs, plants };
-}
+import { fetchJournalData } from "@/lib/journal-data";
+import type { JournalGridProps } from "@/types";
 
 function JournalGridContent({ userId, selectedPlant, selectedLogType, selectedDate, onDelete }: JournalGridProps) {
   const cacheKey = `journal-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchJournalData(userId));
-  const { logs, plants } = resource.read();
+  const { logs } = resource.read();
 
   // Apply filters
   let filteredLogs = logs;

@@ -8,7 +8,6 @@ import type {
 } from "@/types/mobile";
 import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import {
   Card,
   CardContent,
@@ -46,76 +45,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import { db } from "@/lib/firebase";
-import { plantsCol, logsCol } from "@/lib/paths";
-import {
-  query,
-  getDocs,
-  orderBy,
-  collectionGroup,
-  where,
-  limit,
-} from "firebase/firestore";
-import type { Plant, LogEntry } from "@/types";
+import { fetchJournalData } from "@/lib/journal-data";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
-import { normalizePlant } from "@/lib/plant-utils";
-
-async function fetchJournalData(userId: string): Promise<MobileJournalData> {
-  // Fetch plants
-  const plantsQueryRef = query(plantsCol(userId));
-  const plantsSnap = await getDocs(plantsQueryRef);
-  const plants: Plant[] = [];
-  plantsSnap.forEach((docSnap) => {
-    plants.push(normalizePlant(docSnap.data(), docSnap.id));
-  });
-
-  // Fetch logs using collectionGroup
-  const logsGroup = collectionGroup(db, "logs");
-  const cgQuery = query(
-    logsGroup,
-    where("userId", "==", userId),
-    orderBy("date", "desc"),
-    limit(50)
-  );
-
-  const logs: LogEntry[] = [];
-  try {
-    const cgSnap = await getDocs(cgQuery);
-    cgSnap.forEach((docSnap) => {
-      const data = docSnap.data() as any;
-      const plantName = plants.find((p) => p.id === data.plantId)?.name;
-      logs.push({ id: docSnap.id, ...data, plantName } as LogEntry);
-    });
-  } catch (e) {
-    // Fallback: fetch per-plant if collectionGroup fails
-    for (const plant of plants) {
-      const lq = query(
-        logsCol(userId, plant.id),
-        orderBy("date", "desc"),
-        limit(20)
-      );
-      const ls = await getDocs(lq);
-      ls.forEach((docSnap) => {
-        logs.push({
-          id: docSnap.id,
-          ...(docSnap.data() as any),
-          plantId: plant.id,
-          plantName: plant.name,
-        } as LogEntry);
-      });
-    }
-  }
-
-  // Sort by date (newest first)
-  logs.sort(
-    (a, b) =>
-      new Date(b.date as string).getTime() -
-      new Date(a.date as string).getTime()
-  );
-
-  return { logs, plants };
-}
 
 function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const cacheKey = `mobile-journal-${userId}`;

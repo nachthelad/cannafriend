@@ -1,4 +1,9 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SVGProps } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from "react";
 import type { Plant, Reminder } from "./entities";
 import type { Roles } from "./firestore";
 
@@ -38,15 +43,18 @@ export interface EditReminderDialogProps {
 }
 
 export interface EditReminderFormData {
-  selectedPlant: string;
-  reminderType: Reminder["type"];
-  title: string;
-  description?: string;
-  interval: string;
+  selectedPlant?: string;
+  label: string;
+  note?: string;
+  daysOfWeek: number[];
+  timeOfDay: string;
+  isActive: boolean;
 }
 
+export type UploadingState = "idle" | "prompt" | "uploading";
+
 export interface ImageUploadProps {
-  onImagesChange: (urls: string[]) => void;
+  onImagesChange: (urls: string[]) => Promise<void> | void;
   maxImages?: number;
   maxSizeMB?: number;
   className?: string;
@@ -54,6 +62,7 @@ export interface ImageUploadProps {
   enableDropzone?: boolean;
   hideDefaultTrigger?: boolean;
   userId?: string;
+  onUploadingChange?: (isUploading: boolean) => void;
 }
 
 export interface ImageUploadHandle {
@@ -84,7 +93,7 @@ export interface InlineEditProps {
 
 export type LogoVariant = "mark" | "badgeLight" | "badgeDark";
 
-export interface LogoProps extends SVGProps<SVGSVGElement> {
+export interface LogoProps extends HTMLAttributes<HTMLSpanElement> {
   size?: number | string;
   variant?: LogoVariant;
 }

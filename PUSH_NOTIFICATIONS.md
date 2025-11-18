@@ -88,7 +88,7 @@ node scripts/generate-vapid-keys.js
   "notification": {
     "title": "Plant Care Reminder",
     "body": "Your Plant Name needs watering!",
-    "icon": "/icon-192x192.png",
+    "icon": "/web-app-manifest-192x192.png",
     "data": { "url": "/plants/plant-id" },
     "actions": [
       { "action": "view_plant", "title": "View Plant" },

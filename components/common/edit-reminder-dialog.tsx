@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import { auth, db } from "@/lib/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { AlertCircle, AlarmClock, Moon, Sun } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,12 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useTranslation } from "react-i18next";
-import { useErrorHandler } from "@/hooks/use-error-handler";
-import { auth, db } from "@/lib/firebase";
-import { doc, updateDoc } from "firebase/firestore";
-import { AlertCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import type { Reminder } from "@/types";
 import type {
   EditReminderDialogProps,
@@ -41,27 +42,73 @@ import {
 // Form validation schema
 const createEditReminderFormSchema = (t: any) =>
   z.object({
-    selectedPlant: z.string().min(1, t("plantRequired", { ns: "validation" })),
-    reminderType: z.enum(["watering", "feeding", "training", "custom"], {
-      required_error: t("reminderTypeRequired", { ns: "validation" }),
-      invalid_type_error: t("reminderTypeRequired", { ns: "validation" }),
-    }),
-    title: z
+    selectedPlant: z.string().optional(),
+    label: z
       .string()
       .min(1, t("titleRequired", { ns: "validation" }))
       .max(50, t("titleMaxLength", { ns: "validation" })),
-    description: z
+    note: z
       .string()
       .max(200, t("descriptionMaxLength", { ns: "validation" }))
       .optional(),
-    interval: z.string().refine(
-      (val) => {
-        const num = parseInt(val);
-        return !isNaN(num) && num >= 1 && num <= 99;
-      },
-      { message: t("intervalInvalid", { ns: "validation" }) }
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).min(
+      1,
+      t("daysRequired", {
+        ns: "validation",
+        defaultValue: "Select at least one day",
+      })
     ),
+    timeOfDay: z
+      .string()
+      .min(
+        1,
+        t("timeRequired", { ns: "validation", defaultValue: "Pick a time" })
+      ),
+    isActive: z.boolean(),
   });
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+function getNextOccurrence(days: number[], timeOfDay: string): string {
+  if (!days.length) return "";
+  const [hours, minutes] = timeOfDay.split(":").map((v) => parseInt(v, 10));
+  const now = new Date();
+  for (let offset = 0; offset < 7; offset++) {
+    const candidate = new Date(now);
+    candidate.setDate(now.getDate() + offset);
+    if (!days.includes(candidate.getDay())) continue;
+    candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+    if (candidate.getTime() <= now.getTime()) continue;
+    return candidate.toISOString();
+  }
+  // If we didn't find a future slot (time already passed today), schedule next week same weekday
+  const candidate = new Date(now);
+  candidate.setDate(now.getDate() + 7);
+  candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
+  return candidate.toISOString();
+}
+
+function deriveTimeOfDay(reminder: Reminder | null): string {
+  if (reminder?.timeOfDay) return reminder.timeOfDay;
+  if (reminder?.nextReminder) {
+    const date = new Date(reminder.nextReminder);
+    if (!Number.isNaN(date.getTime())) {
+      const h = `${date.getHours()}`.padStart(2, "0");
+      const m = `${date.getMinutes()}`.padStart(2, "0");
+      return `${h}:${m}`;
+    }
+  }
+  return "09:00";
+}
+
+function deriveDays(reminder: Reminder | null): number[] {
+  if (reminder?.daysOfWeek?.length) return reminder.daysOfWeek;
+  if (reminder?.nextReminder) {
+    const date = new Date(reminder.nextReminder);
+    if (!Number.isNaN(date.getTime())) return [date.getDay()];
+  }
+  return [new Date().getDay()];
+}
 
 export function EditReminderDialog({
   reminder,
@@ -97,60 +144,37 @@ export function EditReminderDialog({
     resolver: zodResolver(editReminderFormSchema),
     defaultValues: {
       selectedPlant: "",
-      reminderType: "watering",
-      title: "",
-      description: "",
-      interval: "7",
+      label: "",
+      note: "",
+      daysOfWeek: [new Date().getDay()],
+      timeOfDay: "09:00",
+      isActive: true,
     },
   });
 
   const selectedPlant = watch("selectedPlant");
-  const reminderType = watch("reminderType");
+  const timeOfDay = watch("timeOfDay");
+  const daysOfWeek = watch("daysOfWeek");
+  const isActive = watch("isActive");
 
   // Reset form when reminder changes or dialog opens
   useEffect(() => {
     if (reminder && isOpen) {
       reset({
-        selectedPlant: reminder.plantId,
-        reminderType: reminder.type,
-        title: reminder.title,
-        description: reminder.description || "",
-        interval: reminder.interval.toString(),
+        selectedPlant: reminder.plantId || "",
+        label: reminder.label || reminder.title || "",
+        note: reminder.note || reminder.description || "",
+        daysOfWeek: deriveDays(reminder),
+        timeOfDay: deriveTimeOfDay(reminder),
+        isActive: reminder.isActive ?? true,
       });
     }
   }, [reminder, isOpen, reset]);
-
-  const getDefaultTitle = (type: Reminder["type"]) => {
-    switch (type) {
-      case "watering":
-        return t("wateringTitle", { ns: "reminders" });
-      case "feeding":
-        return t("feedingTitle", { ns: "reminders" });
-      case "training":
-        return t("trainingTitle", { ns: "reminders" });
-      default:
-        return t("customTitle", { ns: "reminders" });
-    }
-  };
-
-  const getDefaultDescription = (type: Reminder["type"]) => {
-    switch (type) {
-      case "watering":
-        return t("wateringDesc", { ns: "reminders" });
-      case "feeding":
-        return t("feedingDesc", { ns: "reminders" });
-      case "training":
-        return t("trainingDesc", { ns: "reminders" });
-      default:
-        return t("customDesc", { ns: "reminders" });
-    }
-  };
 
   const handleUpdateReminder = async (data: EditReminderFormData) => {
     if (!auth.currentUser || !reminder) return;
 
     const plant = plants.find((p) => p.id === data.selectedPlant);
-    if (!plant) return;
 
     setIsUpdating(true);
     try {
@@ -162,14 +186,26 @@ export function EditReminderDialog({
         reminder.id
       );
 
+      const nextReminder = getNextOccurrence(data.daysOfWeek, data.timeOfDay);
+
       const updateData = {
-        plantId: data.selectedPlant,
-        plantName: plant.name,
-        type: data.reminderType,
-        title: data.title,
-        description: data.description || "",
-        interval: parseInt(data.interval),
-      };
+        plantId: plant ? plant.id : null,
+        plantName: plant ? plant.name : null,
+        label: data.label,
+        note: data.note || "",
+        daysOfWeek: data.daysOfWeek,
+        timeOfDay: data.timeOfDay,
+        isActive: data.isActive,
+        updatedAt: new Date().toISOString(),
+        lastSentDate: reminder.lastSentDate ?? null,
+        // Legacy compatibility fields (to be removed once consumers are migrated)
+        type: "custom" as const,
+        title: data.label,
+        description: data.note || "",
+        interval: 1,
+        lastReminder: reminder.lastReminder ?? null,
+        nextReminder: nextReminder || reminder.nextReminder || null,
+      } as Partial<Reminder>;
 
       await updateDoc(reminderRef, updateData);
 
@@ -255,116 +291,142 @@ export function EditReminderDialog({
             )}
           </div>
 
-          {/* Reminder Type */}
+          {/* Label */}
           <div className="space-y-2">
-            <Label>{t("reminderType", { ns: "reminders" })}</Label>
-            <input
-              type="hidden"
-              {...register("reminderType")}
-              value={reminderType || ""}
-            />
-            <Select
-              value={reminderType}
-              onValueChange={(v) =>
-                setValue("reminderType", v as Reminder["type"])
-              }
-            >
-              <SelectTrigger
-                className={`min-h-[44px] ${
-                  errors.reminderType ? "border-destructive" : ""
-                }`}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="watering" className="min-h-[44px]">
-                  {t("logType.watering", { ns: "journal" })}
-                </SelectItem>
-                <SelectItem value="feeding" className="min-h-[44px]">
-                  {t("logType.feeding", { ns: "journal" })}
-                </SelectItem>
-                <SelectItem value="training" className="min-h-[44px]">
-                  {t("logType.training", { ns: "journal" })}
-                </SelectItem>
-                <SelectItem value="custom" className="min-h-[44px]">
-                  {t("custom", { ns: "reminders" })}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.reminderType && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.reminderType.message}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Title */}
-          <div className="space-y-2">
-            <Label>{t("title", { ns: "reminders" })}</Label>
+            <Label>{t("customName", { ns: "reminders" })}</Label>
             <Input
-              {...register("title")}
-              placeholder={getDefaultTitle(reminderType)}
+              {...register("label")}
+              placeholder={t("customTitle", { ns: "reminders" })}
               className={`min-h-[44px] ${
-                errors.title ? "border-destructive" : ""
+                errors.label ? "border-destructive" : ""
               }`}
             />
-            {errors.title && (
+            {errors.label && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <p className="text-sm text-destructive font-medium">
-                  {errors.title.message}
+                  {errors.label.message}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Description */}
+          {/* Note */}
           <div className="space-y-2">
             <Label>
               {t("description", { ns: "reminders" })} (
               {t("optional", { ns: "common" })})
             </Label>
             <Input
-              {...register("description")}
-              placeholder={getDefaultDescription(reminderType)}
+              {...register("note")}
+              placeholder={t("customDescription", { ns: "reminders" })}
               className={`min-h-[44px] ${
-                errors.description ? "border-destructive" : ""
+                errors.note ? "border-destructive" : ""
               }`}
             />
-            {errors.description && (
+            {errors.note && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <p className="text-sm text-destructive font-medium">
-                  {errors.description.message}
+                  {errors.note.message}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Interval */}
-          <div className="space-y-2">
-            <Label>{t("interval", { ns: "reminders" })}</Label>
-            <Input
-              type="number"
-              min="1"
-              max="99"
-              {...register("interval")}
-              placeholder="7"
-              className={`min-h-[44px] ${
-                errors.interval ? "border-destructive" : ""
-              }`}
-            />
-            {errors.interval && (
+          {/* Schedule */}
+          <div className="space-y-3">
+            <Label>{t("schedule", { ns: "reminders" })}</Label>
+            <div className="flex flex-wrap gap-2">
+              {DAY_LABELS.map((day, index) => {
+                const dayIndex = index; // 0-6
+                const selected = daysOfWeek?.includes(dayIndex);
+                return (
+                  <Button
+                    key={day}
+                    type="button"
+                    variant={selected ? "default" : "outline"}
+                    className="min-h-[36px] px-3"
+                    onClick={() => {
+                      const current = new Set(daysOfWeek || []);
+                      if (current.has(dayIndex)) {
+                        current.delete(dayIndex);
+                      } else {
+                        current.add(dayIndex);
+                      }
+                      setValue("daysOfWeek", Array.from(current).sort(), {
+                        shouldValidate: true,
+                      });
+                    }}
+                  >
+                    {day}
+                  </Button>
+                );
+              })}
+            </div>
+            {errors.daysOfWeek && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                 <AlertCircle className="w-4 h-4 text-destructive" />
                 <p className="text-sm text-destructive font-medium">
-                  {errors.interval.message}
+                  {errors.daysOfWeek.message as string}
                 </p>
               </div>
             )}
+            <div className="space-y-1">
+              <Label>{t("time", { ns: "reminders" })}</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="time"
+                  step={300}
+                  value={timeOfDay}
+                  onChange={(e) =>
+                    setValue("timeOfDay", e.target.value, {
+                      shouldValidate: true,
+                    })
+                  }
+                  className={`min-h-[44px] max-w-[180px] ${
+                    errors.timeOfDay ? "border-destructive" : ""
+                  }`}
+                />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Sun className="h-4 w-4" />
+                  <span>
+                    {t("morningHint", {
+                      ns: "reminders",
+                      defaultValue: "Morning times work best for watering.",
+                    })}
+                  </span>
+                </div>
+              </div>
+              {errors.timeOfDay && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.timeOfDay.message}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between rounded-lg border px-3 py-2">
+              <div className="flex items-center gap-2">
+                <AlarmClock className="h-4 w-4" />
+                <div>
+                  <p className="text-sm font-medium">
+                    {t("active", { ns: "reminders" })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("activeDesc", {
+                      ns: "reminders",
+                      defaultValue: "Toggle to enable or pause this alarm.",
+                    })}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={isActive}
+                onCheckedChange={(value) => setValue("isActive", value)}
+              />
+            </div>
           </div>
 
           <DialogFooter>

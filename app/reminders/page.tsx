@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { getDocs, query } from "firebase/firestore";
+import { deleteDoc, getDocs, query } from "firebase/firestore";
 import { ROUTE_LOGIN, ROUTE_REMINDERS_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, remindersCol } from "@/lib/paths";
@@ -42,11 +42,21 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
     .map((doc) => normalizePlant(doc.data(), doc.id))
     .filter(isPlantGrowing);
 
-  const reminders = remindersSnapshot.docs.map(
-    (doc) => ({ id: doc.id, ...doc.data() } as Reminder)
-  );
+  let legacyDeletedCount = 0;
+  const reminders: Reminder[] = [];
 
-  return { plants, reminders };
+  for (const doc of remindersSnapshot.docs) {
+    const data = { id: doc.id, ...doc.data() } as Reminder;
+    if (!Array.isArray(data.daysOfWeek) || !data.timeOfDay) {
+      // Legacy reminder: delete it and count it so we can notify the user
+      await deleteDoc(doc.ref);
+      legacyDeletedCount++;
+      continue;
+    }
+    reminders.push(data);
+  }
+
+  return { plants, reminders, legacyDeletedCount };
 }
 
 function RemindersContent({ userId }: RemindersContentProps) {
@@ -54,12 +64,25 @@ function RemindersContent({ userId }: RemindersContentProps) {
   const { roles } = useUserRoles();
   const router = useRouter();
   const homePath = resolveHomePathForRoles(roles);
+  const [showMigrationModal, setShowMigrationModal] = useState(false);
 
   const cacheKey = `reminders-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchRemindersData(userId)
   );
-  const { plants, reminders } = resource.read();
+  const { plants, reminders, legacyDeletedCount } = resource.read();
+
+  useEffect(() => {
+    // Show migration notice only once if legacy reminders were deleted
+    if (legacyDeletedCount > 0 && typeof window !== "undefined") {
+      const seenKey = `reminders-migration-${userId}`;
+      const seen = window.localStorage.getItem(seenKey);
+      if (!seen) {
+        setShowMigrationModal(true);
+        window.localStorage.setItem(seenKey, "seen");
+      }
+    }
+  }, [legacyDeletedCount, userId]);
 
   const hasGrowingPlants = plants.length > 0;
   const hasReminders = reminders.length > 0;
@@ -133,6 +156,31 @@ function RemindersContent({ userId }: RemindersContentProps) {
             </p>
           </CardContent>
         </Card>
+      )}
+
+      {/* Legacy migration notice */}
+      {showMigrationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="max-w-lg w-full shadow-lg">
+            <CardHeader>
+              <CardTitle>{t("migrationTitle", { ns: "reminders", defaultValue: "Reminder system updated" })}</CardTitle>
+              <CardDescription>
+                {t("migrationDesc", {
+                  ns: "reminders",
+                  defaultValue: "Your old reminders were removed. Please create new alarms with days and time.",
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowMigrationModal(false)}>
+                {t("close", { ns: "common", defaultValue: "Close" })}
+              </Button>
+              <Button onClick={() => router.push(ROUTE_REMINDERS_NEW)}>
+                {t("add", { ns: "reminders" })}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </>
   );
