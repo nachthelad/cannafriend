@@ -1,10 +1,8 @@
 "use client";
 
 import type { PlantDetailsProps } from "@/types/plants";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import type { Plant } from "@/types";
 import { formatDateWithLocale, calculateAgeInDays } from "@/lib/utils";
 import {
   Calendar,
@@ -16,7 +14,6 @@ import {
   Scissors,
   Flower,
 } from "lucide-react";
-import type { LogEntry } from "@/types";
 import { InlineEdit } from "@/components/common/inline-edit";
 import { updateDoc } from "firebase/firestore";
 import { plantDoc } from "@/lib/paths";
@@ -29,10 +26,13 @@ export function PlantDetails({
   lastFeeding,
   lastTraining,
   lastFlowering,
+  lastLighting,
   onUpdate,
 }: PlantDetailsProps) {
   const { t, i18n } = useTranslation(["plants", "common"]);
   const language = i18n.language;
+
+  const lightingSchedule = lastLighting?.lightSchedule ?? plant.lightSchedule;
 
   const daysSincePlanting = plant.plantingDate
     ? calculateAgeInDays(plant.plantingDate)
@@ -80,36 +80,26 @@ export function PlantDetails({
                 placeholder={t("newPlant.seedBankPlaceholder")}
                 className="flex-1"
               />
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-1">
-          <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("plantPage.plantStatus")}
-          </div>
-          <div className="flex items-center text-base font-medium text-foreground gap-2">
-            <Badge
-              variant={
-                plant.status === PLANT_STATUS.ENDED ? "destructive" : "outline"
-              }
-              className={
-                plant.status === PLANT_STATUS.ENDED
-                  ? "bg-red-500/90 text-white border-transparent"
-                  : undefined
-              }
-            >
+          <div className="space-y-1">
+            <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("plantPage.plantStatus")}
+            </div>
+            <div className="flex items-center text-base font-medium text-foreground gap-2">
               {t(`status.${plant.status}`, { ns: "plants" })}
-            </Badge>
-            {plant.status === PLANT_STATUS.ENDED && plant.endedAt && (
-              <span className="text-xs text-muted-foreground">
-                {formatDateWithLocale(plant.endedAt, "PPP", language)}
-              </span>
-            )}
-          </div>
-        </div>
 
-        {/* Seed Type */}
-        <div className="space-y-1">
+              {plant.status === PLANT_STATUS.ENDED && plant.endedAt && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDateWithLocale(plant.endedAt, "PPP", language)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Seed Type */}
+          <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               {t("newPlant.seedType")}
             </div>
@@ -154,19 +144,17 @@ export function PlantDetails({
             </div>
           </div>
 
-          {plant.growType === "indoor" &&
-            plant.seedType !== "autoflowering" &&
-            plant.lightSchedule && (
-              <div className="space-y-1">
-                <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  {t("newPlant.lightSchedule")}
-                </div>
-                <div className="flex items-center text-base font-medium text-foreground">
-                  <Sun className="h-5 w-5 mr-2 text-primary" />
-                  <span>{plant.lightSchedule}</span>
-                </div>
+          {lightingSchedule && (
+            <div className="space-y-1">
+              <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("newPlant.lightSchedule")}
               </div>
-            )}
+              <div className="flex items-center text-base font-medium text-foreground">
+                <Sun className="h-5 w-5 mr-2 text-primary" />
+                <span>{lightingSchedule}</span>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-1">
             <div className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
@@ -219,7 +207,9 @@ export function PlantDetails({
               <Zap className="h-5 w-5 mr-2 text-primary" />
               <span>
                 {lastFeeding
-                  ? `${lastFeeding.npk} (${lastFeeding.amount}${lastFeeding.unit ?? "ml/L"})`
+                  ? `${lastFeeding.npk} (${lastFeeding.amount}${
+                      lastFeeding.unit ?? "ml/L"
+                    })`
                   : t("plantPage.noFeedingRecords")}
               </span>
             </div>

@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update dashboard logging terminology to 'fast log' for consistency — 2025-11-18
 - [MINOR]: update favicon and app icons for improved visual consistency — 2025-11-17
 - [MINOR]: enhance image upload handling and loading indicators across components — 2025-11-13
 - [MINOR]: add header and title to image gallery modal for improved accessibility — 2025-11-13
