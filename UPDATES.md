@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: streamline journal data fetching and enhance desktop layout — 2025-11-18
 - [MID]: add lastLighting support to plant details and mobile plant page — 2025-11-18
 
 - [MINOR]: update dashboard logging terminology to 'fast log' for consistency — 2025-11-18

@@ -93,10 +93,7 @@ export interface MobileRemindersProps {
 
 export interface MobileReminderItemProps {
   reminder: Reminder;
-  language: string;
   isProcessing: boolean;
-  onMarkDone: (reminder: Reminder) => Promise<void>;
-  onSnooze: (reminder: Reminder, hours: number) => Promise<void>;
   onToggleActive: (reminder: Reminder, isActive: boolean) => Promise<void>;
   onEdit: (reminder: Reminder) => void;
   onDelete: (reminder: Reminder) => Promise<void>;
