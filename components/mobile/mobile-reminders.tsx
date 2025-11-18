@@ -209,7 +209,6 @@ export function MobileReminders({
           <MobileReminderItem
             key={reminder.id}
             reminder={reminder}
-            language={t("lang", { ns: "common", defaultValue: "en" })}
             isProcessing={processingId === reminder.id}
             onToggleActive={handleToggleActive}
             onEdit={handleEditReminder}
@@ -240,10 +239,9 @@ function MobileReminderItem({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const schedule = formatSchedule(reminder);
+  const nextOccurrence = getNextOccurrence(reminder);
   const isOverdue =
-    reminder.isActive &&
-    reminder.nextOccurrence !== null &&
-    reminder.nextOccurrence <= Date.now();
+    reminder.isActive && nextOccurrence !== null && nextOccurrence <= Date.now();
 
   const handleDelete = async () => {
     await onDelete(reminder);

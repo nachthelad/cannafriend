@@ -43,7 +43,7 @@ export interface EditReminderDialogProps {
 }
 
 export interface EditReminderFormData {
-  selectedPlant: string;
+  selectedPlant?: string;
   label: string;
   note?: string;
   daysOfWeek: number[];
