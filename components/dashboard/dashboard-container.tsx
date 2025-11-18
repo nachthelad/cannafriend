@@ -325,11 +325,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                   <FastLogAction
                     plants={plants}
                     renderTrigger={({ onClick, disabled }) => (
-                      <Button
-                        variant="outline"
-                        onClick={onClick}
-                        disabled={disabled}
-                      >
+                      <Button onClick={onClick} disabled={disabled}>
                         <NotebookPen className="h-4 w-4 mr-1" />
                         {t("fastLogTitle", { ns: "dashboard" })}
                       </Button>

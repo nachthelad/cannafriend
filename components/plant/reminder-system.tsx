@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReminderSystemProps } from "@/types/plants";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -34,7 +34,7 @@ export function ReminderSystem({
   showOnlyOverdue = false,
   reminders: preFetchedReminders,
 }: ReminderSystemProps) {
-  const { t } = useTranslation(["reminders", "common", "journal"]);
+  const { t, i18n } = useTranslation(["reminders", "common"]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(
@@ -194,6 +194,28 @@ export function ReminderSystem({
     return diff > 0 && diff <= 24 * 60 * 60 * 1000;
   });
 
+  const dayLabels = useMemo(
+    () =>
+      Array.from({ length: 7 }).map((_, idx) =>
+        new Intl.DateTimeFormat(i18n.language, { weekday: "short" }).format(
+          new Date(2024, 0, 7 + idx)
+        )
+      ),
+    [i18n.language]
+  );
+
+  const formatSchedule = (reminder: Reminder) => {
+    if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) {
+      return t("noSchedule", { ns: "reminders" });
+    }
+    const days = reminder.daysOfWeek
+      .slice()
+      .sort()
+      .map((d) => dayLabels[d])
+      .join(", ");
+    return `${days} • ${reminder.timeOfDay}`;
+  };
+
   const [overdueToastShown, setOverdueToastShown] = useState(false);
   useEffect(() => {
     if (showOnlyOverdue) return; // avoid toast on dashboard
@@ -240,16 +262,7 @@ export function ReminderSystem({
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {reminder.plantName && `${reminder.plantName} • `}
-                    {Array.isArray(reminder.daysOfWeek) && reminder.timeOfDay
-                      ? `${reminder.daysOfWeek
-                          .slice()
-                          .sort()
-                          .map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d])
-                          .join(", ")} • ${reminder.timeOfDay}`
-                      : t("noSchedule", {
-                          ns: "reminders",
-                          defaultValue: "No schedule",
-                        })}
+                    {formatSchedule(reminder)}
                   </div>
                 </div>
               </div>
@@ -273,9 +286,38 @@ export function ReminderSystem({
               {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
             </CardTitle>
             <CardDescription className="text-orange-600 dark:text-orange-300">
-              {t("overdueDesc", { ns: "reminders" })}
+              {t("overdueDesc", {
+                ns: "reminders",
+                defaultValue: "These alarms are past their scheduled time.",
+              })}
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-2">
+            {overdueReminders.map((reminder) => (
+              <div
+                key={reminder.id}
+                className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
+              >
+                <div className="flex items-center gap-3">
+                  <AlarmClock className="h-4 w-4 text-primary" />
+                  <div>
+                    <div className="font-medium">
+                      {reminder.label ||
+                        reminder.title ||
+                        t("untitled", { ns: "common", defaultValue: "Untitled" })}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {reminder.plantName && `${reminder.plantName} • `}
+                      {formatSchedule(reminder)}
+                    </div>
+                  </div>
+                </div>
+                <Badge variant="destructive">
+                  {t("overdue", { ns: "reminders" })}
+                </Badge>
+              </div>
+            ))}
+          </CardContent>
         </Card>
       )}
 

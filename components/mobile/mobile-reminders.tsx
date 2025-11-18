@@ -32,8 +32,6 @@ import { db } from "@/lib/firebase";
 import { invalidateDashboardCache, invalidateRemindersCache } from "@/lib/suspense-cache";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 const getNextOccurrence = (reminder: Reminder): number | null => {
   if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) return null;
   const [hours, minutes] = String(reminder.timeOfDay)
@@ -54,24 +52,12 @@ const getNextOccurrence = (reminder: Reminder): number | null => {
   return null;
 };
 
-const formatSchedule = (reminder: Reminder) => {
-  if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) {
-    return "No schedule";
-  }
-  const days = reminder.daysOfWeek
-    .slice()
-    .sort()
-    .map((d) => DAY_LABELS[d])
-    .join(", ");
-  return `${days} • ${reminder.timeOfDay}`;
-};
-
 export function MobileReminders({
   userId,
   plants,
   initialReminders,
 }: MobileRemindersProps) {
-  const { t } = useTranslation(["reminders", "common"]);
+  const { t, i18n } = useTranslation(["reminders", "common"]);
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(initialReminders);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
@@ -235,10 +221,27 @@ function MobileReminderItem({
   onEdit,
   onDelete,
 }: MobileReminderItemProps) {
-  const { t } = useTranslation(["reminders", "common"]);
+  const { t, i18n } = useTranslation(["reminders", "common"]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const schedule = formatSchedule(reminder);
+  const dayLabels = useMemo(
+    () =>
+      Array.from({ length: 7 }).map((_, idx) =>
+        new Intl.DateTimeFormat(i18n.language, { weekday: "short" }).format(
+          new Date(2024, 0, 7 + idx)
+        )
+      ),
+    [i18n.language]
+  );
+
+  const schedule =
+    Array.isArray(reminder.daysOfWeek) && reminder.timeOfDay
+      ? `${reminder.daysOfWeek
+          .slice()
+          .sort()
+          .map((d) => dayLabels[d])
+          .join(", ")} • ${reminder.timeOfDay}`
+      : t("noSchedule", { ns: "reminders" });
   const nextOccurrence = getNextOccurrence(reminder);
   const isOverdue =
     reminder.isActive && nextOccurrence !== null && nextOccurrence <= Date.now();
