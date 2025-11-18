@@ -311,32 +311,9 @@ export function EditReminderDialog({
             )}
           </div>
 
-          {/* Note */}
-          <div className="space-y-2">
-            <Label>
-              {t("description", { ns: "reminders" })} (
-              {t("optional", { ns: "common" })})
-            </Label>
-            <Input
-              {...register("note")}
-              placeholder={t("customDescription", { ns: "reminders" })}
-              className={`min-h-[44px] ${
-                errors.note ? "border-destructive" : ""
-              }`}
-            />
-            {errors.note && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.note.message}
-                </p>
-              </div>
-            )}
-          </div>
-
           {/* Schedule */}
           <div className="space-y-3">
-            <Label>{t("schedule", { ns: "reminders" })}</Label>
+            <Label>{t("days", { ns: "reminders" })}</Label>
             <div className="flex flex-wrap gap-2">
               {DAY_LABELS.map((day, index) => {
                 const dayIndex = index; // 0-6
@@ -407,18 +384,12 @@ export function EditReminderDialog({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-between rounded-lg border px-3 py-2">
+            <div className="flex items-center justify-between px-3 py-2">
               <div className="flex items-center gap-2">
                 <AlarmClock className="h-4 w-4" />
                 <div>
                   <p className="text-sm font-medium">
                     {t("active", { ns: "reminders" })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("activeDesc", {
-                      ns: "reminders",
-                      defaultValue: "Toggle to enable or pause this alarm.",
-                    })}
                   </p>
                 </div>
               </div>

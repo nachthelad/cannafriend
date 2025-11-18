@@ -15,7 +15,6 @@
   "reminderType": "Tipo de recordatorio",
   "custom": "Personalizado",
   "title": "Recordatorios",
-  "description": "Mantén tus tareas al día",
   "interval": "Intervalo (días)",
   "add": "Agregar",
   "noReminders": "Aún no hay recordatorios",

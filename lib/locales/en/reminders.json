@@ -15,7 +15,6 @@
   "reminderType": "Reminder type",
   "custom": "Custom",
   "title": "Reminders",
-  "description": "Keep your tasks on schedule",
   "interval": "Interval (days)",
   "add": "Add",
   "noReminders": "No reminders yet",
