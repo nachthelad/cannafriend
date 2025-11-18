@@ -18,22 +18,11 @@ import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { remindersCol } from "@/lib/paths";
-import {
-  collection,
-  addDoc,
-  query,
-  getDocs,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { query, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { invalidateDashboardCache, invalidateRemindersCache } from "@/lib/suspense-cache";
 import {
   Bell,
-  Clock,
-  Droplet,
-  Leaf,
-  Scissors,
+  AlarmClock,
   Edit,
   X,
 } from "lucide-react";
@@ -121,43 +110,6 @@ export function ReminderSystem({
     }
   };
 
-  // Mark as done: move nextReminder by interval days and update lastReminder to now
-  const handleMarkDone = async (reminderId: string, intervalDays: number) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) return;
-    try {
-      const now = new Date();
-      const next = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
-      const reminderRef = doc(
-        db,
-        "users",
-        currentUser.uid,
-        "reminders",
-        reminderId
-      );
-      await updateDoc(reminderRef, {
-        lastReminder: now.toISOString(),
-        nextReminder: next.toISOString(),
-      });
-      setReminders((prev) =>
-        prev.map((r) =>
-          r.id === reminderId
-            ? {
-                ...r,
-                lastReminder: now.toISOString(),
-                nextReminder: next.toISOString(),
-              }
-            : r
-        )
-      );
-      invalidateRemindersCache(currentUser.uid);
-      invalidateDashboardCache(currentUser.uid);
-      toast({ title: t("updated", { ns: "reminders" }) });
-    } catch (error: any) {
-      handleFirebaseError(error, "marking reminder done");
-    }
-  };
-
   const handleEditReminder = (reminder: Reminder) => {
     setEditingReminder(reminder);
     setIsEditDialogOpen(true);
@@ -200,28 +152,46 @@ export function ReminderSystem({
     }
   };
 
-  const getReminderIcon = (type: Reminder["type"]) => {
-    switch (type) {
-      case "watering":
-        return <Droplet className="h-4 w-4 text-blue-500" />;
-      case "feeding":
-        return <Leaf className="h-4 w-4 text-green-500" />;
-      case "training":
-        return <Scissors className="h-4 w-4 text-amber-500" />;
-      default:
-        return <Bell className="h-4 w-4 text-gray-500" />;
+  const getNextOccurrence = (reminder: Reminder): number | null => {
+    if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) return null;
+    const [hours, minutes] = String(reminder.timeOfDay)
+      .split(":")
+      .map((v) => parseInt(v, 10));
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+
+    const now = new Date();
+    for (let offset = 0; offset < 7; offset++) {
+      const candidate = new Date(now);
+      candidate.setDate(now.getDate() + offset);
+      if (!reminder.daysOfWeek.includes(candidate.getDay())) continue;
+      candidate.setHours(hours, minutes, 0, 0);
+      if (candidate.getTime() >= now.getTime()) {
+        return candidate.getTime();
+      }
     }
+    return null;
   };
 
-  const activeReminders = reminders.filter((r) => r.isActive);
-  const now = new Date();
+  const normalizedReminders = reminders
+    .map((r) => ({
+      ...r,
+      nextOccurrence: getNextOccurrence(r),
+    }))
+    .sort((a, b) => {
+      if (a.nextOccurrence === null) return 1;
+      if (b.nextOccurrence === null) return -1;
+      return a.nextOccurrence - b.nextOccurrence;
+    });
+
+  const activeReminders = normalizedReminders.filter((r) => r.isActive);
+  const now = Date.now();
   const overdueReminders = activeReminders.filter(
-    (r) => new Date(r.nextReminder) < now
+    (r) => r.nextOccurrence !== null && r.nextOccurrence <= now
   );
-  const dueSoonThreshold = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const dueSoonReminders = activeReminders.filter((r) => {
-    const next = new Date(r.nextReminder);
-    return next >= now && next <= dueSoonThreshold;
+    if (!r.nextOccurrence) return false;
+    const diff = r.nextOccurrence - now;
+    return diff > 0 && diff <= 24 * 60 * 60 * 1000;
   });
 
   const [overdueToastShown, setOverdueToastShown] = useState(false);
@@ -243,7 +213,6 @@ export function ReminderSystem({
   }
 
   if (showOnlyOverdue) {
-    // Render only the overdue card if there are overdue reminders; otherwise render nothing
     if (overdueReminders.length === 0) return null;
     return (
       <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
@@ -251,6 +220,9 @@ export function ReminderSystem({
           <CardTitle className="text-orange-800 dark:text-orange-200">
             {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
           </CardTitle>
+          <CardDescription>
+            {t("overdueDesc", { ns: "reminders", defaultValue: "These alarms are past their scheduled time." })}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {overdueReminders.map((reminder) => (
@@ -259,25 +231,31 @@ export function ReminderSystem({
               className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
             >
               <div className="flex items-center gap-3">
-                {getReminderIcon(reminder.type)}
+                <AlarmClock className="h-4 w-4 text-primary" />
                 <div>
-                  <div className="font-medium">{reminder.title}</div>
+                  <div className="font-medium">
+                    {reminder.label ||
+                      reminder.title ||
+                      t("untitled", { ns: "common", defaultValue: "Untitled" })}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {reminder.plantName}
+                    {reminder.plantName && `${reminder.plantName} • `}
+                    {Array.isArray(reminder.daysOfWeek) && reminder.timeOfDay
+                      ? `${reminder.daysOfWeek
+                          .slice()
+                          .sort()
+                          .map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d])
+                          .join(", ")} • ${reminder.timeOfDay}`
+                      : t("noSchedule", {
+                          ns: "reminders",
+                          defaultValue: "No schedule",
+                        })}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="destructive">
-                  {t("overdue", { ns: "reminders" })}
-                </Badge>
-                <Button
-                  size="sm"
-                  onClick={() => handleMarkDone(reminder.id, reminder.interval)}
-                >
-                  {t("markDone", { ns: "reminders" })}
-                </Button>
-              </div>
+              <Badge variant="destructive">
+                {t("overdue", { ns: "reminders" })}
+              </Badge>
             </div>
           ))}
         </CardContent>
@@ -298,37 +276,6 @@ export function ReminderSystem({
               {t("overdueDesc", { ns: "reminders" })}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {overdueReminders.map((reminder) => (
-              <div
-                key={reminder.id}
-                className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
-              >
-                <div className="flex items-center gap-3">
-                  {getReminderIcon(reminder.type)}
-                  <div>
-                    <div className="font-medium">{reminder.title}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {reminder.plantName}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="destructive">
-                    {t("overdue", { ns: "reminders" })}
-                  </Badge>
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      handleMarkDone(reminder.id, reminder.interval)
-                    }
-                  >
-                    {t("markDone", { ns: "reminders" })}
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
         </Card>
       )}
 
@@ -349,7 +296,7 @@ export function ReminderSystem({
           </div>
         </div>
         <div>
-          {reminders.length === 0 ? (
+          {normalizedReminders.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>{t("noReminders", { ns: "reminders" })}</p>
@@ -359,18 +306,31 @@ export function ReminderSystem({
             </div>
           ) : (
             <div className="space-y-4">
-              {reminders.map((reminder) => (
+              {normalizedReminders.map((reminder) => (
                 <div
                   key={reminder.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    {getReminderIcon(reminder.type)}
+                    <AlarmClock className="h-5 w-5 text-primary" />
                     <div>
-                      <div className="font-medium">{reminder.title}</div>
+                      <div className="font-medium">
+                        {reminder.label ||
+                          reminder.title ||
+                          t("untitled", { ns: "common", defaultValue: "Untitled" })}
+                      </div>
                       <div className="text-sm text-muted-foreground">
-                        {reminder.plantName} • {reminder.interval}{" "}
-                        {t("days", { ns: "reminders" })}
+                        {reminder.plantName && `${reminder.plantName} • `}
+                        {Array.isArray(reminder.daysOfWeek) && reminder.timeOfDay
+                          ? `${reminder.daysOfWeek
+                              .slice()
+                              .sort()
+                              .map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d])
+                              .join(", ")} • ${reminder.timeOfDay}`
+                          : t("noSchedule", {
+                              ns: "reminders",
+                              defaultValue: "No schedule",
+                            })}
                       </div>
                     </div>
                   </div>

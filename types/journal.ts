@@ -18,3 +18,11 @@ export interface JournalEntriesProps {
   showPlantName?: boolean;
   onDelete?: (log: LogEntry) => void;
 }
+
+export type JournalSortBy = "date" | "type" | "plant";
+export type JournalSortOrder = "asc" | "desc";
+
+export interface JournalDesktopProps {
+  userId: string;
+  language: string;
+}

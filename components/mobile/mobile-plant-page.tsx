@@ -64,6 +64,7 @@ export function MobilePlantPage({
   lastFeeding,
   lastTraining,
   lastEnvironment,
+  lastLighting,
   onAddPhoto,
   onRemovePhoto,
   onSetCoverPhoto,
@@ -93,6 +94,8 @@ export function MobilePlantPage({
   const daysSincePlanting = plant.plantingDate
     ? differenceInDays(new Date(), parseISO(plant.plantingDate))
     : 0;
+
+  const lightingSchedule = lastLighting?.lightSchedule || plant.lightSchedule;
 
   const handleBack = () => {
     router.push(ROUTE_PLANTS);
@@ -396,7 +399,7 @@ export function MobilePlantPage({
               <div className="flex items-center space-x-2">
                 <Sun className="h-5 w-5 text-yellow-400" />
                 <span className="text-white font-bold text-lg">
-                  {plant.lightSchedule || "18h"}
+                  {lightingSchedule || "18h"}
                 </span>
               </div>
             </div>

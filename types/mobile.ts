@@ -4,6 +4,7 @@ import type { UploadingState } from "./common";
 import type { Roles } from "./firestore";
 import type { Session, SessionEditFormValues } from "./sessions";
 import type { SubscriptionDetails } from "./settings";
+import type { JournalSortBy, JournalSortOrder } from "./journal";
 
 export type ListedUser = {
   uid: string;
@@ -57,8 +58,8 @@ export interface MobileJournalData {
   plants: Plant[];
 }
 
-export type MobileJournalSortBy = "date" | "type" | "plant";
-export type MobileJournalSortOrder = "asc" | "desc";
+export type MobileJournalSortBy = JournalSortBy;
+export type MobileJournalSortOrder = JournalSortOrder;
 
 export interface MobileJournalEntryProps {
   log: LogEntry;
@@ -75,6 +76,7 @@ export interface MobilePlantPageProps {
   lastFeeding?: LogEntry;
   lastTraining?: LogEntry;
   lastEnvironment?: LogEntry;
+  lastLighting?: LogEntry;
   onAddPhoto?: (plant: Plant) => void;
   onRemovePhoto?: (index: number) => void;
   onSetCoverPhoto?: (photoUrl: string) => void;
@@ -91,10 +93,7 @@ export interface MobileRemindersProps {
 
 export interface MobileReminderItemProps {
   reminder: Reminder;
-  language: string;
   isProcessing: boolean;
-  onMarkDone: (reminder: Reminder) => Promise<void>;
-  onSnooze: (reminder: Reminder, hours: number) => Promise<void>;
   onToggleActive: (reminder: Reminder, isActive: boolean) => Promise<void>;
   onEdit: (reminder: Reminder) => void;
   onDelete: (reminder: Reminder) => Promise<void>;

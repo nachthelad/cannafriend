@@ -52,14 +52,41 @@ export interface EnvironmentData {
 
 export interface Reminder {
   id: string;
-  plantId: string;
-  plantName: string;
-  type: "watering" | "feeding" | "training" | "custom";
-  title: string;
-  description: string;
-  interval: number;
-  lastReminder: string;
-  nextReminder: string;
+  plantId?: string;
+  plantName?: string;
+  /**
+   * User-defined label for the alarm (replaces reminder type/title).
+   */
+  label: string;
+  /**
+   * Optional note/description shown in the notification body.
+   */
+  note?: string;
+  /**
+   * Days of week when the alarm should fire (0 = Sunday ... 6 = Saturday).
+   */
+  daysOfWeek: number[];
+  /**
+   * Time of day in HH:mm (24h) the alarm should fire on active days.
+   */
+  timeOfDay: string;
   isActive: boolean;
   createdAt: string;
+  updatedAt: string;
+  /**
+   * ISO date (YYYY-MM-DD or full ISO) the alarm last fired, used to prevent
+   * duplicate sends in the same day.
+   */
+  lastSentDate?: string | null;
+
+  /**
+   * Deprecated legacy fields (interval-based reminders). Kept temporarily
+   * for migration/interop and will be removed once UI/cron are updated.
+   */
+  type?: "watering" | "feeding" | "training" | "custom";
+  title?: string;
+  description?: string;
+  interval?: number;
+  lastReminder?: string;
+  nextReminder?: string;
 }

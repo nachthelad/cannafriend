@@ -1,0 +1,27 @@
+name: Reminder Cron
+
+on:
+  schedule:
+    - cron: "0 * * * *" # hourly
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reminder cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          REMINDER_URL: ${{ secrets.REMINDER_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET not set in GitHub secrets" >&2
+            exit 1
+          fi
+          if [ -z "$REMINDER_URL" ]; then
+            echo "REMINDER_URL not set in GitHub secrets (e.g., https://yourdomain.com/api/cron/check-reminders)" >&2
+            exit 1
+          fi
+          curl -sS -X POST "$REMINDER_URL" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 20

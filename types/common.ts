@@ -43,11 +43,12 @@ export interface EditReminderDialogProps {
 }
 
 export interface EditReminderFormData {
-  selectedPlant: string;
-  reminderType: Reminder["type"];
-  title: string;
-  description?: string;
-  interval: string;
+  selectedPlant?: string;
+  label: string;
+  note?: string;
+  daysOfWeek: number[];
+  timeOfDay: string;
+  isActive: boolean;
 }
 
 export type UploadingState = "idle" | "prompt" | "uploading";
