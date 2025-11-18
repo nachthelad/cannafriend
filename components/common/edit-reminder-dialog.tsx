@@ -47,11 +47,23 @@ const createEditReminderFormSchema = (t: any) =>
       .string()
       .min(1, t("titleRequired", { ns: "validation" }))
       .max(50, t("titleMaxLength", { ns: "validation" })),
-    note: z.string().max(200, t("descriptionMaxLength", { ns: "validation" })).optional(),
-    daysOfWeek: z
-      .array(z.number().int().min(0).max(6))
-      .min(1, t("daysRequired", { ns: "validation", defaultValue: "Select at least one day" })),
-    timeOfDay: z.string().min(1, t("timeRequired", { ns: "validation", defaultValue: "Pick a time" })),
+    note: z
+      .string()
+      .max(200, t("descriptionMaxLength", { ns: "validation" }))
+      .optional(),
+    daysOfWeek: z.array(z.number().int().min(0).max(6)).min(
+      1,
+      t("daysRequired", {
+        ns: "validation",
+        defaultValue: "Select at least one day",
+      })
+    ),
+    timeOfDay: z
+      .string()
+      .min(
+        1,
+        t("timeRequired", { ns: "validation", defaultValue: "Pick a time" })
+      ),
     isActive: z.boolean(),
   });
 
@@ -281,7 +293,7 @@ export function EditReminderDialog({
 
           {/* Label */}
           <div className="space-y-2">
-            <Label>{t("title", { ns: "reminders" })}</Label>
+            <Label>{t("customName", { ns: "reminders" })}</Label>
             <Input
               {...register("label")}
               placeholder={t("customTitle", { ns: "reminders" })}
@@ -367,14 +379,23 @@ export function EditReminderDialog({
                   type="time"
                   step={300}
                   value={timeOfDay}
-                  onChange={(e) => setValue("timeOfDay", e.target.value, { shouldValidate: true })}
+                  onChange={(e) =>
+                    setValue("timeOfDay", e.target.value, {
+                      shouldValidate: true,
+                    })
+                  }
                   className={`min-h-[44px] max-w-[180px] ${
                     errors.timeOfDay ? "border-destructive" : ""
                   }`}
                 />
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Sun className="h-4 w-4" />
-                  <span>{t("morningHint", { ns: "reminders", defaultValue: "Morning times work best for watering." })}</span>
+                  <span>
+                    {t("morningHint", {
+                      ns: "reminders",
+                      defaultValue: "Morning times work best for watering.",
+                    })}
+                  </span>
                 </div>
               </div>
               {errors.timeOfDay && (
@@ -390,9 +411,14 @@ export function EditReminderDialog({
               <div className="flex items-center gap-2">
                 <AlarmClock className="h-4 w-4" />
                 <div>
-                  <p className="text-sm font-medium">{t("active", { ns: "reminders" })}</p>
+                  <p className="text-sm font-medium">
+                    {t("active", { ns: "reminders" })}
+                  </p>
                   <p className="text-xs text-muted-foreground">
-                    {t("activeDesc", { ns: "reminders", defaultValue: "Toggle to enable or pause this alarm." })}
+                    {t("activeDesc", {
+                      ns: "reminders",
+                      defaultValue: "Toggle to enable or pause this alarm.",
+                    })}
                   </p>
                 </div>
               </div>

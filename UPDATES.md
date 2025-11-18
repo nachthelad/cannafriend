@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: simplify reminder item logic by removing unnecessary language prop and updating overdue check — 2025-11-18
 - [MINOR]: remove default value for isActive in reminder schema to ensure explicit state management — 2025-11-18
 - [MINOR]: handle unauthorized access by validating user ID from Firebase token — 2025-11-18
 - [MID]: enhance reminder system with new alarm-style notifications and migration for legacy reminders — 2025-11-18
