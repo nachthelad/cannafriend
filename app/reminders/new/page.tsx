@@ -45,7 +45,7 @@ const reminderSchema = (t: any) =>
     timeOfDay: z
       .string()
       .min(1, t("timeRequired", { ns: "validation", defaultValue: "Pick a time" })),
-    isActive: z.boolean().default(true),
+    isActive: z.boolean(),
   });
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
