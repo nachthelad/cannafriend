@@ -4,6 +4,7 @@ import type { UploadingState } from "./common";
 import type { Roles } from "./firestore";
 import type { Session, SessionEditFormValues } from "./sessions";
 import type { SubscriptionDetails } from "./settings";
+import type { JournalSortBy, JournalSortOrder } from "./journal";
 
 export type ListedUser = {
   uid: string;
@@ -57,8 +58,8 @@ export interface MobileJournalData {
   plants: Plant[];
 }
 
-export type MobileJournalSortBy = "date" | "type" | "plant";
-export type MobileJournalSortOrder = "asc" | "desc";
+export type MobileJournalSortBy = JournalSortBy;
+export type MobileJournalSortOrder = JournalSortOrder;
 
 export interface MobileJournalEntryProps {
   log: LogEntry;

@@ -68,9 +68,11 @@
   "filters": {
     "title": "Filters",
     "active": "Active filters",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "date": "Date"
   },
   "sort": {
+    "title": "Sort",
     "byDate": "Sort by Date",
     "byType": "Sort by Type",
     "byPlant": "Sort by Plant",
