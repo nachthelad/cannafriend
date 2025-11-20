@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
-import { query, getDocs, orderBy, limit } from "firebase/firestore";
+import { query, getDocs, orderBy, limit, collectionGroup, where } from "firebase/firestore";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
@@ -36,7 +36,7 @@ import type {
   LogEntry,
   Plant,
 } from "@/types";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
@@ -52,8 +52,9 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   const lastFeedings: Record<string, LogEntry> = {};
   const lastTrainings: Record<string, LogEntry> = {};
   const allLogs: LogEntry[] = [];
+  const plantMap: Record<string, string> = {};
 
-  // Fetch plants and their last logs in parallel (limited)
+  // Process plants first, ensuring they are available even if log fetch fails
   const plantDocs = plantsSnapshot.docs;
   for (const plantDoc of plantDocs) {
     const plantData = normalizePlant(plantDoc.data(), plantDoc.id);
@@ -63,39 +64,57 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     }
 
     plants.push(plantData);
+    plantMap[plantData.id] = plantData.name;
+  }
 
-    try {
-      // Fetch logs for this plant
-      const logsQuery = query(
-        logsCol(userId, plantDoc.id),
-        orderBy("date", "desc"),
-        limit(10)
-      );
-      const logsSnapshot = await getDocs(logsQuery);
+  // Fetch all recent logs for the user using Collection Group Query
+  // This avoids N+1 queries (one per plant)
+  const logsGroup = collectionGroup(db, "logs");
+  const logsQuery = query(
+    logsGroup,
+    where("userId", "==", userId),
+    orderBy("date", "desc"),
+    limit(50) // Fetch enough to cover recent activity for multiple plants
+  );
 
-      const plantLogs = logsSnapshot.docs.map((doc) => ({
+  try {
+    const logsSnapshot = await getDocs(logsQuery);
+    const fetchedLogs = logsSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
         id: doc.id,
-        ...doc.data(),
-        plantId: plantDoc.id,
-        plantName: plantData.name,
-      })) as LogEntry[];
+        ...data,
+        plantName: data.plantId ? plantMap[data.plantId] : undefined,
+      };
+    }) as LogEntry[];
 
-      allLogs.push(...plantLogs);
+    allLogs.push(...fetchedLogs);
 
-      // Find last actions
+    // Map logs to plants for "last action" determination
+    // We iterate through plants and find their matching logs from the fetched set
+    for (const plant of plants) {
+      // Filter logs for this specific plant
+      const plantLogs = fetchedLogs.filter(
+        (log) => log.plantId === plant.id
+      );
+
+      // Find last actions from the memory-filtered logs
       const lastWatering = plantLogs.find((log) => log.type === "watering");
       const lastFeeding = plantLogs.find((log) => log.type === "feeding");
       const lastTraining = plantLogs.find((log) => log.type === "training");
 
-      if (lastWatering) lastWaterings[plantDoc.id] = lastWatering;
-      if (lastFeeding) lastFeedings[plantDoc.id] = lastFeeding;
-      if (lastTraining) lastTrainings[plantDoc.id] = lastTraining;
-    } catch {
-      // Ignore individual plant log errors
+      if (lastWatering) lastWaterings[plant.id] = lastWatering;
+      if (lastFeeding) lastFeedings[plant.id] = lastFeeding;
+      if (lastTraining) lastTrainings[plant.id] = lastTraining;
     }
+  } catch (error) {
+    console.error("Error fetching dashboard logs:", error);
+    // Fallback or empty state handled by default empty arrays
+    // If CGQ fails (e.g. index missing), we might want to log it or fallback to individual queries
+    // For now, we assume index exists or will be created
   }
 
-  // Sort all logs by date and take the most recent
+  // Sort all logs by date and take the most recent for the widget
   const recentLogs = allLogs
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 10);
@@ -359,30 +378,40 @@ function DashboardSkeleton() {
           <Skeleton className="h-4 w-56" />
         </div>
 
+        {/* Reminder System Skeleton */}
         <div className="space-y-3">
           <Skeleton className="h-14 w-full rounded-xl" />
-          <div className="grid grid-cols-2 gap-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-xl" />
-            ))}
-          </div>
         </div>
 
+        {/* Plants Grid Skeleton */}
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
+
+        {/* Journal Widget Skeleton */}
         <div className="space-y-3">
-          <Skeleton className="h-5 w-32" />
-          <div className="grid grid-cols-2 gap-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full rounded-lg" />
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-8 w-16" />
+          </div>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 w-full rounded-lg" />
             ))}
           </div>
         </div>
 
+        {/* Quick Actions Skeleton */}
         <div className="space-y-3">
           <Skeleton className="h-5 w-44" />
-          <Skeleton className="h-32 w-full rounded-xl" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-10 w-24 rounded-md" />
+            <Skeleton className="h-10 w-24 rounded-md" />
+            <Skeleton className="h-10 w-24 rounded-md" />
+          </div>
         </div>
-
-        <Skeleton className="h-20 w-full rounded-xl" />
       </div>
 
       {/* Desktop skeleton */}
@@ -393,59 +422,65 @@ function DashboardSkeleton() {
           <Skeleton className="h-5 w-64" />
         </div>
 
-        {/* Quick Actions Skeleton */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <Skeleton className="h-4 w-20" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-12 mb-2" />
-                <Skeleton className="h-3 w-16" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Reminder System Skeleton */}
+        <Skeleton className="h-16 w-full rounded-xl" />
 
         {/* Main Content Skeleton */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Plants Widget */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="space-y-1">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-9 w-16" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full rounded-xl" />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Journal Widget */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="space-y-1">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-4 w-48" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-4">
-                        <Skeleton className="h-32 w-full mb-4" />
-                        <Skeleton className="h-5 w-24 mb-2" />
-                        <Skeleton className="h-4 w-32" />
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div>
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-28" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="h-10 w-full" />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <Skeleton className="h-9 w-16" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-[250px]" />
+                      <Skeleton className="h-4 w-[200px]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Quick Actions Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent className="flex gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-32" />
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

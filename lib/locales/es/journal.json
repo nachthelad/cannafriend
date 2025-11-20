@@ -6,6 +6,8 @@
   "addLog": "Agregar Registro",
   "logsFound": "registros encontrados",
   "error": "Error cargando diario",
+  "deleteLogTitle": "Eliminar Registro",
+  "deleteLogDesc": "¿Estás seguro de que quieres eliminar este registro?",
   "deleted": "Registro eliminado",
   "deletedDesc": "El registro ha sido eliminado",
   "filterByPlant": "Filtrar por Planta",
