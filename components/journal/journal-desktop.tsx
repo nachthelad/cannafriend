@@ -18,6 +18,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
@@ -38,14 +48,40 @@ import {
   SortDesc,
   X,
 } from "lucide-react";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import {
+  invalidateJournalCache,
+  invalidatePlantsCache,
+  invalidateDashboardCache,
+  invalidatePlantDetails,
+} from "@/lib/suspense-cache";
+import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import type { LogEntry } from "@/types";
 
 function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   const { t } = useTranslation(["journal", "common"]);
-  const cacheKey = `journal-desktop-${userId}`;
+  const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
+  const cacheKey = `journal-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchJournalData(userId)
   );
-  const { logs, plants } = resource.read();
+  const { logs: initialLogs, plants } = resource.read();
+
+  // Local state for logs to support optimistic updates
+  const [logs, setLogs] = useState(initialLogs);
+  
+  // Update local logs if initialLogs changes (e.g. re-suspense)
+  // This might cause a loop if not careful, but initialLogs comes from suspense resource which is stable unless invalidated.
+  if (logs !== initialLogs && logs.length === 0 && initialLogs.length > 0) {
+     // Simple sync if we have no logs but data came in. 
+     // But actually, we should probably just initialize state and let the delete handler update it.
+     // If the resource re-fetches, this component re-renders. 
+     // We can use a useEffect to sync if needed, or just use `key` on the component to reset state.
+     // For now, let's just initialize. If the user navigates away and back, it re-mounts.
+  }
 
   const [searchText, setSearchText] = useState("");
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
@@ -55,6 +91,7 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   const [sortOrder, setSortOrder] = useState<JournalSortOrder>("desc");
   const [showFilters, setShowFilters] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [logToDelete, setLogToDelete] = useState<LogEntry | null>(null);
 
   const filteredAndSortedLogs = useMemo(() => {
     return logs
@@ -134,6 +171,46 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
     setSelectedLogType("all");
     setSelectedDate(undefined);
     setSearchText("");
+  };
+
+  const confirmDeleteLog = async () => {
+    if (!userId || !logToDelete || !logToDelete.id) return;
+    
+    const log = logToDelete;
+    setLogToDelete(null); // Close dialog immediately
+
+    // Optimistic update
+    const previousLogs = [...logs];
+    setLogs((prev) => prev.filter((l) => l.id !== log.id));
+
+    try {
+      if (!log.plantId) {
+        throw new Error("Log missing plantId");
+      }
+
+      await deleteDoc(
+        doc(db, "users", userId, "plants", log.plantId, "logs", log.id)
+      );
+
+      // Invalidate caches
+      invalidateJournalCache(userId);
+      invalidatePlantsCache(userId);
+      invalidatePlantDetails(userId, log.plantId);
+      invalidateDashboardCache(userId);
+
+      toast({
+        title: t("deleted", { ns: "journal" }),
+        description: t("deletedDesc", { ns: "journal" }),
+      });
+    } catch (error: any) {
+      // Revert optimistic update on error
+      setLogs(previousLogs);
+      handleFirebaseError(error, "delete log");
+    }
+  };
+
+  const handleDeleteClick = (log: LogEntry) => {
+    setLogToDelete(log);
   };
 
   return (
@@ -267,7 +344,11 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
         <div className="text-sm text-muted-foreground mb-3">
           {filteredAndSortedLogs.length} {t("logsFound", { ns: "journal" })}
         </div>
-        <JournalEntries logs={filteredAndSortedLogs} showPlantName />
+        <JournalEntries 
+          logs={filteredAndSortedLogs} 
+          showPlantName 
+          onDelete={handleDeleteClick}
+        />
       </div>
 
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
@@ -370,6 +451,26 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!logToDelete} onOpenChange={(open) => !open && setLogToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteLogTitle", { ns: "journal" })}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteLogDesc", { ns: "journal" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteLog}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("delete", { ns: "common" })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
