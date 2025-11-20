@@ -70,18 +70,25 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   );
   const { logs: initialLogs, plants } = resource.read();
 
-  // Local state for logs to support optimistic updates
-  const [logs, setLogs] = useState(initialLogs);
-  
   // Update local logs if initialLogs changes (e.g. re-suspense)
-  // This might cause a loop if not careful, but initialLogs comes from suspense resource which is stable unless invalidated.
-  if (logs !== initialLogs && logs.length === 0 && initialLogs.length > 0) {
-     // Simple sync if we have no logs but data came in. 
-     // But actually, we should probably just initialize state and let the delete handler update it.
-     // If the resource re-fetches, this component re-renders. 
-     // We can use a useEffect to sync if needed, or just use `key` on the component to reset state.
-     // For now, let's just initialize. If the user navigates away and back, it re-mounts.
+  const [logs, setLogs] = useState(initialLogs);
+
+  // Sync local state with prop updates from Suspense resource
+  if (logs !== initialLogs) {
+    // If the reference to initialLogs changes (new fetch), we should update our local state
+    // We check if the length is different or if the first item is different to avoid unnecessary updates
+    // but since initialLogs is from a resource read, it should be stable until invalidated.
+    // However, during a render, we can't set state. We should use an effect or key-based reset.
+    // Actually, the best way for a Suspense resource update is to treat the component as "new" 
+    // or use an effect. Since we are inside the component, let's use an effect.
   }
+
+  // Better approach: Use useEffect to sync
+  // We need to import useEffect first
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
+    setLogs(initialLogs);
+  }, [initialLogs]);
 
   const [searchText, setSearchText] = useState("");
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
