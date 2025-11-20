@@ -52,6 +52,20 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   const lastFeedings: Record<string, LogEntry> = {};
   const lastTrainings: Record<string, LogEntry> = {};
   const allLogs: LogEntry[] = [];
+  const plantMap: Record<string, string> = {};
+
+  // Process plants first, ensuring they are available even if log fetch fails
+  const plantDocs = plantsSnapshot.docs;
+  for (const plantDoc of plantDocs) {
+    const plantData = normalizePlant(plantDoc.data(), plantDoc.id);
+
+    if (!isPlantGrowing(plantData)) {
+      continue;
+    }
+
+    plants.push(plantData);
+    plantMap[plantData.id] = plantData.name;
+  }
 
   // Fetch all recent logs for the user using Collection Group Query
   // This avoids N+1 queries (one per plant)
@@ -65,28 +79,23 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 
   try {
     const logsSnapshot = await getDocs(logsQuery);
-    const fetchedLogs = logsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as LogEntry[];
+    const fetchedLogs = logsSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        plantName: data.plantId ? plantMap[data.plantId] : undefined,
+      };
+    }) as LogEntry[];
 
     allLogs.push(...fetchedLogs);
 
     // Map logs to plants for "last action" determination
     // We iterate through plants and find their matching logs from the fetched set
-    const plantDocs = plantsSnapshot.docs;
-    for (const plantDoc of plantDocs) {
-      const plantData = normalizePlant(plantDoc.data(), plantDoc.id);
-
-      if (!isPlantGrowing(plantData)) {
-        continue;
-      }
-
-      plants.push(plantData);
-
+    for (const plant of plants) {
       // Filter logs for this specific plant
       const plantLogs = fetchedLogs.filter(
-        (log) => log.plantId === plantDoc.id
+        (log) => log.plantId === plant.id
       );
 
       // Find last actions from the memory-filtered logs
@@ -94,9 +103,9 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
       const lastFeeding = plantLogs.find((log) => log.type === "feeding");
       const lastTraining = plantLogs.find((log) => log.type === "training");
 
-      if (lastWatering) lastWaterings[plantDoc.id] = lastWatering;
-      if (lastFeeding) lastFeedings[plantDoc.id] = lastFeeding;
-      if (lastTraining) lastTrainings[plantDoc.id] = lastTraining;
+      if (lastWatering) lastWaterings[plant.id] = lastWatering;
+      if (lastFeeding) lastFeedings[plant.id] = lastFeeding;
+      if (lastTraining) lastTrainings[plant.id] = lastTraining;
     }
   } catch (error) {
     console.error("Error fetching dashboard logs:", error);

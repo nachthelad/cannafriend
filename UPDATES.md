@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: add desktop journal view with filtering, sorting, search, and log deletion capabilities. — 2025-11-20
+
 - [MID]: Implement journal feature with dedicated components, i18n, and a Firestore index, improving dashboard log fetching. — 2025-11-20
 - [MINOR]: remove outdated documentation and files related to reminders and marketing strategy — 2025-11-20
 - [MINOR]: simplify FastLogAction button by removing outline variant for a cleaner UI — 2025-11-18
