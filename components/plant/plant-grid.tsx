@@ -6,7 +6,8 @@ import { SimplePlantCard } from "@/components/mobile/simple-plant-card";
 import { PlantListSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { plantsCol, logsCol } from "@/lib/paths";
-import { query, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { query, getDocs, orderBy, collectionGroup, where } from "firebase/firestore";
 import Fuse from "fuse.js";
 import type { Plant, LogEntry } from "@/types";
 import type {
@@ -19,7 +20,7 @@ import type {
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
-  const PAGE_SIZE = 12;
+  // 1. Fetch all plants
   const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
   const snap = await getDocs(q);
 
@@ -28,33 +29,36 @@ async function fetchPlantsData(userId: string): Promise<PlantGridData> {
     plants.push(normalizePlant(d.data(), d.id));
   }
 
-  // fetch last logs for all plants in parallel
+  // 2. Fetch ALL logs for this user in one go (using the new index)
+  const logsQuery = query(
+    collectionGroup(db, "logs"),
+    where("userId", "==", userId),
+    orderBy("date", "desc")
+  );
+  
+  const logsSnap = await getDocs(logsQuery);
+  
+  // 3. Map logs to plants in memory
   const lastWaterings: Record<string, LogEntry> = {};
   const lastFeedings: Record<string, LogEntry> = {};
   const lastTrainings: Record<string, LogEntry> = {};
 
-  await Promise.all(
-    snap.docs.map(async (d) => {
-      try {
-        const lq = query(logsCol(userId, d.id), orderBy("date", "desc"));
-        const ls = await getDocs(lq);
-        const all = ls.docs.map((x) => ({
-          id: x.id,
-          ...x.data(),
-        })) as LogEntry[];
+  // Since logs are already sorted by date desc, the first one we encounter 
+  // for each type+plant combination is the latest one.
+  logsSnap.forEach((doc) => {
+    const log = { id: doc.id, ...doc.data() } as LogEntry;
+    const plantId = log.plantId;
 
-        const w = all.find((l) => l.type === "watering");
-        const f = all.find((l) => l.type === "feeding");
-        const tr = all.find((l) => l.type === "training");
+    if (!plantId) return;
 
-        if (w) lastWaterings[d.id] = w;
-        if (f) lastFeedings[d.id] = f;
-        if (tr) lastTrainings[d.id] = tr;
-      } catch {
-        // ignore per-plant logs errors
-      }
-    })
-  );
+    if (log.type === "watering" && !lastWaterings[plantId]) {
+      lastWaterings[plantId] = log;
+    } else if (log.type === "feeding" && !lastFeedings[plantId]) {
+      lastFeedings[plantId] = log;
+    } else if (log.type === "training" && !lastTrainings[plantId]) {
+      lastTrainings[plantId] = log;
+    }
+  });
 
   return { plants, lastWaterings, lastFeedings, lastTrainings };
 }

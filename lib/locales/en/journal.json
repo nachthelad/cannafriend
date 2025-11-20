@@ -6,6 +6,8 @@
   "addLog": "Add Log",
   "logsFound": "Logs found",
   "error": "Error loading journal",
+  "deleteLogTitle": "Delete log",
+  "deleteLogDesc": "Are you sure you want to delete this log?",
   "deleted": "Log deleted",
   "deletedDesc": "The log entry has been deleted",
   "filterByPlant": "Filter by Plant",

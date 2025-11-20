@@ -48,15 +48,47 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { fetchJournalData } from "@/lib/journal-data";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import {
+  invalidateJournalCache,
+  invalidatePlantsCache,
+  invalidateDashboardCache,
+  invalidatePlantDetails,
+} from "@/lib/suspense-cache";
+import { useToast } from "@/hooks/use-toast";
+import { useErrorHandler } from "@/hooks/use-error-handler";
+import type { LogEntry } from "@/types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const cacheKey = `mobile-journal-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchJournalData(userId)
   );
-  const { logs, plants } = resource.read();
+  const { logs: initialLogs, plants } = resource.read();
   const { t } = useTranslation(["journal", "common"]);
   const router = useRouter();
+  const { toast } = useToast();
+  const { handleFirebaseError } = useErrorHandler();
+
+  // Local state for logs to support optimistic updates
+  const [logs, setLogs] = useState(initialLogs);
+
+  // Update local logs if initialLogs changes (e.g. re-suspense)
+  if (logs !== initialLogs && logs.length === 0 && initialLogs.length > 0) {
+     setLogs(initialLogs);
+  }
+
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedPlant, setSelectedPlant] = useState<string>("all");
   const [selectedLogType, setSelectedLogType] = useState<string>("all");
@@ -65,6 +97,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
   const [sortBy, setSortBy] = useState<MobileJournalSortBy>("date");
   const [sortOrder, setSortOrder] = useState<MobileJournalSortOrder>("desc");
   const [showCalendar, setShowCalendar] = useState(false);
+  const [logToDelete, setLogToDelete] = useState<LogEntry | null>(null);
 
   // Filter and sort logs
   const filteredAndSortedLogs = logs
@@ -144,6 +177,46 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
     "logsFound",
     { ns: "journal" }
   )}`;
+
+  const confirmDeleteLog = async () => {
+    if (!userId || !logToDelete || !logToDelete.id) return;
+    
+    const log = logToDelete;
+    setLogToDelete(null); // Close dialog immediately
+
+    // Optimistic update
+    const previousLogs = [...logs];
+    setLogs((prev) => prev.filter((l) => l.id !== log.id));
+
+    try {
+      if (!log.plantId) {
+        throw new Error("Log missing plantId");
+      }
+
+      await deleteDoc(
+        doc(db, "users", userId, "plants", log.plantId, "logs", log.id)
+      );
+
+      // Invalidate caches
+      invalidateJournalCache(userId);
+      invalidatePlantsCache(userId);
+      invalidatePlantDetails(userId, log.plantId);
+      invalidateDashboardCache(userId);
+
+      toast({
+        title: t("deleted", { ns: "journal" }),
+        description: t("deletedDesc", { ns: "journal" }),
+      });
+    } catch (error: any) {
+      // Revert optimistic update on error
+      setLogs(previousLogs);
+      handleFirebaseError(error, "delete log");
+    }
+  };
+
+  const handleDeleteClick = (log: LogEntry) => {
+    setLogToDelete(log);
+  };
 
   return (
     <div className="space-y-4">
@@ -300,7 +373,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           <JournalEntries
             logs={filteredAndSortedLogs}
             showPlantName={true}
-            onDelete={() => {}}
+            onDelete={handleDeleteClick}
           />
         </div>
       ) : (
@@ -435,6 +508,26 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!logToDelete} onOpenChange={(open) => !open && setLogToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteLogTitle", { ns: "journal" })}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteLogDesc", { ns: "journal" })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteLog}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("delete", { ns: "common" })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
