@@ -27,9 +27,10 @@ import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, Brain, Shield, Bell, Package, NotebookPen } from "lucide-react";
+import { Plus, Brain, Shield, Bell, Package, NotebookPen, Leaf, Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
+import { DataCard } from "@/components/common/data-card";
 import type {
   DashboardContainerProps,
   DashboardData,
@@ -250,6 +251,33 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
               showOnlyOverdue
               reminders={reminders}
             />
+          </div>
+
+          {/* Stats Overview - 3 key metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <DataCard
+              label={t("yourPlants", { ns: "dashboard" })}
+              value={plants.length}
+              icon={Leaf}
+              color="success"
+              href={ROUTE_PLANTS}
+            />
+            <DataCard
+              label={t("recentLogs", { ns: "journal" })}
+              value={recentLogs.length}
+              icon={Calendar}
+              color="default"
+              href={ROUTE_JOURNAL}
+            />
+            {roles?.grower && (
+              <DataCard
+                label={t("title", { ns: "reminders" })}
+                value={remindersCount}
+                icon={Bell}
+                color={hasOverdue ? "warning" : "default"}
+                href={ROUTE_REMINDERS}
+              />
+            )}
           </div>
 
           {/* Widgets grid */}

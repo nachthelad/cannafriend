@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import type { MobileDashboardProps } from "@/types/mobile";
 import Link from "next/link";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { ReminderSystem } from "@/components/plant/reminder-system";
+import { DataCard } from "@/components/common/data-card";
 import {
   Plus,
   AlertTriangle,
@@ -28,8 +30,6 @@ import {
   Brain,
   Leaf,
   Calendar,
-  ArrowRight,
-  TrendingUp,
   Shield,
   Box,
   FilePen,
@@ -61,52 +61,18 @@ export function MobileDashboard({
   ]);
   const { roles } = useUserRoles();
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const [showOverdueAlert, setShowOverdueAlert] = useState(false);
 
-  // Mobile-optimized stats cards
-  const StatCard = ({
-    icon: Icon,
-    label,
-    value,
-    href,
-    color = "text-muted-foreground",
-    bgColor = "bg-muted/20",
-  }: {
-    icon: any;
-    label: string;
-    value: string | number;
-    href?: string;
-    color?: string;
-    bgColor?: string;
-  }) => {
-    const content = (
-      <div
-        className={`rounded-xl p-4 ${bgColor} transition-all active:scale-95`}
-      >
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold">{value}</p>
-          </div>
-          <div className={`p-2 rounded-lg ${color}`}>
-            <Icon className="h-6 w-6" />
-          </div>
-        </div>
-        {href && (
-          <div className="flex items-center mt-2 text-xs text-primary">
-            {t("view", { ns: "common" })}{" "}
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </div>
-        )}
-      </div>
-    );
+  useEffect(() => {
+    const dismissed = localStorage.getItem("overdue_alert_dismissed");
+    if (!dismissed) {
+      setShowOverdueAlert(true);
+    }
+  }, []);
 
-    return href ? (
-      <Link href={href} className="block">
-        {content}
-      </Link>
-    ) : (
-      content
-    );
+  const handleDismissAlert = () => {
+    setShowOverdueAlert(false);
+    localStorage.setItem("overdue_alert_dismissed", "true");
   };
 
   // Quick action buttons for mobile
@@ -145,7 +111,7 @@ export function MobileDashboard({
         </h1>
       </div>
       {/* Overdue reminders banner - mobile optimized */}
-      {hasOverdue && (
+      {hasOverdue && showOverdueAlert && (
         <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -159,55 +125,45 @@ export function MobileDashboard({
                 </p>
               </div>
               <Button
-                asChild
                 variant="outline"
                 size="sm"
                 className="border-orange-200 text-orange-700 hover:bg-orange-100"
+                onClick={handleDismissAlert}
               >
-                <Link href={ROUTE_REMINDERS}>
-                  {t("view", { ns: "common" })}
-                </Link>
+                Ok
               </Button>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Stats grid - mobile first */}
+      {/* Stats grid - mobile first with 3 key metrics */}
       <div className="grid grid-cols-2 gap-4 pt-2">
-        <StatCard
-          icon={Leaf}
+        <DataCard
           label={t("yourPlants", { ns: "dashboard" })}
           value={plants.length}
+          icon={Leaf}
+          color="success"
           href={ROUTE_PLANTS}
-          color="text-green-600"
-          bgColor="bg-green-50 dark:bg-green-950/20"
         />
-        <StatCard
-          icon={Calendar}
+        <DataCard
           label={t("recentLogs", { ns: "journal" })}
           value={recentLogs.length}
+          icon={Calendar}
+          color="default"
           href={ROUTE_JOURNAL}
-          color="text-blue-600"
-          bgColor="bg-blue-50 dark:bg-blue-950/20"
         />
         {roles?.grower && (
-          <StatCard
-            icon={Bell}
-            label={t("title", { ns: "reminders" })}
-            value={remindersCount}
-            href={ROUTE_REMINDERS}
-            color="text-purple-600"
-            bgColor="bg-purple-50 dark:bg-purple-950/20"
-          />
+          <div className="col-span-2">
+            <DataCard
+              label={t("title", { ns: "reminders" })}
+              value={remindersCount}
+              icon={Bell}
+              color={hasOverdue ? "warning" : "default"}
+              href={ROUTE_REMINDERS}
+            />
+          </div>
         )}
-        <StatCard
-          icon={TrendingUp}
-          label={t("growth", { ns: "dashboard" })}
-          value={t("active", { ns: "dashboard" })}
-          color="text-emerald-600"
-          bgColor="bg-emerald-50 dark:bg-emerald-950/20"
-        />
       </div>
 
       {/* Quick actions - mobile optimized */}

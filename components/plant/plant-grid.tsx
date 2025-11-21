@@ -4,11 +4,13 @@ import { Suspense, useMemo } from "react";
 import { PlantCard } from "@/components/plant/plant-card";
 import { SimplePlantCard } from "@/components/mobile/simple-plant-card";
 import { PlantListSkeleton } from "@/components/skeletons/plant-list-skeleton";
+import { EmptyState } from "@/components/common/empty-state";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { plantsCol, logsCol } from "@/lib/paths";
 import { db } from "@/lib/firebase";
 import { query, getDocs, orderBy, collectionGroup, where } from "firebase/firestore";
 import Fuse from "fuse.js";
+import { Leaf, Plus } from "lucide-react";
 import type { Plant, LogEntry } from "@/types";
 import type {
   PlantGridProps,
@@ -18,6 +20,8 @@ import type {
   SortOrder,
 } from "@/types/plants";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
+import { useRouter } from "next/navigation";
+import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
   // 1. Fetch all plants
@@ -73,6 +77,7 @@ function PlantGridContent({
   growTypeFilter = "all",
   includeEnded = false,
 }: PlantGridProps) {
+  const router = useRouter();
   const cacheKey = `plants-grid-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));
   const { plants, lastWaterings, lastFeedings, lastTrainings } =
@@ -162,6 +167,26 @@ function PlantGridContent({
     }
   });
 
+  // Empty state
+  if (filtered.length === 0) {
+    return (
+      <EmptyState
+        icon={Leaf}
+        title={searchTerm || seedTypeFilter !== "all" || growTypeFilter !== "all" ? "No plants found" : "No plants yet"}
+        description={searchTerm || seedTypeFilter !== "all" || growTypeFilter !== "all" ? "Try adjusting your filters or search term" : "Start your growing journey by adding your first plant"}
+        action={
+          !searchTerm && seedTypeFilter === "all" && growTypeFilter === "all"
+            ? {
+                label: "Add Plant",
+                onClick: () => router.push(ROUTE_PLANTS_NEW),
+                icon: Plus,
+              }
+            : undefined
+        }
+      />
+    );
+  }
+
   if (viewMode === "list") {
     return (
       <div className="space-y-3">
@@ -182,8 +207,8 @@ function PlantGridContent({
   // Mobile grid view - use SimplePlantCard (compact squares)
   return (
     <>
-      {/* Mobile grid */}
-      <div className="md:hidden grid grid-cols-2 gap-3">
+      {/* Mobile grid - 2 columns */}
+      <div className="md:hidden grid grid-cols-2 gap-4">
         {filtered.map((plant) => (
           <SimplePlantCard
             key={plant.id}
@@ -196,8 +221,8 @@ function PlantGridContent({
         ))}
       </div>
 
-      {/* Desktop grid */}
-      <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Desktop grid - 3 columns (md-lg), 4 columns (xl+) */}
+      <div className="hidden md:grid md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filtered.map((plant) => (
           <PlantCard
             key={plant.id}

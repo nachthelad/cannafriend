@@ -12,13 +12,14 @@ import {
   ImageUpload,
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
-import { Brain, User, X, Menu } from "lucide-react";
+import { Brain, User, X, Sparkles, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
 import { ChatInput } from "@/components/ai/chat-input";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Card } from "@/components/ui/card";
 
 export function AIChat({
   sessionId,
@@ -36,9 +37,8 @@ export function AIChat({
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId
   );
-  // Sidebar state is now managed by parent component
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
 
   // Auto-scroll to bottom
@@ -50,8 +50,7 @@ export function AIChat({
     scrollToBottom();
   }, [messages]);
 
-  // Subscribe to live updates for the selected session so subsequent
-  // messages persist and are reflected in the UI reliably.
+  // Subscribe to live updates
   useEffect(() => {
     if (!user?.uid || !currentSessionId) return;
     const unsub = onSnapshot(
@@ -70,12 +69,11 @@ export function AIChat({
     if (!input.trim() && images.length === 0) return;
     if (isLoading) return;
 
-    // Check if user is authenticated
     if (!user) {
       toast({
         variant: "destructive",
         title: t("error", { ns: "aiAssistant" }),
-        description: "Please sign in to use the AI assistant",
+        description: t("signInRequired", { ns: "aiAssistant" }),
       });
       return;
     }
@@ -94,13 +92,12 @@ export function AIChat({
     setIsLoading(true);
 
     try {
-      // Get auth token with better error handling
       let token: string;
       try {
         token = await user.getIdToken();
       } catch (tokenError: any) {
         console.error("Failed to get auth token:", tokenError);
-        throw new Error("Authentication failed. Please try signing in again.");
+        throw new Error(t("authError", { ns: "aiAssistant" }));
       }
 
       const response = await fetch("/api/ai-assistant", {
@@ -118,17 +115,14 @@ export function AIChat({
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle specific error cases
         if (response.status === 401) {
-          throw new Error("Authentication failed. Please sign in again.");
+          throw new Error(t("authError", { ns: "aiAssistant" }));
         } else if (response.status === 403) {
-          throw new Error("Premium subscription required for AI assistant.");
+          throw new Error(t("premiumError", { ns: "aiAssistant" }));
         } else if (response.status === 429) {
-          throw new Error(
-            "Too many requests. Please wait a moment and try again."
-          );
+          throw new Error(t("rateLimitError", { ns: "aiAssistant" }));
         }
-        throw new Error(data.error || "Failed to send message");
+        throw new Error(data.error || t("sendError", { ns: "aiAssistant" }));
       }
 
       const assistantMessage: AIMessage = {
@@ -139,12 +133,10 @@ export function AIChat({
 
       setMessages([...newMessages, assistantMessage]);
 
-      // Update session ID if this was the first message
       if (data.sessionId && !currentSessionId) {
         setCurrentSessionId(data.sessionId);
       }
     } catch (error: any) {
-      // Remove the user message if the request failed
       setMessages(messages);
       setInput(userMessage.content);
       setImages(userMessage.images || []);
@@ -190,7 +182,6 @@ export function AIChat({
         const data = chatDoc.data();
         setMessages(data.messages || []);
         setCurrentSessionId(sessionId);
-        // Close sidebar after selecting a session on mobile only
         if (typeof window !== "undefined") {
           const isMobile = window.matchMedia("(max-width: 767px)").matches;
           if (isMobile && onToggleSidebar && sidebarOpen) {
@@ -203,7 +194,7 @@ export function AIChat({
       toast({
         variant: "destructive",
         title: t("error", { ns: "aiAssistant" }),
-        description: "Failed to load chat session",
+        description: t("loadError", { ns: "aiAssistant" }),
       });
     }
   };
@@ -215,8 +206,7 @@ export function AIChat({
   };
 
   return (
-    <div className={cn("flex h-full", className)}>
-      {/* Chat Sidebar */}
+    <div className={cn("flex h-full bg-background", className)}>
       <ChatSidebar
         isOpen={sidebarOpen}
         onToggle={onToggleSidebar || (() => {})}
@@ -225,50 +215,84 @@ export function AIChat({
         onNewChat={handleNewChat}
       />
 
-      {/* Main Chat */}
-      <div className="flex flex-col flex-1 h-full max-w-4xl mx-auto">
-        {/* Chat Content */}
+      <div className="flex flex-col flex-1 h-full relative md:pb-0 pb-[140px]">
         {messages.length === 0 ? (
-          /* Centered Welcome State - ChatGPT Style */
-          <div className="flex-1 flex flex-col items-center justify-center p-3 pb-20 md:pb-4">
-            <div className="text-center mb-8 text-muted-foreground max-w-md">
-              <p className="text-base mb-4">
-                {t("helpText", { ns: "aiAssistant" })}
-              </p>
+          // Empty State
+          <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-3xl mx-auto w-full">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+              <Sparkles className="w-8 h-8 text-primary" />
             </div>
+            
+            <h2 className="text-2xl font-semibold text-center mb-2">
+              {t("helpText", { ns: "aiAssistant" })}
+            </h2>
+            
+            <p className="text-muted-foreground text-center mb-8 max-w-md">
+              {t("helpSubtext", { ns: "aiAssistant" })}
+            </p>
 
-            {/* Centered Input */}
-            <div className="w-full max-w-2xl">
-              {/* Image Preview */}
-              {images.length > 0 && (
-                <div className="mb-3">
-                  <div className="flex gap-2 overflow-x-auto justify-center">
-                    {images.map((img, index) => (
-                      <div key={index} className="relative flex-shrink-0">
-                        <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                          <Image
-                            src={img.url}
-                            alt="Upload preview"
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        </div>
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          className="absolute -top-1 -right-1 w-4 h-4"
-                          onClick={() => removeImage(index)}
-                        >
-                          <X className="h-2 w-2" />
-                        </Button>
-                      </div>
-                    ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+              <Card 
+                variant="interactive" 
+                className="p-4 cursor-pointer"
+                onClick={() => setInput(t("diagnosePrompt", { ns: "aiAssistant" }))}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-warning/10 rounded-lg">
+                    <ImageIcon className="w-4 h-4 text-warning" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm">{t("diagnoseIssue", { ns: "aiAssistant" })}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{t("diagnoseIssueDesc", { ns: "aiAssistant" })}</p>
                   </div>
                 </div>
-              )}
+              </Card>
 
-              {/* Input */}
+              <Card 
+                variant="interactive" 
+                className="p-4 cursor-pointer"
+                onClick={() => setInput(t("feedingPrompt", { ns: "aiAssistant" }))}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-success/10 rounded-lg">
+                    <Brain className="w-4 h-4 text-success" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm">{t("feedingSchedule", { ns: "aiAssistant" })}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{t("feedingScheduleDesc", { ns: "aiAssistant" })}</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Input Area for Empty State */}
+            <div className="w-full">
+              {images.length > 0 && (
+                <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
+                  {images.map((img, index) => (
+                    <div key={index} className="relative flex-shrink-0 group">
+                      <div className="relative w-20 h-20 rounded-lg overflow-hidden border bg-background shadow-sm">
+                        <Image
+                          src={img.url}
+                          alt="Upload preview"
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
               <ChatInput
                 ref={inputRef}
                 value={input}
@@ -281,131 +305,146 @@ export function AIChat({
             </div>
           </div>
         ) : (
-          /* Message View - Standard Chat Layout */
+          // Messages List
           <>
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex gap-2 max-w-3xl",
-                    message.role === "user"
-                      ? "ml-auto flex-row-reverse"
-                      : "mr-auto"
-                  )}
-                >
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
+              <div className="max-w-3xl mx-auto space-y-6 pb-4">
+                {messages.map((message, index) => (
                   <div
+                    key={index}
                     className={cn(
-                      "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center",
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                      "flex gap-4",
+                      message.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    {message.role === "user" ? (
-                      <User className="h-3.5 w-3.5" />
-                    ) : (
-                      <Brain className="h-3.5 w-3.5" />
+                    {message.role === "assistant" && (
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mt-1">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                      </div>
                     )}
-                  </div>
 
-                  <div
-                    className={cn(
-                      "flex-1 rounded-lg p-3 prose prose-sm max-w-none",
-                      message.role === "user"
-                        ? "bg-gray-100 dark:bg-gray-800 text-foreground"
-                        : "bg-muted"
-                    )}
-                  >
-                    {message.images && message.images.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {message.images.map((img, imgIndex) => (
-                          <div
-                            key={imgIndex}
-                            className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0"
-                          >
-                            <Image
-                              src={img.url}
-                              alt="Uploaded image"
-                              fill
-                              className="object-cover"
-                              sizes="48px"
-                            />
+                    <div
+                      className={cn(
+                        "flex flex-col max-w-[85%]",
+                        message.role === "user" ? "items-end" : "items-start"
+                      )}
+                    >
+                      {/* Images Grid */}
+                      {message.images && message.images.length > 0 && (
+                        <div className={cn(
+                          "grid gap-2 mb-2",
+                          message.images.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                        )}>
+                          {message.images.map((img, imgIndex) => (
+                            <div
+                              key={imgIndex}
+                              className="relative rounded-xl overflow-hidden border bg-background shadow-sm group"
+                              style={{ 
+                                width: message.images!.length === 1 ? '240px' : '160px',
+                                aspectRatio: '4/3'
+                              }}
+                            >
+                              <Image
+                                src={img.url}
+                                alt="Uploaded image"
+                                fill
+                                className="object-cover transition-transform group-hover:scale-105"
+                                sizes="(max-width: 768px) 100vw, 300px"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Message Content */}
+                      <div
+                        className={cn(
+                          "rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm",
+                          message.role === "user"
+                            ? "bg-primary text-primary-foreground rounded-tr-sm"
+                            : "bg-muted/50 border text-foreground rounded-tl-sm"
+                        )}
+                      >
+                        {message.role === "assistant" ? (
+                          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-background prose-pre:border prose-pre:rounded-lg">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
                           </div>
-                        ))}
+                        ) : (
+                          <div className="whitespace-pre-wrap">
+                            {message.content}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {message.role === "user" && (
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-muted flex items-center justify-center mt-1">
+                        <User className="h-4 w-4 text-muted-foreground" />
                       </div>
                     )}
-                    {message.role === "assistant" ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <ReactMarkdown>{message.content}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="whitespace-pre-wrap">
-                        {message.content}
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                ))}
 
-              {isLoading && (
-                <div className="flex gap-3 max-w-3xl mr-auto">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                    <Brain className="h-4 w-4" />
+                {isLoading && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mt-1">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="bg-muted/30 border rounded-2xl rounded-tl-sm p-4 min-w-[200px]">
+                      <ThinkingAnimation />
+                    </div>
                   </div>
-                  <div className="flex-1 bg-muted rounded-lg p-4">
-                    <ThinkingAnimation />
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
-            {/* Image Preview - Only in message mode */}
-            {images.length > 0 && (
-              <div className="border-t p-3">
-                <div className="flex gap-2 overflow-x-auto">
-                  {images.map((img, index) => (
-                    <div key={index} className="relative flex-shrink-0">
-                      <div className="relative w-12 h-12 rounded-md overflow-hidden">
-                        <Image
-                          src={img.url}
-                          alt="Upload preview"
-                          fill
-                          className="object-cover"
-                          sizes="48px"
-                        />
+            {/* Sticky Input Area */}
+            <div className="p-4 bg-background/80 backdrop-blur-sm border-t">
+              <div className="max-w-3xl mx-auto w-full">
+                {images.length > 0 && (
+                  <div className="flex gap-3 overflow-x-auto mb-3 p-2">
+                    {images.map((img, index) => (
+                      <div key={index} className="relative flex-shrink-0 group">
+                        <div className="relative w-16 h-16 rounded-lg overflow-hidden border bg-background">
+                          <Image
+                            src={img.url}
+                            alt="Upload preview"
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          className="absolute -top-2 -right-2 w-5 h-5 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </Button>
                       </div>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        className="absolute -top-1 -right-1 w-4 h-4"
-                        onClick={() => removeImage(index)}
-                      >
-                        <X className="h-2 w-2" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
+                
+                <ChatInput
+                  ref={inputRef}
+                  value={input}
+                  onChange={setInput}
+                  onKeyPress={handleKeyPress}
+                  onSendMessage={handleSendMessage}
+                  onShowImageUpload={() => imageUploadRef.current?.open()}
+                  isLoading={isLoading}
+                />
+                <p className="text-[10px] text-center text-muted-foreground mt-2">
+                  {t("disclaimer", { ns: "aiAssistant" })}
+                </p>
               </div>
-            )}
-
-            {/* Input - Bottom position */}
-            <div className="p-2 mb-3">
-              <ChatInput
-                ref={inputRef}
-                value={input}
-                onChange={setInput}
-                onKeyPress={handleKeyPress}
-                onSendMessage={handleSendMessage}
-                onShowImageUpload={() => imageUploadRef.current?.open()}
-                isLoading={isLoading}
-              />
             </div>
           </>
         )}
+
         <ImageUpload
           ref={imageUploadRef}
           onImagesChange={handleImageUpload}

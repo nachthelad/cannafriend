@@ -1,13 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Input } from "@/components/ui/input";
@@ -35,7 +29,18 @@ import {
   deleteField,
 } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Flower,
+  Droplets,
+  Cookie,
+  Package,
+  DollarSign,
+  Scale,
+  Tag,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +48,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import type {
@@ -51,6 +66,8 @@ import type {
   StashFormValues,
   StashItem,
 } from "@/types";
+import { EmptyState } from "@/components/common/empty-state";
+import { Badge } from "@/components/ui/badge";
 
 async function fetchStashData(userId: string): Promise<StashData> {
   const ref = stashCol(userId);
@@ -77,6 +94,10 @@ function StashContent({ userId }: StashContainerProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [editing, setEditing] = useState<StashItem | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Delete state
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<StashItem | null>(null);
 
   useEffect(() => {
     if (previousItemsRef.current === initialItems) {
@@ -152,11 +173,24 @@ function StashContent({ userId }: StashContainerProps) {
   };
 
   const openNew = () => {
+    reset({
+      name: "",
+      type: "flower",
+      amount: "",
+      unit: "g",
+      thc: "",
+      cbd: "",
+      vendor: "",
+      price: "",
+      notes: "",
+    });
+    setEditing(null);
     router.push(ROUTE_STASH_NEW);
   };
 
   const openEdit = (item: StashItem) => {
     setEditing({ ...item });
+    reset(item);
     setEditOpen(true);
   };
 
@@ -190,10 +224,15 @@ function StashContent({ userId }: StashContainerProps) {
     }
   };
 
-  const deleteItem = async (item: StashItem) => {
-    if (!userId) return;
+  const handleDeleteClick = (item: StashItem) => {
+    setItemToDelete(item);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!userId || !itemToDelete) return;
     try {
-      const itemRef = doc(db, stashCol(userId).path, item.id);
+      const itemRef = doc(db, stashCol(userId).path, itemToDelete.id);
       await deleteDoc(itemRef);
       await fetchItems();
       toast({
@@ -206,11 +245,27 @@ function StashContent({ userId }: StashContainerProps) {
         title: t("error", { ns: "common" }),
         description: e?.message || String(e),
       });
+    } finally {
+      setDeleteOpen(false);
+      setItemToDelete(null);
     }
   };
 
   // Use current items or fallback to initial
   const currentItems = items.length > 0 ? items : initialItems;
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "flower":
+        return Flower;
+      case "concentrate":
+        return Droplets;
+      case "edible":
+        return Cookie;
+      default:
+        return Package;
+    }
+  };
 
   return (
     <>
@@ -236,114 +291,127 @@ function StashContent({ userId }: StashContainerProps) {
       {/* Content */}
       <div className="px-4 md:px-6">
         {currentItems.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-muted-foreground mb-4">
-              <svg
-                className="h-16 w-16 mx-auto mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2">{t("empty")}</h3>
-            <p className="text-muted-foreground mb-6">{t("emptyDesc")}</p>
-            <Button onClick={openNew}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addItem")}
-            </Button>
-          </div>
+          <EmptyState
+            icon={Package}
+            title={t("empty")}
+            description={t("emptyDesc")}
+            action={{
+              label: t("addItem"),
+              onClick: openNew,
+              icon: Plus,
+            }}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentItems.map((item) => (
-              <Card key={item.id} className="relative">
-                <CardHeader className="pb-2">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg leading-tight pr-16">
-                      {item.name}
-                    </CardTitle>
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEdit(item)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => deleteItem(item)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+            {currentItems.map((item) => {
+              const Icon = getTypeIcon(item.type);
+              return (
+                <Card
+                  key={item.id}
+                  variant="interactive"
+                  className="group relative overflow-hidden hover:border-primary/50"
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg leading-tight">
+                            {item.name}
+                          </CardTitle>
+                          <div className="text-sm text-muted-foreground capitalize mt-0.5">
+                            {t(`types.${item.type}`, { ns: "stash" })}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => openEdit(item)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeleteClick(item)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <CardDescription className="capitalize">
-                    {t(`types.${item.type}`, { ns: "stash" })}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {item.amount && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {t("amount", { ns: "stash" })}:
-                      </span>
-                      <span className="text-sm">
-                        {item.amount} {item.unit || "g"}
-                      </span>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      {item.amount && (
+                        <div className="bg-muted/30 p-2 rounded-md">
+                          <span className="text-xs text-muted-foreground block mb-0.5">
+                            {t("amount", { ns: "stash" })}
+                          </span>
+                          <div className="flex items-center gap-1.5 font-medium text-sm">
+                            <Scale className="h-3.5 w-3.5 text-primary/70" />
+                            {item.amount} {item.unit || "g"}
+                          </div>
+                        </div>
+                      )}
+                      {item.price && (
+                        <div className="bg-muted/30 p-2 rounded-md">
+                          <span className="text-xs text-muted-foreground block mb-0.5">
+                            {t("price", { ns: "stash" })}
+                          </span>
+                          <div className="flex items-center gap-1.5 font-medium text-sm">
+                            <DollarSign className="h-3.5 w-3.5 text-primary/70" />
+                            ${item.price}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {item.thc && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        THC:
-                      </span>
-                      <span className="text-sm">{item.thc}%</span>
-                    </div>
-                  )}
-                  {item.cbd && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        CBD:
-                      </span>
-                      <span className="text-sm">{item.cbd}%</span>
-                    </div>
-                  )}
-                  {item.vendor && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {t("vendor", { ns: "stash" })}:
-                      </span>
-                      <span className="text-sm">{item.vendor}</span>
-                    </div>
-                  )}
-                  {item.price && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {t("price", { ns: "stash" })}:
-                      </span>
-                      <span className="text-sm">${item.price}</span>
-                    </div>
-                  )}
-                  {item.notes && (
-                    <div className="mt-2">
-                      <p className="text-sm text-muted-foreground">
-                        {item.notes}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+
+                    {(item.thc || item.cbd) && (
+                      <div className="flex items-center gap-2">
+                        {item.thc && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-normal"
+                          >
+                            THC: {item.thc}%
+                          </Badge>
+                        )}
+                        {item.cbd && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-normal"
+                          >
+                            CBD: {item.cbd}%
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {item.vendor && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Tag className="h-3.5 w-3.5" />
+                        <span>{item.vendor}</span>
+                      </div>
+                    )}
+
+                    {item.notes && (
+                      <div className="pt-2 border-t border-border/50">
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {item.notes}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
@@ -359,7 +427,6 @@ function StashContent({ userId }: StashContainerProps) {
               <label className="text-sm font-medium">{t("name")}</label>
               <Input
                 {...register("name", { required: true })}
-                defaultValue={editing?.name || ""}
                 placeholder={t("namePlaceholder")}
               />
               {errors.name && (
@@ -393,11 +460,7 @@ function StashContent({ userId }: StashContainerProps) {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-sm font-medium">{t("amount")}</label>
-                <Input
-                  {...register("amount")}
-                  defaultValue={editing?.amount || ""}
-                  placeholder="0"
-                />
+                <Input {...register("amount")} placeholder="0" />
               </div>
               <div>
                 <label className="text-sm font-medium">{t("unit")}</label>
@@ -420,19 +483,11 @@ function StashContent({ userId }: StashContainerProps) {
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-sm font-medium">THC %</label>
-                <Input
-                  {...register("thc")}
-                  defaultValue={editing?.thc || ""}
-                  placeholder="0"
-                />
+                <Input {...register("thc")} placeholder="0" />
               </div>
               <div>
                 <label className="text-sm font-medium">CBD %</label>
-                <Input
-                  {...register("cbd")}
-                  defaultValue={editing?.cbd || ""}
-                  placeholder="0"
-                />
+                <Input {...register("cbd")} placeholder="0" />
               </div>
             </div>
 
@@ -440,25 +495,19 @@ function StashContent({ userId }: StashContainerProps) {
               <label className="text-sm font-medium">{t("vendor")}</label>
               <Input
                 {...register("vendor")}
-                defaultValue={editing?.vendor || ""}
                 placeholder={t("vendorPlaceholder")}
               />
             </div>
 
             <div>
               <label className="text-sm font-medium">{t("price")}</label>
-              <Input
-                {...register("price")}
-                defaultValue={editing?.price || ""}
-                placeholder="0.00"
-              />
+              <Input {...register("price")} placeholder="0.00" />
             </div>
 
             <div>
               <label className="text-sm font-medium">{t("notes")}</label>
               <Textarea
                 {...register("notes")}
-                defaultValue={editing?.notes || ""}
                 placeholder={t("notesPlaceholder")}
                 rows={3}
               />
@@ -482,6 +531,38 @@ function StashContent({ userId }: StashContainerProps) {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("deleteConfirmTitle", {
+                ns: "stash",
+                defaultValue: "¿Estás seguro?",
+              })}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteConfirmDesc", {
+                ns: "stash",
+                defaultValue:
+                  "Esta acción no se puede deshacer. Esto eliminará permanentemente el elemento de tu stash.",
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("cancel", { ns: "common" })}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {t("delete", { ns: "common" })}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

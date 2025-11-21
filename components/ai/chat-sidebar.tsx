@@ -13,7 +13,6 @@ import {
   SquarePen,
   Search as SearchIcon,
 } from "lucide-react";
-import Logo from "@/components/common/logo";
 import DarkModeLogo from "@/components/common/darkmode-logo";
 import ChatListItem from "@/components/ai/chat-list-item";
 import { cn } from "@/lib/utils";

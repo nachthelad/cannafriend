@@ -177,7 +177,7 @@ export function Layout({ children }: LayoutProps) {
             <DarkModeLogo size={20} />
             <span className="text-xl">{t("app.name", { ns: "common" })}</span>
             {isPremium && (
-              <span className="text-xs font-medium text-primary opacity-70 ml-1">
+              <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
                 Premium
               </span>
             )}

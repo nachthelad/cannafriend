@@ -186,7 +186,7 @@ function CalendarDayButton({
     if (modifiers.focused) ref.current?.focus();
   }, [modifiers.focused]);
 
-  const hasLogs = (props as any)["data-has-logs"] as boolean | undefined;
+  const hasLogs = modifiers.hasLogs;
   const children: React.ReactNode = (props as any).children;
 
   return (
