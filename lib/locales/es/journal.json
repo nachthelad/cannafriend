@@ -3,7 +3,7 @@
   "description": "Registra y visualiza todas las actividades de tus plantas",
   "recentLogs": "Reg. Recientes",
   "viewLogs": "Ver Registros",
-  "addLog": "Agregar Registro",
+  "addLog": "Agregar",
   "logsFound": "registros encontrados",
   "error": "Error cargando diario",
   "deleteLogTitle": "Eliminar Registro",
@@ -28,7 +28,7 @@
     "endCycle": "Ciclo finalizado"
   },
   "logForm": {
-    "title": "Agregar Registro",
+    "title": "Agregar",
     "description": "Registra una actividad o medición para tu planta",
     "plant": "Planta",
     "selectPlant": "Selecciona una planta",
@@ -88,7 +88,7 @@
   },
   "training": {
     "topping": "Poda Apical",
-    "lst": "Entrenamiento de Bajo Estrés (LST)",
+    "lst": "Entrenamiento LST",
     "defoliation": "Defoliación",
     "supercropping": "Supercropping"
   }

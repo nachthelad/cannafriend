@@ -13,7 +13,8 @@ function Card({ className, variant = "default", ...props }: CardProps) {
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200",
         variant === "elevated" && "shadow-md hover:shadow-lg",
-        variant === "interactive" && "hover:shadow-md hover:border-primary/30 cursor-pointer active:scale-[0.99]",
+        variant === "interactive" &&
+          "hover:shadow-md hover:border-primary/30 cursor-pointer active:scale-[0.99]",
         variant === "glass" && "bg-card/80 backdrop-blur-sm",
         className
       )}
@@ -72,7 +73,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6 pb-6", className)}
+      className={cn("px-5 py-5", className)}
       {...props}
     />
   );

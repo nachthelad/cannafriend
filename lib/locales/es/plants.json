@@ -46,7 +46,7 @@
     "notFoundDesc": "La planta que buscas no existe o ha sido eliminada",
     "backToDashboard": "Volver al Panel",
     "error": "Error al cargar la planta",
-    "addLog": "Agregar Registro",
+    "addLog": "Agregar",
     "addLogDesc": "Registra una actividad o medición",
     "recentLogs": "Reg. Recientes",
     "recentLogsDesc": "Últimas actividades registradas",
@@ -180,5 +180,12 @@
   "status": {
     "growing": "En crecimiento",
     "ended": "Ciclo finalizado"
+  },
+  "emptyState": {
+    "noPlants": "No hay plantas aún",
+    "noPlantsDesc": "Comienza tu viaje de cultivo agregando tu primera planta",
+    "addPlant": "Agregar Planta",
+    "noResults": "No se encontraron plantas",
+    "noResultsDesc": "Intenta ajustar tus filtros o término de búsqueda"
   }
 }

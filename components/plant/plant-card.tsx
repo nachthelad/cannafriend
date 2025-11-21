@@ -115,7 +115,10 @@ export function PlantCard({
             {detailed ? (
               <div className="flex flex-wrap gap-2">
                 {plant.status === PLANT_STATUS.ENDED && (
-                  <Badge variant="outline" className="border-red-400 text-red-500">
+                  <Badge
+                    variant="outline"
+                    className="border-red-400 text-red-500"
+                  >
                     {t("status.ended", { ns: "plants" })}
                   </Badge>
                 )}
@@ -164,7 +167,7 @@ export function PlantCard({
               isMobileVariant && "px-4 pb-4 text-[0.7rem]"
             )}
           >
-            <div className="space-y-1">
+            <div className="space-y-1 mb-2">
               <div className="flex items-center">
                 <Calendar className="h-3 w-3 mr-1" />
                 {plant.plantingDate &&

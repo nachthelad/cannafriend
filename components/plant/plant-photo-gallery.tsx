@@ -82,11 +82,11 @@ export function PlantPhotoGallery({
   const showUploadOverlay = isUploadingPhoto || showUploadPrompt;
 
   return (
-    <div className="space-y-6">
+    <div className="h-full">
       {/* Desktop Gallery */}
-      <div className="hidden md:block">
-        <div className="border rounded-lg shadow-sm bg-background overflow-hidden">
-          <div className="flex">
+      <div className="hidden md:block h-full">
+        <div className="border rounded-lg shadow-sm bg-background overflow-hidden h-full">
+          <div className="flex h-full">
             {/* Left Thumbnail Gallery */}
             <div className="w-28 border-r bg-muted/50">
               <div className="p-3">
@@ -247,9 +247,9 @@ export function PlantPhotoGallery({
             </div>
 
             {/* Right Main Image Display */}
-            <div className="flex-1">
+            <div className="flex-1 flex flex-col">
               <div
-                className="relative w-full h-auto aspect-[4/3.6] flex items-center justify-center cursor-pointer group"
+                className="relative w-full flex-1 flex items-center justify-center cursor-pointer group"
                 onClick={() => {
                   const currentPhoto = selectedPhoto || coverPhoto || photos[0];
                   if (currentPhoto) {

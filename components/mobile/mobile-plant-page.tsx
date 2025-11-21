@@ -139,7 +139,7 @@ export function MobilePlantPage({
   };
 
   return (
-    <div className="min-h-screen text-white">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="relative">
         {/* Plant Image */}
@@ -359,21 +359,25 @@ export function MobilePlantPage({
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2">
                   <Thermometer className="h-5 w-5 text-blue-400" />
-                  <span className="text-white font-bold text-lg">
+                  <span className="text-foreground font-bold text-lg">
                     {lastEnvironment?.temperature
                       ? `${lastEnvironment.temperature}°`
                       : "73°"}
                   </span>
-                  <span className="text-blue-400 text-sm">Cº</span>
+                  <span className="text-blue-400 dark:text-blue-400 text-sm">
+                    Cº
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Droplet className="h-5 w-5 text-blue-400" />
-                  <span className="text-white font-bold text-lg">
+                  <span className="text-foreground font-bold text-lg">
                     {lastEnvironment?.humidity
                       ? `${lastEnvironment.humidity}`
                       : "50"}
                   </span>
-                  <span className="text-blue-400 text-sm">%</span>
+                  <span className="text-blue-400 dark:text-blue-400 text-sm">
+                    %
+                  </span>
                 </div>
               </div>
               {lastWatering && (
@@ -381,7 +385,7 @@ export function MobilePlantPage({
                   <div className="text-xs text-green-400 font-medium uppercase">
                     {t("plantPage.watered", { ns: "plants" })}:
                   </div>
-                  <div className="text-white text-sm">
+                  <div className="text-foreground text-sm">
                     {Math.abs(
                       differenceInDays(new Date(), parseISO(lastWatering.date))
                     )}{" "}
@@ -393,12 +397,12 @@ export function MobilePlantPage({
 
             {/* Lighting Row */}
             <div className="space-y-2">
-              <div className="text-xs text-slate-400 font-medium uppercase">
+              <div className="text-xs text-muted-foreground font-medium uppercase">
                 {t("plantPage.lighting", { ns: "plants" })}
               </div>
               <div className="flex items-center space-x-2">
                 <Sun className="h-5 w-5 text-yellow-400" />
-                <span className="text-white font-bold text-lg">
+                <span className="text-foreground font-bold text-lg">
                   {lightingSchedule || "18h"}
                 </span>
               </div>
@@ -406,14 +410,14 @@ export function MobilePlantPage({
 
             {/* Nutrients Row */}
             <div className="space-y-2">
-              <div className="text-xs text-slate-400 font-medium uppercase">
+              <div className="text-xs text-muted-foreground font-medium uppercase">
                 {t("plantPage.nutrients", { ns: "plants" })}
               </div>
               <div className="space-y-2">
                 {lastFeeding && (
                   <div className="flex items-center space-x-2">
                     <Zap className="h-5 w-5 text-green-400" />
-                    <span className="text-white font-bold">
+                    <span className="text-foreground font-bold">
                       {t("plantPage.npk", { ns: "plants" })}:{" "}
                       {lastFeeding.npk || "6.5"}
                     </span>
@@ -425,12 +429,12 @@ export function MobilePlantPage({
             {/* pH Row */}
             {lastEnvironment?.ph !== undefined && (
               <div className="space-y-2">
-                <div className="text-xs text-slate-400 font-medium uppercase">
+                <div className="text-xs text-muted-foreground font-medium uppercase">
                   {t("plantPage.ph", { ns: "plants" })}
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-                  <span className="text-white font-bold">
+                  <span className="text-foreground font-bold">
                     {lastEnvironment.ph}
                   </span>
                 </div>
@@ -462,10 +466,10 @@ export function MobilePlantPage({
         {/* Plant Info */}
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {t("plantPage.seedType", { ns: "plants" })}
             </span>
-            <div className="text-white font-medium">
+            <div className="text-foreground font-medium">
               <Select
                 value={plant.seedType}
                 onValueChange={async (
@@ -479,7 +483,7 @@ export function MobilePlantPage({
                   onUpdate?.({ seedType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
+                <SelectTrigger className="w-auto border-none bg-transparent text-foreground rounded-2xl px-4 py-1 h-auto font-medium">
                   <SelectValue>
                     {plant.seedType === "autoflowering"
                       ? t("seedType.autoflowering", { ns: "plants" })
@@ -487,10 +491,10 @@ export function MobilePlantPage({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="autoflowering" className="text-slate-200 ">
+                  <SelectItem value="autoflowering">
                     {t("seedType.autoflowering", { ns: "plants" })}
                   </SelectItem>
-                  <SelectItem value="photoperiodic" className="text-slate-200 ">
+                  <SelectItem value="photoperiodic">
                     {t("seedType.photoperiodic", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
@@ -498,10 +502,10 @@ export function MobilePlantPage({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-sm">
+            <span className="text-muted-foreground text-sm">
               {t("plantPage.growType", { ns: "plants" })}
             </span>
-            <div className="text-white font-medium">
+            <div className="text-foreground font-medium">
               <Select
                 value={plant.growType}
                 onValueChange={async (value: "indoor" | "outdoor") => {
@@ -513,7 +517,7 @@ export function MobilePlantPage({
                   onUpdate?.({ growType: value });
                 }}
               >
-                <SelectTrigger className="w-auto border-none bg-transparent text-white rounded-2xl px-4 py-1 h-auto font-medium dark:bg-background">
+                <SelectTrigger className="w-auto border-none bg-transparent text-foreground rounded-2xl px-4 py-1 h-auto font-medium">
                   <SelectValue>
                     {plant.growType === "indoor"
                       ? t("growType.indoor", { ns: "plants" })
@@ -521,10 +525,10 @@ export function MobilePlantPage({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="indoor" className="text-slate-200 ">
+                  <SelectItem value="indoor">
                     {t("growType.indoor", { ns: "plants" })}
                   </SelectItem>
-                  <SelectItem value="outdoor" className="text-slate-200 ">
+                  <SelectItem value="outdoor">
                     {t("growType.outdoor", { ns: "plants" })}
                   </SelectItem>
                 </SelectContent>
@@ -532,10 +536,10 @@ export function MobilePlantPage({
             </div>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-400 text-sm flex-shrink-0">
+            <span className="text-muted-foreground text-sm flex-shrink-0">
               {t("plantPage.seedBank", { ns: "plants" })}
             </span>
-            <div className="text-white font-medium flex-1 text-right min-w-0">
+            <div className="text-foreground font-medium flex-1 text-right min-w-0">
               <InlineEdit
                 value={plant.seedBank || ""}
                 onSave={async (newBank) => {
@@ -549,8 +553,8 @@ export function MobilePlantPage({
                 placeholder={t("newPlant.seedBankPlaceholder", {
                   ns: "plants",
                 })}
-                className="text-white font-medium rounded-xl px-2 py-1"
-                inputClassName="text-white bg-black/50 border-white/30 rounded-xl px-3 py-1 backdrop-blur-sm placeholder-white/60 w-full max-w-full"
+                className="text-foreground font-medium rounded-xl px-2 py-1"
+                inputClassName="text-foreground bg-background/50 border-border rounded-xl px-3 py-1 backdrop-blur-sm placeholder-muted-foreground w-full max-w-full"
               />
             </div>
           </div>
