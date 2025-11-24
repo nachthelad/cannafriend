@@ -3,7 +3,7 @@
 import type React from "react";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
 import {
   Home,
@@ -34,7 +34,6 @@ import {
 
 export function MobileBottomNav(): React.ReactElement {
   const pathname = usePathname();
-  const router = useRouter();
   const { roles, isLoading: rolesLoading } = useUserRoles();
   const { t } = useTranslation(["nav", "common", "onboarding"]);
   const [currentViewMode, setCurrentViewMode] = useState<"grower" | "consumer">(
@@ -82,34 +81,6 @@ export function MobileBottomNav(): React.ReactElement {
     },
     []
   );
-
-  const handleRoleSwitch = useCallback(
-    (mode: "grower" | "consumer") => {
-      triggerHaptic("medium");
-      setCurrentViewMode(mode);
-      // Persist role selection
-      if (typeof window !== "undefined") {
-        localStorage.setItem("cannafriend-view-mode", mode);
-      }
-      // Navigate to appropriate page for the selected role
-      if (mode === "grower") {
-        router.push(ROUTE_DASHBOARD);
-      } else {
-        router.push(ROUTE_SESSIONS);
-      }
-    },
-    [router]
-  );
-
-  const handleFloatingActionClick = useCallback(() => {
-    triggerHaptic("medium");
-    // Navigate based on current view mode
-    if (currentViewMode === "grower") {
-      router.push("/plants/new");
-    } else {
-      router.push("/sessions/new");
-    }
-  }, [currentViewMode, router]);
 
   // Determine navigation items based on current view mode for dual-role users
   const getNavigationItems = () => {
@@ -228,8 +199,15 @@ export function MobileBottomNav(): React.ReactElement {
       {roles && roles.grower && roles.consumer && (
         <div className="flex items-center justify-center py-1 px-4 border-b border-border/40">
           <div className="flex items-center space-x-2 bg-muted/50 rounded-full p-1">
-            <button
-              onClick={() => handleRoleSwitch("grower")}
+            <Link
+              href={ROUTE_DASHBOARD}
+              onClick={() => {
+                triggerHaptic("medium");
+                setCurrentViewMode("grower");
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("cannafriend-view-mode", "grower");
+                }
+              }}
               className={cn(
                 "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
                 currentViewMode === "grower"
@@ -240,9 +218,16 @@ export function MobileBottomNav(): React.ReactElement {
             >
               <Sprout className="h-3 w-3 mr-1.5" />
               {t("grower", { ns: "onboarding" })}
-            </button>
-            <button
-              onClick={() => handleRoleSwitch("consumer")}
+            </Link>
+            <Link
+              href={ROUTE_SESSIONS}
+              onClick={() => {
+                triggerHaptic("medium");
+                setCurrentViewMode("consumer");
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("cannafriend-view-mode", "consumer");
+                }
+              }}
               className={cn(
                 "flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 min-h-[32px]",
                 currentViewMode === "consumer"
@@ -253,7 +238,7 @@ export function MobileBottomNav(): React.ReactElement {
             >
               <Leaf className="h-3 w-3 mr-1.5" />
               {t("consumer", { ns: "onboarding" })}
-            </button>
+            </Link>
           </div>
         </div>
       )}
@@ -292,15 +277,17 @@ export function MobileBottomNav(): React.ReactElement {
 
             {/* Center floating add button */}
             <div className="flex items-center justify-center">
-              <button
-                type="button"
-                onClick={handleFloatingActionClick}
+              <Link
+                href={
+                  currentViewMode === "grower" ? "/plants/new" : "/sessions/new"
+                }
+                onClick={() => triggerHaptic("medium")}
                 className="relative -translate-y-2 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 active:scale-95 hover:shadow-xl hover:shadow-primary/30"
                 aria-label="Add"
               >
                 <Plus className="h-7 w-7" />
                 <div className="absolute inset-0 rounded-full bg-white/20 opacity-0 transition-opacity duration-200 hover:opacity-100" />
-              </button>
+              </Link>
             </div>
 
             {/* Last two navigation items */}

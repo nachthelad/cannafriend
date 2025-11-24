@@ -22,7 +22,10 @@ import { useErrorHandler } from "@/hooks/use-error-handler";
 import { SessionsHeader } from "./sessions-header";
 import { SessionsList } from "./sessions-list";
 import { SessionsSkeleton } from "./sessions-skeleton";
-import { MobileSessions, SessionDetailView } from "@/components/mobile/mobile-sessions";
+import {
+  MobileSessions,
+  SessionDetailView,
+} from "@/components/mobile/mobile-sessions";
 import {
   Dialog,
   DialogContent,
@@ -156,10 +159,11 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((session) =>
-        session.strain.toLowerCase().includes(query) ||
-        (session.method && session.method.toLowerCase().includes(query)) ||
-        (session.notes && session.notes.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        (session) =>
+          session.strain.toLowerCase().includes(query) ||
+          (session.method && session.method.toLowerCase().includes(query)) ||
+          (session.notes && session.notes.toLowerCase().includes(query))
       );
     }
 
@@ -187,10 +191,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
     return filtered;
   }, [sessions, searchQuery, filterMethod, sortBy]);
 
-  const handleAddSession = () => {
-    router.push(`${ROUTE_SESSIONS}/new`);
-  };
-
   const handleView = (session: Session) => {
     setSelectedSession(session);
   };
@@ -200,17 +200,23 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
     const isFav = favoriteSet.has(normalized);
     try {
       await updateDoc(userDoc(userId), {
-        favoriteStrains: isFav ? arrayRemove(normalized) : arrayUnion(normalized),
+        favoriteStrains: isFav
+          ? arrayRemove(normalized)
+          : arrayUnion(normalized),
       });
       setFavoriteStrains((prev) =>
-        isFav ? prev.filter((item) => item !== normalized) : [...prev, normalized]
+        isFav
+          ? prev.filter((item) => item !== normalized)
+          : [...prev, normalized]
       );
     } catch (error) {
       handleFirebaseError(error, "toggle favorite");
     }
   };
 
-  const handleEdit = async (updatedSession: SessionEditFormValues & { id: string }) => {
+  const handleEdit = async (
+    updatedSession: SessionEditFormValues & { id: string }
+  ) => {
     if (!userId) return;
 
     try {
@@ -218,8 +224,12 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       const updateData: Record<string, any> = {
         strain: updatedSession.strain,
         date: updatedSession.date.toISOString(),
-        startTime: updatedSession.startTime ? new Date(`1970-01-01T${updatedSession.startTime}:00`).toISOString() : null,
-        endTime: updatedSession.endTime ? new Date(`1970-01-01T${updatedSession.endTime}:00`).toISOString() : null,
+        startTime: updatedSession.startTime
+          ? new Date(`1970-01-01T${updatedSession.startTime}:00`).toISOString()
+          : null,
+        endTime: updatedSession.endTime
+          ? new Date(`1970-01-01T${updatedSession.endTime}:00`).toISOString()
+          : null,
       };
 
       // Only add optional fields if they have values (not empty strings)
@@ -240,7 +250,9 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
 
       setSessions((prev) =>
         prev.map((session) =>
-          session.id === updatedSession.id ? { ...session, ...updateData } as Session : session
+          session.id === updatedSession.id
+            ? ({ ...session, ...updateData } as Session)
+            : session
         )
       );
 
@@ -254,7 +266,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       });
     }
   };
-
 
   const handleDelete = async (sessionId: string) => {
     try {
@@ -284,7 +295,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       <div className="md:hidden">
         <MobileSessions
           sessions={filteredSessions}
-          onAddSession={handleAddSession}
+          addSessionHref={`${ROUTE_SESSIONS}/new`}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onToggleFavorite={handleToggleFavorite}
@@ -304,7 +315,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       <div className="hidden md:block space-y-6">
         <SessionsHeader
           t={t}
-          onAddSession={handleAddSession}
+          addSessionHref={`${ROUTE_SESSIONS}/new`}
           onOpenAssistant={() => {}}
           isPremium={isPremium}
           searchQuery={searchQuery}
@@ -318,7 +329,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
         <SessionsList
           sessions={filteredSessions}
           t={t}
-          onAddSession={handleAddSession}
+          addSessionHref={`${ROUTE_SESSIONS}/new`}
           onEdit={handleDesktopEdit}
           onDelete={handleDelete}
           onToggleFavorite={handleToggleFavorite}
@@ -329,12 +340,23 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       </div>
 
       {/* Desktop Session Detail Modal */}
-      <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
+      <Dialog
+        open={!!selectedSession}
+        onOpenChange={() => setSelectedSession(null)}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
           <VisuallyHidden>
             <DialogHeader>
               <DialogTitle>
-                {selectedSession ? `${t("viewSession", { ns: "sessions", defaultValue: "View Session" })}: ${selectedSession.strain}` : t("sessionDetails", { ns: "sessions", defaultValue: "Session Details" })}
+                {selectedSession
+                  ? `${t("viewSession", {
+                      ns: "sessions",
+                      defaultValue: "View Session",
+                    })}: ${selectedSession.strain}`
+                  : t("sessionDetails", {
+                      ns: "sessions",
+                      defaultValue: "Session Details",
+                    })}
               </DialogTitle>
             </DialogHeader>
           </VisuallyHidden>
@@ -363,4 +385,3 @@ export function SessionsContainer(props: SessionsContainerProps) {
     </Suspense>
   );
 }
-

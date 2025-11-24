@@ -7,5 +7,19 @@
   "uploadPhoto": "Upload Photo",
   "chatHistory": "Chat History",
   "newChat": "New Chat",
-  "noChats": "No chats yet"
+  "noChats": "No chats yet",
+  "helpSubtext": "I can analyze plant photos, diagnose issues, suggest nutrient schedules, or answer cultivation questions.",
+  "diagnoseIssue": "Diagnose Issue",
+  "diagnoseIssueDesc": "Identify problems from photos",
+  "feedingSchedule": "Feeding Schedule",
+  "feedingScheduleDesc": "Custom nutrient plans",
+  "diagnosePrompt": "My plant leaves are turning yellow. What could be wrong?",
+  "feedingPrompt": "Create a feeding schedule for week 4 of flowering",
+  "disclaimer": "AI can make mistakes. Verify important information.",
+  "authError": "Authentication failed. Please try signing in again.",
+  "premiumError": "Premium subscription required for AI assistant.",
+  "rateLimitError": "Too many requests. Please wait a moment and try again.",
+  "sendError": "Failed to send message",
+  "loadError": "Failed to load chat session",
+  "signInRequired": "Please sign in to use the AI assistant"
 }

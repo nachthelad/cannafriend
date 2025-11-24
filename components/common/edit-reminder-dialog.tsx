@@ -20,7 +20,14 @@ import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
-import { AlertCircle, AlarmClock, Moon, Sun } from "lucide-react";
+import {
+  AlertCircle,
+  AlarmClock,
+  Moon,
+  Sun,
+  Calendar,
+  Leaf,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -38,6 +45,7 @@ import {
   invalidateDashboardCache,
   invalidateRemindersCache,
 } from "@/lib/suspense-cache";
+import { cn } from "@/lib/utils";
 
 // Form validation schema
 const createEditReminderFormSchema = (t: any) =>
@@ -67,7 +75,7 @@ const createEditReminderFormSchema = (t: any) =>
     isActive: z.boolean(),
   });
 
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 function getNextOccurrence(days: number[], timeOfDay: string): string {
   if (!days.length) return "";
@@ -236,180 +244,209 @@ export function EditReminderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t("editReminder", { ns: "reminders" })}</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto p-0 gap-0 overflow-hidden bg-card border-border">
+        <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-muted/30">
+          <DialogTitle className="text-xl font-semibold tracking-tight">
+            {t("editReminder", { ns: "reminders" })}
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             {t("editReminderDesc", { ns: "reminders" })}
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={handleSubmit(handleUpdateReminder)}
-          className="space-y-4"
+          className="flex flex-col"
         >
-          {/* Plant Selection */}
-          <div className="space-y-2">
-            <Label>{t("selectPlant", { ns: "reminders" })}</Label>
-            <input
-              type="hidden"
-              {...register("selectedPlant")}
-              value={selectedPlant || ""}
-            />
-            <Select
-              value={selectedPlant}
-              onValueChange={(v) => setValue("selectedPlant", v)}
-            >
-              <SelectTrigger
-                className={`min-h-[44px] ${
-                  errors.selectedPlant ? "border-destructive" : ""
-                }`}
+          <div className="p-6 space-y-6">
+            {/* Plant Selection */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("selectPlant", { ns: "reminders" })}
+              </Label>
+              <input
+                type="hidden"
+                {...register("selectedPlant")}
+                value={selectedPlant || ""}
+              />
+              <Select
+                value={selectedPlant}
+                onValueChange={(v) => setValue("selectedPlant", v)}
               >
-                <SelectValue
-                  placeholder={t("selectPlant", { ns: "reminders" })}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {plants.map((plant) => (
-                  <SelectItem
-                    key={plant.id}
-                    value={plant.id}
-                    className="min-h-[44px]"
-                  >
-                    {plant.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.selectedPlant && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
+                <SelectTrigger
+                  className={cn(
+                    "h-12 bg-background border-input/50 focus:ring-primary/20 transition-all",
+                    errors.selectedPlant &&
+                      "border-destructive focus:ring-destructive/20"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Leaf className="h-4 w-4 text-primary/70" />
+                    <SelectValue
+                      placeholder={t("selectPlant", { ns: "reminders" })}
+                    />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {plants.map((plant) => (
+                    <SelectItem
+                      key={plant.id}
+                      value={plant.id}
+                      className="h-10"
+                    >
+                      {plant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.selectedPlant && (
+                <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
                   {errors.selectedPlant.message}
                 </p>
-              </div>
-            )}
-          </div>
-
-          {/* Label */}
-          <div className="space-y-2">
-            <Label>{t("customName", { ns: "reminders" })}</Label>
-            <Input
-              {...register("label")}
-              placeholder={t("customTitle", { ns: "reminders" })}
-              className={`min-h-[44px] ${
-                errors.label ? "border-destructive" : ""
-              }`}
-            />
-            {errors.label && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.label.message}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Schedule */}
-          <div className="space-y-3">
-            <Label>{t("days", { ns: "reminders" })}</Label>
-            <div className="flex flex-wrap gap-2">
-              {DAY_LABELS.map((day, index) => {
-                const dayIndex = index; // 0-6
-                const selected = daysOfWeek?.includes(dayIndex);
-                return (
-                  <Button
-                    key={day}
-                    type="button"
-                    variant={selected ? "default" : "outline"}
-                    className="min-h-[36px] px-3"
-                    onClick={() => {
-                      const current = new Set(daysOfWeek || []);
-                      if (current.has(dayIndex)) {
-                        current.delete(dayIndex);
-                      } else {
-                        current.add(dayIndex);
-                      }
-                      setValue("daysOfWeek", Array.from(current).sort(), {
-                        shouldValidate: true,
-                      });
-                    }}
-                  >
-                    {day}
-                  </Button>
-                );
-              })}
-            </div>
-            {errors.daysOfWeek && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.daysOfWeek.message as string}
-                </p>
-              </div>
-            )}
-            <div className="space-y-1">
-              <Label>{t("time", { ns: "reminders" })}</Label>
-              <div className="flex items-center gap-3">
-                <Input
-                  type="time"
-                  step={300}
-                  value={timeOfDay}
-                  onChange={(e) =>
-                    setValue("timeOfDay", e.target.value, {
-                      shouldValidate: true,
-                    })
-                  }
-                  className={`min-h-[44px] max-w-[180px] ${
-                    errors.timeOfDay ? "border-destructive" : ""
-                  }`}
-                />
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Sun className="h-4 w-4" />
-                  <span>
-                    {t("morningHint", {
-                      ns: "reminders",
-                      defaultValue: "Morning times work best for watering.",
-                    })}
-                  </span>
-                </div>
-              </div>
-              {errors.timeOfDay && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                  <p className="text-sm text-destructive font-medium">
-                    {errors.timeOfDay.message}
-                  </p>
-                </div>
               )}
             </div>
-            <div className="flex items-center justify-between px-3 py-2">
-              <div className="flex items-center gap-2">
-                <AlarmClock className="h-4 w-4" />
-                <div>
-                  <p className="text-sm font-medium">
-                    {t("active", { ns: "reminders" })}
-                  </p>
+
+            {/* Label */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {t("customName", { ns: "reminders" })}
+              </Label>
+              <div className="relative">
+                <Input
+                  {...register("label")}
+                  placeholder={t("customTitle", { ns: "reminders" })}
+                  className={cn(
+                    "h-12 pl-10 bg-background border-input/50 focus:ring-primary/20 transition-all",
+                    errors.label &&
+                      "border-destructive focus:ring-destructive/20"
+                  )}
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <AlarmClock className="h-4 w-4" />
                 </div>
               </div>
-              <Switch
-                checked={isActive}
-                onCheckedChange={(value) => setValue("isActive", value)}
-              />
+              {errors.label && (
+                <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  {errors.label.message}
+                </p>
+              )}
+            </div>
+
+            {/* Schedule Section */}
+            <div className="space-y-4 p-4 rounded-xl bg-muted/30 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <h4 className="font-medium text-sm">
+                  {t("schedule", { ns: "reminders", defaultValue: "Schedule" })}
+                </h4>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <Label className="text-xs text-muted-foreground">
+                    {t("days", { ns: "reminders" })}
+                  </Label>
+                  {errors.daysOfWeek && (
+                    <span className="text-xs text-destructive font-medium">
+                      {errors.daysOfWeek.message as string}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex justify-between gap-1">
+                  {DAY_LABELS.map((day, index) => {
+                    const dayIndex = index; // 0-6
+                    const selected = daysOfWeek?.includes(dayIndex);
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
+                          const current = new Set(daysOfWeek || []);
+                          if (current.has(dayIndex)) {
+                            current.delete(dayIndex);
+                          } else {
+                            current.add(dayIndex);
+                          }
+                          setValue("daysOfWeek", Array.from(current).sort(), {
+                            shouldValidate: true,
+                          });
+                        }}
+                        className={cn(
+                          "h-9 w-9 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center",
+                          selected
+                            ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                            : "bg-background border border-input hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                        )}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-border/50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">
+                      {t("time", { ns: "reminders" })}
+                    </Label>
+                    <Input
+                      type="time"
+                      step={300}
+                      value={timeOfDay}
+                      onChange={(e) =>
+                        setValue("timeOfDay", e.target.value, {
+                          shouldValidate: true,
+                        })
+                      }
+                      className={cn(
+                        "h-10 bg-background border-input/50",
+                        errors.timeOfDay && "border-destructive"
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex flex-col justify-end space-y-2">
+                    <div className="flex items-center justify-between h-10 px-3 rounded-md bg-background border border-input/50">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {t("active", { ns: "reminders" })}
+                      </span>
+                      <Switch
+                        checked={isActive}
+                        onCheckedChange={(value) => setValue("isActive", value)}
+                        className="scale-75 origin-right"
+                      />
+                    </div>
+                  </div>
+                </div>
+                {errors.timeOfDay && (
+                  <p className="text-xs text-destructive font-medium mt-1">
+                    {errors.timeOfDay.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="p-6 pt-2 border-t border-border/50 bg-muted/10">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={handleClose}
               disabled={isUpdating}
+              className="hover:bg-muted"
             >
               {t("cancel", { ns: "common" })}
             </Button>
-            <Button type="submit" disabled={isUpdating}>
+            <Button
+              type="submit"
+              disabled={isUpdating}
+              className="min-w-[100px]"
+            >
               {isUpdating
                 ? t("saving", { ns: "common" })
                 : t("save", { ns: "common" })}

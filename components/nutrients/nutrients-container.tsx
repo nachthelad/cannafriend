@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import {
   Card,
@@ -42,7 +43,11 @@ import {
 import { Plus, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import type { NutrientMixView, NutrientsContainerProps, NutrientsData } from "@/types";
+import type {
+  NutrientMixView,
+  NutrientsContainerProps,
+  NutrientsData,
+} from "@/types";
 
 async function fetchNutrientsData(userId: string): Promise<NutrientsData> {
   const q = query(
@@ -108,10 +113,6 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
     await fetchMixes();
   };
 
-  const handleAddMix = () => {
-    router.push(ROUTE_NUTRIENTS_NEW);
-  };
-
   return (
     <>
       <ResponsivePageHeader
@@ -127,15 +128,19 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
               onChange={(e) => setSearch(e.target.value)}
               className="w-64"
             />
-            <Button onClick={handleAddMix}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addMix")}
+            <Button asChild>
+              <Link href={ROUTE_NUTRIENTS_NEW}>
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addMix")}
+              </Link>
             </Button>
           </div>
         }
         mobileActions={
-          <Button size="icon" onClick={handleAddMix}>
-            <Plus className="h-5 w-5" />
+          <Button size="icon" asChild>
+            <Link href={ROUTE_NUTRIENTS_NEW}>
+              <Plus className="h-5 w-5" />
+            </Link>
           </Button>
         }
         mobileControls={
@@ -175,9 +180,11 @@ function NutrientsContent({ userId }: NutrientsContainerProps) {
               {search ? t("noResultsDesc") : t("noMixesDesc")}
             </p>
             {!search && (
-              <Button onClick={() => router.push(ROUTE_NUTRIENTS_NEW)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {t("addFirstMix")}
+              <Button asChild>
+                <Link href={ROUTE_NUTRIENTS_NEW}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("addFirstMix")}
+                </Link>
               </Button>
             )}
           </div>

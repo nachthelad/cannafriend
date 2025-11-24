@@ -8,6 +8,7 @@ import type {
 import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -844,6 +845,7 @@ export function SessionDetailView({
 export function MobileSessions({
   sessions,
   onAddSession,
+  addSessionHref,
   onEdit,
   onDelete,
   onToggleFavorite,
@@ -976,13 +978,25 @@ export function MobileSessions({
                 </SelectContent>
               </Select>
 
-              <Button
-                onClick={onAddSession}
-                className="bg-white text-black border"
-                aria-label={t("addSession", { ns: "sessions" })}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+              {addSessionHref ? (
+                <Button
+                  asChild
+                  className="bg-white text-black border"
+                  aria-label={t("addSession", { ns: "sessions" })}
+                >
+                  <Link href={addSessionHref}>
+                    <Plus className="h-5 w-5" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  onClick={onAddSession}
+                  className="bg-white text-black border"
+                  aria-label={t("addSession", { ns: "sessions" })}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+              )}
             </div>
           </>
         }
@@ -1044,13 +1058,22 @@ export function MobileSessions({
               </SelectContent>
             </Select>
 
-            <Button
-              onClick={onAddSession}
-              className="bg-white text-black border"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addSession", { ns: "sessions" })}
-            </Button>
+            {addSessionHref ? (
+              <Button asChild className="bg-white text-black border">
+                <Link href={addSessionHref}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("addSession", { ns: "sessions" })}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                onClick={onAddSession}
+                className="bg-white text-black border"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addSession", { ns: "sessions" })}
+              </Button>
+            )}
           </div>
         }
       />
@@ -1066,10 +1089,19 @@ export function MobileSessions({
             <p className="text-slate-400 mb-6">
               {t("noSessionsDesc", { ns: "sessions" })}
             </p>
-            <Button onClick={onAddSession} className="bg-purple-600">
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addSession", { ns: "sessions" })}
-            </Button>
+            {addSessionHref ? (
+              <Button asChild className="bg-purple-600">
+                <Link href={addSessionHref}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("addSession", { ns: "sessions" })}
+                </Link>
+              </Button>
+            ) : (
+              <Button onClick={onAddSession} className="bg-purple-600">
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addSession", { ns: "sessions" })}
+              </Button>
+            )}
           </div>
         ) : (
           sessions.map((session) => (
@@ -1087,4 +1119,3 @@ export function MobileSessions({
 }
 
 export type { SessionDetailViewProps } from "@/types/mobile";
-

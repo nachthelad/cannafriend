@@ -26,13 +26,13 @@ export function ResponsivePageHeader({
   return (
     <header
       className={cn(
-        "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 mb-2",
+        "border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 mb-6",
         sticky && "sticky top-0 z-20",
         className
       )}
     >
-      <div className="px-4 py-4 sm:px-6 sm:py-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+      <div className="px-4 py-5 sm:px-6 sm:py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {renderBackButton && showMobileBackButton ? (
               <Button

@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { PLANT_STATUS } from "@/lib/plant-config";
 
+import Link from "next/link";
+
 export function SimplePlantCard({
   plant,
   language,
@@ -18,22 +20,17 @@ export function SimplePlantCard({
   className,
 }: SimplePlantCardProps) {
   const { t } = useTranslation(["plants", "common"]);
-  const router = useRouter();
   const isOverlay = variant === "overlay";
-
-  const handleClick = () => {
-    router.push(`/plants/${plant.id}`);
-  };
 
   if (viewMode === "list") {
     return (
-      <div
+      <Link
+        href={`/plants/${plant.id}`}
         className={cn(
           "relative overflow-hidden rounded-lg cursor-pointer transition-all active:scale-95 bg-card flex",
           isOverlay && "md:hover:-translate-y-0.5 md:hover:shadow-lg",
           className
         )}
-        onClick={handleClick}
         lang={language}
       >
         {/* Plant Image */}
@@ -90,18 +87,18 @@ export function SimplePlantCard({
             )}
           </div>
         </div>
-      </div>
+      </Link>
     );
   }
 
   return (
-    <div
+    <Link
+      href={`/plants/${plant.id}`}
       className={cn(
-        "relative overflow-hidden rounded-lg cursor-pointer transition-all active:scale-95 bg-card",
+        "relative overflow-hidden rounded-lg cursor-pointer transition-all active:scale-95 bg-card block",
         isOverlay && "md:hover:-translate-y-0.5 md:hover:shadow-lg",
         className
       )}
-      onClick={handleClick}
       lang={language}
     >
       {/* Plant Image */}
@@ -171,6 +168,6 @@ export function SimplePlantCard({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -46,7 +46,7 @@
     "notFoundDesc": "The plant you're looking for doesn't exist or has been deleted",
     "backToDashboard": "Back to Dashboard",
     "error": "Error loading plant",
-    "addLog": "Add Log",
+    "addLog": "Add",
     "addLogDesc": "Record an activity or measurement",
     "recentLogs": "Recent Logs",
     "recentLogsDesc": "Latest recorded activities",
@@ -180,5 +180,12 @@
   "status": {
     "growing": "Growing",
     "ended": "Cycle ended"
+  },
+  "emptyState": {
+    "noPlants": "No plants yet",
+    "noPlantsDesc": "Start your growing journey by adding your first plant",
+    "addPlant": "Add Plant",
+    "noResults": "No plants found",
+    "noResultsDesc": "Try adjusting your filters or search term"
   }
 }

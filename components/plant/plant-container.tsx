@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
@@ -106,9 +107,6 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
     setIncludeEnded(false);
   };
 
-  const handleAddPlant = () => router.push(ROUTE_PLANTS_NEW);
-  const handleBack = () => router.replace(homePath);
-
   return (
     <>
       <ResponsivePageHeader
@@ -116,22 +114,23 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
         title={t("yourPlants", { ns: "dashboard" })}
         description={t("managementDesc", { ns: "plants" })}
         backHref={homePath}
-        onBackClick={handleBack}
         desktopActions={
-          <Button onClick={handleAddPlant}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("addPlant", { ns: "dashboard" })}
+          <Button asChild>
+            <Link href={ROUTE_PLANTS_NEW}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addPlant", { ns: "dashboard" })}
+            </Link>
           </Button>
         }
         mobileActions={
-          <Button size="icon" onClick={handleAddPlant}>
-            <Plus className="h-5 w-5" />
+          <Button size="icon" asChild>
+            <Link href={ROUTE_PLANTS_NEW}>
+              <Plus className="h-5 w-5" />
+            </Link>
           </Button>
         }
         sticky={false}
       />
-
-      {/* Mobile Controls */}
       <div className="md:hidden px-4 space-y-4 mb-6">
         {/* Search and Controls Row */}
         <div className="flex items-center gap-2">

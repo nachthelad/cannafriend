@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Filter,
   Plus,
@@ -86,7 +87,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
 
   // Update local logs if initialLogs changes (e.g. re-suspense)
   if (logs !== initialLogs && logs.length === 0 && initialLogs.length > 0) {
-     setLogs(initialLogs);
+    setLogs(initialLogs);
   }
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -180,7 +181,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
 
   const confirmDeleteLog = async () => {
     if (!userId || !logToDelete || !logToDelete.id) return;
-    
+
     const log = logToDelete;
     setLogToDelete(null); // Close dialog immediately
 
@@ -391,9 +392,11 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                 : t("addFirstLog", { ns: "journal" })}
             </CardDescription>
             {activeFiltersCount === 0 && (
-              <Button onClick={() => router.push("/journal/new")}>
-                <Plus className="h-4 w-4 mr-2" />{" "}
-                {t("addLog", { ns: "journal" })}
+              <Button asChild>
+                <Link href="/journal/new">
+                  <Plus className="h-4 w-4 mr-2" />{" "}
+                  {t("addLog", { ns: "journal" })}
+                </Link>
               </Button>
             )}
           </CardContent>
@@ -509,17 +512,24 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={!!logToDelete} onOpenChange={(open) => !open && setLogToDelete(null)}>
+      <AlertDialog
+        open={!!logToDelete}
+        onOpenChange={(open) => !open && setLogToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteLogTitle", { ns: "journal" })}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("deleteLogTitle", { ns: "journal" })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("deleteLogDesc", { ns: "journal" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel>
+              {t("cancel", { ns: "common" })}
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmDeleteLog}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

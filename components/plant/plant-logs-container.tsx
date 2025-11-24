@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
@@ -29,10 +30,7 @@ import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import type { Plant, LogEntry } from "@/types";
-import type {
-  PlantLogsContainerProps,
-  PlantLogsData,
-} from "@/types/plants";
+import type { PlantLogsContainerProps, PlantLogsData } from "@/types/plants";
 import { normalizePlant } from "@/lib/plant-utils";
 
 async function fetchPlantData(
@@ -109,10 +107,6 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
 
   const backHref = `/plants/${plantId}`;
 
-  const handleAddLog = () => {
-    router.push(`/plants/${plantId}/add-log`);
-  };
-
   return (
     <div className="min-h-screen">
       <ResponsivePageHeader
@@ -125,14 +119,18 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
         }
         backHref={backHref}
         desktopActions={
-          <Button size="icon" onClick={handleAddLog}>
-            <Plus className="h-5 w-5" />
+          <Button size="icon" asChild>
+            <Link href={`/plants/${plantId}/add-log`}>
+              <Plus className="h-5 w-5" />
+            </Link>
           </Button>
         }
         mobileControls={
           <div className="flex justify-end">
-            <Button size="icon" onClick={handleAddLog}>
-              <Plus className="h-5 w-5" />
+            <Button size="icon" asChild>
+              <Link href={`/plants/${plantId}/add-log`}>
+                <Plus className="h-5 w-5" />
+              </Link>
             </Button>
           </div>
         }
@@ -164,8 +162,10 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
             <p className="text-muted-foreground mb-6">
               {t("addFirstLog", { ns: "journal" })}
             </p>
-            <Button onClick={() => router.push(`/plants/${plantId}/add-log`)}>
-              {t("addLog", { ns: "journal" })}
+            <Button asChild>
+              <Link href={`/plants/${plantId}/add-log`}>
+                {t("addLog", { ns: "journal" })}
+              </Link>
             </Button>
           </div>
         ) : (
@@ -191,8 +191,8 @@ function PlantLogsErrorBoundary({ userId, plantId }: PlantLogsContainerProps) {
       <p className="text-muted-foreground mb-6">
         {t("plantPage.notFoundDesc")}
       </p>
-      <Button onClick={() => router.push("/plants")}>
-        {t("plantPage.backToDashboard")}
+      <Button asChild>
+        <Link href="/plants">{t("plantPage.backToDashboard")}</Link>
       </Button>
     </div>
   );

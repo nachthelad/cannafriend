@@ -46,23 +46,19 @@ export function SettingsSkeleton() {
       <div className="hidden md:flex md:flex-row md:items-start md:gap-8">
         {/* Left sidebar navigation */}
         <div className="md:w-64 md:flex-shrink-0 md:self-start">
-          <nav className="sticky top-24 space-y-1 border-r border-border bg-card p-2">
+          <nav className="sticky top-24 space-y-1 border-r border-border p-2">
             {/* Regular sections - first 5 */}
             {Array.from({ length: 5 }).map((_, index) => {
               const isActive = index === 0;
               return (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className={`rounded-md px-3 py-2 ${
                     isActive ? "bg-muted" : ""
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <Skeleton 
-                      className={`h-5 ${
-                        isActive ? "w-20" : "w-24"
-                      }`} 
-                    />
+                    <Skeleton className={`h-5 ${isActive ? "w-20" : "w-24"}`} />
                     {isActive && (
                       <Skeleton className="h-2 w-2 rounded-full ml-2 flex-shrink-0" />
                     )}
@@ -70,10 +66,10 @@ export function SettingsSkeleton() {
                 </div>
               );
             })}
-            
+
             {/* Separator before destructive action */}
             <div className="my-4 border-t border-border" />
-            
+
             {/* Delete account section (destructive) - smaller width to indicate it's different */}
             <div className="rounded-md px-3 py-2">
               <Skeleton className="h-5 w-28" />
@@ -89,7 +85,7 @@ export function SettingsSkeleton() {
             <div>
               <Skeleton className="h-7 w-20" />
             </div>
-            
+
             {/* Email with provider icon and log out button */}
             <div className="space-y-4 max-w-sm">
               {/* Email row with icon */}
@@ -99,7 +95,7 @@ export function SettingsSkeleton() {
                 {/* Email text */}
                 <Skeleton className="h-4 w-48" />
               </div>
-              
+
               {/* Log out button */}
               <Skeleton className="h-10 w-28 rounded-md" />
             </div>

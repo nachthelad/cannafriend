@@ -13,7 +13,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { deleteDoc, getDocs, query } from "firebase/firestore";
-import { ROUTE_LOGIN, ROUTE_REMINDERS_NEW, resolveHomePathForRoles } from "@/lib/routes";
+import {
+  ROUTE_LOGIN,
+  ROUTE_REMINDERS_NEW,
+  ROUTE_PLANTS_NEW,
+  resolveHomePathForRoles,
+} from "@/lib/routes";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
@@ -60,7 +65,7 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
 }
 
 function RemindersContent({ userId }: RemindersContentProps) {
-  const { t } = useTranslation(["reminders", "common", "dashboard"]);
+  const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { roles } = useUserRoles();
   const router = useRouter();
   const homePath = resolveHomePathForRoles(roles);
@@ -88,9 +93,17 @@ function RemindersContent({ userId }: RemindersContentProps) {
   const hasReminders = reminders.length > 0;
   const shouldShowManager = hasGrowingPlants || hasReminders;
 
-  const handleAddReminder = () => {
-    router.push(ROUTE_REMINDERS_NEW);
+  const handleAddClick = () => {
+    if (!hasGrowingPlants) {
+      router.push(ROUTE_PLANTS_NEW);
+    } else {
+      router.push(ROUTE_REMINDERS_NEW);
+    }
   };
+
+  const addButtonLabel = !hasGrowingPlants
+    ? t("emptyState.addPlant", { ns: "plants" })
+    : t("add", { ns: "reminders" });
 
   return (
     <>
@@ -99,14 +112,18 @@ function RemindersContent({ userId }: RemindersContentProps) {
         description={t("pageDescription", { ns: "reminders" })}
         backHref={homePath}
         mobileActions={
-          <Button size="icon" onClick={handleAddReminder}>
+          <Button
+            size="icon"
+            onClick={handleAddClick}
+            aria-label={addButtonLabel}
+          >
             <Plus className="h-5 w-5" />
           </Button>
         }
         desktopActions={
-          <Button onClick={handleAddReminder}>
+          <Button onClick={handleAddClick}>
             <Plus className="h-4 w-4 mr-2" />
-            {t("add", { ns: "reminders" })}
+            {addButtonLabel}
           </Button>
         }
       />
@@ -123,7 +140,9 @@ function RemindersContent({ userId }: RemindersContentProps) {
           {!hasGrowingPlants && (
             <Card className="mb-6">
               <CardHeader>
-                <CardTitle>{t("allPlantsEnded", { ns: "reminders" })}</CardTitle>
+                <CardTitle>
+                  {t("allPlantsEnded", { ns: "reminders" })}
+                </CardTitle>
                 <CardDescription>
                   {t("allPlantsEndedDesc", { ns: "reminders" })}
                 </CardDescription>
@@ -144,14 +163,11 @@ function RemindersContent({ userId }: RemindersContentProps) {
         </>
       ) : (
         <Card>
-          <CardHeader>
+          <CardHeader className="gap-0">
             <CardTitle>{t("noPlants", { ns: "dashboard" })}</CardTitle>
-            <CardDescription>
-              {t("noPlantDesc", { ns: "dashboard" })}
-            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
+          <CardContent className="pt-0">
+            <p className="text-sm text-muted-foreground ">
               {t("noPlantsHint", { ns: "reminders" })}
             </p>
           </CardContent>
@@ -163,16 +179,25 @@ function RemindersContent({ userId }: RemindersContentProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="max-w-lg w-full shadow-lg">
             <CardHeader>
-              <CardTitle>{t("migrationTitle", { ns: "reminders", defaultValue: "Reminder system updated" })}</CardTitle>
+              <CardTitle>
+                {t("migrationTitle", {
+                  ns: "reminders",
+                  defaultValue: "Reminder system updated",
+                })}
+              </CardTitle>
               <CardDescription>
                 {t("migrationDesc", {
                   ns: "reminders",
-                  defaultValue: "Your old reminders were removed. Please create new alarms with days and time.",
+                  defaultValue:
+                    "Your old reminders were removed. Please create new alarms with days and time.",
                 })}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowMigrationModal(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowMigrationModal(false)}
+              >
                 {t("close", { ns: "common", defaultValue: "Close" })}
               </Button>
               <Button onClick={() => router.push(ROUTE_REMINDERS_NEW)}>

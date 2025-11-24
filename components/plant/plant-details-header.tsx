@@ -16,6 +16,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { ROUTE_PLANTS } from "@/lib/routes";
+import Link from "next/link";
 import type { PlantDetailsHeaderProps } from "@/types/plants";
 
 export function PlantDetailsHeader({
@@ -25,11 +26,6 @@ export function PlantDetailsHeader({
   isDeleting,
 }: PlantDetailsHeaderProps) {
   const { t } = useTranslation(["plants", "common", "journal"]);
-  const router = useRouter();
-
-  const handleBack = () => {
-    router.push(ROUTE_PLANTS);
-  };
 
   return (
     <>
@@ -39,10 +35,13 @@ export function PlantDetailsHeader({
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleBack}
+            asChild
             className="p-2"
+            aria-label={t("back", { ns: "common" })}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <Link href={ROUTE_PLANTS}>
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
           </Button>
           <div className="flex-1">
             <h1 className="text-xl font-bold">{plant.name}</h1>
