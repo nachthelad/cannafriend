@@ -7,5 +7,19 @@
   "uploadPhoto": "Subir foto",
   "chatHistory": "Historial",
   "newChat": "Nuevo Chat",
-  "noChats": "Sin chats"
+  "noChats": "Sin chats",
+  "helpSubtext": "Puedo analizar fotos de plantas, diagnosticar problemas, sugerir calendarios de nutrientes o responder preguntas de cultivo.",
+  "diagnoseIssue": "Diagnosticar Problema",
+  "diagnoseIssueDesc": "Identificar problemas con fotos",
+  "feedingSchedule": "Calendario de Riego",
+  "feedingScheduleDesc": "Planes de nutrientes personalizados",
+  "diagnosePrompt": "Las hojas de mi planta se están poniendo amarillas. ¿Qué podría estar mal?",
+  "feedingPrompt": "Crea un calendario de alimentación para la semana 4 de floración",
+  "disclaimer": "La IA puede cometer errores. Verifica la información importante.",
+  "authError": "Error de autenticación. Por favor inicia sesión nuevamente.",
+  "premiumError": "Se requiere suscripción Premium para el asistente IA.",
+  "rateLimitError": "Demasiadas solicitudes. Por favor espera un momento e intenta de nuevo.",
+  "sendError": "Error al enviar mensaje",
+  "loadError": "Error al cargar la sesión de chat",
+  "signInRequired": "Por favor inicia sesión para usar el asistente IA"
 }

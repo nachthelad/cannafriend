@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Search, Filter, ArrowUpDown } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +16,7 @@ import type { SessionsHeaderProps } from "@/types";
 export function SessionsHeader({
   t,
   onAddSession,
+  addSessionHref,
   searchQuery,
   onSearchChange,
   filterMethod,
@@ -93,17 +95,39 @@ export function SessionsHeader({
           </Select>
 
           {/* Add Session Button */}
-          <Button onClick={onAddSession} className="hidden sm:inline-flex">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("addSession", { ns: "sessions" })}
-          </Button>
-          <Button
-            onClick={onAddSession}
-            aria-label={t("addSession", { ns: "sessions" })}
-            className="h-9 w-9 p-0 sm:hidden"
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
+          {addSessionHref ? (
+            <>
+              <Button asChild className="hidden sm:inline-flex">
+                <Link href={addSessionHref}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t("addSession", { ns: "sessions" })}
+                </Link>
+              </Button>
+              <Button
+                asChild
+                aria-label={t("addSession", { ns: "sessions" })}
+                className="h-9 w-9 p-0 sm:hidden"
+              >
+                <Link href={addSessionHref}>
+                  <Plus className="h-5 w-5" />
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={onAddSession} className="hidden sm:inline-flex">
+                <Plus className="mr-2 h-4 w-4" />
+                {t("addSession", { ns: "sessions" })}
+              </Button>
+              <Button
+                onClick={onAddSession}
+                aria-label={t("addSession", { ns: "sessions" })}
+                className="h-9 w-9 p-0 sm:hidden"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

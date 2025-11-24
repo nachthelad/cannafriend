@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState, useRef, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
@@ -164,8 +165,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const [mobileUploadState, setMobileUploadState] =
     useState<UploadingState>("idle");
   const mobileImageUploadRef = useRef<ImageUploadHandle>(null);
-  const mobileUploadPromptTimeoutRef =
-    useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mobileUploadPromptTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const clearMobilePromptTimeout = useCallback(() => {
     if (mobileUploadPromptTimeoutRef.current) {
@@ -377,8 +379,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
-            {t("plantPage.backToDashboard")}
+          <Button asChild>
+            <Link href={resolveHomePathForRoles(roles)}>
+              {t("plantPage.backToDashboard")}
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -429,7 +433,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
         {/* Main Content Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Left Column: Photo Gallery */}
-          <div className="space-y-6">
+          <div className="h-full">
             <PlantPhotoGallery
               plant={plant}
               onPhotosChange={handlePhotosChange}
@@ -497,8 +501,10 @@ function PlantDetailsErrorBoundary({
         <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
-          {t("plantPage.backToDashboard")}
+        <Button asChild>
+          <Link href={resolveHomePathForRoles(roles)}>
+            {t("plantPage.backToDashboard")}
+          </Link>
         </Button>
       </CardContent>
     </Card>

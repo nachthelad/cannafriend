@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import type { AILayoutProps } from "@/types/layout";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -37,7 +39,9 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
         </Button>
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-lg">{t("assistant", { ns: "aiAssistant" })}</span>
+          <span className="font-semibold text-lg">
+            {t("assistant", { ns: "aiAssistant" })}
+          </span>
         </div>
       </div>
 
@@ -47,27 +51,33 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(ROUTE_DASHBOARD)}
+            asChild
             className="flex items-center gap-2"
           >
-            <ArrowLeft className="h-4 w-4" />
-            {t("back", { ns: "common" })}
+            <Link href={ROUTE_DASHBOARD}>
+              <ArrowLeft className="h-4 w-4" />
+              {t("back", { ns: "common" })}
+            </Link>
           </Button>
           <div className="w-px h-6 bg-border" />
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-lg">{t("assistant", { ns: "aiAssistant" })}</span>
+            <span className="font-semibold text-lg">
+              {t("assistant", { ns: "aiAssistant" })}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push("/settings")}
+            asChild
             className="flex items-center gap-2"
           >
-            <Settings className="h-4 w-4" />
-            {t("settings.title", { ns: "common" })}
+            <Link href="/settings">
+              <Settings className="h-4 w-4" />
+              {t("settings.title", { ns: "common" })}
+            </Link>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
             {t("signOut", { ns: "nav" })}

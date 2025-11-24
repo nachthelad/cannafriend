@@ -54,7 +54,7 @@ export function SettingsNavigation({
       {/* Desktop navigation */}
       <nav
         aria-label={navigationTitle}
-        className="sticky top-24 hidden space-y-1 border-r bg-card p-2 md:block"
+        className="sticky top-24 hidden space-y-1 border-r bg-background p-2 md:block"
       >
         {sections.map((section, index) => {
           const isActive = section.id === activeSectionEntry.id;

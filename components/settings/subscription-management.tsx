@@ -18,6 +18,7 @@ import type {
   SubscriptionLine,
   SubscriptionManagementProps,
 } from "@/types";
+import Link from "next/link";
 
 export function SubscriptionManagement({
   title,
@@ -27,6 +28,7 @@ export function SubscriptionManagement({
   upgradeLabel,
   upgradeDescription,
   onUpgrade,
+  upgradeHref,
   cancelLabel,
   cancelConfirmTitle,
   cancelConfirmDescription,
@@ -83,10 +85,19 @@ export function SubscriptionManagement({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {!isPremium ? (
-            <Button onClick={onUpgrade} className="flex items-center gap-2">
-              <Crown className="h-4 w-4" />
-              {upgradeLabel}
-            </Button>
+            upgradeHref ? (
+              <Button asChild className="flex items-center gap-2">
+                <Link href={upgradeHref}>
+                  <Crown className="h-4 w-4 mr-2" />
+                  {upgradeLabel}
+                </Link>
+              </Button>
+            ) : (
+              <Button onClick={onUpgrade} className="flex items-center gap-2">
+                <Crown className="h-4 w-4 mr-2" />
+                {upgradeLabel}
+              </Button>
+            )
           ) : (
             <AlertDialog>
               <AlertDialogTrigger asChild>

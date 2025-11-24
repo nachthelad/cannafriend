@@ -37,7 +37,8 @@ export interface SessionsContainerProps {
 export interface SessionsListProps {
   sessions: Session[];
   t: TFunction<["sessions", "common"]>;
-  onAddSession: () => void;
+  onAddSession?: () => void;
+  addSessionHref?: string;
   onEdit: (session: Session) => void;
   onDelete: (sessionId: string) => void;
   onToggleFavorite: (session: Session) => void;
@@ -58,7 +59,8 @@ export interface SessionCardProps {
 
 export interface SessionsHeaderProps {
   t: TFunction<["sessions", "common"]>;
-  onAddSession: () => void;
+  onAddSession?: () => void;
+  addSessionHref?: string;
   onOpenAssistant: () => void;
   isPremium: boolean;
   searchQuery: string;

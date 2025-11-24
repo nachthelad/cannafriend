@@ -19,14 +19,13 @@ import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
 import { remindersCol } from "@/lib/paths";
 import { query, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { invalidateDashboardCache, invalidateRemindersCache } from "@/lib/suspense-cache";
 import {
-  Bell,
-  AlarmClock,
-  Edit,
-  X,
-} from "lucide-react";
+  invalidateDashboardCache,
+  invalidateRemindersCache,
+} from "@/lib/suspense-cache";
+import { Bell, AlarmClock, Edit, X, Calendar, Leaf } from "lucide-react";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
+import { EmptyState } from "@/components/common/empty-state";
 import type { Reminder } from "@/types";
 
 export function ReminderSystem({
@@ -213,7 +212,7 @@ export function ReminderSystem({
       .sort()
       .map((d) => dayLabels[d])
       .join(", ");
-    return `${days} • ${reminder.timeOfDay}`;
+    return days;
   };
 
   const [overdueToastShown, setOverdueToastShown] = useState(false);
@@ -237,36 +236,51 @@ export function ReminderSystem({
   if (showOnlyOverdue) {
     if (overdueReminders.length === 0) return null;
     return (
-      <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
-        <CardHeader>
-          <CardTitle className="text-orange-800 dark:text-orange-200">
-            {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
-          </CardTitle>
+      <Card className="border-warning/50 bg-warning/10">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2 text-warning-foreground">
+            <AlarmClock className="h-5 w-5" />
+            <CardTitle className="text-lg">
+              {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
+            </CardTitle>
+          </div>
           <CardDescription>
-            {t("overdueDesc", { ns: "reminders", defaultValue: "These alarms are past their scheduled time." })}
+            {t("overdueDesc", {
+              ns: "reminders",
+              defaultValue: "These alarms are past their scheduled time.",
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {overdueReminders.map((reminder) => (
             <div
               key={reminder.id}
-              className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
+              className="flex items-center justify-between p-3 bg-background/50 rounded-lg border border-warning/20"
             >
               <div className="flex items-center gap-3">
-                <AlarmClock className="h-4 w-4 text-primary" />
+                <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center text-warning-foreground">
+                  <AlarmClock className="h-4 w-4" />
+                </div>
                 <div>
                   <div className="font-medium">
                     {reminder.label ||
                       reminder.title ||
                       t("untitled", { ns: "common", defaultValue: "Untitled" })}
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {reminder.plantName && `${reminder.plantName} • `}
-                    {formatSchedule(reminder)}
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    {reminder.plantName && (
+                      <>
+                        <span className="font-medium text-foreground/80">
+                          {reminder.plantName}
+                        </span>
+                        <span>•</span>
+                      </>
+                    )}
+                    <span>{reminder.timeOfDay}</span>
                   </div>
                 </div>
               </div>
-              <Badge variant="destructive">
+              <Badge variant="warning">
                 {t("overdue", { ns: "reminders" })}
               </Badge>
             </div>
@@ -280,12 +294,15 @@ export function ReminderSystem({
     <div className="space-y-6">
       {/* Overdue Reminders */}
       {overdueReminders.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
-          <CardHeader>
-            <CardTitle className="text-orange-800 dark:text-orange-200">
-              {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
-            </CardTitle>
-            <CardDescription className="text-orange-600 dark:text-orange-300">
+        <Card className="border-warning/50 bg-warning/10">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2 text-warning-foreground">
+              <AlarmClock className="h-5 w-5" />
+              <CardTitle className="text-lg">
+                {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
+              </CardTitle>
+            </div>
+            <CardDescription>
               {t("overdueDesc", {
                 ns: "reminders",
                 defaultValue: "These alarms are past their scheduled time.",
@@ -296,23 +313,35 @@ export function ReminderSystem({
             {overdueReminders.map((reminder) => (
               <div
                 key={reminder.id}
-                className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-md"
+                className="flex items-center justify-between p-3 bg-background/50 rounded-lg border border-warning/20"
               >
                 <div className="flex items-center gap-3">
-                  <AlarmClock className="h-4 w-4 text-primary" />
+                  <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center text-warning-foreground">
+                    <AlarmClock className="h-4 w-4" />
+                  </div>
                   <div>
                     <div className="font-medium">
                       {reminder.label ||
                         reminder.title ||
-                        t("untitled", { ns: "common", defaultValue: "Untitled" })}
+                        t("untitled", {
+                          ns: "common",
+                          defaultValue: "Untitled",
+                        })}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      {reminder.plantName && `${reminder.plantName} • `}
-                      {formatSchedule(reminder)}
+                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                      {reminder.plantName && (
+                        <>
+                          <span className="font-medium text-foreground/80">
+                            {reminder.plantName}
+                          </span>
+                          <span>•</span>
+                        </>
+                      )}
+                      <span>{reminder.timeOfDay}</span>
                     </div>
                   </div>
                 </div>
-                <Badge variant="destructive">
+                <Badge variant="warning">
                   {t("overdue", { ns: "reminders" })}
                 </Badge>
               </div>
@@ -323,88 +352,101 @@ export function ReminderSystem({
 
       {/* Reminders List */}
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {overdueReminders.length > 0 && (
-              <Badge variant="destructive">
-                {t("overdue", { ns: "reminders" })} {overdueReminders.length}
-              </Badge>
-            )}
             {dueSoonReminders.length > 0 && (
-              <Badge>
+              <Badge
+                variant="outline"
+                className="bg-primary/10 text-primary border-primary/20"
+              >
                 {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
               </Badge>
             )}
           </div>
         </div>
-        <div>
-          {normalizedReminders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>{t("noReminders", { ns: "reminders" })}</p>
-              <p className="text-sm">
-                {t("noRemindersDesc", { ns: "reminders" })}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {normalizedReminders.map((reminder) => (
+
+        {normalizedReminders.length === 0 ? (
+          <EmptyState
+            icon={Bell}
+            title={t("noReminders", { ns: "reminders" })}
+            description={t("noRemindersDesc", { ns: "reminders" })}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {normalizedReminders.map((reminder) => (
+              <Card
+                key={reminder.id}
+                variant="interactive"
+                className={`group relative overflow-hidden transition-all duration-300 ${
+                  !reminder.isActive ? "opacity-75 grayscale-[0.5]" : ""
+                }`}
+              >
+                <div className="absolute top-3 right-3 z-10">
+                  <Switch
+                    checked={reminder.isActive}
+                    onCheckedChange={(checked) =>
+                      handleToggleReminder(reminder.id, checked)
+                    }
+                    className="data-[state=checked]:bg-primary"
+                  />
+                </div>
+
                 <div
-                  key={reminder.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="p-5 h-full flex flex-col"
+                  onClick={() => handleEditReminder(reminder)}
                 >
-                  <div className="flex items-center gap-3">
-                    <AlarmClock className="h-5 w-5 text-primary" />
-                    <div>
-                      <div className="font-medium">
-                        {reminder.label ||
-                          reminder.title ||
-                          t("untitled", { ns: "common", defaultValue: "Untitled" })}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {reminder.plantName && `${reminder.plantName} • `}
-                        {Array.isArray(reminder.daysOfWeek) && reminder.timeOfDay
-                          ? `${reminder.daysOfWeek
-                              .slice()
-                              .sort()
-                              .map((d) => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d])
-                              .join(", ")} • ${reminder.timeOfDay}`
-                          : t("noSchedule", {
-                              ns: "reminders",
-                              defaultValue: "No schedule",
-                            })}
-                      </div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                      <AlarmClock className="h-6 w-6" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={reminder.isActive}
-                      onCheckedChange={(checked) =>
-                        handleToggleReminder(reminder.id, checked)
-                      }
-                    />
+
+                  <div className="space-y-1 mb-4 flex-1">
+                    <h3 className="text-2xl font-bold tracking-tight">
+                      {reminder.timeOfDay}
+                    </h3>
+                    <p className="font-medium text-foreground/90 truncate">
+                      {reminder.label ||
+                        reminder.title ||
+                        t("untitled", { ns: "common" })}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 pt-3 border-t border-border/50">
+                    {reminder.plantName && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Leaf className="h-3.5 w-3.5" />
+                        <span className="truncate">{reminder.plantName}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span className="truncate">
+                        {formatSchedule(reminder)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Hover Actions */}
+                  <div className="absolute bottom-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditReminder(reminder)}
-                      title={t("edit", { ns: "common" })}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteReminder(reminder.id)}
-                      title={t("delete", { ns: "common" })}
+                      size="icon-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteReminder(reminder.id);
+                      }}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Edit Reminder Dialog */}
@@ -426,8 +468,8 @@ function ReminderSystemSkeleton({
 }) {
   if (showOnlyOverdue) {
     return (
-      <Card>
-        <CardHeader>
+      <Card className="border-warning/50 bg-warning/10">
+        <CardHeader className="pb-3">
           <Skeleton className="h-5 w-32 mb-2" />
           <Skeleton className="h-4 w-48" />
         </CardHeader>
@@ -441,16 +483,25 @@ function ReminderSystemSkeleton({
   return (
     <div className="space-y-6">
       <Skeleton className="h-10 w-64" />
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-5 w-40 mb-2" />
-          <Skeleton className="h-4 w-64" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="h-48">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex justify-between">
+                <Skeleton className="h-10 w-10 rounded-xl" />
+                <Skeleton className="h-6 w-10 rounded-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="pt-4 border-t">
+                <Skeleton className="h-4 w-full" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

@@ -70,22 +70,10 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   );
   const { logs: initialLogs, plants } = resource.read();
 
-  // Update local logs if initialLogs changes (e.g. re-suspense)
+  // Update local logs if initialLogs changes
   const [logs, setLogs] = useState(initialLogs);
 
-  // Sync local state with prop updates from Suspense resource
-  if (logs !== initialLogs) {
-    // If the reference to initialLogs changes (new fetch), we should update our local state
-    // We check if the length is different or if the first item is different to avoid unnecessary updates
-    // but since initialLogs is from a resource read, it should be stable until invalidated.
-    // However, during a render, we can't set state. We should use an effect or key-based reset.
-    // Actually, the best way for a Suspense resource update is to treat the component as "new" 
-    // or use an effect. Since we are inside the component, let's use an effect.
-  }
-
-  // Better approach: Use useEffect to sync
-  // We need to import useEffect first
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Sync local state with prop updates
   useMemo(() => {
     setLogs(initialLogs);
   }, [initialLogs]);
@@ -96,9 +84,12 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [sortBy, setSortBy] = useState<JournalSortBy>("date");
   const [sortOrder, setSortOrder] = useState<JournalSortOrder>("desc");
-  const [showFilters, setShowFilters] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [logToDelete, setLogToDelete] = useState<LogEntry | null>(null);
+
+  // Calculate days with logs for the calendar
+  const daysWithLogs = useMemo(() => {
+    return logs.map((log) => parseISO(log.date as string));
+  }, [logs]);
 
   const filteredAndSortedLogs = useMemo(() => {
     return logs
@@ -163,13 +154,6 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
     t,
   ]);
 
-  const activeFiltersCount = [
-    selectedPlant !== "all",
-    selectedLogType !== "all",
-    selectedDate !== undefined,
-    searchText.trim() !== "",
-  ].filter(Boolean).length;
-
   const logTypes = [...new Set(logs.map((log) => log.type))];
   const locale = language === "es" ? es : enUS;
 
@@ -182,11 +166,10 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
 
   const confirmDeleteLog = async () => {
     if (!userId || !logToDelete || !logToDelete.id) return;
-    
-    const log = logToDelete;
-    setLogToDelete(null); // Close dialog immediately
 
-    // Optimistic update
+    const log = logToDelete;
+    setLogToDelete(null);
+
     const previousLogs = [...logs];
     setLogs((prev) => prev.filter((l) => l.id !== log.id));
 
@@ -199,7 +182,6 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
         doc(db, "users", userId, "plants", log.plantId, "logs", log.id)
       );
 
-      // Invalidate caches
       invalidateJournalCache(userId);
       invalidatePlantsCache(userId);
       invalidatePlantDetails(userId, log.plantId);
@@ -210,7 +192,6 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
         description: t("deletedDesc", { ns: "journal" }),
       });
     } catch (error: any) {
-      // Revert optimistic update on error
       setLogs(previousLogs);
       handleFirebaseError(error, "delete log");
     }
@@ -221,68 +202,155 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Filters Bar */}
-      <div className="space-y-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder={t("searchPlaceholder", { ns: "journal" })}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="pl-10 pr-10"
-            />
-            {searchText && (
-              <button
-                onClick={() => setSearchText("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                aria-label={t("clear", { ns: "common" })}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+      {/* Left Sidebar - Calendar & Filters */}
+      <div className="lg:col-span-4 xl:col-span-3 space-y-6">
+        {/* Calendar Section - Cleaner Look */}
+        <div className="p-2">
+          <h3 className="font-semibold mb-4 flex items-center gap-2 px-2">
+            <CalendarIcon className="h-4 w-4 text-primary" />
+            {t("calendar", { ns: "common" })}
+          </h3>
+          <CalendarComponent
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            locale={locale}
+            className="rounded-md border w-full flex justify-center bg-transparent"
+            modifiers={{ hasLogs: daysWithLogs }}
+          />
+          {selectedDate && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedDate(undefined)}
+              className="w-full mt-2 text-muted-foreground hover:text-foreground"
+            >
+              {t("clearDate", { ns: "journal" })}
+            </Button>
+          )}
+        </div>
+
+        {/* Filters Card */}
+        <h3 className="font-semibold flex items-center gap-2">
+          <Filter className="h-4 w-4 text-primary" />
+          {t("filters.title", { ns: "journal" })}
+        </h3>
+        <div className="bg-card rounded-xl border shadow-sm p-4 space-y-6">
+          <div className="flex items-center justify-between">
+            {(selectedPlant !== "all" || selectedLogType !== "all") && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedPlant("all");
+                  setSelectedLogType("all");
+                }}
+                className="h-auto p-0 text-xs text-muted-foreground hover:text-primary"
               >
-                <X className="h-4 w-4" />
-              </button>
+                {t("filters.clear", { ns: "journal" })}
+              </Button>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(true)}
-              className="relative"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              {t("filters.title", { ns: "journal" })}
-              {activeFiltersCount > 0 && (
+          {/* Plant Filter */}
+          <div className="space-y-3">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {t("filterByPlant", { ns: "journal" })}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={selectedPlant === "all" ? "default" : "outline"}
+                className="cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => setSelectedPlant("all")}
+              >
+                {t("allPlants", { ns: "journal" })}
+              </Badge>
+              {plants.map((plant) => (
                 <Badge
-                  variant="destructive"
-                  className="ml-2 h-5 w-5 rounded-full p-0 text-xs"
+                  key={plant.id}
+                  variant={selectedPlant === plant.id ? "default" : "outline"}
+                  className="cursor-pointer hover:bg-primary/20 transition-colors"
+                  onClick={() => setSelectedPlant(plant.id)}
                 >
-                  {activeFiltersCount}
+                  {plant.name}
                 </Badge>
-              )}
-            </Button>
+              ))}
+            </div>
+          </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCalendar(true)}
-            >
-              <CalendarIcon className="h-4 w-4 mr-2" />
-              {selectedDate
-                ? format(selectedDate, "PPP", { locale })
-                : t("filters.date", { ns: "journal" })}
-            </Button>
+          {/* Type Filter */}
+          <div className="space-y-3">
+            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              {t("filterByType", { ns: "journal" })}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={selectedLogType === "all" ? "default" : "outline"}
+                className="cursor-pointer hover:bg-primary/20 transition-colors"
+                onClick={() => setSelectedLogType("all")}
+              >
+                {t("allTypes", { ns: "journal" })}
+              </Badge>
+              {logTypes.map((type) => (
+                <Badge
+                  key={type}
+                  variant={selectedLogType === type ? "default" : "outline"}
+                  className="cursor-pointer hover:bg-primary/20 transition-colors"
+                  onClick={() => setSelectedLogType(type)}
+                >
+                  {t(`logType.${type}`, { ns: "journal" })}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Content - Log Feed */}
+      <div className="lg:col-span-8 xl:col-span-9 space-y-4">
+        {/* Feed Header - Cleaner Look */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between px-4 py-2">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">
+              {t("journal", { ns: "nav" })}
+            </h2>
+            <p className="text-muted-foreground">
+              {filteredAndSortedLogs.length} {t("logsFound", { ns: "journal" })}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={t("searchPlaceholder", { ns: "journal" })}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-all"
+              />
+              {searchText && (
+                <button
+                  onClick={() => setSearchText("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="shrink-0 bg-background/50 border-border/50"
+                >
                   {sortOrder === "asc" ? (
-                    <SortAsc className="h-4 w-4 mr-2" />
+                    <SortAsc className="h-4 w-4" />
                   ) : (
-                    <SortDesc className="h-4 w-4 mr-2" />
+                    <SortDesc className="h-4 w-4" />
                   )}
-                  {t("sort.title", { ns: "journal" })}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -310,166 +378,34 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
           </div>
         </div>
 
-        {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap gap-2 items-center text-sm text-muted-foreground">
-            {searchText && (
-              <Badge variant="secondary">
-                {t("search", { ns: "common" })}:
-                <span className="ml-1">{searchText}</span>
-              </Badge>
-            )}
-            {selectedPlant !== "all" && (
-              <Badge variant="secondary">
-                {t("filterByPlant", { ns: "journal" })}:{" "}
-                {plants.find((p) => p.id === selectedPlant)?.name || "Plant"}
-              </Badge>
-            )}
-            {selectedLogType !== "all" && (
-              <Badge variant="secondary">
-                {t("filterByType", { ns: "journal" })}:{" "}
-                {t(`logType.${selectedLogType}`, { ns: "journal" })}
-              </Badge>
-            )}
-            {selectedDate && (
-              <Badge variant="secondary">
-                {format(selectedDate, "PPP", { locale })}
-              </Badge>
-            )}
-            <Button
-              variant="link"
-              size="sm"
-              onClick={clearFilters}
-              className="px-0"
-            >
-              {t("filters.clear", { ns: "journal" })} ({activeFiltersCount})
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <div className="p-2">
-        <div className="text-sm text-muted-foreground mb-3">
-          {filteredAndSortedLogs.length} {t("logsFound", { ns: "journal" })}
+        {/* Logs List */}
+        <div className="min-h-[400px]">
+          <JournalEntries
+            logs={filteredAndSortedLogs}
+            showPlantName
+            onDelete={handleDeleteClick}
+          />
         </div>
-        <JournalEntries 
-          logs={filteredAndSortedLogs} 
-          showPlantName 
-          onDelete={handleDeleteClick}
-        />
       </div>
 
-      <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("filters.title", { ns: "journal" })}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <label className="text-sm font-medium">
-                {t("filterByPlant", { ns: "journal" })}
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedPlant === "all" ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedPlant("all")}
-                >
-                  {t("allPlants", { ns: "journal" })}
-                </Badge>
-                {plants.map((plant) => (
-                  <Badge
-                    key={plant.id}
-                    variant={selectedPlant === plant.id ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedPlant(plant.id)}
-                  >
-                    {plant.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-sm font-medium">
-                {t("filterByType", { ns: "journal" })}
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedLogType === "all" ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setSelectedLogType("all")}
-                >
-                  {t("allTypes", { ns: "journal" })}
-                </Badge>
-                {logTypes.map((type) => (
-                  <Badge
-                    key={type}
-                    variant={selectedLogType === type ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setSelectedLogType(type)}
-                  >
-                    {t(`logType.${type}`, { ns: "journal" })}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="outline"
-                onClick={clearFilters}
-                className="w-full"
-              >
-                {t("filters.clear", { ns: "journal" })} ({activeFiltersCount})
-              </Button>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t("selectDate", { ns: "journal" })}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <CalendarComponent
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => {
-                setSelectedDate(date);
-                setShowCalendar(false);
-              }}
-              locale={locale}
-              className="rounded-md border w-full"
-            />
-            {selectedDate && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelectedDate(undefined);
-                  setShowCalendar(false);
-                }}
-                className="w-full"
-              >
-                {t("clearDate", { ns: "journal" })}
-              </Button>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={!!logToDelete} onOpenChange={(open) => !open && setLogToDelete(null)}>
+      <AlertDialog
+        open={!!logToDelete}
+        onOpenChange={(open) => !open && setLogToDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("deleteLogTitle", { ns: "journal" })}</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("deleteLogTitle", { ns: "journal" })}
+            </AlertDialogTitle>
             <AlertDialogDescription>
               {t("deleteLogDesc", { ns: "journal" })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("cancel", { ns: "common" })}</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel>
+              {t("cancel", { ns: "common" })}
+            </AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmDeleteLog}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

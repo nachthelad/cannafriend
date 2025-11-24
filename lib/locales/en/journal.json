@@ -3,7 +3,7 @@
   "description": "Track and view all your plant activities",
   "recentLogs": "Recent Logs",
   "viewLogs": "View Logs",
-  "addLog": "Add Log",
+  "addLog": "Add",
   "logsFound": "Logs found",
   "error": "Error loading journal",
   "deleteLogTitle": "Delete log",
@@ -28,7 +28,7 @@
     "note": "Note"
   },
   "logForm": {
-    "title": "Add Log Entry",
+    "title": "Add",
     "description": "Record an activity or measurement for your plant",
     "plant": "Plant",
     "selectPlant": "Select a plant",
@@ -88,7 +88,7 @@
   },
   "training": {
     "topping": "Topping",
-    "lst": "Low Stress Training (LST)",
+    "lst": "LST Training",
     "defoliation": "Defoliation",
     "supercropping": "Supercropping"
   }
