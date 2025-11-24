@@ -17,9 +17,9 @@ import {
   Clock,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
 import { ROUTE_JOURNAL } from "@/lib/routes";
 import { JournalEntries } from "@/components/journal/journal-entries";
+import Link from "next/link";
 
 export function LastActivitiesSummary({
   lastWatering,
@@ -207,6 +207,10 @@ export function LastActivitiesSummary({
 }
 
 // Plant Logs List Component
+// Plant Logs List Component
+
+// ... (imports)
+
 export function PlantLogsSummary({
   plantId,
   logs,
@@ -217,11 +221,8 @@ export function PlantLogsSummary({
   onDeleteLog,
 }: PlantLogsSummaryProps) {
   const { t } = useTranslation(["plants", "journal", "common"]);
-  const router = useRouter();
 
-  const handleAddLog = () => {
-    router.push(`${ROUTE_JOURNAL}/new?plantId=${plantId}&returnTo=plant`);
-  };
+  const addLogHref = `${ROUTE_JOURNAL}/new?plantId=${plantId}&returnTo=plant`;
 
   return (
     <Card>
@@ -232,9 +233,11 @@ export function PlantLogsSummary({
             {t("plantPage.recentLogsDesc", { ns: "plants" })}
           </p>
         </div>
-        <Button onClick={handleAddLog}>
-          <Plus className="h-4 w-4 mr-2" />
-          {t("addLog", { ns: "journal" })}
+        <Button asChild>
+          <Link href={addLogHref}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("addLog", { ns: "journal" })}
+          </Link>
         </Button>
       </CardHeader>
       <CardContent>
@@ -252,9 +255,11 @@ export function PlantLogsSummary({
             <p className="text-sm text-muted-foreground mt-1">
               {t("noLogsDesc", { ns: "journal" })}
             </p>
-            <Button className="mt-4" onClick={handleAddLog}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addFirstLog", { ns: "journal" })}
+            <Button className="mt-4" asChild>
+              <Link href={addLogHref}>
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addFirstLog", { ns: "journal" })}
+              </Link>
             </Button>
           </div>
         )}

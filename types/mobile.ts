@@ -101,7 +101,8 @@ export interface MobileReminderItemProps {
 
 export interface MobileSessionsProps {
   sessions: Session[];
-  onAddSession: () => void;
+  onAddSession?: () => void;
+  addSessionHref?: string;
   onEdit: (session: SessionEditFormValues & { id: string }) => Promise<void>;
   onDelete: (sessionId: string) => void;
   onToggleFavorite: (session: Session) => void;

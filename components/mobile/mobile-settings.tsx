@@ -115,8 +115,6 @@ function MobileSettingsContent({
   const subscription = initialSubscription;
   const isPremium = Boolean(subscription?.premium ?? false);
 
-
-
   const handleTimezoneChange = async (value: string) => {
     if (!userId) return;
     try {
@@ -144,7 +142,7 @@ function MobileSettingsContent({
       // Mobile fallback: Force refresh if theme doesn't apply properly
       // This ensures the theme change is visible even if there are mobile-specific issues
       setTimeout(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           window.location.reload();
         }
       }, 500);
@@ -405,7 +403,7 @@ function MobileSettingsContent({
             inactiveLabel={t("subscription.inactive")}
             upgradeLabel={t("premium.upgrade")}
             upgradeDescription={t("premium.analyzeDesc")}
-            onUpgrade={() => router.push(ROUTE_PREMIUM)}
+            upgradeHref={ROUTE_PREMIUM}
             onCancel={handleCancelSubscription}
             cancelLabel={t("subscription.cancel")}
             dialogCancelLabel={t("cancel")}
@@ -422,9 +420,7 @@ function MobileSettingsContent({
 
         {/* Push Notifications Section */}
         <div className="w-full p-4 border-b border-border">
-          <PushNotifications
-            userId={userId}
-          />
+          <PushNotifications userId={userId} />
         </div>
 
         {/* App Info Section */}
@@ -470,13 +466,3 @@ function MobileSettingsContent({
 export function MobileSettings(props: MobileSettingsProps) {
   return <MobileSettingsContent {...props} />;
 }
-
-
-
-
-
-
-
-
-
-

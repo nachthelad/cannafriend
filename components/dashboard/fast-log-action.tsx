@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import { useTranslation } from "react-i18next";
 
 import type { Plant } from "@/types";
@@ -26,15 +26,7 @@ interface FastLogActionProps {
 
 export function FastLogAction({ plants, renderTrigger }: FastLogActionProps) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
   const { t } = useTranslation("dashboard");
-
-  const handleSelectPlant = (plantId: string) => {
-    setOpen(false);
-    router.push(
-      `${ROUTE_JOURNAL_NEW}?plantId=${plantId}&returnTo=dashboard`
-    );
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -56,9 +48,14 @@ export function FastLogAction({ plants, renderTrigger }: FastLogActionProps) {
                 key={plant.id}
                 variant="outline"
                 className="w-full justify-between"
-                onClick={() => handleSelectPlant(plant.id)}
+                asChild
+                onClick={() => setOpen(false)}
               >
-                <span className="font-medium">{plant.name}</span>
+                <Link
+                  href={`${ROUTE_JOURNAL_NEW}?plantId=${plant.id}&returnTo=dashboard`}
+                >
+                  <span className="font-medium">{plant.name}</span>
+                </Link>
               </Button>
             ))
           ) : (

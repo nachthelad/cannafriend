@@ -27,7 +27,6 @@ import type {
   SortOrder,
 } from "@/types/plants";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
-import { useRouter } from "next/navigation";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
@@ -84,7 +83,6 @@ function PlantGridContent({
   growTypeFilter = "all",
   includeEnded = false,
 }: PlantGridProps) {
-  const router = useRouter();
   const { t } = useTranslation(["plants", "common"]);
   const cacheKey = `plants-grid-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));
@@ -197,7 +195,7 @@ function PlantGridContent({
           !searchTerm && seedTypeFilter === "all" && growTypeFilter === "all"
             ? {
                 label: t("emptyState.addPlant", { ns: "plants" }),
-                onClick: () => router.push(ROUTE_PLANTS_NEW),
+                href: ROUTE_PLANTS_NEW,
                 icon: Plus,
               }
             : undefined

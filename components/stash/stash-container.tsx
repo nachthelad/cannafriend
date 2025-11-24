@@ -68,6 +68,7 @@ import type {
 } from "@/types";
 import { EmptyState } from "@/components/common/empty-state";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 async function fetchStashData(userId: string): Promise<StashData> {
   const ref = stashCol(userId);
@@ -172,22 +173,6 @@ function StashContent({ userId }: StashContainerProps) {
     }
   };
 
-  const openNew = () => {
-    reset({
-      name: "",
-      type: "flower",
-      amount: "",
-      unit: "g",
-      thc: "",
-      cbd: "",
-      vendor: "",
-      price: "",
-      notes: "",
-    });
-    setEditing(null);
-    router.push(ROUTE_STASH_NEW);
-  };
-
   const openEdit = (item: StashItem) => {
     setEditing({ ...item });
     reset(item);
@@ -275,14 +260,18 @@ function StashContent({ userId }: StashContainerProps) {
         description={t("description")}
         onBackClick={() => router.replace(homePath)}
         desktopActions={
-          <Button onClick={openNew}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("addItem")}
+          <Button asChild>
+            <Link href={ROUTE_STASH_NEW}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addItem")}
+            </Link>
           </Button>
         }
         mobileActions={
-          <Button size="icon" onClick={openNew}>
-            <Plus className="h-5 w-5" />
+          <Button size="icon" asChild>
+            <Link href={ROUTE_STASH_NEW}>
+              <Plus className="h-5 w-5" />
+            </Link>
           </Button>
         }
         sticky={false}
@@ -297,7 +286,7 @@ function StashContent({ userId }: StashContainerProps) {
             description={t("emptyDesc")}
             action={{
               label: t("addItem"),
-              onClick: openNew,
+              href: ROUTE_STASH_NEW,
               icon: Plus,
             }}
           />

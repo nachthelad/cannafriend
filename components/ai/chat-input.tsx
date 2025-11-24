@@ -70,7 +70,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
           >
             <Paperclip className="h-4 w-4" />
           </Button>
-          
+
           <textarea
             ref={setRefs}
             value={value}
@@ -82,16 +82,20 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
             className="flex-1 border-0 bg-transparent shadow-none focus:ring-0 focus:outline-none px-3 py-2.5 min-h-[40px] max-h-[200px] resize-none text-base md:text-sm placeholder:text-muted-foreground/70 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
             style={{ overflowY: value.length > 100 ? "auto" : "hidden" }}
           />
-          
+
           <Button
             onClick={onSendMessage}
             variant={value.trim() ? "default" : "ghost"}
             disabled={isLoading || !value.trim()}
             size="icon"
+            aria-label={t("sendMessage", {
+              ns: "aiAssistant",
+              defaultValue: "Send message",
+            })}
             className={cn(
               "h-9 w-9 rounded-full transition-all duration-200 mb-0.5",
-              value.trim() 
-                ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105" 
+              value.trim()
+                ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
                 : "text-muted-foreground hover:bg-muted"
             )}
           >

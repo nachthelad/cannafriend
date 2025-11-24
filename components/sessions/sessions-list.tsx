@@ -356,6 +356,7 @@ export function SessionsList({
   sessions,
   t,
   onAddSession,
+  addSessionHref,
   onEdit,
   onDelete,
   onToggleFavorite,
@@ -388,6 +389,7 @@ export function SessionsList({
             ? {
                 label: t("addSession", { ns: "sessions" }),
                 onClick: onAddSession,
+                href: addSessionHref,
                 icon: Plus,
               }
             : undefined

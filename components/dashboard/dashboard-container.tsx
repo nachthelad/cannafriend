@@ -22,12 +22,28 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
-import { query, getDocs, orderBy, limit, collectionGroup, where } from "firebase/firestore";
+import {
+  query,
+  getDocs,
+  orderBy,
+  limit,
+  collectionGroup,
+  where,
+} from "firebase/firestore";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import { Plus, Brain, Shield, Bell, Package, NotebookPen, Leaf, Calendar } from "lucide-react";
+import {
+  Plus,
+  Brain,
+  Shield,
+  Bell,
+  Package,
+  NotebookPen,
+  Leaf,
+  Calendar,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import { DataCard } from "@/components/common/data-card";
@@ -95,9 +111,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     // We iterate through plants and find their matching logs from the fetched set
     for (const plant of plants) {
       // Filter logs for this specific plant
-      const plantLogs = fetchedLogs.filter(
-        (log) => log.plantId === plant.id
-      );
+      const plantLogs = fetchedLogs.filter((log) => log.plantId === plant.id);
 
       // Find last actions from the memory-filtered logs
       const lastWatering = plantLogs.find((log) => log.type === "watering");
@@ -302,9 +316,11 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                     ))}
                   </div>
                 ) : (
-                  <Button onClick={() => router.push("/plants/new")}>
-                    <Plus className="mr-2 h-4 w-4" />{" "}
-                    {t("addPlant", { ns: "dashboard" })}
+                  <Button asChild>
+                    <Link href="/plants/new">
+                      <Plus className="mr-2 h-4 w-4" />{" "}
+                      {t("addPlant", { ns: "dashboard" })}
+                    </Link>
                   </Button>
                 )}
               </CardContent>

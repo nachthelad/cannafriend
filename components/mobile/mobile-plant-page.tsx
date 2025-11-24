@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { MobilePlantPageProps } from "@/types/mobile";
 import { useState } from "react";
 import Image from "next/image";
@@ -97,10 +98,6 @@ export function MobilePlantPage({
 
   const lightingSchedule = lastLighting?.lightSchedule || plant.lightSchedule;
 
-  const handleBack = () => {
-    router.push(ROUTE_PLANTS);
-  };
-
   const handlePrevImage = () => {
     setCurrentImageIndex(
       (prev) => (prev - 1 + allImages.length) % allImages.length
@@ -194,10 +191,12 @@ export function MobilePlantPage({
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleBack}
+              asChild
               className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 p-0"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <Link href={ROUTE_PLANTS}>
+                <ArrowLeft className="h-5 w-5 text-white" />
+              </Link>
             </Button>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger asChild>
@@ -445,21 +444,17 @@ export function MobilePlantPage({
 
         {/* Quick Actions */}
         <div className="flex items-center justify-center space-x-4 pt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 h-12"
-            onClick={() => router.push(`/plants/${plant.id}/logs`)}
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            {t("viewLogs", { ns: "journal" })}
+          <Button variant="outline" size="sm" className="flex-1 h-12" asChild>
+            <Link href={`/plants/${plant.id}/logs`}>
+              <FileText className="h-4 w-4 mr-2" />
+              {t("viewLogs", { ns: "journal" })}
+            </Link>
           </Button>
-          <Button
-            className="bg-green-600 text-white flex-1 h-12"
-            onClick={() => router.push(`/plants/${plant.id}/add-log`)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t("addLog", { ns: "journal" })}
+          <Button className="bg-green-600 text-white flex-1 h-12" asChild>
+            <Link href={`/plants/${plant.id}/add-log`}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addLog", { ns: "journal" })}
+            </Link>
           </Button>
         </div>
 

@@ -9,11 +9,14 @@ export interface EmptyStateProps {
   description?: string;
   action?: {
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
+    href?: string;
     icon?: LucideIcon;
   };
   className?: string;
 }
+
+import Link from "next/link";
 
 export function EmptyState({
   icon: Icon,
@@ -23,7 +26,12 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center p-12 text-center", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center p-12 text-center",
+        className
+      )}
+    >
       {Icon && (
         <div className="mb-4 p-4 rounded-full bg-muted/50">
           <Icon className="h-12 w-12 text-muted-foreground" />
@@ -31,14 +39,24 @@ export function EmptyState({
       )}
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-muted-foreground max-w-md mb-6">{description}</p>
+        <p className="text-sm text-muted-foreground max-w-md mb-6">
+          {description}
+        </p>
       )}
-      {action && (
-        <Button onClick={action.onClick} size="lg">
-          {action.icon && <action.icon className="h-5 w-5" />}
-          {action.label}
-        </Button>
-      )}
+      {action &&
+        (action.href ? (
+          <Button asChild size="lg">
+            <Link href={action.href}>
+              {action.icon && <action.icon className="h-5 w-5 mr-2" />}
+              {action.label}
+            </Link>
+          </Button>
+        ) : (
+          <Button onClick={action.onClick} size="lg">
+            {action.icon && <action.icon className="h-5 w-5 mr-2" />}
+            {action.label}
+          </Button>
+        ))}
     </div>
   );
 }

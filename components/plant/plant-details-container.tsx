@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState, useRef, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
@@ -378,8 +379,10 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
-            {t("plantPage.backToDashboard")}
+          <Button asChild>
+            <Link href={resolveHomePathForRoles(roles)}>
+              {t("plantPage.backToDashboard")}
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -498,8 +501,10 @@ function PlantDetailsErrorBoundary({
         <CardDescription>{t("plantPage.notFoundDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Button onClick={() => router.push(resolveHomePathForRoles(roles))}>
-          {t("plantPage.backToDashboard")}
+        <Button asChild>
+          <Link href={resolveHomePathForRoles(roles)}>
+            {t("plantPage.backToDashboard")}
+          </Link>
         </Button>
       </CardContent>
     </Card>

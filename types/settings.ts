@@ -80,7 +80,8 @@ export interface SubscriptionManagementProps {
   inactiveLabel: string;
   upgradeLabel: string;
   upgradeDescription?: string;
-  onUpgrade: () => void;
+  onUpgrade?: () => void;
+  upgradeHref?: string;
   onCancel: () => void;
   cancelLabel: string;
   dialogCancelLabel: string;
