@@ -407,6 +407,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
           language={i18n.language}
           photoUploadState={mobileUploadState}
+          onDelete={handleDeletePlant}
+          isDeleting={isDeleting}
         />
         {/* Hidden Image Upload for Mobile */}
         <ImageUpload
