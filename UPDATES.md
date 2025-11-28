@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: update mobile nav to main content — 2025-11-28
+
 - [MID]: Introduce extensive UI components and types for dashboard, plant management, mobile, sessions, AI, and related features. — 2025-11-25
 
 - [MID]: Add plant management UI, journal, and reminders pages with new UI components and localization. — 2025-11-24
