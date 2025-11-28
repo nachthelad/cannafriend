@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: implement new journal entry creation page with form validation and dynamic input fields for various log types. — 2025-11-28
 - [MID]: update mobile nav to main content — 2025-11-28
 
 - [MID]: Implement new plant creation page with form validation, image upload, and Firebase integration. — 2025-11-28

@@ -31,14 +31,14 @@ export function ResponsivePageHeader({
         className
       )}
     >
-      <div className="px-4 py-5 sm:px-6 sm:py-6">
+      <div className="px-4 py-3 sm:px-6 sm:py-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             {renderBackButton && showMobileBackButton ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="mt-1 flex-shrink-0 sm:hidden"
+                className="mt-0 flex-shrink-0 sm:hidden"
                 onClick={onBackClick}
                 asChild={Boolean(backHref)}
               >
@@ -75,7 +75,7 @@ export function ResponsivePageHeader({
             <div className="space-y-1 flex-1 min-w-0">
               {/* Title and mobile actions on same line */}
               <div className="flex items-center justify-between gap-3">
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                <h1 className="text-xl font-bold tracking-tight sm:text-3xl">
                   {title}
                 </h1>
                 {/* Mobile Actions - show on mobile, same line as title */}
@@ -86,7 +86,7 @@ export function ResponsivePageHeader({
                 ) : null}
               </div>
               {description ? (
-                <p className="text-sm text-muted-foreground sm:text-base">
+                <p className="text-xs text-muted-foreground sm:text-base">
                   {description}
                 </p>
               ) : null}
