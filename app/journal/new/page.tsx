@@ -27,7 +27,13 @@ import { ROUTE_DASHBOARD, ROUTE_JOURNAL } from "@/lib/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { auth, db } from "@/lib/firebase";
-import { collection, addDoc, getDocs, query, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import {
   invalidateDashboardCache,
   invalidateJournalCache,
@@ -460,18 +466,18 @@ function NewJournalPageContent() {
 
       {/* Form */}
       <form onSubmit={handleFormSubmit} className="max-w-2xl px-4 md:px-6">
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {/* Plant Selection */}
           {plants.length > 1 && (
-            <div className="space-y-3">
-              <Label className="text-base font-medium">
+            <div className="space-y-2 md:space-y-3">
+              <Label className="text-sm md:text-base font-medium">
                 {t("logForm.plant", { ns: "journal" })}
               </Label>
               <Select
                 value={selectedPlantId}
                 onValueChange={setSelectedPlantId}
               >
-                <SelectTrigger className="min-h-[48px] text-base">
+                <SelectTrigger className="min-h-[44px] text-sm md:min-h-[48px] md:text-base">
                   <SelectValue
                     placeholder={t("logForm.selectPlant", { ns: "journal" })}
                   />
@@ -481,7 +487,7 @@ function NewJournalPageContent() {
                     <SelectItem
                       key={plant.id}
                       value={plant.id}
-                      className="min-h-[44px]"
+                      className="min-h-[40px] text-sm md:min-h-[44px] md:text-base"
                     >
                       {plant.name}
                     </SelectItem>
@@ -492,8 +498,8 @@ function NewJournalPageContent() {
           )}
 
           {/* Log Type Selection */}
-          <div className="space-y-3">
-            <Label className="text-base font-medium">
+          <div className="space-y-2 md:space-y-3">
+            <Label className="text-sm md:text-base font-medium">
               {t("logForm.type", { ns: "journal" })}
             </Label>
             <Select
@@ -508,7 +514,7 @@ function NewJournalPageContent() {
               }}
             >
               <SelectTrigger
-                className={`min-h-[48px] text-base ${
+                className={`min-h-[44px] text-sm md:min-h-[48px] md:text-base ${
                   errors.logType ? "border-destructive" : ""
                 }`}
               >
@@ -521,7 +527,7 @@ function NewJournalPageContent() {
                   <SelectItem
                     key={option.value}
                     value={option.value}
-                    className="min-h-[44px]"
+                    className="min-h-[40px] text-sm md:min-h-[44px] md:text-base"
                   >
                     {t(option.label, { ns: "journal" })}
                   </SelectItem>
@@ -553,8 +559,8 @@ function NewJournalPageContent() {
           )}
 
           {/* Date Selection */}
-          <div className="space-y-3">
-            <Label className="text-base font-medium">
+          <div className="space-y-2 md:space-y-3">
+            <Label className="text-sm md:text-base font-medium">
               {t("logForm.date", { ns: "journal" })}
             </Label>
             <Popover>
@@ -562,7 +568,7 @@ function NewJournalPageContent() {
                 <Button
                   variant="outline"
                   className={cn(
-                    "min-h-[48px] text-base justify-start text-left font-normal",
+                    "min-h-[44px] text-sm md:min-h-[48px] md:text-base justify-start text-left font-normal",
                     !date && "text-muted-foreground"
                   )}
                 >
@@ -588,10 +594,10 @@ function NewJournalPageContent() {
           {/* Type-specific fields */}
           {logType === LOG_TYPES.WATERING && (
             <>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <Label
                   htmlFor="wateringAmount"
-                  className="text-base font-medium"
+                  className="text-sm md:text-base font-medium"
                 >
                   {t("logForm.amount", { ns: "journal" })}
                 </Label>
@@ -602,7 +608,8 @@ function NewJournalPageContent() {
                     type: "number",
                     inputMode: "decimal",
                     step: 0.1 as any,
-                    className: "min-h-[48px] text-base",
+                    className:
+                      "min-h-[44px] text-sm md:min-h-[48px] md:text-base",
                     ...register("wateringAmount"),
                   }}
                   defaultUnit="ml"
@@ -624,8 +631,8 @@ function NewJournalPageContent() {
                   </div>
                 )}
               </div>
-              <div className="space-y-3">
-                <Label className="text-base font-medium">
+              <div className="space-y-2 md:space-y-3">
+                <Label className="text-sm md:text-base font-medium">
                   {t("logForm.method", { ns: "journal" })}
                 </Label>
                 <RadioGroup
@@ -638,7 +645,7 @@ function NewJournalPageContent() {
                       });
                     }
                   }}
-                  className="grid grid-cols-1 gap-3"
+                  className="grid grid-cols-1 gap-2 md:gap-3"
                 >
                   {WATERING_METHOD_OPTIONS.map((option) => (
                     <div
@@ -648,11 +655,11 @@ function NewJournalPageContent() {
                       <RadioGroupItem
                         value={option.value}
                         id={option.value}
-                        className="min-w-[20px] min-h-[20px]"
+                        className="min-w-[18px] min-h-[18px] md:min-w-[20px] md:min-h-[20px]"
                       />
                       <Label
                         htmlFor={option.value}
-                        className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
+                        className="text-sm md:text-base font-normal cursor-pointer flex-1 min-h-[40px] md:min-h-[44px] flex items-center"
                       >
                         {t(option.label, { ns: "journal" })}
                       </Label>
@@ -673,22 +680,25 @@ function NewJournalPageContent() {
 
           {logType === LOG_TYPES.FEEDING && (
             <>
-              <div className="space-y-3">
-                <Label htmlFor="feedingNpk" className="text-base font-medium">
+              <div className="space-y-2 md:space-y-3">
+                <Label
+                  htmlFor="feedingNpk"
+                  className="text-sm md:text-base font-medium"
+                >
                   {t("logForm.npk", { ns: "journal" })}
                 </Label>
                 <Input
                   id="feedingNpk"
                   type="text"
                   placeholder="3-1-2"
-                  className="min-h-[48px] text-base"
+                  className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                   onChange={(e) => setValue("feedingNpk", e.target.value)}
                 />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 md:space-y-3">
                 <Label
                   htmlFor="feedingAmount"
-                  className="text-base font-medium"
+                  className="text-sm md:text-base font-medium"
                 >
                   {t("logForm.amount", { ns: "journal" })}
                 </Label>
@@ -699,7 +709,8 @@ function NewJournalPageContent() {
                     type: "number",
                     inputMode: "decimal",
                     step: 0.1 as any,
-                    className: "min-h-[48px] text-base",
+                    className:
+                      "min-h-[44px] text-sm md:min-h-[48px] md:text-base",
                     ...register("feedingAmount"),
                   }}
                   defaultUnit="ml/L"
@@ -721,8 +732,8 @@ function NewJournalPageContent() {
           )}
 
           {logType === LOG_TYPES.TRAINING && (
-            <div className="space-y-3">
-              <Label className="text-base font-medium">
+            <div className="space-y-2 md:space-y-3">
+              <Label className="text-sm md:text-base font-medium">
                 {t("logForm.trainingMethod", { ns: "journal" })}
               </Label>
               <RadioGroup
@@ -733,7 +744,7 @@ function NewJournalPageContent() {
                     setValue("trainingMethod", value, { shouldValidate: true });
                   }
                 }}
-                className="grid grid-cols-1 gap-3"
+                className="grid grid-cols-1 gap-2 md:gap-3"
               >
                 {TRAINING_METHOD_OPTIONS.map((option) => (
                   <div
@@ -743,11 +754,11 @@ function NewJournalPageContent() {
                     <RadioGroupItem
                       value={option.value}
                       id={option.value}
-                      className="min-w-[20px] min-h-[20px]"
+                      className="min-w-[18px] min-h-[18px] md:min-w-[20px] md:min-h-[20px]"
                     />
                     <Label
                       htmlFor={option.value}
-                      className="text-base font-normal cursor-pointer flex-1 min-h-[44px] flex items-center"
+                      className="text-sm md:text-base font-normal cursor-pointer flex-1 min-h-[40px] md:min-h-[44px] flex items-center"
                     >
                       {t(option.label, { ns: "journal" })}
                     </Label>
@@ -767,11 +778,11 @@ function NewJournalPageContent() {
 
           {logType === LOG_TYPES.ENVIRONMENT && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div className="space-y-2 md:space-y-3">
                   <Label
                     htmlFor="temperature"
-                    className="text-base font-medium"
+                    className="text-sm md:text-base font-medium"
                   >
                     {t("logForm.temperature", { ns: "journal" })}
                   </Label>
@@ -781,12 +792,15 @@ function NewJournalPageContent() {
                     inputMode="decimal"
                     step="0.1"
                     placeholder="24.5"
-                    className="min-h-[48px] text-base"
+                    className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                     {...register("temperature")}
                   />
                 </div>
-                <div className="space-y-3">
-                  <Label htmlFor="humidity" className="text-base font-medium">
+                <div className="space-y-2 md:space-y-3">
+                  <Label
+                    htmlFor="humidity"
+                    className="text-sm md:text-base font-medium"
+                  >
                     {t("logForm.humidity", { ns: "journal" })}
                   </Label>
                   <Input
@@ -795,12 +809,15 @@ function NewJournalPageContent() {
                     inputMode="numeric"
                     step="1"
                     placeholder="60"
-                    className="min-h-[48px] text-base"
+                    className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                     {...register("humidity")}
                   />
                 </div>
-                <div className="space-y-3">
-                  <Label htmlFor="ph" className="text-base font-medium">
+                <div className="space-y-2 md:space-y-3">
+                  <Label
+                    htmlFor="ph"
+                    className="text-sm md:text-base font-medium"
+                  >
                     {t("logForm.ph", { ns: "journal" })}
                   </Label>
                   <Input
@@ -809,12 +826,15 @@ function NewJournalPageContent() {
                     inputMode="decimal"
                     step="0.1"
                     placeholder="6.2"
-                    className="min-h-[48px] text-base"
+                    className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                     {...register("ph")}
                   />
                 </div>
-                <div className="space-y-3">
-                  <Label htmlFor="light" className="text-base font-medium">
+                <div className="space-y-2 md:space-y-3">
+                  <Label
+                    htmlFor="light"
+                    className="text-sm md:text-base font-medium"
+                  >
                     {t("logForm.light", { ns: "journal" })}
                   </Label>
                   <Input
@@ -823,7 +843,7 @@ function NewJournalPageContent() {
                     inputMode="numeric"
                     step="1"
                     placeholder="400"
-                    className="min-h-[48px] text-base"
+                    className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                     {...register("light")}
                   />
                 </div>
@@ -840,15 +860,18 @@ function NewJournalPageContent() {
           )}
 
           {logType === LOG_TYPES.FLOWERING && (
-            <div className="space-y-3">
-              <Label htmlFor="lightSchedule" className="text-base font-medium">
+            <div className="space-y-2 md:space-y-3">
+              <Label
+                htmlFor="lightSchedule"
+                className="text-sm md:text-base font-medium"
+              >
                 {t("logForm.lightSchedule", { ns: "journal" })}
               </Label>
               <Input
                 id="lightSchedule"
                 type="text"
                 placeholder="12/12"
-                className="min-h-[48px] text-base"
+                className="min-h-[44px] text-sm md:min-h-[48px] md:text-base"
                 {...register("lightSchedule")}
               />
               {errors.lightSchedule && (
@@ -864,14 +887,14 @@ function NewJournalPageContent() {
 
           {/* Notes */}
           <div className="space-y-3">
-            <Label htmlFor="notes" className="text-base font-medium">
+            <Label htmlFor="notes" className="text-sm md:text-base font-medium">
               {t("logForm.notes", { ns: "journal" })}
             </Label>
             <Textarea
               id="notes"
               placeholder={t("logForm.notesPlaceholder", { ns: "journal" })}
               rows={4}
-              className="text-base resize-none min-h-[120px]"
+              className="text-sm md:text-base resize-none min-h-[120px]"
               {...register("notes")}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -893,7 +916,7 @@ function NewJournalPageContent() {
               type="button"
               variant="outline"
               onClick={navigateBack}
-              className="flex-1 min-h-[48px] text-base"
+              className="flex-1 min-h-[44px] text-sm md:min-h-[48px] md:text-base"
               disabled={isLoading}
             >
               {t("cancel", { ns: "common" })}
@@ -901,7 +924,7 @@ function NewJournalPageContent() {
             <Button
               type="submit"
               disabled={!logType || !selectedPlantId || isLoading}
-              className="flex-1 min-h-[48px] text-base"
+              className="flex-1 min-h-[44px] text-sm md:min-h-[48px] md:text-base"
             >
               {isLoading
                 ? t("saving", { ns: "common" })
