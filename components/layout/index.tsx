@@ -239,7 +239,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Page content */}
-        <main className="flex-1 overflow-auto p-4 pb-41 md:pb-6 md:p-6">
+        <main className="flex-1 overflow-auto p-4 pb-32 md:pb-6 md:p-6">
           <div className="mx-auto">{children}</div>
         </main>
         {/* Mobile bottom navigation */}

@@ -72,6 +72,7 @@ export function MobilePlantPage({
   onUpdate,
   language,
   photoUploadState = "idle",
+  onDelete,
 }: MobilePlantPageProps) {
   const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
@@ -554,6 +555,45 @@ export function MobilePlantPage({
             </div>
           </div>
         </div>
+
+        {/* Delete Plant Button */}
+        {onDelete && (
+          <div className="pt-4 pb-8">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  className="w-full h-12 text-base font-medium"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {t("deletePlant", { ns: "plants" })}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {t("deletePlantConfirm", {
+                      ns: "plants",
+                      name: plant.name,
+                    })}
+                  </AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {t("cancel", { ns: "common" })}
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={onDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={photoUploadState === "uploading"} // Reusing this prop name or should use isDeleting if passed
+                  >
+                    {t("delete", { ns: "common" })}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
       </div>
 
       {/* Full Image Modal */}
