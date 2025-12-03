@@ -20,7 +20,7 @@ import {
   Package,
   Leaf,
 } from "lucide-react";
-import { useUserRoles } from "@/hooks/use-user-roles";
+
 import { usePremium } from "@/hooks/use-premium";
 import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
@@ -39,7 +39,6 @@ import {
   ROUTE_PREMIUM,
   ROUTE_STASH,
   ROUTE_NUTRIENTS,
-  resolveHomePathForRoles,
 } from "@/lib/routes";
 import { CookieConsent } from "@/components/common/cookie-consent";
 
@@ -54,9 +53,7 @@ export function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { roles, isLoading: rolesLoading } = useUserRoles();
   const [hasHydrated, setHasHydrated] = useState(false);
-  const homeHref = resolveHomePathForRoles(roles);
 
   useEffect(() => {
     setHasHydrated(true);
@@ -66,23 +63,6 @@ export function Layout({ children }: LayoutProps) {
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
-
-  // Redirect if current path is no longer allowed after roles update (no full reload)
-  useEffect(() => {
-    if (rolesLoading || !roles) return;
-    const isGrowerArea = [
-      ROUTE_DASHBOARD,
-      ROUTE_PLANTS,
-      ROUTE_REMINDERS,
-      ROUTE_JOURNAL,
-    ].some((p) => pathname?.startsWith(p));
-    const isConsumerArea = pathname?.startsWith(ROUTE_SESSIONS);
-    if (roles.consumer && !roles.grower && isGrowerArea) {
-      router.replace(resolveHomePathForRoles(roles));
-    } else if (roles.grower && !roles.consumer && isConsumerArea) {
-      router.replace(resolveHomePathForRoles(roles));
-    }
-  }, [rolesLoading, roles, pathname, router]);
 
   const handleSignOut = async () => {
     try {
@@ -147,45 +127,25 @@ export function Layout({ children }: LayoutProps) {
 
   const { isPremium } = usePremium();
 
-  const routes = baseRoutes.filter((r) => {
-    if (!roles) return false; // avoid rendering links when roles unknown to prevent hydration mismatch
-
-    const growerPaths: string[] = [
-      ROUTE_DASHBOARD,
-      ROUTE_PLANTS_NEW,
-      ROUTE_REMINDERS,
-      ROUTE_JOURNAL,
-    ];
-    const consumerPaths: string[] = [ROUTE_SESSIONS, ROUTE_STASH]; // sidebar entry for consumer
-    const isGrowerRoute =
-      growerPaths.includes(r.href) || r.href.startsWith(ROUTE_PLANTS);
-    const isConsumerRoute = consumerPaths.includes(r.href);
-    if (!roles.grower && isGrowerRoute) return false;
-    if (!roles.consumer && isConsumerRoute) return false;
-    return true;
-  });
+  // Show all routes to all users
+  const routes = baseRoutes;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar for desktop */}
       <aside className="hidden md:flex w-64 flex-col border-r bg-card h-full">
         <div className="flex h-14 items-center border-b px-4">
-          <Link
-            href={homeHref}
-            className="flex items-center gap-2 font-semibold"
-          >
-            <DarkModeLogo size={20} />
-            <span className="text-xl">{t("app.name", { ns: "common" })}</span>
-            {isPremium && (
-              <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
-                Premium
-              </span>
-            )}
-          </Link>
+          <DarkModeLogo size={20} />
+          <span className="text-xl">{t("app.name", { ns: "common" })}</span>
+          {isPremium && (
+            <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
+              Premium
+            </span>
+          )}
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
           <div className="space-y-1">
-            {!hasHydrated || rolesLoading || !roles ? (
+            {!hasHydrated ? (
               <>
                 <Skeleton className="h-9 w-full" />
                 <Skeleton className="h-9 w-full" />

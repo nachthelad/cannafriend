@@ -28,7 +28,7 @@
     "stripe": {
       "title": "Pay with Stripe",
       "description": "Secure international payments",
-      "price": "$9.99/month",
+      "price": "$9.99 USD / month",
       "button": "Subscribe with Stripe",
       "processing": "Processing..."
     },

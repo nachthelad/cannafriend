@@ -28,14 +28,14 @@
     "stripe": {
       "title": "Pagar con Stripe",
       "description": "Pagos internacionales seguros",
-      "price": "$9.99/mes",
+      "price": "$9.99 USD / mes",
       "button": "Suscribirse con Stripe",
       "processing": "Procesando..."
     },
     "mercadoPago": {
       "title": "Pagar con MercadoPago",
       "description": "Popular en Latinoamérica",
-      "price": "$10,000 ARS/mes",
+      "price": "$10,000 ARS / mes",
       "button": "Suscribirse con MercadoPago",
       "processing": "Procesando..."
     }

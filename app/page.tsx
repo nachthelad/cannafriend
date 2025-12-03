@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { ROUTE_ONBOARDING, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_ONBOARDING, ROUTE_DASHBOARD } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
 import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
 import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
 import { useTranslation } from "react-i18next";
-import type { BeforeInstallPromptEvent, Roles, UserProfile } from "@/types";
+import type { BeforeInstallPromptEvent, UserProfile } from "@/types";
 
 export default function Home() {
   const router = useRouter();
@@ -41,25 +41,18 @@ export default function Home() {
         setIsLoggedIn(true);
         setLoginOpen(false);
 
-        // User is logged in, redirect to appropriate home page
+        // User is logged in, redirect to dashboard
         try {
           const snap = await getDoc(userDoc<UserProfile>(user.uid));
           if (!snap.exists()) {
             router.push(ROUTE_ONBOARDING);
             return;
           }
-          const data = snap.data();
-          const roles: Roles = data?.roles || {
-            grower: true,
-            consumer: false,
-          };
-          router.push(resolveHomePathForRoles(roles));
+          router.push(ROUTE_DASHBOARD);
           return;
         } catch (error: any) {
           // If there's an error, just go to dashboard
-          router.push(
-            resolveHomePathForRoles({ grower: true, consumer: false })
-          );
+          router.push(ROUTE_DASHBOARD);
           return;
         }
       } else {
@@ -125,14 +118,9 @@ export default function Home() {
         router.push(ROUTE_ONBOARDING);
         return;
       }
-      const data = snap.data();
-      const roles: Roles = data?.roles || {
-        grower: true,
-        consumer: false,
-      };
-      router.push(resolveHomePathForRoles(roles));
+      router.push(ROUTE_DASHBOARD);
     } catch {
-      router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
+      router.push(ROUTE_DASHBOARD);
     }
   };
 

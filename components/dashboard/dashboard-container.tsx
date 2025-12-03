@@ -45,7 +45,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUserRoles } from "@/hooks/use-user-roles";
+
 import { DataCard } from "@/components/common/data-card";
 import type {
   DashboardContainerProps,
@@ -213,7 +213,7 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
     "nav",
     "aiAssistant",
   ]);
-  const { roles } = useUserRoles();
+
   const router = useRouter();
 
   const isAdmin = useMemo(
@@ -283,15 +283,13 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
               color="default"
               href={ROUTE_JOURNAL}
             />
-            {roles?.grower && (
-              <DataCard
-                label={t("title", { ns: "reminders" })}
-                value={remindersCount}
-                icon={Bell}
-                color={hasOverdue ? "warning" : "default"}
-                href={ROUTE_REMINDERS}
-              />
-            )}
+            <DataCard
+              label={t("title", { ns: "reminders" })}
+              value={remindersCount}
+              icon={Bell}
+              color={hasOverdue ? "warning" : "default"}
+              href={ROUTE_REMINDERS}
+            />
           </div>
 
           {/* Widgets grid */}
@@ -384,17 +382,15 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                     {t("stash.title", { ns: "common" })}
                   </Link>
                 </Button>
-                {roles?.grower && (
-                  <FastLogAction
-                    plants={plants}
-                    renderTrigger={({ onClick, disabled }) => (
-                      <Button onClick={onClick} disabled={disabled}>
-                        <NotebookPen className="h-4 w-4 mr-1" />
-                        {t("fastLogTitle", { ns: "dashboard" })}
-                      </Button>
-                    )}
-                  />
-                )}
+                <FastLogAction
+                  plants={plants}
+                  renderTrigger={({ onClick, disabled }) => (
+                    <Button onClick={onClick} disabled={disabled}>
+                      <NotebookPen className="h-4 w-4 mr-1" />
+                      {t("fastLogTitle", { ns: "dashboard" })}
+                    </Button>
+                  )}
+                />
                 {isAdmin && (
                   <Button asChild>
                     <Link href={ROUTE_ADMIN}>

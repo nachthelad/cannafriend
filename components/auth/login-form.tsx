@@ -10,32 +10,27 @@ import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
-import { resolveHomePathForRoles } from "@/lib/routes";
+
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();
-  const { 
-    form,
-    t,
-    toast,
-    handleFirebaseError
-  } = useFormAuth<LoginFormData>({
+  const { form, t, toast, handleFirebaseError } = useFormAuth<LoginFormData>({
     defaultValues: {
       email: "",
       password: "",
-    }
+    },
   });
-  
-  const { 
-    isLoading, 
-    currentStep: loadingStep, 
-    startLoading, 
-    setStep: setLoadingStep, 
-    stopLoading 
+
+  const {
+    isLoading,
+    currentStep: loadingStep,
+    startLoading,
+    setStep: setLoadingStep,
+    stopLoading,
   } = useLoadingSteps();
-  
+
   const { value: showPassword, toggle: togglePassword } = useToggle();
 
   const {
@@ -62,7 +57,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       // Close the modal immediately after successful authentication
       onSuccess?.();
-      
+
       // Let the auth state change handler in Home component handle navigation
       // to avoid race conditions with competing redirects
     } catch (error: any) {
@@ -72,7 +67,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       } else if (error?.code === "auth/user-not-found") {
         setValue("email", "");
       }
-      
+
       // Use standardized Firebase error handling
       handleFirebaseError(error, "login");
     } finally {

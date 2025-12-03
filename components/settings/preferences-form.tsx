@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { TimezoneSelect } from "@/components/common/timezone-select";
 import { LanguageSelect } from "@/components/common/language-select";
-import { RoleSelector } from "@/components/common/role-selector";
 
 export function PreferencesForm({
   title,
@@ -18,11 +17,6 @@ export function PreferencesForm({
   darkModeLabel,
   darkModeChecked,
   onDarkModeChange,
-  rolesLabel,
-  rolesValue,
-  onRolesChange,
-  growerLabel,
-  consumerLabel,
 }: PreferencesFormProps) {
   return (
     <div className="space-y-4">
@@ -57,16 +51,6 @@ export function PreferencesForm({
             id="dark-mode"
             checked={darkModeChecked}
             onCheckedChange={onDarkModeChange}
-          />
-        </div>
-
-        <div className="space-y-3 max-w-sm">
-          <Label className="text-sm font-medium">{rolesLabel}</Label>
-          <RoleSelector
-            value={rolesValue}
-            onChange={onRolesChange}
-            growerLabel={growerLabel}
-            consumerLabel={consumerLabel}
           />
         </div>
       </div>

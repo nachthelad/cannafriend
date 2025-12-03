@@ -16,7 +16,7 @@ import type {
   StripeSearchItem,
 } from "@/types/admin";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useUserRoles } from "@/hooks/use-user-roles";
+
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { authorizedFetch, copyToClipboard } from "@/lib/admin/utils";
@@ -310,7 +310,6 @@ function AdminContent() {
 export function AdminContainer() {
   const router = useRouter();
   const { user, isLoading } = useAuthUser();
-  const { roles, isLoading: rolesLoading } = useUserRoles();
 
   const isAdmin = useMemo(
     () => (user?.email || "").toLowerCase() === ADMIN_EMAIL,
@@ -322,12 +321,12 @@ export function AdminContainer() {
       router.replace(ROUTE_LOGIN);
       return;
     }
-    if (!isLoading && !rolesLoading && user && !isAdmin) {
+    if (!isLoading && user && !isAdmin) {
       router.replace("/404");
     }
-  }, [isLoading, rolesLoading, isAdmin, user, router, roles]);
+  }, [isLoading, isAdmin, user, router]);
 
-  if (isLoading || rolesLoading) {
+  if (isLoading) {
     return (
       <div className="py-12 text-center text-sm text-muted-foreground">
         Cargando...
@@ -345,5 +344,3 @@ export function AdminContainer() {
     </Suspense>
   );
 }
-
-

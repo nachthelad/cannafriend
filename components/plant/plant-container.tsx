@@ -45,7 +45,7 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { plantsCol } from "@/lib/paths";
 import { query, getDocs, orderBy } from "firebase/firestore";
 import { ROUTE_PLANTS_NEW, resolveHomePathForRoles } from "@/lib/routes";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import type { Plant } from "@/types";
 import type {
   PlantContainerProps,
@@ -71,8 +71,7 @@ async function fetchPlantsData(userId: string): Promise<PlantContainerData> {
 function PlantContainerContent({ userId }: PlantContainerProps) {
   const { t } = useTranslation(["plants", "common", "dashboard"]);
   const router = useRouter();
-  const { roles } = useUserRoles();
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
 
   const cacheKey = `plants-container-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));

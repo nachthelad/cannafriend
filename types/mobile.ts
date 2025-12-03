@@ -1,7 +1,7 @@
 import type { TFunction } from "i18next";
 import type { Plant, LogEntry, Reminder } from "./entities";
 import type { UploadingState } from "./common";
-import type { Roles } from "./firestore";
+
 import type { Session, SessionEditFormValues } from "./sessions";
 import type { SubscriptionDetails } from "./settings";
 import type { JournalSortBy, JournalSortOrder } from "./journal";
@@ -143,7 +143,6 @@ export interface MobileSettingsProps {
 export interface MobilePreferencesState {
   timezone: string;
   darkMode: boolean;
-  roles: Roles;
 }
 
 export interface MobileSettingsData {

@@ -35,7 +35,7 @@ import {
   FilePen,
   NotebookPen,
 } from "lucide-react";
-import { useUserRoles } from "@/hooks/use-user-roles";
+
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { FastLogAction } from "@/components/dashboard/fast-log-action";
@@ -59,7 +59,6 @@ export function MobileDashboard({
     "sessions",
     "aiAssistant",
   ]);
-  const { roles } = useUserRoles();
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const [showOverdueAlert, setShowOverdueAlert] = useState(false);
 
@@ -153,17 +152,15 @@ export function MobileDashboard({
           color="default"
           href={ROUTE_JOURNAL}
         />
-        {roles?.grower && (
-          <div className="col-span-2">
-            <DataCard
-              label={t("title", { ns: "reminders" })}
-              value={remindersCount}
-              icon={Bell}
-              color={hasOverdue ? "warning" : "default"}
-              href={ROUTE_REMINDERS}
-            />
-          </div>
-        )}
+        <div className="col-span-2">
+          <DataCard
+            label={t("title", { ns: "reminders" })}
+            value={remindersCount}
+            icon={Bell}
+            color={hasOverdue ? "warning" : "default"}
+            href={ROUTE_REMINDERS}
+          />
+        </div>
       </div>
 
       {/* Quick actions - mobile optimized */}
@@ -174,58 +171,52 @@ export function MobileDashboard({
           </h2>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {roles?.grower && (
-            <>
-              {isPremium && (
-                <QuickActionButton
-                  icon={Brain}
-                  label={t("title", { ns: "aiAssistant" })}
-                  href={ROUTE_AI_ASSISTANT}
-                  isPremiumFeature
-                />
-              )}
-              <QuickActionButton
-                icon={Box}
-                label={t("stash", { ns: "nav" })}
-                href={ROUTE_STASH}
-              />
-              {/* <QuickActionButton
-                icon={FlaskConical}
-                label={t("title", { ns: "nutrients" })}
-                href={ROUTE_NUTRIENTS}
-              /> */}
-              <QuickActionButton
-                icon={Bell}
-                label={t("reminders", { ns: "dashboard" })}
-                href={ROUTE_REMINDERS}
-              />
-              <FastLogAction
-                plants={plants}
-                renderTrigger={({ onClick, disabled }) => (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="w-full h-16 flex flex-col gap-1"
-                    onClick={onClick}
-                    disabled={disabled}
-                  >
-                    <NotebookPen className="h-5 w-5" />
-                    <span className="text-xs">
-                      {t("fastLogTitle", { ns: "dashboard" })}
-                    </span>
-                  </Button>
-                )}
-              />
-            </>
-          )}
-          {roles?.consumer && (
+          {isPremium && (
             <QuickActionButton
-              icon={FilePen}
-              label={t("title", { ns: "sessions" })}
-              href={ROUTE_SESSIONS}
+              icon={Brain}
+              label={t("title", { ns: "aiAssistant" })}
+              href={ROUTE_AI_ASSISTANT}
+              isPremiumFeature
             />
           )}
+          <QuickActionButton
+            icon={Box}
+            label={t("stash", { ns: "nav" })}
+            href={ROUTE_STASH}
+          />
+          {/* <QuickActionButton
+            icon={FlaskConical}
+            label={t("title", { ns: "nutrients" })}
+            href={ROUTE_NUTRIENTS}
+          /> */}
+          <QuickActionButton
+            icon={Bell}
+            label={t("reminders", { ns: "dashboard" })}
+            href={ROUTE_REMINDERS}
+          />
+          <FastLogAction
+            plants={plants}
+            renderTrigger={({ onClick, disabled }) => (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full h-16 flex flex-col gap-1"
+                onClick={onClick}
+                disabled={disabled}
+              >
+                <NotebookPen className="h-5 w-5" />
+                <span className="text-xs">
+                  {t("fastLogTitle", { ns: "dashboard" })}
+                </span>
+              </Button>
+            )}
+          />
+          <QuickActionButton
+            icon={FilePen}
+            label={t("title", { ns: "sessions" })}
+            href={ROUTE_SESSIONS}
+          />
           {isAdmin && (
             <QuickActionButton icon={Shield} label="Admin" href={ROUTE_ADMIN} />
           )}
