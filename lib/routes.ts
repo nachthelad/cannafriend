@@ -1,5 +1,4 @@
-// Centralized app routes and role-based home resolution
-import type { Roles } from "@/types";
+// Centralized app routes
 
 export const ROUTE_LOGIN = "/login" as const;
 export const ROUTE_DASHBOARD = "/dashboard" as const;
@@ -48,14 +47,12 @@ export type AppPath =
   | typeof ROUTE_HOME
   | string;
 
-export type { Roles } from "@/types";
-
-export function resolveHomePathForRoles(
-  roles: Roles | null | undefined
-): AppPath {
-  if (!roles) return ROUTE_DASHBOARD;
-  const isConsumerOnly = roles.consumer && !roles.grower;
-  if (isConsumerOnly) return ROUTE_SESSIONS;
+/**
+ * Resolves the home path for authenticated users.
+ * Always returns dashboard. Parameter kept for backward compatibility.
+ * @deprecated roles parameter is no longer used
+ */
+export function resolveHomePathForRoles(_roles?: any): AppPath {
   return ROUTE_DASHBOARD;
 }
 

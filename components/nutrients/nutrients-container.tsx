@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTranslation } from "react-i18next";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { ROUTE_NUTRIENTS_NEW, resolveHomePathForRoles } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
@@ -64,8 +64,7 @@ async function fetchNutrientsData(userId: string): Promise<NutrientsData> {
 function NutrientsContent({ userId }: NutrientsContainerProps) {
   const { t } = useTranslation(["nutrients", "common"]);
   const router = useRouter();
-  const { roles } = useUserRoles();
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
   const [search, setSearch] = useState("");
   const cacheKey = `nutrients-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>

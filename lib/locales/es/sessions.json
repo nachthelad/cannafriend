@@ -50,9 +50,6 @@
     "strainAsc": "Variedad A-Z",
     "strainDesc": "Variedad Z-A"
   },
-  "aiConsumer": {
-    "title": "Asistente IA"
-  },
   "logForm": {
     "date": "Fecha"
   },

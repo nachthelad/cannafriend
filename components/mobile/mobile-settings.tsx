@@ -28,7 +28,6 @@ import type {
   MobilePreferencesState,
   MobileSettingsData,
   MobileSettingsProps,
-  Roles,
   SubscriptionDetails,
   SubscriptionLine,
 } from "@/types";
@@ -39,16 +38,11 @@ async function fetchSettingsData(userId: string): Promise<MobileSettingsData> {
 
   let timezone = "";
   let darkMode = true;
-  let roles: Roles = { grower: true, consumer: false };
 
   if (userSnap.exists()) {
     const data = userSnap.data() as any;
     timezone = data.timezone ?? "";
     darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
-    roles = {
-      grower: Boolean(data.roles?.grower ?? true),
-      consumer: Boolean(data.roles?.consumer ?? false),
-    };
   }
 
   let subscription: SubscriptionDetails | null = null;
@@ -68,7 +62,7 @@ async function fetchSettingsData(userId: string): Promise<MobileSettingsData> {
   }
 
   return {
-    preferences: { timezone, darkMode, roles },
+    preferences: { timezone, darkMode },
     subscription,
   };
 }
@@ -150,21 +144,6 @@ function MobileSettingsContent({
       setPreferences((prev) => ({ ...prev, darkMode: previous }));
       setTheme(previous ? "dark" : "light");
       handleFirebaseError(error, "update dark mode");
-    }
-  };
-
-  const handleRolesChange = async (nextRoles: Roles) => {
-    if (!userId) return;
-
-    const previous = preferences.roles;
-    setPreferences((prev) => ({ ...prev, roles: nextRoles }));
-
-    try {
-      await updateDoc(userDoc(userId), { roles: nextRoles });
-      invalidateSettingsCache(userId);
-    } catch (error: any) {
-      setPreferences((prev) => ({ ...prev, roles: previous }));
-      handleFirebaseError(error, "update roles");
     }
   };
 
@@ -386,11 +365,6 @@ function MobileSettingsContent({
             darkModeLabel={t("settings.darkMode")}
             darkModeChecked={preferences.darkMode}
             onDarkModeChange={handleDarkModeChange}
-            rolesLabel={t("settings.roles")}
-            rolesValue={preferences.roles}
-            onRolesChange={handleRolesChange}
-            growerLabel={t("grower", { ns: "onboarding" })}
-            consumerLabel={t("consumer", { ns: "onboarding" })}
           />
         </div>
 

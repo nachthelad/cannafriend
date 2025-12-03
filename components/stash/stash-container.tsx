@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTE_STASH_NEW, resolveHomePathForRoles } from "@/lib/routes";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
   deleteDoc,
@@ -84,8 +84,7 @@ function StashContent({ userId }: StashContainerProps) {
   const { t } = useTranslation(["stash", "common"]);
   const router = useRouter();
   const { toast } = useToast();
-  const { roles } = useUserRoles();
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
   const cacheKey = `stash-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchStashData(userId));
   const { items: initialItems } = resource.read();

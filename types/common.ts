@@ -5,7 +5,6 @@ import type {
   ReactNode,
 } from "react";
 import type { Plant, Reminder } from "./entities";
-import type { Roles } from "./firestore";
 
 export interface BrandedLoadingProps {
   size?: "sm" | "md" | "lg";
@@ -14,7 +13,8 @@ export interface BrandedLoadingProps {
   className?: string;
 }
 
-export interface ButtonLoadingProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonLoadingProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   isLoading: boolean;
   loadingText?: string;
@@ -111,15 +111,6 @@ export interface ResponsivePageHeaderProps {
   showMobileBackButton?: boolean;
   showDesktopBackButton?: boolean;
   desktopBackLabel?: ReactNode;
-}
-
-export interface RoleSelectorProps {
-  value: Roles;
-  onChange: (roles: Roles) => void;
-  growerLabel: string;
-  consumerLabel: string;
-  className?: string;
-  optionClassName?: string;
 }
 
 export interface SearchProps {

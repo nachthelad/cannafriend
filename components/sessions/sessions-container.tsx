@@ -40,7 +40,7 @@ import type {
   SessionEditFormValues,
 } from "@/types";
 import { auth } from "@/lib/firebase";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 
 async function fetchSessionsData(userId: string): Promise<SessionsData> {
   const ref = sessionsCol(userId);
@@ -94,7 +94,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
-  const { roles } = useUserRoles();
 
   const cacheKey = `sessions-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -307,7 +306,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
           sortBy={sortBy}
           onSortByChange={setSortBy}
           availableMethods={availableMethods}
-          backHref={resolveHomePathForRoles(roles)}
+          backHref={ROUTE_DASHBOARD}
         />
       </div>
 
