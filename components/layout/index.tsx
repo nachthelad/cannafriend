@@ -135,13 +135,18 @@ export function Layout({ children }: LayoutProps) {
       {/* Sidebar for desktop */}
       <aside className="hidden md:flex w-64 flex-col border-r bg-card h-full">
         <div className="flex h-14 items-center border-b px-4">
-          <DarkModeLogo size={20} />
-          <span className="text-xl">{t("app.name", { ns: "common" })}</span>
-          {isPremium && (
-            <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
-              Premium
-            </span>
-          )}
+          <Link
+            href={ROUTE_DASHBOARD}
+            className="flex items-center gap-2 font-semibold"
+          >
+            <DarkModeLogo size={20} />
+            <span className="text-xl">{t("app.name", { ns: "common" })}</span>
+            {isPremium && (
+              <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
+                Premium
+              </span>
+            )}
+          </Link>
         </div>
         <nav className="flex-1 overflow-auto py-4 px-2">
           <div className="space-y-1">
