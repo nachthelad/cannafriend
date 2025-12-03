@@ -22,12 +22,11 @@ import { auth } from "@/lib/firebase";
 import { setDoc, getDoc } from "firebase/firestore";
 import { invalidateDashboardCache } from "@/lib/suspense-cache";
 import { userDoc } from "@/lib/paths";
-import { resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { onAuthStateChanged } from "firebase/auth";
 import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { TimezoneSelect } from "@/components/common/timezone-select";
-import { RoleSelector } from "@/components/common/role-selector";
-import type { Roles, UserProfile } from "@/types";
+import type { UserProfile } from "@/types";
 
 export default function OnboardingPage() {
   const { t } = useTranslation("onboarding");
@@ -36,7 +35,6 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false);
   type OnboardingForm = {
     timezone: string;
-    roles: Roles;
   };
   const {
     register,
@@ -45,11 +43,10 @@ export default function OnboardingPage() {
     setValue,
     watch,
   } = useForm<OnboardingForm>({
-    defaultValues: { timezone: "", roles: { grower: true, consumer: false } },
+    defaultValues: { timezone: "" },
   });
   const [userId, setUserId] = useState<string | null>(null);
   const timezoneValue = watch("timezone") || "";
-  const rolesValue = watch("roles") || { grower: true, consumer: false };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -73,16 +70,11 @@ export default function OnboardingPage() {
         userDoc<UserProfile>(userId),
         {
           timezone: data.timezone,
-          roles: {
-            grower: Boolean(data.roles?.grower),
-            consumer: Boolean(data.roles?.consumer),
-          },
           createdAt: new Date().toISOString(),
         },
         { merge: true }
       );
 
-      // Invalidate dashboard cache since roles affect dashboard content
       invalidateDashboardCache(userId);
 
       toast({
@@ -90,19 +82,8 @@ export default function OnboardingPage() {
         description: t("successMessage"),
       });
 
-      // Decide next route based on user roles
-      try {
-        const snap = await getDoc(userDoc<UserProfile>(userId));
-        const data = snap.data();
-        const roles: Roles = data?.roles || {
-          grower: true,
-          consumer: false,
-        };
-        router.push(resolveHomePathForRoles(roles));
-      } catch {
-        // Fallback to dashboard if roles cannot be determined
-        router.push(resolveHomePathForRoles({ grower: true, consumer: false }));
-      }
+      // Redirect to dashboard
+      router.push(ROUTE_DASHBOARD);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -154,29 +135,6 @@ export default function OnboardingPage() {
                   {String(errors.timezone.message)}
                 </p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t("roles")}</Label>
-              <RoleSelector
-                value={rolesValue}
-                onChange={(nextRoles) =>
-                  setValue("roles", nextRoles, { shouldValidate: true })
-                }
-                growerLabel={t("grower")}
-                consumerLabel={t("consumer")}
-              />
-              {(() => {
-                const r = rolesValue;
-                if (!r?.grower && !r?.consumer) {
-                  return (
-                    <p className="text-xs text-destructive">
-                      {t("selectAtLeastOneRole")}
-                    </p>
-                  );
-                }
-                return null;
-              })()}
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>

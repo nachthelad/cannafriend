@@ -4,7 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
 import { getDoc, updateDoc } from "firebase/firestore";
-import { invalidateDashboardCache, invalidateSettingsCache } from "@/lib/suspense-cache";
+import {
+  invalidateDashboardCache,
+  invalidateSettingsCache,
+} from "@/lib/suspense-cache";
 
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
@@ -30,7 +33,6 @@ import type {
   SettingsPreferencesState,
   SettingsSection,
   SettingsSectionId,
-  Roles,
   SubscriptionDetails,
   SubscriptionLine,
 } from "@/types";
@@ -41,16 +43,11 @@ async function fetchSettingsData(userId: string): Promise<SettingsData> {
 
   let timezone = "";
   let darkMode = true;
-  let roles: SettingsPreferencesState["roles"] = { grower: true, consumer: false };
 
   if (userSnap.exists()) {
     const data = userSnap.data() as any;
     timezone = data.timezone ?? "";
     darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
-    roles = {
-      grower: Boolean(data.roles?.grower ?? true),
-      consumer: Boolean(data.roles?.consumer ?? false),
-    };
   }
 
   let subscription: SubscriptionDetails | null = null;
@@ -70,7 +67,7 @@ async function fetchSettingsData(userId: string): Promise<SettingsData> {
   }
 
   return {
-    preferences: { timezone, darkMode, roles },
+    preferences: { timezone, darkMode },
     subscription,
   };
 }
@@ -198,26 +195,6 @@ function SettingsContent({
       persistPreferences(previous);
       setTheme(previous.darkMode ? "dark" : "light");
       handleFirebaseError(error, "update dark mode");
-    }
-  };
-
-  const handleRolesChange = async (nextRoles: Roles) => {
-    if (!userId) return;
-
-    const previous = preferences;
-    const next = { ...preferences, roles: nextRoles };
-
-    setPreferences(next);
-    persistPreferences(next);
-
-    try {
-      await updateDoc(userDoc(userId), { roles: nextRoles });
-      invalidateDashboardCache(userId);
-      invalidateSettingsCache(userId);
-    } catch (error: any) {
-      setPreferences(previous);
-      persistPreferences(previous);
-      handleFirebaseError(error, "update roles");
     }
   };
 
@@ -447,11 +424,6 @@ function SettingsContent({
           darkModeLabel={t("settings.darkMode")}
           darkModeChecked={preferences.darkMode}
           onDarkModeChange={handleDarkModeChange}
-          rolesLabel={t("settings.roles")}
-          rolesValue={preferences.roles}
-          onRolesChange={handleRolesChange}
-          growerLabel={t("grower", { ns: "onboarding" })}
-          consumerLabel={t("consumer", { ns: "onboarding" })}
         />
       ),
       billing: () => (
@@ -476,11 +448,7 @@ function SettingsContent({
           note={t("subscription.mercadopagoNote")}
         />
       ),
-      notifications: () => (
-        <PushNotifications
-          userId={userId}
-        />
-      ),
+      notifications: () => <PushNotifications userId={userId} />,
       "app-info": () => (
         <AppInformation
           title={t("settings.appInfoDesc")}
@@ -512,19 +480,18 @@ function SettingsContent({
       handleCancelSubscription,
       handleDarkModeChange,
       handleDeleteAccount,
-      handleRolesChange,
       handleSignOut,
       handleTimezoneChange,
       isCancellingSubscription,
       isDeletingAccount,
       isPremium,
       preferences.darkMode,
-      preferences.roles,
       preferences.timezone,
       providerId,
       router,
       subscriptionLines,
       t,
+      userId,
     ]
   );
 
@@ -586,12 +553,3 @@ export function SettingsContainer({
     />
   );
 }
-
-
-
-
-
-
-
-
-

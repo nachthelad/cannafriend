@@ -9,7 +9,7 @@ import { auth, googleProvider, db } from "@/lib/firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
-import { resolveHomePathForRoles } from "@/lib/routes";
+
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
 import { useToast } from "@/hooks/use-toast";
@@ -33,7 +33,7 @@ export function GoogleLoginButton({
     try {
       // Notify that auth process is starting
       onAuthStart?.();
-      
+
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
@@ -44,20 +44,22 @@ export function GoogleLoginButton({
       // to avoid race conditions with competing redirects
     } catch (error: any) {
       // Handle specific internal-error case
-      if (error.code === 'auth/internal-error') {
+      if (error.code === "auth/internal-error") {
         toast({
           variant: "destructive",
           title: t("login.error"),
-          description: t("login.internalError") || "Error interno. Por favor recarga la página e intenta de nuevo.",
+          description:
+            t("login.internalError") ||
+            "Error interno. Por favor recarga la página e intenta de nuevo.",
         });
-        
+
         // Force a page reload to clear all auth state
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           window.location.reload();
         }
         return;
       }
-      
+
       handleFirebaseError(error, "google login");
     } finally {
       setIsLoading(false);

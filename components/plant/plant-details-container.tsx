@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { plantDoc as plantDocRef, logsCol } from "@/lib/paths";
 import {
@@ -140,7 +140,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
-  const { roles } = useUserRoles();
 
   const cacheKey = `plant-details-${userId}-${plantId}`;
   const resource = getSuspenseResource(cacheKey, () =>
@@ -244,7 +243,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidatePlantsCache(userId);
       invalidateDashboardCache(userId);
 
-      router.push(resolveHomePathForRoles(roles));
+      router.push(ROUTE_DASHBOARD);
     } catch (error: any) {
       handleFirebaseError(error, "delete plant");
     } finally {
@@ -380,9 +379,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
         </CardHeader>
         <CardContent>
           <Button asChild>
-            <Link href={resolveHomePathForRoles(roles)}>
-              {t("plantPage.backToDashboard")}
-            </Link>
+            <Link href={ROUTE_DASHBOARD}>{t("plantPage.backToDashboard")}</Link>
           </Button>
         </CardContent>
       </Card>
@@ -494,7 +491,6 @@ function PlantDetailsErrorBoundary({
 }: PlantDetailsContainerProps) {
   const { t } = useTranslation(["plants", "common"]);
   const router = useRouter();
-  const { roles } = useUserRoles();
 
   return (
     <Card>
@@ -504,9 +500,7 @@ function PlantDetailsErrorBoundary({
       </CardHeader>
       <CardContent>
         <Button asChild>
-          <Link href={resolveHomePathForRoles(roles)}>
-            {t("plantPage.backToDashboard")}
-          </Link>
+          <Link href={ROUTE_DASHBOARD}>{t("plantPage.backToDashboard")}</Link>
         </Button>
       </CardContent>
     </Card>

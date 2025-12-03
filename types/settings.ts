@@ -1,5 +1,3 @@
-import type { Roles } from "./firestore";
-
 export interface AccountSummaryProps {
   title: string;
   email?: string | null;
@@ -18,11 +16,6 @@ export interface PreferencesFormProps {
   darkModeLabel: string;
   darkModeChecked: boolean;
   onDarkModeChange: (checked: boolean) => void;
-  rolesLabel: string;
-  rolesValue: Roles;
-  onRolesChange: (roles: Roles) => void;
-  growerLabel: string;
-  consumerLabel: string;
 }
 
 export interface DangerZoneProps {
@@ -119,7 +112,6 @@ export interface SettingsNavigationProps {
 export interface SettingsPreferencesState {
   timezone: string;
   darkMode: boolean;
-  roles: Roles;
 }
 
 export interface SettingsData {
