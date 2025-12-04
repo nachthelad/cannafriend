@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: update Next.js to version 15.5.7 in package.json and pnpm-lock.yaml — 2025-12-04
 - [MID]: add `Layout` component including desktop sidebar, mobile navigation, authentication, and i18n. — 2025-12-04
 
 - [MID]: removed roles — 2025-12-03

@@ -14,13 +14,12 @@ import {
   Thermometer,
   Notebook,
   Heart,
-  Zap,
 } from "lucide-react";
 
 export function AppShowcase() {
   const { t } = useTranslation(["landing", "common"]);
 
-  const growerFeatures = [
+  const features = [
     {
       icon: <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" />,
       title: t("features.plantManagement.title", { ns: "landing" }),
@@ -46,9 +45,6 @@ export function AppShowcase() {
       title: t("features.nutrientMixes.title", { ns: "landing" }),
       description: t("features.nutrientMixes.desc", { ns: "landing" }),
     },
-  ];
-
-  const consumerFeatures = [
     {
       icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />,
       title: t("features.sessionTracking.title", { ns: "landing" }),
@@ -79,27 +75,17 @@ export function AppShowcase() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-            {t("showcase.title", { ns: "landing" })}
+            {t("title", { ns: "landing" })}
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             {t("showcase.description", { ns: "landing" })}
           </p>
         </div>
 
-        {/* Grower Mode */}
+        {/* Unified Feature Grid */}
         <div className="mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              <Leaf className="inline h-8 w-8 text-green-600 mr-3" />
-              {t("showcase.growerMode", { ns: "landing" })}
-            </h3>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              {t("showcase.growerModeDesc", { ns: "landing" })}
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {growerFeatures.map((feature, index) => (
+            {features.map((feature, index) => (
               <Card
                 key={index}
                 className="h-full hover:shadow-lg transition-shadow duration-300"
@@ -115,42 +101,6 @@ export function AppShowcase() {
                         {feature.description}
                       </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Consumer Mode */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              <Users className="inline h-8 w-8 text-indigo-600 mr-3" />
-              {t("showcase.consumerMode", { ns: "landing" })}
-            </h3>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              {t("showcase.consumerModeDesc", { ns: "landing" })}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {consumerFeatures.map((feature, index) => (
-              <Card
-                key={index}
-                className="h-full hover:shadow-lg transition-shadow duration-300"
-              >
-                <CardContent className="p-6">
-                  <div className="text-center">
-                    <div className="flex justify-center mb-4">
-                      {feature.icon}
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      {feature.title}
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                      {feature.description}
-                    </p>
                   </div>
                 </CardContent>
               </Card>
