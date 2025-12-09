@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: initialize Next.js app with PWA manifest, robots.txt, and root layout including metadata and providers. — 2025-12-09
 - [MID]: Add hourly cron job and API endpoint to check for and send user reminders via push notifications. — 2025-12-09
 - [MINOR]: remove a file. — 2025-12-09
 - [MINOR]: unify feature display in AppShowcase component and update translation keys for improved clarity — 2025-12-09
