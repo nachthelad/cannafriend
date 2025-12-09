@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: Add hourly cron job and API endpoint to check for and send user reminders via push notifications. — 2025-12-09
 - [MINOR]: remove a file. — 2025-12-09
 - [MINOR]: unify feature display in AppShowcase component and update translation keys for improved clarity — 2025-12-09
 - [MINOR]: update Next.js to version 15.5.7 in package.json and pnpm-lock.yaml — 2025-12-04

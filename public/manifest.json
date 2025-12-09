@@ -1,6 +1,7 @@
 {
-  "name": "cannafriend",
-  "short_name": "cannafriend",
+  "name": "Cannafriend - Plant Growth Tracker",
+  "short_name": "Cannafriend",
+  "description": "Track your plant growth with detailed logs and environmental monitoring",
   "description_es": "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
   "start_url": "/",
   "display": "standalone",

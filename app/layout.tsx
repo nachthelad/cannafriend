@@ -12,6 +12,7 @@ import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cannafriend.app"),
   title: "cannafriend",
   description:
     "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
@@ -22,6 +23,30 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "Cannafriend",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    url: "https://cannafriend.app",
+    siteName: "Cannafriend",
+    title: "Cannafriend - Plant Growth Tracker",
+    description:
+      "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
+    images: [
+      {
+        url: "/web-app-manifest-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "Cannafriend Logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Cannafriend - Plant Growth Tracker",
+    description:
+      "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
+    images: ["/web-app-manifest-512x512.png"],
   },
   icons: {
     icon: [
