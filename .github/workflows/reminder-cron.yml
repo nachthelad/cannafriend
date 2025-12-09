@@ -1,0 +1,49 @@
+name: Reminder Cron
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Run every hour at minute 0
+  workflow_dispatch: # Allow manual triggering from GitHub Actions UI
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reminder cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          REMINDER_URL: ${{ secrets.REMINDER_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ CRON_SECRET not set in GitHub secrets" >&2
+            echo "Please add CRON_SECRET to your repository secrets."
+            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          if [ -z "$REMINDER_URL" ]; then
+            echo "❌ REMINDER_URL not set in GitHub secrets" >&2
+            echo "Please add REMINDER_URL to your repository secrets."
+            echo "Format: https://your-domain.vercel.app/api/cron/check-reminders"
+            echo "Go to: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+
+          echo "✅ Secrets configured correctly"
+          echo "📡 Calling reminder endpoint: $REMINDER_URL"
+
+          response=$(curl -sS -w "\n%{http_code}" -X POST "$REMINDER_URL" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            --max-time 30)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "📊 Response code: $http_code"
+          echo "📄 Response body: $body"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Reminder check completed successfully"
+          else
+            echo "❌ Reminder check failed with status $http_code"
+            exit 1
+          fi
