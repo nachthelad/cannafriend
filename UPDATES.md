@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: Add grow journal feature with new localization files and log type configuration. — 2025-12-26
 - [MID]: add robots.txt to control web crawler access and specify sitemap. — 2025-12-14
 - [MID]: initialize Next.js app with PWA manifest, robots.txt, and root layout including metadata and providers. — 2025-12-09
 - [MID]: Add hourly cron job and API endpoint to check for and send user reminders via push notifications. — 2025-12-09

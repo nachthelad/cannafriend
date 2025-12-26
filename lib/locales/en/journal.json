@@ -54,7 +54,17 @@
     "error": "Error saving log",
     "errorDesc": "Could not save log entry. Please try again.",
     "endCycleTitle": "End growth cycle",
-    "endCycleDescription": "Marks this plant as harvested and hides it from the active dashboard."
+    "endCycleDescription": "Marks this plant as harvested and hides it from the active dashboard.",
+    "customizePerPlant": "Customize per plant",
+    "autoFillAmount": "Auto-fill amount...",
+    "applyToAll": "Apply to all",
+    "selectMethod": "Select method",
+    "npkPlaceholder": "NPK (e.g. 4-4-4)",
+    "notePlaceholder": "Note for this plant...",
+    "environmentNote": "Values entered here are applied to all selected plants.",
+    "floweringNote": "Applied to all selected plants",
+    "saveLogs_one": "Save {{count}} Log",
+    "saveLogs_other": "Save {{count}} Logs"
   },
   "logsFor": "Logs for",
   "addLogFor": "Add log for",
