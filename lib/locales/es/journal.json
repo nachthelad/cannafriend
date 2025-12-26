@@ -54,7 +54,17 @@
     "error": "Error guardando registro",
     "errorDesc": "No se pudo guardar el registro. Inténtalo de nuevo.",
     "endCycleTitle": "Finalizar ciclo",
-    "endCycleDescription": "Marca esta planta como cosechada y la ocultará de tu lista activa."
+    "endCycleDescription": "Marca esta planta como cosechada y la ocultará de tu lista activa.",
+    "customizePerPlant": "Personalizar por planta",
+    "autoFillAmount": "Autocompletar cantidad...",
+    "applyToAll": "Aplicar a todos",
+    "selectMethod": "Seleccionar método",
+    "npkPlaceholder": "NPK (ej. 4-4-4)",
+    "notePlaceholder": "Nota para esta planta...",
+    "environmentNote": "Los valores ingresados aquí se aplican a todas las plantas seleccionadas.",
+    "floweringNote": "Aplicado a todas las plantas seleccionadas",
+    "saveLogs_one": "Guardar {{count}} Registro",
+    "saveLogs_other": "Guardar {{count}} Registros"
   },
   "logsFor": "Registros para",
   "addLogFor": "Agregar registro para",

@@ -45,6 +45,8 @@ export interface SimplePlantCardProps {
    */
   variant?: "default" | "overlay";
   showGrowType?: boolean;
+  hideSeedType?: boolean;
+  aspectRatio?: "square" | "video" | "auto";
   className?: string;
 }
 

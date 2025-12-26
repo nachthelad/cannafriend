@@ -17,6 +17,8 @@ export function SimplePlantCard({
   viewMode = "grid",
   variant = "default",
   showGrowType = false,
+  hideSeedType = false,
+  aspectRatio,
   className,
 }: SimplePlantCardProps) {
   const { t } = useTranslation(["plants", "common"]);
@@ -104,8 +106,14 @@ export function SimplePlantCard({
       {/* Plant Image */}
       <div
         className={cn(
-          "relative aspect-square w-full",
-          isOverlay && "md:aspect-[4/3]"
+          "relative w-full",
+          aspectRatio === "square"
+            ? "aspect-square"
+            : aspectRatio === "video"
+            ? "aspect-video"
+            : aspectRatio === "auto"
+            ? "aspect-auto"
+            : cn("aspect-square", isOverlay && "md:aspect-[4/3]")
         )}
       >
         {plant.coverPhoto ? (
@@ -136,21 +144,23 @@ export function SimplePlantCard({
           isOverlay && "p-2 backdrop-blur-[1px]"
         )}
       >
-        <h3 className="text-white font-semibold text-sm truncate mb-1">
+        <h3 className="text-white font-semibold text-sm mb-1 leading-tight">
           {plant.name}
         </h3>
         <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-2">
-          <Badge
-            variant="secondary"
-            className={cn(
-              "text-xs bg-white/20 text-white border-white/30 w-fit",
-              isOverlay && "bg-white/25 text-white"
-            )}
-          >
-            {plant.seedType === "autoflowering"
-              ? t("seedType.autoflowering", { ns: "plants" })
-              : t("seedType.photoperiodic", { ns: "plants" })}
-          </Badge>
+          {!hideSeedType && (
+            <Badge
+              variant="secondary"
+              className={cn(
+                "text-xs bg-white/20 text-white border-white/30 w-fit",
+                isOverlay && "bg-white/25 text-white"
+              )}
+            >
+              {plant.seedType === "autoflowering"
+                ? t("seedType.autoflowering", { ns: "plants" })
+                : t("seedType.photoperiodic", { ns: "plants" })}
+            </Badge>
+          )}
           {plant.status === PLANT_STATUS.ENDED && (
             <Badge className="text-xs bg-red-500/80 text-white border-transparent w-fit">
               {t("status.ended", { ns: "plants" })}
