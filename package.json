@@ -62,7 +62,7 @@
     "react-hook-form": "latest",
     "react-i18next": "^16.5.0",
     "react-markdown": "latest",
-    "react-resizable-panels": "^2.1.7",
+    "react-resizable-panels": "^4.0.16",
     "recharts": "latest",
     "sharp": "latest",
     "sonner": "^1.7.4",
