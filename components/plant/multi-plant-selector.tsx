@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface MultiPlantSelectorProps {
   plants: Plant[];
@@ -22,6 +23,7 @@ export function MultiPlantSelector({
   language,
   className,
 }: MultiPlantSelectorProps) {
+  const { t } = useTranslation("common");
   const togglePlant = (plantId: string) => {
     if (selectedPlantIds.includes(plantId)) {
       onSelectionChange(selectedPlantIds.filter((id) => id !== plantId));
@@ -45,15 +47,16 @@ export function MultiPlantSelector({
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          {selectedPlantIds.length} selected
+          {t("selectedCount", { count: selectedPlantIds.length })}
         </span>
         <Button
           variant="ghost"
           size="sm"
+          type="button"
           onClick={allSelected ? deselectAll : selectAll}
           className="h-8 text-xs font-medium"
         >
-          {allSelected ? "Deselect All" : "Select All"}
+          {allSelected ? t("deselectAll") : t("selectAll")}
         </Button>
       </div>
 

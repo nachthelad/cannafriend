@@ -28,7 +28,6 @@ import {
   AlertCircle,
   AlertTriangle,
   ArrowRight,
-  Wand2,
   Copy,
 } from "lucide-react";
 import { ROUTE_DASHBOARD, ROUTE_JOURNAL } from "@/lib/routes";
@@ -95,7 +94,6 @@ function JournalFormSkeleton() {
 // Zod schema for individual plant log data
 const createPerPlantSchema = (t: any) =>
   z.object({
-    plantId: z.string(),
     // Watering / Feeding
     amount: z.string().optional(),
     unit: z.string().optional(),
@@ -149,6 +147,13 @@ const createFormSchema = (t: any) =>
               path: ["plantLogs", plantId, "amount"],
             });
           }
+          if (!plantLog.method) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("waterMethodRequired", { ns: "validation" }),
+              path: ["plantLogs", plantId, "method"],
+            });
+          }
         }
 
         // Feeding Validation
@@ -169,6 +174,45 @@ const createFormSchema = (t: any) =>
               code: z.ZodIssueCode.custom,
               message: t("notesRequired", { ns: "validation" }),
               path: ["plantLogs", plantId, "note"],
+            });
+          }
+        }
+
+        // Training Validation
+        if (data.logType === LOG_TYPES.TRAINING) {
+          if (!plantLog.trainingMethod) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("trainingMethodRequired", { ns: "validation" }),
+              path: ["plantLogs", plantId, "trainingMethod"],
+            });
+          }
+        }
+
+        // Flowering Validation
+        if (data.logType === LOG_TYPES.FLOWERING) {
+          if (!plantLog.lightSchedule?.trim()) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("lightScheduleRequired", { ns: "validation" }),
+              path: ["plantLogs", plantId, "lightSchedule"],
+            });
+          }
+        }
+
+        // Environment Validation
+        if (data.logType === LOG_TYPES.ENVIRONMENT) {
+          const hasData =
+            (plantLog.temperature && parseFloat(plantLog.temperature) > 0) ||
+            (plantLog.humidity && parseFloat(plantLog.humidity) > 0) ||
+            (plantLog.ph && parseFloat(plantLog.ph) > 0) ||
+            (plantLog.light && parseFloat(plantLog.light) > 0);
+
+          if (!hasData) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("environmentValueRequired", { ns: "validation" }),
+              path: ["plantLogs", plantId, "temperature"], // Pointing to first field
             });
           }
         }
@@ -271,16 +315,23 @@ function NewJournalPageContent() {
     selectedPlantIds.forEach((id) => {
       if (!newLogs[id]) {
         newLogs[id] = {
-          plantId: id,
           amount: "",
           unit: "ml",
           note: "",
+          method: "",
+          trainingMethod: "",
+          npk: "",
+          temperature: "",
+          humidity: "",
+          ph: "",
+          light: "",
+          lightSchedule: "",
         };
       }
     });
 
     setValue("plantLogs", newLogs);
-  }, [selectedPlantIds, setValue, getValues]);
+  }, [selectedPlantIds, setValue]);
 
   const onSubmit = async (data: LogFormData) => {
     if (!auth.currentUser || !data.date || data.selectedPlantIds.length === 0)
@@ -393,19 +444,6 @@ function NewJournalPageContent() {
     }
   };
 
-  const applyGlobalAmountToAll = () => {
-    const amount = getValues("globalAmount");
-    if (!amount) return;
-
-    selectedPlantIds.forEach((id) => {
-      setValue(`plantLogs.${id}.amount`, amount, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    });
-    toast({ description: "Applied to all selected plants" });
-  };
-
   if (plantsLoading) {
     return (
       <Layout>
@@ -423,7 +461,9 @@ function NewJournalPageContent() {
       />
 
       <form
-        onSubmit={handleSubmit(onSubmit as any)}
+        onSubmit={handleSubmit(onSubmit as any, (errors) => {
+          console.error("Form validation errors:", errors);
+        })}
         className="max-w-4xl px-4 md:px-6 pb-20 mx-auto"
       >
         <div className="space-y-6">
@@ -439,7 +479,11 @@ function NewJournalPageContent() {
                 <MultiPlantSelector
                   plants={plants}
                   selectedPlantIds={field.value || []}
-                  onSelectionChange={field.onChange}
+                  onSelectionChange={(ids) =>
+                    setValue("selectedPlantIds", ids, {
+                      shouldValidate: !!errors.selectedPlantIds,
+                    })
+                  }
                 />
               )}
             />
@@ -451,7 +495,7 @@ function NewJournalPageContent() {
           </div>
 
           {/* 2. Common Details: Type & Date */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{t("logForm.type", { ns: "journal" })}</Label>
               <Select
@@ -459,6 +503,7 @@ function NewJournalPageContent() {
                   setValue("logType", val as LogType, { shouldValidate: true })
                 }
                 value={logType}
+                disabled={selectedPlantIds.length === 0}
               >
                 <SelectTrigger>
                   <SelectValue
@@ -473,7 +518,7 @@ function NewJournalPageContent() {
                   ))}
                 </SelectContent>
               </Select>
-              {errors.logType && (
+              {errors.logType && selectedPlantIds.length > 0 && (
                 <p className="text-sm text-destructive">
                   {errors.logType.message}
                 </p>
@@ -516,25 +561,6 @@ function NewJournalPageContent() {
               {(logType === LOG_TYPES.WATERING ||
                 logType === LOG_TYPES.FEEDING) && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 bg-muted/50 p-3 rounded-md">
-                    <Wand2 className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder={t("logForm.autoFillAmount", {
-                        ns: "journal",
-                      })}
-                      className="h-8 w-32 bg-background"
-                      {...register("globalAmount")}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      onClick={applyGlobalAmountToAll}
-                    >
-                      {t("logForm.applyToAll", { ns: "journal" })}
-                    </Button>
-                  </div>
-
                   <div className="grid gap-4">
                     {selectedPlantIds.map((plantId) => {
                       const plant = plants.find((p) => p.id === plantId);
@@ -550,24 +576,36 @@ function NewJournalPageContent() {
                                 {plant.name}
                               </Label>
                               <div className="flex flex-col sm:flex-row gap-2">
-                                <div className="relative flex-1">
-                                  <Input
-                                    type="number"
-                                    inputMode="decimal"
-                                    step="0.1"
-                                    placeholder="0.0"
-                                    {...register(`plantLogs.${plantId}.amount`)}
-                                    className={cn(
-                                      "pr-8",
-                                      errors.plantLogs?.[plantId]?.amount &&
-                                        "border-destructive"
-                                    )}
-                                  />
-                                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <span className="text-sm text-muted-foreground">
-                                      ml
-                                    </span>
+                                <div className="flex-1">
+                                  <div className="relative">
+                                    <Input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.1"
+                                      placeholder="0.0"
+                                      {...register(
+                                        `plantLogs.${plantId}.amount`
+                                      )}
+                                      className={cn(
+                                        "pr-8",
+                                        errors.plantLogs?.[plantId]?.amount &&
+                                          "border-destructive"
+                                      )}
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                      <span className="text-sm text-muted-foreground">
+                                        ml
+                                      </span>
+                                    </div>
                                   </div>
+                                  {errors.plantLogs?.[plantId]?.amount && (
+                                    <p className="text-xs text-destructive mt-1">
+                                      {
+                                        errors.plantLogs[plantId]?.amount
+                                          ?.message
+                                      }
+                                    </p>
+                                  )}
                                 </div>
 
                                 {/* Method Selector for Watering */}
@@ -578,8 +616,18 @@ function NewJournalPageContent() {
                                       name={`plantLogs.${plantId}.method`}
                                       render={({ field }) => (
                                         <Select
-                                          onValueChange={field.onChange}
-                                          value={field.value}
+                                          onValueChange={(value) => {
+                                            field.onChange(value);
+                                            // Trigger validation to clear errors
+                                            setValue(
+                                              `plantLogs.${plantId}.method`,
+                                              value,
+                                              {
+                                                shouldValidate: true,
+                                              }
+                                            );
+                                          }}
+                                          value={field.value || ""}
                                         >
                                           <SelectTrigger>
                                             <SelectValue
@@ -608,6 +656,14 @@ function NewJournalPageContent() {
                                         </Select>
                                       )}
                                     />
+                                    {errors.plantLogs?.[plantId]?.method && (
+                                      <p className="text-xs text-destructive mt-1">
+                                        {
+                                          errors.plantLogs[plantId]?.method
+                                            ?.message
+                                        }
+                                      </p>
+                                    )}
                                   </div>
                                 )}
 
@@ -623,11 +679,6 @@ function NewJournalPageContent() {
                                   </div>
                                 )}
                               </div>
-                              {errors.plantLogs?.[plantId]?.amount && (
-                                <p className="text-xs text-destructive">
-                                  {errors.plantLogs[plantId]?.amount?.message}
-                                </p>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -657,8 +708,18 @@ function NewJournalPageContent() {
                             name={`plantLogs.${plantId}.trainingMethod`}
                             render={({ field }) => (
                               <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  // Trigger validation to clear errors
+                                  setValue(
+                                    `plantLogs.${plantId}.trainingMethod`,
+                                    value,
+                                    {
+                                      shouldValidate: true,
+                                    }
+                                  );
+                                }}
+                                value={field.value || ""}
                               >
                                 <SelectTrigger>
                                   <SelectValue
@@ -680,6 +741,14 @@ function NewJournalPageContent() {
                               </Select>
                             )}
                           />
+                          {errors.plantLogs?.[plantId]?.trainingMethod && (
+                            <p className="text-xs text-destructive mt-1">
+                              {
+                                errors.plantLogs[plantId]?.trainingMethod
+                                  ?.message
+                              }
+                            </p>
+                          )}
                         </div>
                       );
                     })}
@@ -756,6 +825,15 @@ function NewJournalPageContent() {
                   <p className="text-xs text-muted-foreground text-center">
                     {t("logForm.environmentNote", { ns: "journal" })}
                   </p>
+                  {selectedPlantIds.map((id) => (
+                    <div key={id}>
+                      {errors.plantLogs?.[id]?.temperature && (
+                        <p className="text-sm text-destructive text-center">
+                          {errors.plantLogs[id]?.temperature?.message}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -778,6 +856,15 @@ function NewJournalPageContent() {
                     <p className="text-xs text-muted-foreground">
                       {t("logForm.floweringNote", { ns: "journal" })}
                     </p>
+                    {selectedPlantIds.map((id) => (
+                      <div key={id}>
+                        {errors.plantLogs?.[id]?.lightSchedule && (
+                          <p className="text-sm text-destructive">
+                            {errors.plantLogs[id]?.lightSchedule?.message}
+                          </p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

@@ -82,6 +82,7 @@
   "download": "Download",
   "select": "Select",
   "selectAll": "Select all",
+  "deselectAll": "Deselect all",
   "preview": "Preview",
 
   "help": "Help",
@@ -98,6 +99,8 @@
   "fieldRequired": "This field is required",
   "characters": "characters",
   "selected": "selected",
+  "selectedCount_one": "{{count}} selected",
+  "selectedCount_other": "{{count}} selected",
   "step": "Step",
   "of": "of",
   "tapToView": "Tap to view",

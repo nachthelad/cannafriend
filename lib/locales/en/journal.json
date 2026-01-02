@@ -64,7 +64,8 @@
     "environmentNote": "Values entered here are applied to all selected plants.",
     "floweringNote": "Applied to all selected plants",
     "saveLogs_one": "Save {{count}} Log",
-    "saveLogs_other": "Save {{count}} Logs"
+    "saveLogs_other": "Save {{count}} Logs",
+    "validationError": "Please check the form for errors"
   },
   "logsFor": "Logs for",
   "addLogFor": "Add log for",
