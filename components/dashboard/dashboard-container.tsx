@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState, useEffect } from "react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -35,6 +36,7 @@ import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
 import {
+  AlertTriangle,
   Plus,
   Brain,
   Shield,
@@ -43,7 +45,9 @@ import {
   NotebookPen,
   Leaf,
   Calendar,
+  X,
 } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { DataCard } from "@/components/common/data-card";
@@ -235,6 +239,39 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
     isPremium,
   } = resource.read();
 
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  useEffect(() => {
+    if (!hasOverdue) return;
+
+    const dismissedData = localStorage.getItem("overdue_alert_dismissed_data");
+    if (dismissedData) {
+      try {
+        const { timestamp } = JSON.parse(dismissedData);
+        // Check if there are any overdue reminders newer than the dismissal timestamp
+        const hasNewerOverdue = reminders.some((r: any) => {
+          if (!r.nextReminder || !r.isActive) return false;
+          const nextDate = new Date(r.nextReminder).getTime();
+          return nextDate <= Date.now() && nextDate > timestamp;
+        });
+
+        if (!hasNewerOverdue) {
+          setIsDismissed(true);
+        }
+      } catch (e) {
+        console.error("Error parsing dismissal data:", e);
+      }
+    }
+  }, [hasOverdue, reminders]);
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    localStorage.setItem(
+      "overdue_alert_dismissed_data",
+      JSON.stringify({ timestamp: Date.now() })
+    );
+  };
+
   return (
     <>
       {/* Mobile Dashboard */}
@@ -258,14 +295,39 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
           </h1>
         </div>
         <div className="space-y-6">
-          {/* Overdue Reminders only (Top) */}
-          <div>
-            <ReminderSystem
-              plants={plants}
-              showOnlyOverdue
-              reminders={reminders}
-            />
-          </div>
+          {/* Simple Overdue Alert (Desktop) */}
+          {hasOverdue && !isDismissed && (
+            <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                <span className="font-semibold text-orange-800 dark:text-orange-200">
+                  {t("overdue", { ns: "reminders" })}:{" "}
+                  {t("overdueRemindersDesc", { ns: "dashboard" })}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  asChild
+                  variant="link"
+                  size="sm"
+                  className="text-orange-700 dark:text-orange-400"
+                  onClick={handleDismiss}
+                >
+                  <Link href={ROUTE_REMINDERS}>
+                    {t("view", { ns: "common" })}
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-orange-600 hover:bg-orange-200 dark:hover:bg-orange-900/40"
+                  onClick={handleDismiss}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Stats Overview - 3 key metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -33,7 +33,8 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PushNotificationTest } from "@/components/reminders/push-notification-test";
+// import { PushNotificationTest } from "@/components/reminders/push-notification-test"; // DELETED
+
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 
@@ -128,12 +129,7 @@ function RemindersContent({ userId }: RemindersContentProps) {
         }
       />
 
-      {/* Development Test Component */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mb-6">
-          <PushNotificationTest />
-        </div>
-      )}
+      {/* Development Test Component removed */}
 
       {shouldShowManager ? (
         <>
@@ -158,7 +154,11 @@ function RemindersContent({ userId }: RemindersContentProps) {
             />
           </div>
           <div className="hidden md:block">
-            <ReminderSystem plants={plants} reminders={reminders} />
+            <ReminderSystem
+              plants={plants}
+              reminders={reminders}
+              hideOverdueSection={true}
+            />
           </div>
         </>
       ) : (

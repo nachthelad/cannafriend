@@ -60,18 +60,37 @@ export function MobileDashboard({
     "aiAssistant",
   ]);
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const [showOverdueAlert, setShowOverdueAlert] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem("overdue_alert_dismissed");
-    if (!dismissed) {
-      setShowOverdueAlert(true);
-    }
-  }, []);
+    if (!hasOverdue) return;
 
-  const handleDismissAlert = () => {
-    setShowOverdueAlert(false);
-    localStorage.setItem("overdue_alert_dismissed", "true");
+    const dismissedData = localStorage.getItem("overdue_alert_dismissed_data");
+    if (dismissedData) {
+      try {
+        const { timestamp } = JSON.parse(dismissedData);
+        // Check if there are any overdue reminders newer than the dismissal timestamp
+        const hasNewerOverdue = reminders.some((r: any) => {
+          if (!r.nextReminder || !r.isActive) return false;
+          const nextDate = new Date(r.nextReminder).getTime();
+          return nextDate <= Date.now() && nextDate > timestamp;
+        });
+
+        if (!hasNewerOverdue) {
+          setIsDismissed(true);
+        }
+      } catch (e) {
+        console.error("Error parsing dismissal data:", e);
+      }
+    }
+  }, [hasOverdue, reminders]);
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    localStorage.setItem(
+      "overdue_alert_dismissed_data",
+      JSON.stringify({ timestamp: Date.now() })
+    );
   };
 
   // Quick action buttons for mobile
@@ -109,31 +128,17 @@ export function MobileDashboard({
           {t("title", { ns: "dashboard" })}
         </h1>
       </div>
-      {/* Overdue reminders banner - mobile optimized */}
-      {hasOverdue && showOverdueAlert && (
-        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <div className="flex-1">
-                <p className="font-medium text-orange-800 dark:text-orange-200">
-                  {t("overdue", { ns: "reminders" })}
-                </p>
-                <p className="text-sm text-orange-600 dark:text-orange-300">
-                  {t("overdueRemindersDesc", { ns: "dashboard" })}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-orange-200 text-orange-700 hover:bg-orange-100"
-                onClick={handleDismissAlert}
-              >
-                Ok
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Simple Overdue Alert (Mobile) */}
+      {hasOverdue && !isDismissed && (
+        <Link href={ROUTE_REMINDERS} onClick={handleDismiss}>
+          <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-3 rounded-lg flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-orange-600" />
+            <span className="text-sm font-semibold text-orange-800 dark:text-orange-200">
+              {t("overdue", { ns: "reminders" })}:{" "}
+              {t("overdueRemindersDesc", { ns: "dashboard" })}
+            </span>
+          </div>
+        </Link>
       )}
 
       {/* Stats grid - mobile first with 3 key metrics */}
