@@ -92,7 +92,6 @@ export type SettingsSectionId =
   | "profile"
   | "preferences"
   | "billing"
-  | "notifications"
   | "app-info"
   | "danger";
 

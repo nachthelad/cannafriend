@@ -31,8 +31,9 @@ import type { Reminder } from "@/types";
 export function ReminderSystem({
   plants,
   showOnlyOverdue = false,
+  hideOverdueSection = false,
   reminders: preFetchedReminders,
-}: ReminderSystemProps) {
+}: ReminderSystemProps & { hideOverdueSection?: boolean }) {
   const { t, i18n } = useTranslation(["reminders", "common"]);
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
@@ -184,12 +185,19 @@ export function ReminderSystem({
 
   const activeReminders = normalizedReminders.filter((r) => r.isActive);
   const now = Date.now();
-  const overdueReminders = activeReminders.filter(
-    (r) => r.nextOccurrence !== null && r.nextOccurrence <= now
-  );
+
+  const overdueReminders = activeReminders.filter((r) => {
+    if (!r.nextReminder) return false;
+    return new Date(r.nextReminder).getTime() <= now;
+  });
+
   const dueSoonReminders = activeReminders.filter((r) => {
     if (!r.nextOccurrence) return false;
     const diff = r.nextOccurrence - now;
+    // Overdue items are handled above
+    if (r.nextReminder && new Date(r.nextReminder).getTime() <= now)
+      return false;
+
     return diff > 0 && diff <= 24 * 60 * 60 * 1000;
   });
 
@@ -293,7 +301,7 @@ export function ReminderSystem({
   return (
     <div className="space-y-6">
       {/* Overdue Reminders */}
-      {overdueReminders.length > 0 && (
+      {overdueReminders.length > 0 && !hideOverdueSection && (
         <Card className="border-warning/50 bg-warning/10">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2 text-warning-foreground">

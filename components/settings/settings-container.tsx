@@ -16,7 +16,8 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { AppInformation } from "@/components/settings/app-information";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
-import { PushNotifications } from "@/components/settings/push-notifications";
+// import { PushNotifications } from "@/components/settings/push-notifications"; // DELETED
+
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
@@ -383,10 +384,8 @@ function SettingsContent({
         id: "billing",
         label: t("settings.billing"),
       },
-      {
-        id: "notifications",
-        label: t("settings.notifications"),
-      },
+      // { id: "notifications", label: t("settings.notifications") }, // DELETED
+
       {
         id: "app-info",
         label: t("settings.appInfo"),
@@ -448,7 +447,8 @@ function SettingsContent({
           note={t("subscription.mercadopagoNote")}
         />
       ),
-      notifications: () => <PushNotifications userId={userId} />,
+      // notifications: () => null, // DELETED
+
       "app-info": () => (
         <AppInformation
           title={t("settings.appInfoDesc")}
@@ -499,7 +499,10 @@ function SettingsContent({
 
   useEffect(() => {
     if (!sections.length) return;
-    if (!sections.some((section) => section.id === activeSection)) {
+    const currentSectionValid = sections.some(
+      (section) => section.id === activeSection
+    );
+    if (!currentSectionValid) {
       setActiveSection(sections[0].id);
     }
   }, [activeSection, sections]);

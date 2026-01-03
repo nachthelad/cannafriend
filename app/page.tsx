@@ -34,6 +34,13 @@ export default function Home() {
 
   // Authentication state management
   useEffect(() => {
+    // Initial auth check using authStateReady to prevent splash
+    auth.authStateReady().then(() => {
+      if (!auth.currentUser) {
+        setCheckingAuth(false);
+      }
+    });
+
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is logged in, set redirect flag and show loading
@@ -58,7 +65,8 @@ export default function Home() {
       } else {
         setIsLoggedIn(false);
         setShouldRedirect(false);
-        setCheckingAuth(false);
+        // Do not setCheckingAuth(false) here to avoid race conditions on load
+        // checkingAuth is handled by authStateReady for the initial load
       }
     });
     return () => unsub();
@@ -136,7 +144,7 @@ export default function Home() {
   };
 
   // Show full-screen loading for authenticated users to prevent flash
-  if (shouldRedirect || (checkingAuth && auth.currentUser)) {
+  if (shouldRedirect || checkingAuth) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
         <div className="flex flex-col items-center">
