@@ -33,5 +33,6 @@
   "nameRequired": "El nombre es requerido",
   "typeRequired": "El tipo es requerido",
   "amountRequired": "La cantidad es requerida",
-  "unitRequired": "La unidad es requerida"
+  "unitRequired": "La unidad es requerida",
+  "selectAtLeastOnePlant": "Por favor selecciona al menos una planta"
 }

@@ -31,7 +31,8 @@
   "notesRequired": "Notes are required for note logs",
   "titleRequired": "Title is required",
   "nameRequired": "Name is required",
-  "typeRequired": "Type is required", 
+  "typeRequired": "Type is required",
   "amountRequired": "Amount is required",
-  "unitRequired": "Unit is required"
+  "unitRequired": "Unit is required",
+  "selectAtLeastOnePlant": "Please select at least one plant"
 }

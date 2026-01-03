@@ -103,7 +103,17 @@ export function JournalEntries({
             <span className="font-normal text-muted-foreground">
               {log.amount}
               {log.unit ? log.unit : "ml"} (
-              {t(`watering.${log.method}`, { ns: "journal" })})
+              <span className="md:hidden">
+                {t(`watering.${log.method}`, { ns: "journal" })
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()}
+              </span>
+              <span className="hidden md:inline">
+                {t(`watering.${log.method}`, { ns: "journal" })}
+              </span>
+              )
             </span>
           </span>
         );
@@ -185,8 +195,14 @@ export function JournalEntries({
 
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="font-medium text-foreground/80">
-                      {log.date &&
-                        formatDateWithLocale(log.date, "PPP", language)}
+                      <span className="md:hidden">
+                        {log.date &&
+                          formatDateWithLocale(log.date, "P", language)}
+                      </span>
+                      <span className="hidden md:inline">
+                        {log.date &&
+                          formatDateWithLocale(log.date, "PPP", language)}
+                      </span>
                     </span>
                     <span>•</span>
                     <span>
@@ -195,8 +211,8 @@ export function JournalEntries({
                     </span>
                     {showPlantName && (log as any).plantName && (
                       <>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="text-primary font-medium text-xs sm:text-sm mt-1 sm:mt-0 block sm:inline">
+                        <span>•</span>
+                        <span className="text-primary font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">
                           {(log as any).plantName}
                         </span>
                       </>
@@ -208,7 +224,7 @@ export function JournalEntries({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive -mr-2 -mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive -mr-2 -mt-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label="Delete log"
                     onClick={() => onDelete(log)}
                   >

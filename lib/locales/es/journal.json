@@ -64,7 +64,8 @@
     "environmentNote": "Los valores ingresados aquí se aplican a todas las plantas seleccionadas.",
     "floweringNote": "Aplicado a todas las plantas seleccionadas",
     "saveLogs_one": "Guardar {{count}} Registro",
-    "saveLogs_other": "Guardar {{count}} Registros"
+    "saveLogs_other": "Guardar {{count}} Registros",
+    "validationError": "Por favor revisa el formulario en busca de errores"
   },
   "logsFor": "Registros para",
   "addLogFor": "Agregar registro para",
