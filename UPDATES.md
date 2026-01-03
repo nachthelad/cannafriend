@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: Update pnpm lockfile. — 2026-01-03
 - [MID]: simplify reminder system and remove push notification infrastructure — 2026-01-03
 - [MINOR]: improve mobile ui, form validation and localization — 2026-01-03
 - [MID]: refine log form UI and responsiveness — 2026-01-02

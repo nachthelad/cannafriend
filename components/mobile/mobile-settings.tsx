@@ -14,7 +14,8 @@ import { SubscriptionManagement } from "@/components/settings/subscription-manag
 import { AppInformation } from "@/components/settings/app-information";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
-import { PushNotifications } from "@/components/settings/push-notifications";
+// import { PushNotifications } from "@/components/settings/push-notifications"; // DELETED
+
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { updateDoc, getDoc } from "firebase/firestore";
@@ -392,10 +393,7 @@ function MobileSettingsContent({
           />
         </div>
 
-        {/* Push Notifications Section */}
-        <div className="w-full p-4 border-b border-border">
-          <PushNotifications userId={userId} />
-        </div>
+        {/* Push Notifications Section removed */}
 
         {/* App Info Section */}
         <div className="w-full p-4 border-b border-border">
