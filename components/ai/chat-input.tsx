@@ -2,10 +2,17 @@
 
 import type { ChatInputProps } from "@/types/ai";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, Loader2 } from "lucide-react";
+import { Send, Paperclip, Loader2, Sparkles, Bot } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
   (
@@ -16,6 +23,8 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       onSendMessage,
       onShowImageUpload,
       isLoading,
+      provider,
+      onProviderChange,
     },
     ref
   ) => {
@@ -29,7 +38,8 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
 
       // Disable auto-resize on mobile
       if (window.innerWidth < 768) {
-        textarea.style.height = "40px"; // Reset to default height
+        textarea.style.height = "auto";
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
         return;
       }
 
@@ -58,53 +68,79 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
     };
 
     return (
-      <div className="relative flex items-end">
-        <div className="relative flex-1 flex items-end bg-muted/50 border hover:border-primary/20 focus-within:border-primary/50 focus-within:bg-background focus-within:ring-4 focus-within:ring-primary/5 transition-all duration-200 rounded-3xl px-2 py-1.5">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors mb-0.5"
-            onClick={onShowImageUpload}
-            disabled={isLoading}
-            title="Upload image"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
+      <div className="relative flex flex-col w-full bg-muted/40 border hover:border-primary/20 focus-within:border-primary/50 focus-within:bg-background/50 focus-within:ring-4 focus-within:ring-primary/5 transition-all duration-200 rounded-3xl p-2 sm:p-3 shadow-sm">
+        {/* Top: Text Area */}
+        <textarea
+          ref={setRefs}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={t("universalPlaceholder", { ns: "aiAssistant" })}
+          disabled={isLoading}
+          rows={1}
+          className="w-full border-0 bg-transparent shadow-none focus:ring-0 focus:outline-none px-2 py-2 min-h-[44px] max-h-[200px] resize-none text-base md:text-sm placeholder:text-muted-foreground/70 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
+          style={{ overflowY: value.length > 100 ? "auto" : "hidden" }}
+        />
 
-          <textarea
-            ref={setRefs}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={t("universalPlaceholder", { ns: "aiAssistant" })}
-            disabled={isLoading}
-            rows={1}
-            className="flex-1 border-0 bg-transparent shadow-none focus:ring-0 focus:outline-none px-3 py-2.5 min-h-[40px] max-h-[200px] resize-none text-base md:text-sm placeholder:text-muted-foreground/70 scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
-            style={{ overflowY: value.length > 100 ? "auto" : "hidden" }}
-          />
+        {/* Bottom: Controls Row */}
+        <div className="flex items-center justify-between mt-2 pt-1 border-t border-border/40">
+          {/* Left: Tools */}
+          <div className="flex items-center gap-1">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+              onClick={onShowImageUpload}
+              disabled={isLoading}
+              title="Upload image"
+            >
+              <Paperclip className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+          </div>
 
-          <Button
-            onClick={onSendMessage}
-            variant={value.trim() ? "default" : "ghost"}
-            disabled={isLoading || !value.trim()}
-            size="icon"
-            aria-label={t("sendMessage", {
-              ns: "aiAssistant",
-              defaultValue: "Send message",
-            })}
-            className={cn(
-              "h-9 w-9 rounded-full transition-all duration-200 mb-0.5",
-              value.trim()
-                ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
-                : "text-muted-foreground hover:bg-muted"
-            )}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className={cn("h-4 w-4", value.trim() && "ml-0.5")} />
-            )}
-          </Button>
+          {/* Right: Provider & Send */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Select value={provider} onValueChange={onProviderChange}>
+              <SelectTrigger className="h-8 sm:h-9 w-[130px] sm:w-[140px] rounded-full text-xs sm:text-sm border-0 bg-transparent hover:bg-muted/50 focus:ring-0 px-2 sm:px-3 text-muted-foreground hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent align="end" className="rounded-xl">
+                <SelectItem value="gemini" className="rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-indigo-500" />
+                    <span>Gemini</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="openai" className="rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Bot className="h-4 w-4 text-emerald-500" />
+                    <span>OpenAI</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              onClick={onSendMessage}
+              variant={value.trim() ? "default" : "secondary"}
+              disabled={isLoading || !value.trim()}
+              size="icon"
+              className={cn(
+                "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all duration-200",
+                value.trim()
+                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
+                  : "bg-muted text-muted-foreground/50 hover:bg-muted"
+              )}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className={cn("h-4 w-4", value.trim() && "ml-0.5")} />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     );
