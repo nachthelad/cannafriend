@@ -59,6 +59,8 @@ export interface ChatInputProps {
   onSendMessage: () => void;
   onShowImageUpload: () => void;
   isLoading: boolean;
+  provider: "gemini" | "openai";
+  onProviderChange: (provider: "gemini" | "openai") => void;
 }
 
 export interface ThinkingAnimationProps {
