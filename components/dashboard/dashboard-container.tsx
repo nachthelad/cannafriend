@@ -288,16 +288,16 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
       </div>
 
       {/* Desktop Dashboard */}
-      <div className="hidden md:block">
-        <div className="mb-6">
+      <div className="hidden md:flex flex-col h-[calc(100vh-100px)]">
+        <div className="mb-6 shrink-0">
           <h1 className="text-3xl font-bold">
             {t("title", { ns: "dashboard" })}
           </h1>
         </div>
-        <div className="space-y-6">
+        <div className="flex flex-col flex-1 min-h-0 gap-6">
           {/* Simple Overdue Alert (Desktop) */}
           {hasOverdue && !isDismissed && (
-            <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between">
+            <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
                 <span className="font-semibold text-orange-800 dark:text-orange-200">
@@ -329,35 +329,64 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
             </div>
           )}
 
-          {/* Stats Overview - 3 key metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <DataCard
-              label={t("yourPlants", { ns: "dashboard" })}
-              value={plants.length}
-              icon={Leaf}
-              color="success"
-              href={ROUTE_PLANTS}
+          {/* Quick Actions Toolbar */}
+          <div className="flex flex-wrap gap-2 p-4 bg-card rounded-lg border shadow-sm shrink-0">
+            {isPremium && (
+              <Button
+                asChild
+                className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
+              >
+                <Link href={ROUTE_AI_ASSISTANT}>
+                  <Brain className="h-5 w-5 mr-1" />{" "}
+                  {t("title", { ns: "aiAssistant" })}
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="secondary">
+              <Link href={ROUTE_REMINDERS}>
+                <Bell className="h-5 w-5 mr-1" />{" "}
+                {t("reminders", { ns: "dashboard" })}
+              </Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href={ROUTE_PLANTS_NEW}>
+                <Plus className="h-5 w-5 mr-1" />{" "}
+                {t("addPlant", { ns: "dashboard" })}
+              </Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href={ROUTE_STASH}>
+                <Package className="h-5 w-5 mr-1" />{" "}
+                {t("stash.title", { ns: "common" })}
+              </Link>
+            </Button>
+            <FastLogAction
+              plants={plants}
+              renderTrigger={({ onClick, disabled }) => (
+                <Button
+                  onClick={onClick}
+                  disabled={disabled}
+                  variant="secondary"
+                >
+                  <NotebookPen className="h-5 w-5 mr-1" />
+                  {t("fastLogTitle", { ns: "dashboard" })}
+                </Button>
+              )}
             />
-            <DataCard
-              label={t("recentLogs", { ns: "journal" })}
-              value={recentLogs.length}
-              icon={Calendar}
-              color="default"
-              href={ROUTE_JOURNAL}
-            />
-            <DataCard
-              label={t("title", { ns: "reminders" })}
-              value={remindersCount}
-              icon={Bell}
-              color={hasOverdue ? "warning" : "default"}
-              href={ROUTE_REMINDERS}
-            />
+            {isAdmin && (
+              <Button asChild variant="outline">
+                <Link href={ROUTE_ADMIN}>
+                  <Shield className="h-5 w-5 mr-1" />
+                  Admin
+                </Link>
+              </Button>
+            )}
           </div>
 
           {/* Widgets grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
+            <Card className="flex flex-col h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 shrink-0">
                 <div>
                   <CardTitle>{t("yourPlants", { ns: "dashboard" })}</CardTitle>
                   <CardDescription>
@@ -368,27 +397,29 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                   <Link href={ROUTE_PLANTS}>{t("view", { ns: "common" })}</Link>
                 </Button>
               </CardHeader>
-              <CardContent>
-                {plants.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {plants.map((plant) => (
-                      <PlantCard key={plant.id} plant={plant} compact />
-                    ))}
-                  </div>
-                ) : (
-                  <Button asChild>
-                    <Link href="/plants/new">
-                      <Plus className="mr-2 h-4 w-4" />{" "}
-                      {t("addPlant", { ns: "dashboard" })}
-                    </Link>
-                  </Button>
-                )}
+              <CardContent className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-0">
+                <div className="p-6 pt-0">
+                  {plants.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {plants.map((plant) => (
+                        <PlantCard key={plant.id} plant={plant} compact />
+                      ))}
+                    </div>
+                  ) : (
+                    <Button asChild>
+                      <Link href="/plants/new">
+                        <Plus className="mr-2 h-4 w-4" />{" "}
+                        {t("addPlant", { ns: "dashboard" })}
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
             {/* Journal Widget */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <Card className="flex flex-col h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 shrink-0">
                 <div>
                   <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
                   <CardDescription>
@@ -401,66 +432,13 @@ function DashboardContent({ userId, userEmail }: DashboardContainerProps) {
                   </Link>
                 </Button>
               </CardHeader>
-              <CardContent>
-                <JournalEntries
-                  logs={recentLogs.slice(0, 5)}
-                  showPlantName={true}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("quickActions", { ns: "dashboard" })}</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                {isPremium && (
-                  <Button
-                    asChild
-                    className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
-                  >
-                    <Link href={ROUTE_AI_ASSISTANT}>
-                      <Brain className="h-4 w-4 mr-1" />{" "}
-                      {t("title", { ns: "aiAssistant" })}
-                    </Link>
-                  </Button>
-                )}
-                <Button asChild>
-                  <Link href={ROUTE_REMINDERS}>
-                    <Bell className="h-4 w-4 mr-1" />{" "}
-                    {t("reminders", { ns: "dashboard" })}
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href={ROUTE_PLANTS_NEW}>
-                    <Plus className="h-4 w-4 mr-1" />{" "}
-                    {t("addPlant", { ns: "dashboard" })}
-                  </Link>
-                </Button>
-                <Button asChild>
-                  <Link href={ROUTE_STASH}>
-                    <Package className="h-4 w-4 mr-1" />{" "}
-                    {t("stash.title", { ns: "common" })}
-                  </Link>
-                </Button>
-                <FastLogAction
-                  plants={plants}
-                  renderTrigger={({ onClick, disabled }) => (
-                    <Button onClick={onClick} disabled={disabled}>
-                      <NotebookPen className="h-4 w-4 mr-1" />
-                      {t("fastLogTitle", { ns: "dashboard" })}
-                    </Button>
-                  )}
-                />
-                {isAdmin && (
-                  <Button asChild>
-                    <Link href={ROUTE_ADMIN}>
-                      <Shield className="h-4 w-4 mr-1" />
-                      Admin
-                    </Link>
-                  </Button>
-                )}
+              <CardContent className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-0">
+                <div className="p-6 pt-0">
+                  <JournalEntries
+                    logs={recentLogs.slice(0, 5)}
+                    showPlantName={true}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>

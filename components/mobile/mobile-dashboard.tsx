@@ -128,6 +128,7 @@ export function MobileDashboard({
           {t("title", { ns: "dashboard" })}
         </h1>
       </div>
+
       {/* Simple Overdue Alert (Mobile) */}
       {hasOverdue && !isDismissed && (
         <Link href={ROUTE_REMINDERS} onClick={handleDismiss}>
@@ -248,9 +249,6 @@ export function MobileDashboard({
           </CardContent>
         </Card>
       )}
-
-      {/* Reminder system - only overdue for mobile dashboard */}
-      <ReminderSystem plants={plants} showOnlyOverdue reminders={reminders} />
     </div>
   );
 }
