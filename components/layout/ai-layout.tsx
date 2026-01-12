@@ -86,7 +86,7 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden pb-32 md:pb-0">{children}</div>
+      <div className="flex-1 overflow-hidden pb-20 md:pb-0">{children}</div>
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />

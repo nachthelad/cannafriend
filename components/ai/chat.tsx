@@ -37,6 +37,7 @@ export function AIChat({
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId
   );
+  const [provider, setProvider] = useState<"gemini" | "openai">("gemini");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
@@ -109,6 +110,7 @@ export function AIChat({
         body: JSON.stringify({
           messages: newMessages,
           sessionId: currentSessionId,
+          provider,
         }),
       });
 
@@ -215,51 +217,63 @@ export function AIChat({
         onNewChat={handleNewChat}
       />
 
-      <div className="flex flex-col flex-1 h-full relative md:pb-0 pb-[140px]">
+      <div className="flex flex-col flex-1 h-full relative md:pb-0">
         {messages.length === 0 ? (
           // Empty State
           <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-3xl mx-auto w-full">
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-            
+
             <h2 className="text-2xl font-semibold text-center mb-2">
               {t("helpText", { ns: "aiAssistant" })}
             </h2>
-            
+
             <p className="text-muted-foreground text-center mb-8 max-w-md">
               {t("helpSubtext", { ns: "aiAssistant" })}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
-              <Card 
-                variant="interactive" 
+              <Card
+                variant="interactive"
                 className="p-4 cursor-pointer"
-                onClick={() => setInput(t("diagnosePrompt", { ns: "aiAssistant" }))}
+                onClick={() =>
+                  setInput(t("diagnosePrompt", { ns: "aiAssistant" }))
+                }
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-warning/10 rounded-lg">
                     <ImageIcon className="w-4 h-4 text-warning" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-sm">{t("diagnoseIssue", { ns: "aiAssistant" })}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{t("diagnoseIssueDesc", { ns: "aiAssistant" })}</p>
+                    <h3 className="font-medium text-sm">
+                      {t("diagnoseIssue", { ns: "aiAssistant" })}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("diagnoseIssueDesc", { ns: "aiAssistant" })}
+                    </p>
                   </div>
                 </div>
               </Card>
 
-              <Card 
-                variant="interactive" 
+              <Card
+                variant="interactive"
                 className="p-4 cursor-pointer"
-                onClick={() => setInput(t("feedingPrompt", { ns: "aiAssistant" }))}
+                onClick={() =>
+                  setInput(t("feedingPrompt", { ns: "aiAssistant" }))
+                }
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-success/10 rounded-lg">
                     <Brain className="w-4 h-4 text-success" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-sm">{t("feedingSchedule", { ns: "aiAssistant" })}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{t("feedingScheduleDesc", { ns: "aiAssistant" })}</p>
+                    <h3 className="font-medium text-sm">
+                      {t("feedingSchedule", { ns: "aiAssistant" })}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("feedingScheduleDesc", { ns: "aiAssistant" })}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -292,7 +306,7 @@ export function AIChat({
                   ))}
                 </div>
               )}
-              
+
               <ChatInput
                 ref={inputRef}
                 value={input}
@@ -301,6 +315,8 @@ export function AIChat({
                 onSendMessage={handleSendMessage}
                 onShowImageUpload={() => imageUploadRef.current?.open()}
                 isLoading={isLoading}
+                provider={provider}
+                onProviderChange={setProvider}
               />
             </div>
           </div>
@@ -331,17 +347,24 @@ export function AIChat({
                     >
                       {/* Images Grid */}
                       {message.images && message.images.length > 0 && (
-                        <div className={cn(
-                          "grid gap-2 mb-2",
-                          message.images.length === 1 ? "grid-cols-1" : "grid-cols-2"
-                        )}>
+                        <div
+                          className={cn(
+                            "grid gap-2 mb-2",
+                            message.images.length === 1
+                              ? "grid-cols-1"
+                              : "grid-cols-2"
+                          )}
+                        >
                           {message.images.map((img, imgIndex) => (
                             <div
                               key={imgIndex}
                               className="relative rounded-xl overflow-hidden border bg-background shadow-sm group"
-                              style={{ 
-                                width: message.images!.length === 1 ? '240px' : '160px',
-                                aspectRatio: '4/3'
+                              style={{
+                                width:
+                                  message.images!.length === 1
+                                    ? "240px"
+                                    : "160px",
+                                aspectRatio: "4/3",
                               }}
                             >
                               <Image
@@ -400,7 +423,7 @@ export function AIChat({
             </div>
 
             {/* Sticky Input Area */}
-            <div className="p-4 bg-background/80 backdrop-blur-sm border-t">
+            <div className="p-3 bg-background/80 backdrop-blur-sm border-t">
               <div className="max-w-3xl mx-auto w-full">
                 {images.length > 0 && (
                   <div className="flex gap-3 overflow-x-auto mb-3 p-2">
@@ -427,7 +450,7 @@ export function AIChat({
                     ))}
                   </div>
                 )}
-                
+
                 <ChatInput
                   ref={inputRef}
                   value={input}
@@ -436,6 +459,8 @@ export function AIChat({
                   onSendMessage={handleSendMessage}
                   onShowImageUpload={() => imageUploadRef.current?.open()}
                   isLoading={isLoading}
+                  provider={provider}
+                  onProviderChange={setProvider}
                 />
                 <p className="text-[10px] text-center text-muted-foreground mt-2">
                   {t("disclaimer", { ns: "aiAssistant" })}

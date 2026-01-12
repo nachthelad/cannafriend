@@ -8,6 +8,7 @@ import {
   type OpenAIResponseMessage,
 } from "@/lib/openai-normalize";
 import { isCannabisRelated, isContextuallyOnTopic } from "./keywords";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const runtime = "nodejs";
 
@@ -22,6 +23,7 @@ type ChatRequest = {
   messages: ClientMessage[];
   chatType?: string; // Optional, keeping for backward compatibility
   sessionId?: string;
+  provider?: "openai" | "gemini";
 };
 
 type VisionPart =
@@ -34,9 +36,12 @@ type OpenAIMessage =
 
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
-// Modelos
-const PRIMARY_MODEL = "gpt-5-mini";
-const FALLBACK_MODELS = ["gpt-5"] as const;
+// Modelos OpenAI
+const PRIMARY_MODEL_OPENAI = "gpt-5-mini";
+const FALLBACK_MODELS_OPENAI = ["gpt-5"] as const;
+
+// Modelos Gemini
+const PRIMARY_MODEL_GEMINI = "gemini-2.0-flash-exp";
 
 // === Utilidades ===
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -120,6 +125,60 @@ CONSUMPTION: Effects, strains, dosing, methods, storage, harm reduction, legalit
 
 If the question is unrelated to cannabis, briefly refuse and ask to rephrase within cannabis scope. Be concise, actionable, and prioritize safety. Respond in the same language as the user's question (Spanish or English).`;
 
+async function callGemini(
+  messages: ClientMessage[],
+  apiKey: string
+): Promise<{ content: string; model: string }> {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL_GEMINI });
+
+  const chatHistory = messages.slice(0, -1).map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const chat = model.startChat({
+    history: [
+      {
+        role: "user",
+        parts: [{ text: SYSTEM_PROMPT }],
+      },
+      {
+        role: "model",
+        parts: [
+          {
+            text: "Understood. I am ready to assist with cannabis-related inquiries.",
+          },
+        ],
+      },
+      ...chatHistory,
+    ],
+  });
+
+  const latestMessage = messages[messages.length - 1];
+  let parts: any[] = [{ text: latestMessage.content }];
+
+  if (latestMessage.images && latestMessage.images.length > 0) {
+    const imageParts = await Promise.all(
+      latestMessage.images.map(async (img) => {
+        const response = await fetch(img.url);
+        const arrayBuffer = await response.arrayBuffer();
+        return {
+          inlineData: {
+            data: Buffer.from(arrayBuffer).toString("base64"),
+            mimeType: img.type || "image/jpeg",
+          },
+        };
+      })
+    );
+    parts = [...parts, ...imageParts];
+  }
+
+  const result = await chat.sendMessage(parts);
+  const response = result.response;
+  return { content: response.text(), model: PRIMARY_MODEL_GEMINI };
+}
+
 export async function POST(req: NextRequest) {
   try {
     // === Auth ===
@@ -166,7 +225,12 @@ export async function POST(req: NextRequest) {
     }
 
     // === Input ===
-    const { messages, chatType, sessionId } = (await req.json()) as ChatRequest;
+    const {
+      messages,
+      chatType,
+      sessionId,
+      provider = "gemini",
+    } = (await req.json()) as ChatRequest;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "messages_required" }, { status: 400 });
@@ -177,14 +241,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "last_message_must_be_user" },
         { status: 400 }
-      );
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "missing_OPENAI_API_KEY" },
-        { status: 500 }
       );
     }
 
@@ -241,85 +297,121 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // === Construcción de mensajes para OpenAI ===
-    const openaiMessages: OpenAIMessage[] = [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...messages.map<OpenAIMessage>((m) => {
-        if (m.role === "user" && m.images?.length) {
-          const parts: VisionPart[] = [
-            { type: "text", text: m.content },
-            ...m.images.map((img) => ({
-              type: "image_url" as const,
-              image_url: { url: img.url },
-            })),
-          ];
-          return { role: "user", content: parts };
-        }
-        return { role: m.role, content: m.content };
-      }),
-    ];
+    let content: string = "";
+    let modelUsed: string = "";
 
-    // === Llamada a OpenAI con fallback/timeout/retry ===
-    const modelCandidates = [PRIMARY_MODEL, ...FALLBACK_MODELS];
-    const resp = await callOpenAI(
-      {
-        messages: openaiMessages,
-        temperature: 1,
-        max_completion_tokens: 3500, // GPT-5 reasoning tokens + detailed responses
-      },
-      apiKey,
-      modelCandidates
-    );
-
-    if (!resp.ok) {
-      const text = await resp.text();
-      console.error("OpenAI API error:", resp.status, text);
-      return NextResponse.json(
-        { error: text || "OpenAI error" },
-        { status: 500 }
-      );
-    }
-
-    const data = await resp.json();
-    const choice0 = data?.choices?.[0] as
-      | { message?: OpenAIResponseMessage; content?: unknown; [k: string]: any }
-      | undefined;
-
-    // Prefer normalized assistant message, but add robust fallbacks
-    const message = choice0?.message as OpenAIResponseMessage | undefined;
-    let content = normalizeOpenAIContent(message);
-
-    // Fallback 1: some providers place text directly on choice.content
-    if (!content) {
-      const direct = normalizeOpenAIContent({
-        content: choice0?.content,
-      } as unknown as OpenAIResponseMessage);
-      if (direct) content = direct;
-    }
-
-    // Fallback 2: stringify tool calls if they contain textual output
-    if (!content && message && (message as any).tool_calls) {
+    if (provider === "gemini") {
+      const geminiKey = process.env.GEMINI_API_KEY;
+      if (!geminiKey) {
+        return NextResponse.json(
+          { error: "missing_GEMINI_API_KEY" },
+          { status: 500 }
+        );
+      }
       try {
-        const toolText = JSON.stringify((message as any).tool_calls);
-        if (toolText && toolText !== "{}" && toolText !== "[]") {
-          content = toolText;
-        }
-      } catch {}
-    }
+        const result = await callGemini(messages, geminiKey);
+        content = result.content;
+        modelUsed = result.model;
+      } catch (error: any) {
+        console.error("Gemini API error:", error);
+        return NextResponse.json(
+          { error: error.message || "Gemini error" },
+          { status: 500 }
+        );
+      }
+    } else {
+      // OpenAI Fallback
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return NextResponse.json(
+          { error: "missing_OPENAI_API_KEY" },
+          { status: 500 }
+        );
+      }
 
-    // Fallback 3: check if there's any content in the choice
-    if (!content && choice0?.message?.content) {
-      content = String(choice0.message.content);
+      // === Construcción de mensajes para OpenAI ===
+      const openaiMessages: OpenAIMessage[] = [
+        { role: "system", content: SYSTEM_PROMPT },
+        ...messages.map<OpenAIMessage>((m) => {
+          if (m.role === "user" && m.images?.length) {
+            const parts: VisionPart[] = [
+              { type: "text", text: m.content },
+              ...m.images.map((img) => ({
+                type: "image_url" as const,
+                image_url: { url: img.url },
+              })),
+            ];
+            return { role: "user", content: parts };
+          }
+          return { role: m.role, content: m.content };
+        }),
+      ];
+
+      // === Llamada a OpenAI con fallback/timeout/retry ===
+      const modelCandidates = [PRIMARY_MODEL_OPENAI, ...FALLBACK_MODELS_OPENAI];
+      const resp = await callOpenAI(
+        {
+          messages: openaiMessages,
+          temperature: 1,
+          max_completion_tokens: 3500, // GPT-5 reasoning tokens + detailed responses
+        },
+        apiKey,
+        modelCandidates
+      );
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        console.error("OpenAI API error:", resp.status, text);
+        return NextResponse.json(
+          { error: text || "OpenAI error" },
+          { status: 500 }
+        );
+      }
+
+      const data = await resp.json();
+      const choice0 = data?.choices?.[0] as
+        | {
+            message?: OpenAIResponseMessage;
+            content?: unknown;
+            [k: string]: any;
+          }
+        | undefined;
+
+      // Prefer normalized assistant message, but add robust fallbacks
+      const message = choice0?.message as OpenAIResponseMessage | undefined;
+      content = normalizeOpenAIContent(message) || "";
+
+      // Fallback 1: some providers place text directly on choice.content
+      if (!content) {
+        const direct = normalizeOpenAIContent({
+          content: choice0?.content,
+        } as unknown as OpenAIResponseMessage);
+        if (direct) content = direct;
+      }
+
+      // Fallback 2: stringify tool calls if they contain textual output
+      if (!content && message && (message as any).tool_calls) {
+        try {
+          const toolText = JSON.stringify((message as any).tool_calls);
+          if (toolText && toolText !== "{}" && toolText !== "[]") {
+            content = toolText;
+          }
+        } catch {}
+      }
+
+      // Fallback 3: check if there's any content in the choice
+      if (!content && choice0?.message?.content) {
+        content = String(choice0.message.content);
+      }
+
+      modelUsed = data?.model ?? PRIMARY_MODEL_OPENAI;
     }
 
     // Final fallback: generic error-like message to avoid empty bubbles
     if (!content) {
-      console.error(
-        "No content found in OpenAI response, using fallback message"
-      );
+      console.error("No content found in response, using fallback message");
       content = "Lo siento, no pude generar una respuesta válida esta vez.";
     }
-    const modelUsed = data?.model ?? PRIMARY_MODEL;
 
     // === Persistencia ===
     const currentSessionId =
@@ -358,6 +450,7 @@ export async function POST(req: NextRequest) {
           ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
         ...(sessionId ? {} : { createdAt: new Date() }),
         modelUsed, // <-- guardamos qué modelo respondió
+        provider,
       };
       await chatRef.set(chatData, { merge: true });
     } catch (err: unknown) {
