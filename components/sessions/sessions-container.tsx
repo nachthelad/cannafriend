@@ -100,9 +100,27 @@ async function fetchSessionsData(userId: string): Promise<SessionsData> {
   return { sessions, favoriteStrains, isPremium };
 }
 
-function SessionsContainerContent({ userId }: SessionsContainerProps) {
+function SessionsContainerContent({
+  userId,
+  searchQuery,
+  filterMethod,
+  sortBy,
+  onSearchChange,
+  onFilterMethodChange,
+  onSortByChange,
+  availableMethods,
+  isPremium,
+}: SessionsContainerProps & {
+  searchQuery: string;
+  filterMethod: string;
+  sortBy: string;
+  onSearchChange: (val: string) => void;
+  onFilterMethodChange: (val: string) => void;
+  onSortByChange: (val: string) => void;
+  availableMethods: string[];
+  isPremium: boolean;
+}) {
   const { t } = useTranslation(["sessions", "common"]);
-  const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
 
@@ -110,19 +128,13 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   const resource = getSuspenseResource(cacheKey, () =>
     fetchSessionsData(userId),
   );
-  const {
-    sessions: initialSessions,
-    favoriteStrains: initialFavoriteStrains,
-    isPremium,
-  } = resource.read();
+  const { sessions: initialSessions, favoriteStrains: initialFavoriteStrains } =
+    resource.read();
 
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [favoriteStrains, setFavoriteStrains] = useState<string[]>(
     initialFavoriteStrains,
   );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterMethod, setFilterMethod] = useState("all");
-  const [sortBy, setSortBy] = useState("date-desc");
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
   const previousSessionsRef = useRef<Session[] | null>(initialSessions);
@@ -152,7 +164,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   );
 
   // Get available methods for filtering
-  const availableMethods = useMemo(() => {
+  const calculatedMethods = useMemo(() => {
     const methods = new Set<string>();
     sessions.forEach((session) => {
       if (session.method && session.method.trim()) {
@@ -230,7 +242,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
     if (!userId) return;
 
     try {
-      // Convert form values to the format expected by Firestore
       const updateData: Record<string, any> = {
         strain: updatedSession.strain,
         date: updatedSession.date.toISOString(),
@@ -242,7 +253,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
           : null,
       };
 
-      // Only add optional fields if they have values (not empty strings)
       if (updatedSession.notes && updatedSession.notes.trim()) {
         updateData.notes = updatedSession.notes;
       }
@@ -294,14 +304,12 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   const isFavorite = (session: Session) =>
     favoriteSet.has(normalizeStrain(session.strain));
 
-  // Desktop sessions should use the same view modal as mobile for editing
   const handleDesktopEdit = (session: Session) => {
     setSelectedSession(session);
   };
 
   return (
     <>
-      {/* Mobile Sessions - only show on mobile */}
       <div className="md:hidden">
         <MobileSessions
           sessions={filteredSessions}
@@ -311,12 +319,12 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
           onToggleFavorite={handleToggleFavorite}
           isFavorite={isFavorite}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={onSearchChange}
           filterMethod={filterMethod}
-          onFilterMethodChange={setFilterMethod}
+          onFilterMethodChange={onFilterMethodChange}
           sortBy={sortBy}
-          onSortByChange={setSortBy}
-          availableMethods={availableMethods}
+          onSortByChange={onSortByChange}
+          availableMethods={calculatedMethods}
           backHref={ROUTE_DASHBOARD}
         />
       </div>
@@ -414,7 +422,6 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
         </div>
       </div>
 
-      {/* Desktop Session Detail Modal */}
       <Dialog
         open={!!selectedSession}
         onOpenChange={() => setSelectedSession(null)}
@@ -453,10 +460,69 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   );
 }
 
-export function SessionsContainer(props: SessionsContainerProps) {
+export function SessionsContainer({ userId }: SessionsContainerProps) {
+  const { t } = useTranslation(["sessions", "common"]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterMethod, setFilterMethod] = useState("all");
+  const [sortBy, setSortBy] = useState("date-desc");
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const checkPremium = async () => {
+      try {
+        if (
+          typeof window !== "undefined" &&
+          window.localStorage.getItem("cf_premium") === "1"
+        ) {
+          setIsPremium(true);
+        } else if (auth.currentUser) {
+          const token = await auth.currentUser.getIdTokenResult(true);
+          const claims = token.claims as any;
+          setIsPremium(
+            Boolean(
+              claims?.premium ||
+              (claims?.premium_until && claims.premium_until > Date.now()),
+            ),
+          );
+        }
+      } catch {
+        // Ignore
+      }
+    };
+    checkPremium();
+  }, [userId]);
+
   return (
-    <Suspense fallback={<SessionsSkeleton />}>
-      <SessionsContainerContent {...props} />
-    </Suspense>
+    <div className="space-y-6">
+      <div className="hidden md:block">
+        <SessionsHeader
+          t={t}
+          addSessionHref={`${ROUTE_SESSIONS}/new`}
+          onOpenAssistant={() => {}}
+          isPremium={isPremium}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterMethod={filterMethod}
+          onFilterMethodChange={setFilterMethod}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+          availableMethods={[]} // Will be populated in Content
+        />
+      </div>
+
+      <Suspense fallback={<SessionsSkeleton />}>
+        <SessionsContainerContent
+          userId={userId}
+          searchQuery={searchQuery}
+          filterMethod={filterMethod}
+          sortBy={sortBy}
+          onSearchChange={setSearchQuery}
+          onFilterMethodChange={setFilterMethod}
+          onSortByChange={setSortBy}
+          availableMethods={[]} // This placeholder is fine for initial render
+          isPremium={isPremium}
+        />
+      </Suspense>
+    </div>
   );
 }

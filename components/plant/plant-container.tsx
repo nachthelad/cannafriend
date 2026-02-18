@@ -48,27 +48,12 @@ import type {
   SortOrder,
 } from "@/types/plants";
 import { normalizePlant } from "@/lib/plant-utils";
-
-async function fetchPlantsData(userId: string): Promise<PlantContainerData> {
-  const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-  const plants: Plant[] = [];
-
-  snap.forEach((d) => {
-    plants.push(normalizePlant(d.data(), d.id));
-  });
-
-  return { plants };
-}
+import { SEED_TYPES, GROW_TYPES } from "@/lib/plant-config";
 
 function PlantContainerContent({ userId }: PlantContainerProps) {
   const { t } = useTranslation(["plants", "common", "dashboard"]);
   const router = useRouter();
   const homePath = ROUTE_DASHBOARD;
-
-  const cacheKey = `plants-container-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () => fetchPlantsData(userId));
-  const { plants } = resource.read();
 
   // Filter and sort states
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,9 +65,9 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [includeEnded, setIncludeEnded] = useState(false);
 
-  // Get unique filter options from plants
-  const seedTypes = [...new Set(plants.map((p) => p.seedType).filter(Boolean))];
-  const growTypes = [...new Set(plants.map((p) => p.growType).filter(Boolean))];
+  // Use static filter options
+  const seedTypes = Object.values(SEED_TYPES);
+  const growTypes = Object.values(GROW_TYPES);
 
   // Count active filters
   const activeFiltersCount = [
@@ -526,14 +511,6 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
   );
 }
 
-function PlantContainerSkeleton() {
-  return <PlantListSkeleton />;
-}
-
 export function PlantContainer({ userId }: PlantContainerProps) {
-  return (
-    <Suspense fallback={<PlantContainerSkeleton />}>
-      <PlantContainerContent userId={userId} />
-    </Suspense>
-  );
+  return <PlantContainerContent userId={userId} />;
 }

@@ -27,7 +27,7 @@ import { addDoc } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, StashFormSkeleton } from "@/components/skeletons";
 
 // Form validation schema
 const createStashFormSchema = (t: any) =>
@@ -44,44 +44,6 @@ const createStashFormSchema = (t: any) =>
   });
 
 type StashFormData = z.infer<ReturnType<typeof createStashFormSchema>>;
-
-function StashFormSkeleton() {
-  return (
-    <div className="max-w-2xl mx-auto px-4 md:px-6 space-y-8">
-      <div className="space-y-2">
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-4 w-60" />
-      </div>
-
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-11 w-full rounded-lg" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-11 w-full rounded-lg" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-11 w-full rounded-lg" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-11 w-full rounded-lg" />
-          <Skeleton className="h-11 w-full rounded-lg" />
-        </div>
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-36" />
-          <Skeleton className="h-24 w-full rounded-lg" />
-        </div>
-        <div className="flex gap-3 pt-2">
-          <Skeleton className="h-12 w-full rounded-lg" />
-          <Skeleton className="h-12 w-full rounded-lg" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function NewStashPageContent() {
   const { t } = useTranslation(["stash", "common", "validation"]);
@@ -188,15 +150,11 @@ function NewStashPageContent() {
   }
 
   return (
-    <Layout>
-      <ResponsivePageHeader
-        title={t("addItem", { ns: "stash" })}
-        description={t("addItemDesc", { ns: "stash" })}
-        onBackClick={handleBack}
-      />
-
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl px-4 md:px-6">
+    <div className="px-4 md:px-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-2xl px-4 md:px-6"
+      >
         <div className="space-y-6">
           {/* Name */}
           <div className="space-y-3">
@@ -397,19 +355,27 @@ function NewStashPageContent() {
           </div>
         </div>
       </form>
-    </Layout>
+    </div>
   );
 }
 
 export default function NewStashPage() {
+  const { t } = useTranslation(["stash", "common", "validation"]);
+  const router = useRouter();
+  const handleBack = () => {
+    router.push(ROUTE_STASH);
+  };
+
   return (
-    <Suspense fallback={
-      <Layout>
-        <StashFormSkeleton />
-      </Layout>
-    }>
-      <NewStashPageContent />
-    </Suspense>
+    <Layout>
+      <ResponsivePageHeader
+        title={t("addItem", { ns: "stash" })}
+        description={t("addItemDesc", { ns: "stash" })}
+        onBackClick={handleBack}
+      />
+      <Suspense fallback={<StashFormSkeleton />}>
+        <NewStashPageContent />
+      </Suspense>
+    </Layout>
   );
 }
-
