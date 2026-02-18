@@ -51,7 +51,7 @@ async function callOpenAI<T extends object>(
   apiKey: string,
   candidates: string[],
   timeoutMs = 30_000,
-  maxRetries = 2
+  maxRetries = 2,
 ): Promise<Response> {
   let lastErrText = "";
   for (const model of candidates) {
@@ -76,7 +76,6 @@ async function callOpenAI<T extends object>(
         clearTimeout(timer);
 
         if (resp.ok) {
-          console.log("✅ OpenAI call succeeded with model:", model);
           return resp;
         }
 
@@ -114,7 +113,7 @@ async function callOpenAI<T extends object>(
     JSON.stringify({
       error: lastErrText || "No accessible model / exhausted retries",
     }),
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -127,7 +126,7 @@ If the question is unrelated to cannabis, briefly refuse and ask to rephrase wit
 
 async function callGemini(
   messages: ClientMessage[],
-  apiKey: string
+  apiKey: string,
 ): Promise<{ content: string; model: string }> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL_GEMINI });
@@ -169,7 +168,7 @@ async function callGemini(
             mimeType: img.type || "image/jpeg",
           },
         };
-      })
+      }),
     );
     parts = [...parts, ...imageParts];
   }
@@ -220,7 +219,7 @@ export async function POST(req: NextRequest) {
             "x-ratelimit-remaining": String(rl.remaining),
             "retry-after": String(Math.ceil(rl.resetMs / 1000)),
           },
-        }
+        },
       );
     }
 
@@ -240,7 +239,7 @@ export async function POST(req: NextRequest) {
     if (latestMessage.role !== "user") {
       return NextResponse.json(
         { error: "last_message_must_be_user" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -305,7 +304,7 @@ export async function POST(req: NextRequest) {
       if (!geminiKey) {
         return NextResponse.json(
           { error: "missing_GEMINI_API_KEY" },
-          { status: 500 }
+          { status: 500 },
         );
       }
       try {
@@ -316,7 +315,7 @@ export async function POST(req: NextRequest) {
         console.error("Gemini API error:", error);
         return NextResponse.json(
           { error: error.message || "Gemini error" },
-          { status: 500 }
+          { status: 500 },
         );
       }
     } else {
@@ -325,7 +324,7 @@ export async function POST(req: NextRequest) {
       if (!apiKey) {
         return NextResponse.json(
           { error: "missing_OPENAI_API_KEY" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -356,7 +355,7 @@ export async function POST(req: NextRequest) {
           max_completion_tokens: 3500, // GPT-5 reasoning tokens + detailed responses
         },
         apiKey,
-        modelCandidates
+        modelCandidates,
       );
 
       if (!resp.ok) {
@@ -364,7 +363,7 @@ export async function POST(req: NextRequest) {
         console.error("OpenAI API error:", resp.status, text);
         return NextResponse.json(
           { error: text || "OpenAI error" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -464,7 +463,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     return NextResponse.json(
       { error: unwrapError(err, "Unexpected error") },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -8,6 +8,19 @@ type RateEntry = {
 
 const store = new Map<string, RateEntry>();
 
+// Periodically purge expired entries to prevent unbounded memory growth.
+// Runs every 5 minutes; safe to call in serverless since it only fires
+// while the instance is alive.
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of store) {
+      if (now > entry.resetAt) store.delete(key);
+    }
+  },
+  5 * 60 * 1000,
+).unref?.();
+
 export type RateCheck = {
   ok: boolean;
   remaining: number;
@@ -18,7 +31,7 @@ export type RateCheck = {
 export function checkRateLimit(
   key: string,
   maxRequests: number,
-  windowMs: number
+  windowMs: number,
 ): RateCheck {
   const now = Date.now();
   const current = store.get(key);
