@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, Brain, Menu } from "lucide-react";
+import { ArrowLeft, Settings, Brain } from "lucide-react";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 
@@ -29,13 +29,10 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
     <div className="h-screen flex flex-col bg-background">
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center p-4 border-b bg-background/95 backdrop-blur">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleSidebar}
-          className="mr-3"
-        >
-          <Menu className="h-5 w-5" />
+        <Button variant="ghost" size="icon" asChild className="mr-3">
+          <Link href={ROUTE_DASHBOARD}>
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
         </Button>
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
@@ -86,10 +83,12 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden pb-20 md:pb-0">{children}</div>
+      <div className="flex-1 overflow-hidden">{children}</div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav />
+      {/* Mobile Bottom Navigation - Hidden on AI view to avoid clutter */}
+      <div className="hidden md:block">
+        <MobileBottomNav />
+      </div>
     </div>
   );
 }

@@ -61,6 +61,7 @@ export interface ChatInputProps {
   isLoading: boolean;
   provider: "gemini" | "openai";
   onProviderChange: (provider: "gemini" | "openai") => void;
+  onToggleSidebar?: () => void;
 }
 
 export interface ThinkingAnimationProps {

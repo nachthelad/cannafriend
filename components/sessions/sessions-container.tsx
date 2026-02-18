@@ -19,9 +19,20 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { SessionsHeader } from "./sessions-header";
 import { SessionsList } from "./sessions-list";
 import { SessionsSkeleton } from "./sessions-skeleton";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, Filter, ArrowUpDown, Plus } from "lucide-react";
+import Link from "next/link";
 import {
   MobileSessions,
   SessionDetailView,
@@ -52,7 +63,7 @@ async function fetchSessionsData(userId: string): Promise<SessionsData> {
   });
 
   sessions.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
   let favoriteStrains: string[] = [];
@@ -97,7 +108,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
 
   const cacheKey = `sessions-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
-    fetchSessionsData(userId)
+    fetchSessionsData(userId),
   );
   const {
     sessions: initialSessions,
@@ -107,7 +118,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
 
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [favoriteStrains, setFavoriteStrains] = useState<string[]>(
-    initialFavoriteStrains
+    initialFavoriteStrains,
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMethod, setFilterMethod] = useState("all");
@@ -137,7 +148,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
 
   const favoriteSet = useMemo(
     () => new Set(favoriteStrains.map((item) => item.trim().toLowerCase())),
-    [favoriteStrains]
+    [favoriteStrains],
   );
 
   // Get available methods for filtering
@@ -162,7 +173,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
         (session) =>
           session.strain.toLowerCase().includes(query) ||
           (session.method && session.method.toLowerCase().includes(query)) ||
-          (session.notes && session.notes.toLowerCase().includes(query))
+          (session.notes && session.notes.toLowerCase().includes(query)),
       );
     }
 
@@ -206,7 +217,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       setFavoriteStrains((prev) =>
         isFav
           ? prev.filter((item) => item !== normalized)
-          : [...prev, normalized]
+          : [...prev, normalized],
       );
     } catch (error) {
       handleFirebaseError(error, "toggle favorite");
@@ -214,7 +225,7 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
   };
 
   const handleEdit = async (
-    updatedSession: SessionEditFormValues & { id: string }
+    updatedSession: SessionEditFormValues & { id: string },
   ) => {
     if (!userId) return;
 
@@ -251,8 +262,8 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
         prev.map((session) =>
           session.id === updatedSession.id
             ? ({ ...session, ...updateData } as Session)
-            : session
-        )
+            : session,
+        ),
       );
 
       toastSuccess(toast, t, { titleKey: "updated", namespace: "sessions" });
@@ -311,31 +322,96 @@ function SessionsContainerContent({ userId }: SessionsContainerProps) {
       </div>
 
       {/* Desktop Sessions - only show on desktop */}
-      <div className="hidden md:block space-y-6">
-        <SessionsHeader
-          t={t}
-          addSessionHref={`${ROUTE_SESSIONS}/new`}
-          onOpenAssistant={() => {}}
-          isPremium={isPremium}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          filterMethod={filterMethod}
-          onFilterMethodChange={setFilterMethod}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-          availableMethods={availableMethods}
+      <div className="hidden md:block">
+        <ResponsivePageHeader
+          title={t("title", { ns: "sessions" })}
+          description={t("description", { ns: "sessions" })}
+          backHref={ROUTE_DASHBOARD}
+          desktopControls={
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                {/* Search Input */}
+                <div className="relative flex-1 sm:max-w-sm">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder={t("search.placeholder", { ns: "sessions" })}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                {/* Method Filter */}
+                <Select value={filterMethod} onValueChange={setFilterMethod}>
+                  <SelectTrigger className="w-[140px]">
+                    <Filter className="mr-2 h-4 w-4" />
+                    <SelectValue
+                      placeholder={t("filter.method", { ns: "sessions" })}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("filter.allMethods", { ns: "sessions" })}
+                    </SelectItem>
+                    {availableMethods.map((method) => (
+                      <SelectItem key={method} value={method}>
+                        {method}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Sort By */}
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[140px]">
+                    <ArrowUpDown className="mr-2 h-4 w-4" />
+                    <SelectValue
+                      placeholder={t("sort.label", { ns: "sessions" })}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date-desc">
+                      {t("sort.dateDesc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="date-asc">
+                      {t("sort.dateAsc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="strain-asc">
+                      {t("sort.strainAsc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="strain-desc">
+                      {t("sort.strainDesc", { ns: "sessions" })}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          }
+          desktopActions={
+            <Button asChild>
+              <Link href={`${ROUTE_SESSIONS}/new`}>
+                <Plus className="mr-2 h-4 w-4" />
+                {t("addSession", { ns: "sessions" })}
+              </Link>
+            </Button>
+          }
+          sticky={true}
         />
-        <SessionsList
-          sessions={filteredSessions}
-          t={t}
-          addSessionHref={`${ROUTE_SESSIONS}/new`}
-          onEdit={handleDesktopEdit}
-          onDelete={handleDelete}
-          onToggleFavorite={handleToggleFavorite}
-          isFavorite={isFavorite}
-          hasActiveFilter={searchQuery.trim() !== "" || filterMethod !== "all"}
-          onView={handleView}
-        />
+        <div className="mt-6">
+          <SessionsList
+            sessions={filteredSessions}
+            t={t}
+            addSessionHref={`${ROUTE_SESSIONS}/new`}
+            onEdit={handleDesktopEdit}
+            onDelete={handleDelete}
+            onToggleFavorite={handleToggleFavorite}
+            isFavorite={isFavorite}
+            hasActiveFilter={
+              searchQuery.trim() !== "" || filterMethod !== "all"
+            }
+            onView={handleView}
+          />
+        </div>
       </div>
 
       {/* Desktop Session Detail Modal */}

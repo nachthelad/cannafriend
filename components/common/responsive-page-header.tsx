@@ -14,6 +14,7 @@ export function ResponsivePageHeader({
   onBackClick,
   className,
   mobileControls,
+  desktopControls,
   mobileActions,
   desktopActions,
   sticky = true,
@@ -28,7 +29,7 @@ export function ResponsivePageHeader({
       className={cn(
         "border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 mb-6",
         sticky && "sticky top-0 z-20",
-        className
+        className,
       )}
     >
       <div className="px-4 py-3 sm:px-6 sm:py-6">
@@ -105,6 +106,11 @@ export function ResponsivePageHeader({
           <div className="mt-3 flex flex-col gap-3 sm:hidden">
             <div className="space-y-3">{mobileControls}</div>
           </div>
+        ) : null}
+
+        {/* Desktop-specific controls */}
+        {desktopControls ? (
+          <div className="mt-4 hidden sm:block">{desktopControls}</div>
         ) : null}
       </div>
     </header>
