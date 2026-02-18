@@ -13,16 +13,19 @@ async function setPremiumByEmail(email: string, premium: boolean) {
     await adminAuth().setCustomUserClaims(user.uid, claims);
     return { ok: true as const };
   } catch (err: unknown) {
-    return { ok: false as const, error: unwrapError(err, "user_update_failed") };
+    return {
+      ok: false as const,
+      error: unwrapError(err, "user_update_failed"),
+    };
   }
 }
 
 // GET endpoint for testing webhook is alive
 export async function GET() {
-  return NextResponse.json({ 
+  return NextResponse.json({
     status: "Stripe webhook endpoint is active",
     timestamp: new Date().toISOString(),
-    methods: ["POST"]
+    methods: ["POST"],
   });
 }
 
@@ -48,127 +51,150 @@ export async function POST(req: NextRequest) {
 
     // Handle the event
     switch (event.type) {
-      case 'checkout.session.completed': {
+      case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        console.log('Checkout session completed:', session.id);
-        
+
         if (session.customer_email) {
           const result = await setPremiumByEmail(session.customer_email, true);
           if (!result.ok) {
-            console.error('Failed to set premium status:', result.error);
+            console.error("Failed to set premium status:", result.error);
           }
         }
         break;
       }
-      
-      case 'customer.subscription.created': {
+
+      case "customer.subscription.created": {
         const subscription = event.data.object as Stripe.Subscription;
-        console.log('Subscription created:', subscription.id);
-        
-        if (subscription.customer && typeof subscription.customer === 'string') {
-          const customer = await stripe.customers.retrieve(subscription.customer) as Stripe.Customer;
+
+        if (
+          subscription.customer &&
+          typeof subscription.customer === "string"
+        ) {
+          const customer = (await stripe.customers.retrieve(
+            subscription.customer,
+          )) as Stripe.Customer;
           if (customer.email) {
             const result = await setPremiumByEmail(customer.email, true);
             if (!result.ok) {
-              console.error('Failed to set premium status:', result.error);
+              console.error("Failed to set premium status:", result.error);
             }
           }
         }
         break;
       }
-      
-      case 'customer.subscription.updated': {
+
+      case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        const isActive = subscription.status === 'active';
-        
-        if (subscription.customer && typeof subscription.customer === 'string') {
-          const customer = await stripe.customers.retrieve(subscription.customer) as Stripe.Customer;
+        const isActive = subscription.status === "active";
+
+        if (
+          subscription.customer &&
+          typeof subscription.customer === "string"
+        ) {
+          const customer = (await stripe.customers.retrieve(
+            subscription.customer,
+          )) as Stripe.Customer;
           if (customer.email) {
             const result = await setPremiumByEmail(customer.email, isActive);
             if (!result.ok) {
-              console.error('Failed to update premium status:', result.error);
+              console.error("Failed to update premium status:", result.error);
             }
           }
         }
         break;
       }
-      
-      case 'customer.subscription.deleted': {
+
+      case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        
-        if (subscription.customer && typeof subscription.customer === 'string') {
-          const customer = await stripe.customers.retrieve(subscription.customer) as Stripe.Customer;
+
+        if (
+          subscription.customer &&
+          typeof subscription.customer === "string"
+        ) {
+          const customer = (await stripe.customers.retrieve(
+            subscription.customer,
+          )) as Stripe.Customer;
           if (customer.email) {
             const result = await setPremiumByEmail(customer.email, false);
             if (!result.ok) {
-              console.error('Failed to revoke premium status:', result.error);
+              console.error("Failed to revoke premium status:", result.error);
             }
           }
         }
         break;
       }
-      
-      case 'invoice.payment_failed': {
+
+      case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
-        
-        if (invoice.customer && typeof invoice.customer === 'string') {
-          const customer = await stripe.customers.retrieve(invoice.customer) as Stripe.Customer;
+
+        if (invoice.customer && typeof invoice.customer === "string") {
+          const customer = (await stripe.customers.retrieve(
+            invoice.customer,
+          )) as Stripe.Customer;
           if (customer.email) {
             // Optionally revoke premium on payment failure
             // const result = await setPremiumByEmail(customer.email, false);
-            console.log('Payment failed for customer:', customer.email);
           }
         }
         break;
       }
-      
-      case 'charge.refunded': {
+
+      case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
-        
-        if (charge.customer && typeof charge.customer === 'string') {
-          const customer = await stripe.customers.retrieve(charge.customer) as Stripe.Customer;
+
+        if (charge.customer && typeof charge.customer === "string") {
+          const customer = (await stripe.customers.retrieve(
+            charge.customer,
+          )) as Stripe.Customer;
           if (customer.email) {
             const result = await setPremiumByEmail(customer.email, false);
             if (!result.ok) {
-              console.error('Failed to revoke premium status on refund:', result.error);
-            } else {
-              console.log('Premium revoked due to refund for customer:', customer.email);
+              console.error(
+                "Failed to revoke premium status on refund:",
+                result.error,
+              );
             }
           }
         }
         break;
       }
-      
-      case 'charge.dispute.closed': {
+
+      case "charge.dispute.closed": {
         const dispute = event.data.object as Stripe.Dispute;
-        
-        if (dispute.status === 'lost' && dispute.charge && typeof dispute.charge === 'string') {
+
+        if (
+          dispute.status === "lost" &&
+          dispute.charge &&
+          typeof dispute.charge === "string"
+        ) {
           const charge = await stripe.charges.retrieve(dispute.charge);
-          if (charge.customer && typeof charge.customer === 'string') {
-            const customer = await stripe.customers.retrieve(charge.customer) as Stripe.Customer;
+          if (charge.customer && typeof charge.customer === "string") {
+            const customer = (await stripe.customers.retrieve(
+              charge.customer,
+            )) as Stripe.Customer;
             if (customer.email) {
               const result = await setPremiumByEmail(customer.email, false);
               if (!result.ok) {
-                console.error('Failed to revoke premium status on dispute loss:', result.error);
-              } else {
-                console.log('Premium revoked due to lost dispute for customer:', customer.email);
+                console.error(
+                  "Failed to revoke premium status on dispute loss:",
+                  result.error,
+                );
               }
             }
           }
         }
         break;
       }
-      
+
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+      // Unhandled event type — no action needed
     }
 
-    console.log(`✅ Webhook processed successfully: ${event.type}`);
     return NextResponse.json({ received: true, processed: event.type });
   } catch (err: unknown) {
     return NextResponse.json(
       { error: "webhook_error", message: unwrapError(err) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
