@@ -5,7 +5,11 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
-- [MINOR]: remove console.log PII leaks and improve rate limiter memory cleanup — 2026-02-18
+- [MINOR]: resolve import errors and refactor loading experience — 2026-02-18
+- [MID]: improve AI Assistant UI/UX and mobile navigation — 2026-02-18
+
+- [MINOR]: centralizar skeletons y optimizar UX de carga universal — 2026-02-18
+
 - [MINOR]: remove redundant and unused files — 2026-02-18
 - [MID]: multi-provider chat support (Gemini/OpenAI) and UI redesign — 2026-02-18
 

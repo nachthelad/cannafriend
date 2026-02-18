@@ -13,8 +13,7 @@ export interface BrandedLoadingProps {
   className?: string;
 }
 
-export interface ButtonLoadingProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonLoadingProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   isLoading: boolean;
   loadingText?: string;
@@ -105,6 +104,7 @@ export interface ResponsivePageHeaderProps {
   onBackClick?: () => void;
   className?: string;
   mobileControls?: ReactNode;
+  desktopControls?: ReactNode;
   mobileActions?: ReactNode;
   desktopActions?: ReactNode;
   sticky?: boolean;

@@ -2,7 +2,8 @@
 
 import type { ChatInputProps } from "@/types/ai";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, Loader2, Sparkles, Bot } from "lucide-react";
+import { Send, Paperclip, Loader2, History } from "lucide-react";
+import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -25,8 +26,9 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       isLoading,
       provider,
       onProviderChange,
+      onToggleSidebar,
     },
-    ref
+    ref,
   ) => {
     const { t } = useTranslation(["aiAssistant"]);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -86,6 +88,18 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
         <div className="flex items-center justify-between mt-2 pt-1 border-t border-border/40">
           {/* Left: Tools */}
           <div className="flex items-center gap-1">
+            {onToggleSidebar && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="md:hidden h-8 w-8 sm:h-9 sm:w-9 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                onClick={onToggleSidebar}
+                disabled={isLoading}
+                title="History"
+              >
+                <History className="h-4 w-4 sm:h-5 sm:w-5" />
+              </Button>
+            )}
             <Button
               size="icon"
               variant="ghost"
@@ -109,13 +123,13 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
               <SelectContent align="end" className="rounded-xl">
                 <SelectItem value="gemini" className="rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-indigo-500" />
+                    <GeminiIcon size={16} />
                     <span>Gemini</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="openai" className="rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Bot className="h-4 w-4 text-emerald-500" />
+                    <OpenAIIcon size={16} />
                     <span>OpenAI</span>
                   </div>
                 </SelectItem>
@@ -131,7 +145,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
                 "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all duration-200",
                 value.trim()
                   ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
-                  : "bg-muted text-muted-foreground/50 hover:bg-muted"
+                  : "bg-muted text-muted-foreground/50 hover:bg-muted",
               )}
             >
               {isLoading ? (
@@ -144,7 +158,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 ChatInput.displayName = "ChatInput";
