@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: improve AI Assistant UI/UX and mobile navigation — 2026-02-18
+
 - [MINOR]: centralizar skeletons y optimizar UX de carga universal — 2026-02-18
 
 - [MINOR]: remove redundant and unused files — 2026-02-18

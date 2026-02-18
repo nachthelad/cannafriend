@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import {
   arrayRemove,
@@ -13,14 +12,14 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore";
-import { ROUTE_SESSIONS, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_SESSIONS } from "@/lib/routes";
 import { sessionsCol, userDoc } from "@/lib/paths";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { useToast } from "@/hooks/use-toast";
 import { toastSuccess } from "@/lib/toast-helpers";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { SessionsList } from "./sessions-list";
-import { SessionsSkeleton } from "./sessions-skeleton";
+import { SessionsSkeleton } from "@/components/skeletons";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,6 +109,7 @@ function SessionsContainerContent({
   onSortByChange,
   availableMethods,
   isPremium,
+  onMethodsUpdate,
 }: SessionsContainerProps & {
   searchQuery: string;
   filterMethod: string;
@@ -119,6 +119,7 @@ function SessionsContainerContent({
   onSortByChange: (val: string) => void;
   availableMethods: string[];
   isPremium: boolean;
+  onMethodsUpdate: (methods: string[]) => void;
 }) {
   const { t } = useTranslation(["sessions", "common"]);
   const { toast } = useToast();
@@ -173,6 +174,10 @@ function SessionsContainerContent({
     });
     return Array.from(methods).sort();
   }, [sessions]);
+
+  useEffect(() => {
+    onMethodsUpdate(calculatedMethods);
+  }, [calculatedMethods, onMethodsUpdate]);
 
   // Filter and sort sessions
   const filteredSessions = useMemo(() => {
@@ -324,87 +329,13 @@ function SessionsContainerContent({
           onFilterMethodChange={onFilterMethodChange}
           sortBy={sortBy}
           onSortByChange={onSortByChange}
-          availableMethods={calculatedMethods}
+          availableMethods={availableMethods}
           backHref={ROUTE_DASHBOARD}
+          showHeader={false}
         />
       </div>
 
-      {/* Desktop Sessions - only show on desktop */}
       <div className="hidden md:block">
-        <ResponsivePageHeader
-          title={t("title", { ns: "sessions" })}
-          description={t("description", { ns: "sessions" })}
-          backHref={ROUTE_DASHBOARD}
-          desktopControls={
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                {/* Search Input */}
-                <div className="relative flex-1 sm:max-w-sm">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder={t("search.placeholder", { ns: "sessions" })}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-
-                {/* Method Filter */}
-                <Select value={filterMethod} onValueChange={setFilterMethod}>
-                  <SelectTrigger className="w-[140px]">
-                    <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue
-                      placeholder={t("filter.method", { ns: "sessions" })}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      {t("filter.allMethods", { ns: "sessions" })}
-                    </SelectItem>
-                    {availableMethods.map((method) => (
-                      <SelectItem key={method} value={method}>
-                        {method}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Sort By */}
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[140px]">
-                    <ArrowUpDown className="mr-2 h-4 w-4" />
-                    <SelectValue
-                      placeholder={t("sort.label", { ns: "sessions" })}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date-desc">
-                      {t("sort.dateDesc", { ns: "sessions" })}
-                    </SelectItem>
-                    <SelectItem value="date-asc">
-                      {t("sort.dateAsc", { ns: "sessions" })}
-                    </SelectItem>
-                    <SelectItem value="strain-asc">
-                      {t("sort.strainAsc", { ns: "sessions" })}
-                    </SelectItem>
-                    <SelectItem value="strain-desc">
-                      {t("sort.strainDesc", { ns: "sessions" })}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          }
-          desktopActions={
-            <Button asChild>
-              <Link href={`${ROUTE_SESSIONS}/new`}>
-                <Plus className="mr-2 h-4 w-4" />
-                {t("addSession", { ns: "sessions" })}
-              </Link>
-            </Button>
-          }
-          sticky={true}
-        />
         <div className="mt-6">
           <SessionsList
             sessions={filteredSessions}
@@ -466,6 +397,7 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
   const [filterMethod, setFilterMethod] = useState("all");
   const [sortBy, setSortBy] = useState("date-desc");
   const [isPremium, setIsPremium] = useState(false);
+  const [availableMethods, setAvailableMethods] = useState<string[]>([]);
 
   useEffect(() => {
     const checkPremium = async () => {
@@ -492,23 +424,150 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
     checkPremium();
   }, [userId]);
 
-  return (
-    <div className="space-y-6">
-      <div className="hidden md:block">
-        <SessionsHeader
-          t={t}
-          addSessionHref={`${ROUTE_SESSIONS}/new`}
-          onOpenAssistant={() => {}}
-          isPremium={isPremium}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          filterMethod={filterMethod}
-          onFilterMethodChange={setFilterMethod}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-          availableMethods={[]} // Will be populated in Content
+  const mobileControls = (
+    <>
+      <div className="relative mt-2">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder={t("search.placeholder", { ns: "sessions" })}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-9"
         />
       </div>
+      <div className="flex items-center gap-2">
+        <Select value={filterMethod} onValueChange={setFilterMethod}>
+          <SelectTrigger className="flex-1">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              <SelectValue
+                placeholder={t("filter.method", { ns: "sessions" })}
+              />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              {t("filter.allMethods", { ns: "sessions" })}
+            </SelectItem>
+            {availableMethods.map((method) => (
+              <SelectItem key={method} value={method}>
+                {method}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="flex-1">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4" />
+              <SelectValue placeholder={t("sort.label", { ns: "sessions" })} />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">
+              {t("sort.dateDesc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="date-asc">
+              {t("sort.dateAsc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="strain-asc">
+              {t("sort.strainAsc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="strain-desc">
+              {t("sort.strainDesc", { ns: "sessions" })}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Button
+          asChild
+          className="bg-white text-black border h-10 w-10 p-0"
+          aria-label={t("addSession", { ns: "sessions" })}
+        >
+          <Link href={`${ROUTE_SESSIONS}/new`}>
+            <Plus className="h-5 w-5" />
+          </Link>
+        </Button>
+      </div>
+    </>
+  );
+
+  const desktopControls = (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        {/* Search Input */}
+        <div className="relative flex-1 sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={t("search.placeholder", { ns: "sessions" })}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Method Filter */}
+        <Select value={filterMethod} onValueChange={setFilterMethod}>
+          <SelectTrigger className="w-[140px]">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder={t("filter.method", { ns: "sessions" })} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              {t("filter.allMethods", { ns: "sessions" })}
+            </SelectItem>
+            {availableMethods.map((method) => (
+              <SelectItem key={method} value={method}>
+                {method}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Sort By */}
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[140px]">
+            <ArrowUpDown className="mr-2 h-4 w-4" />
+            <SelectValue placeholder={t("sort.label", { ns: "sessions" })} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">
+              {t("sort.dateDesc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="date-asc">
+              {t("sort.dateAsc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="strain-asc">
+              {t("sort.strainAsc", { ns: "sessions" })}
+            </SelectItem>
+            <SelectItem value="strain-desc">
+              {t("sort.strainDesc", { ns: "sessions" })}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <ResponsivePageHeader
+        title={t("title", { ns: "sessions" })}
+        description={t("description", { ns: "sessions" })}
+        backHref={ROUTE_DASHBOARD}
+        mobileControls={mobileControls}
+        desktopControls={desktopControls}
+        desktopActions={
+          <Button asChild>
+            <Link href={`${ROUTE_SESSIONS}/new`}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t("addSession", { ns: "sessions" })}
+            </Link>
+          </Button>
+        }
+        sticky={true}
+      />
 
       <Suspense fallback={<SessionsSkeleton />}>
         <SessionsContainerContent
@@ -519,8 +578,9 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
           onSearchChange={setSearchQuery}
           onFilterMethodChange={setFilterMethod}
           onSortByChange={setSortBy}
-          availableMethods={[]} // This placeholder is fine for initial render
+          availableMethods={availableMethods}
           isPremium={isPremium}
+          onMethodsUpdate={setAvailableMethods}
         />
       </Suspense>
     </div>

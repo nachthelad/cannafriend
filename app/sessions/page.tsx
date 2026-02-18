@@ -35,7 +35,7 @@ function SessionsContent() {
   }, [user, searchParams, router]);
 
   if (authLoading || !user) {
-    return <SessionsSkeleton />;
+    return null;
   }
 
   return <SessionsContainer userId={user.uid} />;
@@ -44,9 +44,7 @@ function SessionsContent() {
 export default function SessionsPage() {
   return (
     <Layout>
-      <Suspense fallback={<SessionsSkeleton />}>
-        <SessionsContent />
-      </Suspense>
+      <SessionsContent />
     </Layout>
   );
 }

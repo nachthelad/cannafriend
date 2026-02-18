@@ -159,7 +159,7 @@ export function SessionDetailView({
     if (timeRegex.test(timeString)) {
       try {
         return formatTime(
-          new Date(`1970-01-01T${timeString}:00`).toISOString()
+          new Date(`1970-01-01T${timeString}:00`).toISOString(),
         );
       } catch {
         return timeString; // Return as-is if conversion fails
@@ -188,7 +188,7 @@ export function SessionDetailView({
   const nextPhoto = () => {
     if (hasMultiplePhotos) {
       setCurrentPhotoIndex((prev) =>
-        prev === session.photos!.length - 1 ? 0 : prev + 1
+        prev === session.photos!.length - 1 ? 0 : prev + 1,
       );
     }
   };
@@ -196,7 +196,7 @@ export function SessionDetailView({
   const prevPhoto = () => {
     if (hasMultiplePhotos) {
       setCurrentPhotoIndex((prev) =>
-        prev === 0 ? session.photos!.length - 1 : prev - 1
+        prev === 0 ? session.photos!.length - 1 : prev - 1,
       );
     }
   };
@@ -858,6 +858,7 @@ export function MobileSessions({
   onSortByChange,
   availableMethods,
   backHref,
+  showHeader = true,
 }: MobileSessionsProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
@@ -871,7 +872,7 @@ export function MobileSessions({
   };
 
   const handleSessionEdit = async (
-    editedSession: SessionEditFormValues & { id: string }
+    editedSession: SessionEditFormValues & { id: string },
   ) => {
     await onEdit(editedSession);
     // Update the selected session if still viewing it
@@ -915,25 +916,109 @@ export function MobileSessions({
   // Show list view
   return (
     <div className="min-h-screen text-white">
-      <ResponsivePageHeader
-        title={t("title", { ns: "sessions" })}
-        description={t("description", { ns: "sessions" })}
-        backHref={backHref}
-        showMobileBackButton={false}
-        mobileControls={
-          <>
-            <div className="relative mt-2">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("search.placeholder", { ns: "sessions" })}
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex items-center gap-2">
+      {showHeader && (
+        <ResponsivePageHeader
+          title={t("title", { ns: "sessions" })}
+          description={t("description", { ns: "sessions" })}
+          backHref={backHref}
+          showMobileBackButton={false}
+          mobileControls={
+            <>
+              <div className="relative mt-2">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("search.placeholder", { ns: "sessions" })}
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={filterMethod}
+                  onValueChange={onFilterMethodChange}
+                >
+                  <SelectTrigger className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <SelectValue
+                        placeholder={t("filter.method", { ns: "sessions" })}
+                      />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("filter.allMethods", { ns: "sessions" })}
+                    </SelectItem>
+                    {availableMethods.map((method) => (
+                      <SelectItem key={method} value={method}>
+                        {method}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={sortBy} onValueChange={onSortByChange}>
+                  <SelectTrigger className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpDown className="h-4 w-4" />
+                      <SelectValue
+                        placeholder={t("sort.label", { ns: "sessions" })}
+                      />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date-desc">
+                      {t("sort.dateDesc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="date-asc">
+                      {t("sort.dateAsc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="strain-asc">
+                      {t("sort.strainAsc", { ns: "sessions" })}
+                    </SelectItem>
+                    <SelectItem value="strain-desc">
+                      {t("sort.strainDesc", { ns: "sessions" })}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {addSessionHref ? (
+                  <Button
+                    asChild
+                    className="bg-white text-black border h-10 w-10 p-0"
+                    aria-label={t("addSession", { ns: "sessions" })}
+                  >
+                    <Link href={addSessionHref}>
+                      <Plus className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={onAddSession}
+                    className="bg-white text-black border h-10 w-10 p-0"
+                    aria-label={t("addSession", { ns: "sessions" })}
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                )}
+              </div>
+            </>
+          }
+          desktopActions={
+            <div className="flex w-full items-center gap-2">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("search.placeholder", { ns: "sessions" })}
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
               <Select value={filterMethod} onValueChange={onFilterMethodChange}>
-                <SelectTrigger className="flex-1">
+                <SelectTrigger className="w-[160px]">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4" />
                     <SelectValue
@@ -954,7 +1039,7 @@ export function MobileSessions({
               </Select>
 
               <Select value={sortBy} onValueChange={onSortByChange}>
-                <SelectTrigger className="flex-1">
+                <SelectTrigger className="w-[160px]">
                   <div className="flex items-center gap-2">
                     <ArrowUpDown className="h-4 w-4" />
                     <SelectValue
@@ -979,104 +1064,25 @@ export function MobileSessions({
               </Select>
 
               {addSessionHref ? (
-                <Button
-                  asChild
-                  className="bg-white text-black border"
-                  aria-label={t("addSession", { ns: "sessions" })}
-                >
+                <Button asChild className="bg-white text-black border">
                   <Link href={addSessionHref}>
-                    <Plus className="h-5 w-5" />
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t("addSession", { ns: "sessions" })}
                   </Link>
                 </Button>
               ) : (
                 <Button
                   onClick={onAddSession}
                   className="bg-white text-black border"
-                  aria-label={t("addSession", { ns: "sessions" })}
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("addSession", { ns: "sessions" })}
                 </Button>
               )}
             </div>
-          </>
-        }
-        desktopActions={
-          <div className="flex w-full items-center gap-2">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("search.placeholder", { ns: "sessions" })}
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            <Select value={filterMethod} onValueChange={onFilterMethodChange}>
-              <SelectTrigger className="w-[160px]">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4" />
-                  <SelectValue
-                    placeholder={t("filter.method", { ns: "sessions" })}
-                  />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  {t("filter.allMethods", { ns: "sessions" })}
-                </SelectItem>
-                {availableMethods.map((method) => (
-                  <SelectItem key={method} value={method}>
-                    {method}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={onSortByChange}>
-              <SelectTrigger className="w-[160px]">
-                <div className="flex items-center gap-2">
-                  <ArrowUpDown className="h-4 w-4" />
-                  <SelectValue
-                    placeholder={t("sort.label", { ns: "sessions" })}
-                  />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date-desc">
-                  {t("sort.dateDesc", { ns: "sessions" })}
-                </SelectItem>
-                <SelectItem value="date-asc">
-                  {t("sort.dateAsc", { ns: "sessions" })}
-                </SelectItem>
-                <SelectItem value="strain-asc">
-                  {t("sort.strainAsc", { ns: "sessions" })}
-                </SelectItem>
-                <SelectItem value="strain-desc">
-                  {t("sort.strainDesc", { ns: "sessions" })}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
-            {addSessionHref ? (
-              <Button asChild className="bg-white text-black border">
-                <Link href={addSessionHref}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t("addSession", { ns: "sessions" })}
-                </Link>
-              </Button>
-            ) : (
-              <Button
-                onClick={onAddSession}
-                className="bg-white text-black border"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {t("addSession", { ns: "sessions" })}
-              </Button>
-            )}
-          </div>
-        }
-      />
+          }
+        />
+      )}
 
       {/* Sessions List */}
       <div className="p-4 space-y-3">
