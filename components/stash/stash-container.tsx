@@ -16,8 +16,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ROUTE_STASH_NEW, resolveHomePathForRoles } from "@/lib/routes";
+import { StashSkeleton } from "@/components/skeletons";
+import { ROUTE_STASH_NEW } from "@/lib/routes";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import {
@@ -82,9 +82,7 @@ async function fetchStashData(userId: string): Promise<StashData> {
 
 function StashContent({ userId }: StashContainerProps) {
   const { t } = useTranslation(["stash", "common"]);
-  const router = useRouter();
   const { toast } = useToast();
-  const homePath = ROUTE_DASHBOARD;
   const cacheKey = `stash-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchStashData(userId));
   const { items: initialItems } = resource.read();
@@ -107,32 +105,6 @@ function StashContent({ userId }: StashContainerProps) {
     setItems(initialItems);
   }, [initialItems]);
 
-  const buildUpdatePayload = (form: StashFormValues) => {
-    const payload: Record<string, any> = {
-      name: form.name.trim(),
-      type: form.type,
-      amount: form.amount.trim(),
-      unit: form.unit,
-    };
-
-    const optionalFields: Record<string, string | undefined> = {
-      thc: form.thc?.trim(),
-      cbd: form.cbd?.trim(),
-      vendor: form.vendor?.trim(),
-      price: form.price?.trim(),
-      notes: form.notes?.trim(),
-    };
-
-    Object.entries(optionalFields).forEach(([key, value]) => {
-      if (value && value.length > 0) {
-        payload[key] = value;
-      } else {
-        payload[key] = deleteField();
-      }
-    });
-
-    return payload;
-  };
   const {
     register,
     handleSubmit,
@@ -189,7 +161,30 @@ function StashContent({ userId }: StashContainerProps) {
     setSaving(true);
     try {
       const itemRef = doc(db, stashCol(userId).path, editing.id);
-      const payload = buildUpdatePayload(data);
+
+      const payload: Record<string, any> = {
+        name: data.name.trim(),
+        type: data.type,
+        amount: data.amount.trim(),
+        unit: data.unit,
+      };
+
+      const optionalFields: Record<string, string | undefined> = {
+        thc: data.thc?.trim(),
+        cbd: data.cbd?.trim(),
+        vendor: data.vendor?.trim(),
+        price: data.price?.trim(),
+        notes: data.notes?.trim(),
+      };
+
+      Object.entries(optionalFields).forEach(([key, value]) => {
+        if (value && value.length > 0) {
+          payload[key] = value;
+        } else {
+          payload[key] = deleteField();
+        }
+      });
+
       await updateDoc(itemRef, payload);
       await fetchItems();
       closeEdit();
@@ -235,9 +230,6 @@ function StashContent({ userId }: StashContainerProps) {
     }
   };
 
-  // Use current items or fallback to initial
-  const currentItems = items.length > 0 ? items : initialItems;
-
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "flower":
@@ -252,157 +244,131 @@ function StashContent({ userId }: StashContainerProps) {
   };
 
   return (
-    <>
-      <ResponsivePageHeader
-        className="mb-6"
-        title={t("title")}
-        description={t("description")}
-        onBackClick={() => router.replace(homePath)}
-        desktopActions={
-          <Button asChild>
-            <Link href={ROUTE_STASH_NEW}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addItem")}
-            </Link>
-          </Button>
-        }
-        mobileActions={
-          <Button size="icon" asChild>
-            <Link href={ROUTE_STASH_NEW}>
-              <Plus className="h-5 w-5" />
-            </Link>
-          </Button>
-        }
-        sticky={false}
-      />
-
-      {/* Content */}
-      <div className="px-4 md:px-6">
-        {currentItems.length === 0 ? (
-          <EmptyState
-            icon={Package}
-            title={t("empty")}
-            description={t("emptyDesc")}
-            action={{
-              label: t("addItem"),
-              href: ROUTE_STASH_NEW,
-              icon: Plus,
-            }}
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentItems.map((item) => {
-              const Icon = getTypeIcon(item.type);
-              return (
-                <Card
-                  key={item.id}
-                  variant="interactive"
-                  className="group relative overflow-hidden hover:border-primary/50"
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg leading-tight">
-                            {item.name}
-                          </CardTitle>
-                          <div className="text-sm text-muted-foreground capitalize mt-0.5">
-                            {t(`types.${item.type}`, { ns: "stash" })}
-                          </div>
-                        </div>
+    <div className="px-4 md:px-6">
+      {items.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title={t("empty")}
+          description={t("emptyDesc")}
+          action={{
+            label: t("addItem"),
+            href: ROUTE_STASH_NEW,
+            icon: Plus,
+          }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+          {items.map((item) => {
+            const Icon = getTypeIcon(item.type);
+            return (
+              <Card
+                key={item.id}
+                variant="interactive"
+                className="group relative overflow-hidden hover:border-primary/50"
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                        <Icon className="h-5 w-5" />
                       </div>
-
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                          onClick={() => openEdit(item)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => handleDeleteClick(item)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div>
+                        <CardTitle className="text-lg leading-tight">
+                          {item.name}
+                        </CardTitle>
+                        <div className="text-sm text-muted-foreground capitalize mt-0.5">
+                          {t(`types.${item.type}`, { ns: "stash" })}
+                        </div>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      {item.amount && (
-                        <div className="bg-muted/30 p-2 rounded-md">
-                          <span className="text-xs text-muted-foreground block mb-0.5">
-                            {t("amount", { ns: "stash" })}
-                          </span>
-                          <div className="flex items-center gap-1.5 font-medium text-sm">
-                            <Scale className="h-3.5 w-3.5 text-primary/70" />
-                            {item.amount} {item.unit || "g"}
-                          </div>
+
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => openEdit(item)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDeleteClick(item)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    {item.amount && (
+                      <div className="bg-muted/30 p-2 rounded-md">
+                        <span className="text-xs text-muted-foreground block mb-0.5">
+                          {t("amount", { ns: "stash" })}
+                        </span>
+                        <div className="flex items-center gap-1.5 font-medium text-sm">
+                          <Scale className="h-3.5 w-3.5 text-primary/70" />
+                          {item.amount} {item.unit || "g"}
                         </div>
+                      </div>
+                    )}
+                    {item.price && (
+                      <div className="bg-muted/30 p-2 rounded-md">
+                        <span className="text-xs text-muted-foreground block mb-0.5">
+                          {t("price", { ns: "stash" })}
+                        </span>
+                        <div className="flex items-center gap-1.5 font-medium text-sm">
+                          <DollarSign className="h-3.5 w-3.5 text-primary/70" />
+                          ${item.price}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {(item.thc || item.cbd) && (
+                    <div className="flex items-center gap-2">
+                      {item.thc && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-normal"
+                        >
+                          THC: {item.thc}%
+                        </Badge>
                       )}
-                      {item.price && (
-                        <div className="bg-muted/30 p-2 rounded-md">
-                          <span className="text-xs text-muted-foreground block mb-0.5">
-                            {t("price", { ns: "stash" })}
-                          </span>
-                          <div className="flex items-center gap-1.5 font-medium text-sm">
-                            <DollarSign className="h-3.5 w-3.5 text-primary/70" />
-                            ${item.price}
-                          </div>
-                        </div>
+                      {item.cbd && (
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-normal"
+                        >
+                          CBD: {item.cbd}%
+                        </Badge>
                       )}
                     </div>
+                  )}
 
-                    {(item.thc || item.cbd) && (
-                      <div className="flex items-center gap-2">
-                        {item.thc && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs font-normal"
-                          >
-                            THC: {item.thc}%
-                          </Badge>
-                        )}
-                        {item.cbd && (
-                          <Badge
-                            variant="outline"
-                            className="text-xs font-normal"
-                          >
-                            CBD: {item.cbd}%
-                          </Badge>
-                        )}
-                      </div>
-                    )}
+                  {item.vendor && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Tag className="h-3.5 w-3.5" />
+                      <span>{item.vendor}</span>
+                    </div>
+                  )}
 
-                    {item.vendor && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Tag className="h-3.5 w-3.5" />
-                        <span>{item.vendor}</span>
-                      </div>
-                    )}
-
-                    {item.notes && (
-                      <div className="pt-2 border-t border-border/50">
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {item.notes}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                  {item.notes && (
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {item.notes}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
@@ -551,30 +517,42 @@ function StashContent({ userId }: StashContainerProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
-  );
-}
-
-function StashSkeleton() {
-  return (
-    <div className="p-4 md:p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-9 w-24" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-48 w-full" />
-      </div>
     </div>
   );
 }
 
 export function StashContainer({ userId }: StashContainerProps) {
+  const { t } = useTranslation(["stash", "common"]);
+  const router = useRouter();
+  const homePath = ROUTE_DASHBOARD;
+
   return (
-    <Suspense fallback={<StashSkeleton />}>
-      <StashContent userId={userId} />
-    </Suspense>
+    <>
+      <ResponsivePageHeader
+        className="mb-6"
+        title={t("title")}
+        description={t("description")}
+        onBackClick={() => router.replace(homePath)}
+        desktopActions={
+          <Button asChild>
+            <Link href={ROUTE_STASH_NEW}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("addItem")}
+            </Link>
+          </Button>
+        }
+        mobileActions={
+          <Button size="icon" asChild>
+            <Link href={ROUTE_STASH_NEW}>
+              <Plus className="h-5 w-5" />
+            </Link>
+          </Button>
+        }
+        sticky={false}
+      />
+      <Suspense fallback={<StashSkeleton />}>
+        <StashContent userId={userId} />
+      </Suspense>
+    </>
   );
 }

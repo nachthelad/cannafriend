@@ -6,28 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function PlantListSkeleton() {
   return (
     <>
-      {/* Mobile Controls Skeleton */}
-      <div className="md:hidden px-4 space-y-4 mb-6">
-        <div className="flex items-center gap-2">
-          {/* Search Bar Skeleton */}
-          <Skeleton className="h-11 flex-1 rounded-md" />
-          {/* Filter, List, Sort buttons */}
-          <Skeleton className="h-11 w-11 rounded-md" />
-          <Skeleton className="h-11 w-11 rounded-md" />
-          <Skeleton className="h-11 w-11 rounded-md" />
-        </div>
-      </div>
-
-      {/* Desktop Controls Skeleton */}
-      <div className="hidden md:block px-6 mb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <Skeleton className="h-10 flex-1 max-w-md rounded-md" />
-          <Skeleton className="h-10 w-24 rounded-md" />
-          <Skeleton className="h-10 w-32 rounded-md" />
-          <Skeleton className="h-10 w-24 rounded-md" />
-        </div>
-      </div>
-
       {/* Plant grid */}
       <div className="px-4 md:px-6">
         <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
@@ -46,17 +24,17 @@ export function PlantCardSkeleton() {
       <div className="relative aspect-[4/3] sm:aspect-video">
         {/* Plant image skeleton - main background */}
         <Skeleton className="h-full w-full rounded-none" />
-        
+
         {/* Dark gradient overlay at bottom to simulate text overlay area */}
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-        
+
         {/* Plant name and badges overlay at bottom - using darker skeleton for visibility */}
         <div className="absolute bottom-2 left-2 right-2 z-10">
           {/* Plant name skeleton */}
           <div className="mb-2">
             <Skeleton className="h-6 w-28 bg-foreground/20" />
           </div>
-          
+
           {/* Badges skeleton - pill-shaped */}
           <div className="flex gap-2 flex-wrap">
             <Skeleton className="h-5 w-20 rounded-full bg-foreground/20" />
@@ -127,8 +105,12 @@ export function PlantDetailSkeleton() {
             </CardHeader>
             <CardContent className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border">
-                  <Skeleton className="h-8 w-8 rounded-full mt-1" /> {/* Type icon */}
+                <div
+                  key={i}
+                  className="flex items-start gap-3 p-3 rounded-lg border"
+                >
+                  <Skeleton className="h-8 w-8 rounded-full mt-1" />{" "}
+                  {/* Type icon */}
                   <div className="flex-1 space-y-2">
                     <div className="flex justify-between">
                       <Skeleton className="h-5 w-24" /> {/* Log type */}

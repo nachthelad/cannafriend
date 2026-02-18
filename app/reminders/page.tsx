@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, RemindersSkeleton } from "@/components/skeletons";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { deleteDoc, getDocs, query } from "firebase/firestore";
 import {
@@ -74,7 +74,7 @@ function RemindersContent({ userId }: RemindersContentProps) {
 
   const cacheKey = `reminders-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
-    fetchRemindersData(userId)
+    fetchRemindersData(userId),
   );
   const { plants, reminders, legacyDeletedCount } = resource.read();
 
@@ -108,27 +108,6 @@ function RemindersContent({ userId }: RemindersContentProps) {
 
   return (
     <>
-      <ResponsivePageHeader
-        title={t("reminders", { ns: "dashboard" })}
-        description={t("pageDescription", { ns: "reminders" })}
-        backHref={homePath}
-        mobileActions={
-          <Button
-            size="icon"
-            onClick={handleAddClick}
-            aria-label={addButtonLabel}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-        }
-        desktopActions={
-          <Button onClick={handleAddClick}>
-            <Plus className="h-4 w-4 mr-2" />
-            {addButtonLabel}
-          </Button>
-        }
-      />
-
       {/* Development Test Component removed */}
 
       {shouldShowManager ? (
@@ -212,48 +191,61 @@ function RemindersContent({ userId }: RemindersContentProps) {
 }
 
 export default function RemindersPage() {
+  const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { user, isLoading: authLoading } = useAuthUser();
+  const { roles } = useUserRoles();
   const router = useRouter();
+  const homePath = resolveHomePathForRoles(roles);
 
   useEffect(() => {
-    if (authLoading) {
-      return;
-    }
-    if (!user) {
-      router.push(ROUTE_LOGIN);
-    }
+    if (authLoading) return;
+    if (!user) router.push(ROUTE_LOGIN);
   }, [authLoading, user, router]);
 
-  const fallback = (
-    <div className="p-4 md:px-0 md:py-6">
-      <RemindersSkeleton />
-    </div>
-  );
+  const handleAddClick = () => {
+    // We don't know the plant count yet, but we can assume we want to add a reminder
+    // If we want to be precise, we'd need data, but most users here have plants.
+    // Or we just wait for data and pass an onClick from the Content.
+    router.push(ROUTE_REMINDERS_NEW);
+  };
 
   if (authLoading || !user) {
-    return <Layout>{fallback}</Layout>;
+    return (
+      <Layout>
+        <div className="p-4 md:px-0 md:py-6">
+          <RemindersSkeleton />
+        </div>
+      </Layout>
+    );
   }
 
   return (
     <Layout>
-      <Suspense fallback={fallback}>
+      <ResponsivePageHeader
+        title={t("reminders", { ns: "dashboard" })}
+        description={t("pageDescription", { ns: "reminders" })}
+        backHref={homePath}
+        mobileActions={
+          <Button size="icon" onClick={handleAddClick}>
+            <Plus className="h-5 w-5" />
+          </Button>
+        }
+        desktopActions={
+          <Button onClick={handleAddClick}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("add", { ns: "reminders" })}
+          </Button>
+        }
+      />
+      <Suspense
+        fallback={
+          <div className="p-4 md:px-0 md:py-6">
+            <RemindersSkeleton />
+          </div>
+        }
+      >
         <RemindersContent userId={user.uid} />
       </Suspense>
     </Layout>
-  );
-}
-
-function RemindersSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-4 w-80" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    </div>
   );
 }
