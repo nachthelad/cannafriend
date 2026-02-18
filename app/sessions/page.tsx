@@ -9,10 +9,30 @@ import { SessionsContainer } from "@/components/sessions/sessions-container";
 import { SessionsSkeleton } from "@/components/skeletons";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 
+interface RefreshHandlerProps {
+  userId: string;
+}
+
+function RefreshHandler({ userId }: RefreshHandlerProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (userId && searchParams.get("refresh") === "true") {
+      clearSuspenseCache(`sessions-${userId}`);
+      // Clean up the URL parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("refresh");
+      router.replace(newUrl.pathname + newUrl.search);
+    }
+  }, [userId, searchParams, router]);
+
+  return null;
+}
+
 function SessionsContent() {
   const { user, isLoading: authLoading } = useAuthUser();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (authLoading) {
@@ -23,22 +43,18 @@ function SessionsContent() {
     }
   }, [authLoading, user, router]);
 
-  // Clear sessions cache when returning from creating a new session
-  useEffect(() => {
-    if (user && searchParams.get("refresh") === "true") {
-      clearSuspenseCache(`sessions-${user.uid}`);
-      // Clean up the URL parameter
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete("refresh");
-      router.replace(newUrl.pathname + newUrl.search);
-    }
-  }, [user, searchParams, router]);
-
   if (authLoading || !user) {
     return null;
   }
 
-  return <SessionsContainer userId={user.uid} />;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <RefreshHandler userId={user.uid} />
+      </Suspense>
+      <SessionsContainer userId={user.uid} />
+    </>
+  );
 }
 
 export default function SessionsPage() {
