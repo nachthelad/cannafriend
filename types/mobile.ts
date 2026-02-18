@@ -119,6 +119,7 @@ export interface MobileSessionsProps {
   onSortByChange: (sortBy: string) => void;
   availableMethods: string[];
   backHref: string;
+  showHeader?: boolean;
 }
 
 export interface SessionListItemProps {

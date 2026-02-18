@@ -13,6 +13,7 @@ import {
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
 import { Brain, User, X, Sparkles, ImageIcon } from "lucide-react";
+import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
@@ -35,7 +36,7 @@ export function AIChat({
   const [images, setImages] = useState<AIImageAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
-    sessionId
+    sessionId,
   );
   const [provider, setProvider] = useState<"gemini" | "openai">("gemini");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -61,7 +62,7 @@ export function AIChat({
         if (data?.messages && Array.isArray(data.messages)) {
           setMessages(data.messages);
         }
-      }
+      },
     );
     return () => unsub();
   }, [user?.uid, currentSessionId]);
@@ -178,7 +179,7 @@ export function AIChat({
 
     try {
       const chatDoc = await getDoc(
-        doc(db, "users", user.uid, "aiChats", sessionId)
+        doc(db, "users", user.uid, "aiChats", sessionId),
       );
       if (chatDoc.exists()) {
         const data = chatDoc.data();
@@ -265,7 +266,7 @@ export function AIChat({
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-success/10 rounded-lg">
-                    <Brain className="w-4 h-4 text-success" />
+                    <OpenAIIcon size={16} />
                   </div>
                   <div>
                     <h3 className="font-medium text-sm">
@@ -317,6 +318,7 @@ export function AIChat({
                 isLoading={isLoading}
                 provider={provider}
                 onProviderChange={setProvider}
+                onToggleSidebar={onToggleSidebar}
               />
             </div>
           </div>
@@ -330,19 +332,19 @@ export function AIChat({
                     key={index}
                     className={cn(
                       "flex gap-4",
-                      message.role === "user" ? "justify-end" : "justify-start"
+                      message.role === "user" ? "justify-end" : "justify-start",
                     )}
                   >
                     {message.role === "assistant" && (
-                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mt-1">
-                        <Sparkles className="h-4 w-4 text-primary" />
+                      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center mt-1">
+                        <GeminiIcon size={16} />
                       </div>
                     )}
 
                     <div
                       className={cn(
                         "flex flex-col max-w-[85%]",
-                        message.role === "user" ? "items-end" : "items-start"
+                        message.role === "user" ? "items-end" : "items-start",
                       )}
                     >
                       {/* Images Grid */}
@@ -352,7 +354,7 @@ export function AIChat({
                             "grid gap-2 mb-2",
                             message.images.length === 1
                               ? "grid-cols-1"
-                              : "grid-cols-2"
+                              : "grid-cols-2",
                           )}
                         >
                           {message.images.map((img, imgIndex) => (
@@ -385,7 +387,7 @@ export function AIChat({
                           "rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm",
                           message.role === "user"
                             ? "bg-primary text-primary-foreground rounded-tr-sm"
-                            : "bg-muted/50 border text-foreground rounded-tl-sm"
+                            : "bg-muted/50 border text-foreground rounded-tl-sm",
                         )}
                       >
                         {message.role === "assistant" ? (
@@ -410,8 +412,8 @@ export function AIChat({
 
                 {isLoading && (
                   <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center mt-1">
-                      <Sparkles className="h-4 w-4 text-primary" />
+                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center mt-1">
+                      <GeminiIcon size={16} />
                     </div>
                     <div className="bg-muted/30 border rounded-2xl rounded-tl-sm p-4 min-w-[200px]">
                       <ThinkingAnimation />
@@ -461,6 +463,7 @@ export function AIChat({
                   isLoading={isLoading}
                   provider={provider}
                   onProviderChange={setProvider}
+                  onToggleSidebar={onToggleSidebar}
                 />
                 <p className="text-[10px] text-center text-muted-foreground mt-2">
                   {t("disclaimer", { ns: "aiAssistant" })}
