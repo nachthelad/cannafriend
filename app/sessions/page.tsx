@@ -6,7 +6,7 @@ import { Layout } from "@/components/layout";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ROUTE_LOGIN } from "@/lib/routes";
 import { SessionsContainer } from "@/components/sessions/sessions-container";
-import { SessionsSkeleton } from "@/components/sessions/sessions-skeleton";
+import { SessionsSkeleton } from "@/components/skeletons";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 
 function SessionsContent() {
@@ -25,11 +25,11 @@ function SessionsContent() {
 
   // Clear sessions cache when returning from creating a new session
   useEffect(() => {
-    if (user && searchParams.get('refresh') === 'true') {
+    if (user && searchParams.get("refresh") === "true") {
       clearSuspenseCache(`sessions-${user.uid}`);
       // Clean up the URL parameter
       const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('refresh');
+      newUrl.searchParams.delete("refresh");
       router.replace(newUrl.pathname + newUrl.search);
     }
   }, [user, searchParams, router]);

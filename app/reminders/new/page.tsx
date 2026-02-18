@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, ReminderFormSkeleton } from "@/components/skeletons";
 import { Switch } from "@/components/ui/switch";
 import { useUserRoles } from "@/hooks/use-user-roles";
 import {
@@ -78,45 +78,6 @@ function getNextOccurrence(days: number[], timeOfDay: string): string {
 
 type ReminderFormData = z.infer<ReturnType<typeof reminderSchema>>;
 
-function ReminderFormSkeleton() {
-  return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-0">
-      <div className="space-y-8">
-        <div className="space-y-3">
-          <Skeleton className="h-8 w-44" />
-          <Skeleton className="h-4 w-72" />
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-11 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-11 w-full" />
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-40" />
-            <div className="flex gap-2">
-              {Array.from({ length: 7 }).map((_, idx) => (
-                <Skeleton key={idx} className="h-10 w-10" />
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-11 w-full" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function NewReminderPage() {
   const { t, i18n } = useTranslation(["reminders", "common", "validation"]);
   const { toast } = useToast();
@@ -166,7 +127,7 @@ export default function NewReminderPage() {
         const plantsSnapshot = await getDocs(query(plantsCol(user.uid)));
         const plantList = plantsSnapshot.docs
           .map((docSnapshot) =>
-            normalizePlant(docSnapshot.data(), docSnapshot.id)
+            normalizePlant(docSnapshot.data(), docSnapshot.id),
           )
           .filter(isPlantGrowing);
         setPlants(plantList);
@@ -239,14 +200,6 @@ export default function NewReminderPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <ReminderFormSkeleton />
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <div className="max-w-3xl mx-auto">
@@ -256,167 +209,171 @@ export default function NewReminderPage() {
           backHref={homePath}
         />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-6 my-4 px-4 pb-10"
-        >
-          {/* Plant */}
-          <div className="space-y-2">
-            <Label>{t("selectPlant", { ns: "reminders" })}</Label>
-            <Select
-              value={selectedPlant}
-              onValueChange={(value) =>
-                setValue("selectedPlant", value, { shouldValidate: true })
-              }
-            >
-              <SelectTrigger
-                className={`min-h-[44px] ${
-                  errors.selectedPlant ? "border-destructive" : ""
-                }`}
-              >
-                <SelectValue
-                  placeholder={t("selectPlant", { ns: "reminders" })}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {plants.map((plant) => (
-                  <SelectItem key={plant.id} value={plant.id}>
-                    {plant.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.selectedPlant && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.selectedPlant.message}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Label */}
-          <div className="space-y-2">
-            <Label>{t("customName", { ns: "reminders" })}</Label>
-            <Input
-              {...register("label")}
-              placeholder={t("customDesc", { ns: "reminders" })}
-              className={`min-h-[44px] ${
-                errors.label ? "border-destructive" : ""
-              }`}
-            />
-            {errors.label && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.label.message}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Days */}
-          <div className="space-y-2">
-            <Label>{t("days", { ns: "reminders" })}</Label>
-            <div className="flex flex-wrap gap-2">
-              {Array.from({ length: 7 }).map((_, idx) => {
-                const label = new Intl.DateTimeFormat(i18n.language, {
-                  weekday: "short",
-                }).format(new Date(2024, 0, 7 + idx));
-                const selected = daysOfWeek?.includes(idx);
-                return (
-                  <Button
-                    key={idx}
-                    type="button"
-                    variant={selected ? "default" : "outline"}
-                    className="min-h-[40px] px-3"
-                    onClick={() => handleDayToggle(idx)}
-                  >
-                    {label}
-                  </Button>
-                );
-              })}
-            </div>
-            {errors.daysOfWeek && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.daysOfWeek.message as string}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Time */}
-          <div className="space-y-2">
-            <Label>{t("time", { ns: "reminders" })}</Label>
-            <div className="flex items-center gap-3">
-              <Input
-                type="time"
-                step={300}
-                value={timeOfDay}
-                onChange={(e) =>
-                  setValue("timeOfDay", e.target.value, {
-                    shouldValidate: true,
-                  })
+        {loading ? (
+          <ReminderFormSkeleton />
+        ) : (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 my-4 px-4 pb-10"
+          >
+            {/* Plant */}
+            <div className="space-y-2">
+              <Label>{t("selectPlant", { ns: "reminders" })}</Label>
+              <Select
+                value={selectedPlant}
+                onValueChange={(value) =>
+                  setValue("selectedPlant", value, { shouldValidate: true })
                 }
-                className={`min-h-[44px] max-w-[180px] ${
-                  errors.timeOfDay ? "border-destructive" : ""
+              >
+                <SelectTrigger
+                  className={`min-h-[44px] ${
+                    errors.selectedPlant ? "border-destructive" : ""
+                  }`}
+                >
+                  <SelectValue
+                    placeholder={t("selectPlant", { ns: "reminders" })}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {plants.map((plant) => (
+                    <SelectItem key={plant.id} value={plant.id}>
+                      {plant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.selectedPlant && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.selectedPlant.message}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Label */}
+            <div className="space-y-2">
+              <Label>{t("customName", { ns: "reminders" })}</Label>
+              <Input
+                {...register("label")}
+                placeholder={t("customDesc", { ns: "reminders" })}
+                className={`min-h-[44px] ${
+                  errors.label ? "border-destructive" : ""
                 }`}
               />
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Sun className="h-4 w-4" />
-                <span>{t("morningHint", { ns: "reminders" })}</span>
-              </div>
+              {errors.label && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.label.message}
+                  </p>
+                </div>
+              )}
             </div>
-            {errors.timeOfDay && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <AlertCircle className="w-4 h-4 text-destructive" />
-                <p className="text-sm text-destructive font-medium">
-                  {errors.timeOfDay.message}
-                </p>
-              </div>
-            )}
-          </div>
 
-          {/* Active Toggle */}
-          <div className="flex items-center justify-left gap-2 px-3 py-2">
-            <div className="flex items-center gap-2">
-              <AlarmClock className="h-4 w-4" />
-              <div>
-                <p className="text-sm font-medium">
-                  {t("active", { ns: "reminders" })}
-                </p>
+            {/* Days */}
+            <div className="space-y-2">
+              <Label>{t("days", { ns: "reminders" })}</Label>
+              <div className="flex flex-wrap gap-2">
+                {Array.from({ length: 7 }).map((_, idx) => {
+                  const label = new Intl.DateTimeFormat(i18n.language, {
+                    weekday: "short",
+                  }).format(new Date(2024, 0, 7 + idx));
+                  const selected = daysOfWeek?.includes(idx);
+                  return (
+                    <Button
+                      key={idx}
+                      type="button"
+                      variant={selected ? "default" : "outline"}
+                      className="min-h-[40px] px-3"
+                      onClick={() => handleDayToggle(idx)}
+                    >
+                      {label}
+                    </Button>
+                  );
+                })}
               </div>
+              {errors.daysOfWeek && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.daysOfWeek.message as string}
+                  </p>
+                </div>
+              )}
             </div>
-            <Switch
-              checked={isActive}
-              onCheckedChange={(value) => setValue("isActive", value)}
-            />
-          </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push(ROUTE_REMINDERS)}
-              className="flex-1 min-h-[48px] text-base"
-              disabled={isSubmitting}
-            >
-              {t("cancel", { ns: "common" })}
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 min-h-[48px] text-base"
-            >
-              {isSubmitting
-                ? t("saving", { ns: "common" })
-                : t("add", { ns: "reminders" })}
-            </Button>
-          </div>
-        </form>
+            {/* Time */}
+            <div className="space-y-2">
+              <Label>{t("time", { ns: "reminders" })}</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="time"
+                  step={300}
+                  value={timeOfDay}
+                  onChange={(e) =>
+                    setValue("timeOfDay", e.target.value, {
+                      shouldValidate: true,
+                    })
+                  }
+                  className={`min-h-[44px] max-w-[180px] ${
+                    errors.timeOfDay ? "border-destructive" : ""
+                  }`}
+                />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Sun className="h-4 w-4" />
+                  <span>{t("morningHint", { ns: "reminders" })}</span>
+                </div>
+              </div>
+              {errors.timeOfDay && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <AlertCircle className="w-4 h-4 text-destructive" />
+                  <p className="text-sm text-destructive font-medium">
+                    {errors.timeOfDay.message}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Active Toggle */}
+            <div className="flex items-center justify-left gap-2 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <AlarmClock className="h-4 w-4" />
+                <div>
+                  <p className="text-sm font-medium">
+                    {t("active", { ns: "reminders" })}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={isActive}
+                onCheckedChange={(value) => setValue("isActive", value)}
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push(ROUTE_REMINDERS)}
+                className="flex-1 min-h-[48px] text-base"
+                disabled={isSubmitting}
+              >
+                {t("cancel", { ns: "common" })}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 min-h-[48px] text-base"
+              >
+                {isSubmitting
+                  ? t("saving", { ns: "common" })
+                  : t("add", { ns: "reminders" })}
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </Layout>
   );

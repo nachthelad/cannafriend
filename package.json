@@ -1,6 +1,6 @@
 {
   "name": "cannafriend",
-  "version": "0.35.1",
+  "version": "0.35.2",
   "private": true,
   "scripts": {
     "build": "next build",
@@ -63,7 +63,7 @@
     "react-hook-form": "latest",
     "react-i18next": "^16.5.0",
     "react-markdown": "latest",
-    "react-resizable-panels": "^2.1.7",
+    "react-resizable-panels": "^4.2.1",
     "recharts": "latest",
     "sharp": "latest",
     "sonner": "^1.7.4",
