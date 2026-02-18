@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: multi-provider chat support (Gemini/OpenAI) and UI redesign — 2026-02-18
+
 - [MINOR]: optimize dashboard layout and visuals — 2026-01-12
 - [MID]: add mobile settings component with account, preferences, and subscription management. — 2026-01-12
 - [MINOR]: Update pnpm lockfile. — 2026-01-03
