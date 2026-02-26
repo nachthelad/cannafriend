@@ -282,7 +282,7 @@ export function AIChat({
 
             {/* Input Area for Empty State */}
             <div className="w-full">
-              {images.length > 0 && (
+              {images.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
                   {images.map((img, index) => (
                     <div key={index} className="relative flex-shrink-0 group">
@@ -306,7 +306,7 @@ export function AIChat({
                     </div>
                   ))}
                 </div>
-              )}
+              ) : null}
 
               <ChatInput
                 ref={inputRef}
@@ -335,11 +335,11 @@ export function AIChat({
                       message.role === "user" ? "justify-end" : "justify-start",
                     )}
                   >
-                    {message.role === "assistant" && (
+                    {message.role === "assistant" ? (
                       <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center mt-1">
                         <GeminiIcon size={16} />
                       </div>
-                    )}
+                    ) : null}
 
                     <div
                       className={cn(
@@ -348,7 +348,7 @@ export function AIChat({
                       )}
                     >
                       {/* Images Grid */}
-                      {message.images && message.images.length > 0 && (
+                      {message.images && message.images.length > 0 ? (
                         <div
                           className={cn(
                             "grid gap-2 mb-2",
@@ -379,7 +379,7 @@ export function AIChat({
                             </div>
                           ))}
                         </div>
-                      )}
+                      ) : null}
 
                       {/* Message Content */}
                       <div
@@ -402,15 +402,15 @@ export function AIChat({
                       </div>
                     </div>
 
-                    {message.role === "user" && (
+                    {message.role === "user" ? (
                       <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-muted flex items-center justify-center mt-1">
                         <User className="h-4 w-4 text-muted-foreground" />
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ))}
 
-                {isLoading && (
+                {isLoading ? (
                   <div className="flex gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center mt-1">
                       <GeminiIcon size={16} />
@@ -419,7 +419,7 @@ export function AIChat({
                       <ThinkingAnimation />
                     </div>
                   </div>
-                )}
+                ) : null}
                 <div ref={messagesEndRef} />
               </div>
             </div>
@@ -427,7 +427,7 @@ export function AIChat({
             {/* Sticky Input Area */}
             <div className="p-3 bg-background/80 backdrop-blur-sm border-t">
               <div className="max-w-3xl mx-auto w-full">
-                {images.length > 0 && (
+                {images.length > 0 ? (
                   <div className="flex gap-3 overflow-x-auto mb-3 p-2">
                     {images.map((img, index) => (
                       <div key={index} className="relative flex-shrink-0 group">
@@ -451,7 +451,7 @@ export function AIChat({
                       </div>
                     ))}
                   </div>
-                )}
+                ) : null}
 
                 <ChatInput
                   ref={inputRef}

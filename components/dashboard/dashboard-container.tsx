@@ -64,9 +64,27 @@ import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { FastLogAction } from "@/components/dashboard/fast-log-action";
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
-  // Fetch plants
+  // 1. Start all network requests concurrently to eliminate waterfall
   const plantsQuery = query(plantsCol(userId));
-  const plantsSnapshot = await getDocs(plantsQuery);
+  const plantsPromise = getDocs(plantsQuery);
+
+  const logsQuery = query(
+    collectionGroup(db, "logs"),
+    where("userId", "==", userId),
+    orderBy("date", "desc"),
+    limit(50),
+  );
+  const logsPromise = getDocs(logsQuery);
+
+  const remindersQuery = query(remindersCol(userId));
+  const remindersPromise = getDocs(remindersQuery);
+
+  const tokenPromise = auth.currentUser
+    ? auth.currentUser.getIdTokenResult(true)
+    : Promise.resolve(null);
+
+  // 2. Await results
+  const plantsSnapshot = await plantsPromise;
 
   const plants: Plant[] = [];
   const lastWaterings: Record<string, LogEntry> = {};
@@ -88,17 +106,8 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     plantMap[plantData.id] = plantData.name;
   }
 
-  // Fetch all recent logs for the user using Collection Group Query
-  const logsGroup = collectionGroup(db, "logs");
-  const logsQuery = query(
-    logsGroup,
-    where("userId", "==", userId),
-    orderBy("date", "desc"),
-    limit(50),
-  );
-
   try {
-    const logsSnapshot = await getDocs(logsQuery);
+    const logsSnapshot = await logsPromise;
     const fetchedLogs = logsSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
@@ -132,8 +141,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   let hasOverdue = false;
   let reminders: any[] = [];
   try {
-    const remindersQuery = query(remindersCol(userId));
-    const remindersSnapshot = await getDocs(remindersQuery);
+    const remindersSnapshot = await remindersPromise;
     const now = new Date();
 
     reminders = remindersSnapshot.docs.map((doc) => ({
@@ -161,17 +169,19 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   try {
     if (
       typeof window !== "undefined" &&
-      localStorage.getItem("cf_premium") === "1"
+      localStorage.getItem("cf_premium_v1") === "1"
     ) {
       isPremium = true;
     } else if (auth.currentUser) {
-      const token = await auth.currentUser.getIdTokenResult(true);
-      const claims = token.claims as any;
-      const boolPremium = Boolean(claims?.premium);
-      const until =
-        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
-      const timePremium = until > Date.now();
-      isPremium = Boolean(boolPremium || timePremium);
+      const token = await tokenPromise;
+      if (token) {
+        const claims = token.claims as any;
+        const boolPremium = Boolean(claims?.premium);
+        const until =
+          typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+        const timePremium = until > Date.now();
+        isPremium = Boolean(boolPremium || timePremium);
+      }
     }
   } catch {
     // Ignore
@@ -193,9 +203,8 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 function DashboardContent({
   userId,
   userEmail,
-  isPremium,
   isAdmin,
-}: DashboardContainerProps & { isPremium: boolean; isAdmin: boolean }) {
+}: DashboardContainerProps & { isAdmin: boolean }) {
   const { t } = useTranslation([
     "dashboard",
     "common",
@@ -210,15 +219,21 @@ function DashboardContent({
   const resource = getSuspenseResource(cacheKey, () =>
     fetchDashboardData(userId),
   );
-  const { plants, recentLogs, remindersCount, hasOverdue, reminders } =
-    resource.read();
+  const {
+    plants,
+    recentLogs,
+    remindersCount,
+    hasOverdue,
+    reminders,
+    isPremium,
+  } = resource.read();
 
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     if (!hasOverdue) return;
 
-    const dismissedData = localStorage.getItem("overdue_alert_dismissed_data");
+    const dismissedData = localStorage.getItem("overdue_alert_dismissed_v1");
     if (dismissedData) {
       try {
         const { timestamp } = JSON.parse(dismissedData);
@@ -240,7 +255,7 @@ function DashboardContent({
   const handleDismiss = () => {
     setIsDismissed(true);
     localStorage.setItem(
-      "overdue_alert_dismissed_data",
+      "overdue_alert_dismissed_v1",
       JSON.stringify({ timestamp: Date.now() }),
     );
   };
@@ -353,38 +368,34 @@ function DashboardContent({
   );
 }
 
+function AIAssistantButton({ userId }: { userId: string }) {
+  const { t } = useTranslation(["aiAssistant"]);
+  const cacheKey = `dashboard-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchDashboardData(userId),
+  );
+  const { isPremium } = resource.read();
+
+  if (!isPremium) return null;
+
+  return (
+    <Button
+      asChild
+      className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
+    >
+      <Link href={ROUTE_AI_ASSISTANT}>
+        <Brain className="h-5 w-5 mr-1" /> {t("title", { ns: "aiAssistant" })}
+      </Link>
+    </Button>
+  );
+}
+
 export function DashboardContainer({
   userId,
   userEmail,
 }: DashboardContainerProps) {
-  const { t } = useTranslation(["dashboard", "common", "aiAssistant"]);
-  const [isPremium, setIsPremium] = useState(false);
+  const { t } = useTranslation(["dashboard", "common"]);
   const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL;
-
-  useEffect(() => {
-    const checkPremium = async () => {
-      try {
-        if (
-          typeof window !== "undefined" &&
-          localStorage.getItem("cf_premium") === "1"
-        ) {
-          setIsPremium(true);
-        } else if (auth.currentUser) {
-          const token = await auth.currentUser.getIdTokenResult(true);
-          const claims = token.claims as any;
-          setIsPremium(
-            Boolean(
-              claims?.premium ||
-              (claims?.premium_until && claims.premium_until > Date.now()),
-            ),
-          );
-        }
-      } catch {
-        // Ignore
-      }
-    };
-    checkPremium();
-  }, [userId]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-100px)]">
@@ -395,17 +406,13 @@ export function DashboardContainer({
           </h1>
         </div>
         <div className="flex flex-wrap gap-2 p-4 bg-card rounded-lg border shadow-sm shrink-0 mb-6">
-          {isPremium && (
-            <Button
-              asChild
-              className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
-            >
-              <Link href={ROUTE_AI_ASSISTANT}>
-                <Brain className="h-5 w-5 mr-1" />{" "}
-                {t("title", { ns: "aiAssistant" })}
-              </Link>
-            </Button>
-          )}
+          <Suspense
+            fallback={
+              <div className="h-10 w-32 bg-muted rounded-md animate-pulse"></div>
+            }
+          >
+            <AIAssistantButton userId={userId} />
+          </Suspense>
           <Button asChild variant="secondary">
             <Link href={ROUTE_REMINDERS}>
               <Bell className="h-5 w-5 mr-1" />{" "}
@@ -443,7 +450,6 @@ export function DashboardContainer({
         <DashboardContent
           userId={userId}
           userEmail={userEmail}
-          isPremium={isPremium}
           isAdmin={isAdmin}
         />
       </Suspense>

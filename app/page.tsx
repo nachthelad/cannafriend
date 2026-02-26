@@ -99,7 +99,7 @@ export default function Home() {
   // Cookie consent state management
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const consent = localStorage.getItem("cookie-consent");
+    const consent = localStorage.getItem("cookie_consent_v1");
     if (consent === "accepted") setHasConsent(true);
     else if (consent === "declined") setHasConsent(false);
     else setHasConsent(null);
@@ -108,9 +108,9 @@ export default function Home() {
       const detail = (e as CustomEvent<string>).detail;
       setHasConsent(detail === "accepted");
     };
-    window.addEventListener("cookie-consent-changed", onChange as any);
+    window.addEventListener("cookie_consent_changed_v1", onChange as any);
     return () =>
-      window.removeEventListener("cookie-consent-changed", onChange as any);
+      window.removeEventListener("cookie_consent_changed_v1", onChange as any);
   }, []);
 
   // Handlers

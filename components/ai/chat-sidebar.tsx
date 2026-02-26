@@ -49,7 +49,7 @@ export function ChatSidebar({
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(
-    null
+    null,
   );
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export function ChatSidebar({
       const chatQuery = query(
         collection(db, "users", user.uid, "aiChats"),
         orderBy("lastUpdated", "desc"),
-        limit(20)
+        limit(20),
       );
 
       const snapshot = await getDocs(chatQuery);
@@ -161,8 +161,8 @@ export function ChatSidebar({
                   });
                   setChatSessions((prev) =>
                     prev.map((s) =>
-                      s.id === id ? { ...s, title: newTitle } : s
-                    )
+                      s.id === id ? { ...s, title: newTitle } : s,
+                    ),
                   );
                 }}
                 onDelete={(id) => {
@@ -185,19 +185,19 @@ export function ChatSidebar({
   return (
     <>
       {/* Mobile Overlay */}
-      {isOpen && (
+      {isOpen ? (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={onToggle}
         />
-      )}
+      ) : null}
 
       {/* Desktop Sidebar */}
       <div
         className={cn(
           "hidden md:flex md:flex-col md:h-full md:bg-background md:border-r transition-all duration-300",
           isOpen ? "md:w-80" : "md:w-16",
-          className
+          className,
         )}
       >
         {/* Desktop Header */}
@@ -227,7 +227,7 @@ export function ChatSidebar({
               </Button>
             )}
           </div>
-          {isOpen && (
+          {isOpen ? (
             <div className="mt-3 flex flex-col gap-2">
               <Button
                 onClick={onNewChat}
@@ -250,7 +250,7 @@ export function ChatSidebar({
                 <span className="text-sm">{t("search", { ns: "common" })}</span>
               </Button>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Desktop Chat List */}
@@ -285,12 +285,12 @@ export function ChatSidebar({
                         if (!user?.uid) return;
                         await updateDoc(
                           doc(db, "users", user.uid, "aiChats", id),
-                          { title: newTitle }
+                          { title: newTitle },
                         );
                         setChatSessions((prev) =>
                           prev.map((s) =>
-                            s.id === id ? { ...s, title: newTitle } : s
-                          )
+                            s.id === id ? { ...s, title: newTitle } : s,
+                          ),
                         );
                       }}
                       onDelete={(id) => {
@@ -338,7 +338,7 @@ export function ChatSidebar({
       <div
         className={cn(
           "fixed top-0 left-0 h-full w-80 z-50 transform transition-transform duration-300 ease-in-out md:hidden bg-background",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {sidebarContent}
@@ -360,7 +360,7 @@ export function ChatSidebar({
               .filter((s) =>
                 searchQuery.trim()
                   ? s.title.toLowerCase().includes(searchQuery.toLowerCase())
-                  : true
+                  : true,
               )
               .map((session) => (
                 <button
@@ -399,10 +399,10 @@ export function ChatSidebar({
                 if (!user?.uid || !selectedSession) return;
                 try {
                   await deleteDoc(
-                    doc(db, "users", user.uid, "aiChats", selectedSession.id)
+                    doc(db, "users", user.uid, "aiChats", selectedSession.id),
                   );
                   setChatSessions((prev) =>
-                    prev.filter((s) => s.id !== selectedSession.id)
+                    prev.filter((s) => s.id !== selectedSession.id),
                   );
                   if (currentSessionId === selectedSession.id) {
                     onNewChat();

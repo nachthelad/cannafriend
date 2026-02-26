@@ -80,7 +80,7 @@ async function fetchSessionsData(userId: string): Promise<SessionsData> {
   try {
     if (
       typeof window !== "undefined" &&
-      window.localStorage.getItem("cf_premium") === "1"
+      window.localStorage.getItem("cf_premium_v1") === "1"
     ) {
       isPremium = true;
     } else if (auth.currentUser) {
@@ -404,7 +404,7 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
       try {
         if (
           typeof window !== "undefined" &&
-          window.localStorage.getItem("cf_premium") === "1"
+          window.localStorage.getItem("cf_premium_v1") === "1"
         ) {
           setIsPremium(true);
         } else if (auth.currentUser) {

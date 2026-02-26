@@ -30,23 +30,22 @@ import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
-  // 1. Fetch all plants
-  const q = query(plantsCol(userId), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
+  // 1. Fetch plants and logs concurrently
+  const [snap, logsSnap] = await Promise.all([
+    getDocs(query(plantsCol(userId), orderBy("createdAt", "desc"))),
+    getDocs(
+      query(
+        collectionGroup(db, "logs"),
+        where("userId", "==", userId),
+        orderBy("date", "desc"),
+      ),
+    ),
+  ]);
 
   const plants: Plant[] = [];
   for (const d of snap.docs) {
     plants.push(normalizePlant(d.data(), d.id));
   }
-
-  // 2. Fetch ALL logs for this user in one go (using the new index)
-  const logsQuery = query(
-    collectionGroup(db, "logs"),
-    where("userId", "==", userId),
-    orderBy("date", "desc")
-  );
-
-  const logsSnap = await getDocs(logsQuery);
 
   // 3. Map logs to plants in memory
   const lastWaterings: Record<string, LogEntry> = {};
@@ -91,7 +90,7 @@ function PlantGridContent({
 
   const basePlants = useMemo(
     () => (includeEnded ? plants : plants.filter(isPlantGrowing)),
-    [plants, includeEnded]
+    [plants, includeEnded],
   );
 
   // Configure Fuse.js for intelligent search with Spanish translations
@@ -133,14 +132,15 @@ function PlantGridContent({
     filtered = searchResults.map((result) => result.item);
   }
 
-  // Seed type filter
-  if (seedTypeFilter !== "all") {
-    filtered = filtered.filter((plant) => plant.seedType === seedTypeFilter);
-  }
-
-  // Grow type filter
-  if (growTypeFilter !== "all") {
-    filtered = filtered.filter((plant) => plant.growType === growTypeFilter);
+  // Map filters into a single iteration pass
+  if (seedTypeFilter !== "all" || growTypeFilter !== "all") {
+    filtered = filtered.filter((plant) => {
+      const matchSeed =
+        seedTypeFilter === "all" || plant.seedType === seedTypeFilter;
+      const matchGrow =
+        growTypeFilter === "all" || plant.growType === growTypeFilter;
+      return matchSeed && matchGrow;
+    });
   }
 
   // Apply sorting
