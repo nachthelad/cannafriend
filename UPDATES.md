@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: implementar Vercel React Best Practices — 2026-02-26
 - [MINOR]: install vercel-react-best-practices skill — 2026-02-26
 - [MINOR]: wrap useSearchParams in suspense for build safety — 2026-02-26
 
