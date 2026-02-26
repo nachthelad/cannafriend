@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: wrap useSearchParams in suspense for build safety — 2026-02-26
+
 - [MINOR]: resolve import errors and refactor loading experience — 2026-02-18
 - [MID]: improve AI Assistant UI/UX and mobile navigation — 2026-02-18
 
