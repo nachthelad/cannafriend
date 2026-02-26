@@ -406,11 +406,7 @@ export function DashboardContainer({
           </h1>
         </div>
         <div className="flex flex-wrap gap-2 p-4 bg-card rounded-lg border shadow-sm shrink-0 mb-6">
-          <Suspense
-            fallback={
-              <div className="h-10 w-32 bg-muted rounded-md animate-pulse"></div>
-            }
-          >
+          <Suspense fallback={null}>
             <AIAssistantButton userId={userId} />
           </Suspense>
           <Button asChild variant="secondary">
