@@ -65,7 +65,7 @@ export function MobileDashboard({
   useEffect(() => {
     if (!hasOverdue) return;
 
-    const dismissedData = localStorage.getItem("overdue_alert_dismissed_data");
+    const dismissedData = localStorage.getItem("overdue_alert_dismissed_v1");
     if (dismissedData) {
       try {
         const { timestamp } = JSON.parse(dismissedData);
@@ -88,7 +88,7 @@ export function MobileDashboard({
   const handleDismiss = () => {
     setIsDismissed(true);
     localStorage.setItem(
-      "overdue_alert_dismissed_data",
+      "overdue_alert_dismissed_v1",
       JSON.stringify({ timestamp: Date.now() })
     );
   };

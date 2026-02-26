@@ -15,7 +15,7 @@ async function fetchPremiumStatus(_userId: string): Promise<boolean> {
   // Check localStorage flag first
   if (
     typeof window !== "undefined" &&
-    localStorage.getItem("cf_premium") === "1"
+    localStorage.getItem("cf_premium_v1") === "1"
   ) {
     return true;
   }
@@ -50,7 +50,7 @@ function AIAssistantContent({
   // Get premium status from Suspense
   const cacheKey = `premium-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
-    fetchPremiumStatus(userId)
+    fetchPremiumStatus(userId),
   );
   const isPremium = resource.read();
 
@@ -79,7 +79,7 @@ export default function AIAssistantPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleToggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setSidebarOpen((prev) => !prev);
   };
 
   // Open sidebar by default on desktop only

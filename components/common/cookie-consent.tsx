@@ -14,27 +14,27 @@ export function CookieConsent() {
 
   useEffect(() => {
     // Check if user has already given consent
-    const consent = localStorage.getItem("cookie-consent");
+    const consent = localStorage.getItem("cookie_consent_v1");
     if (!consent) {
       setShowBanner(true);
     }
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem("cookie-consent", "accepted");
+    localStorage.setItem("cookie_consent_v1", "accepted");
     if (typeof window !== "undefined") {
       window.dispatchEvent(
-        new CustomEvent("cookie-consent-changed", { detail: "accepted" })
+        new CustomEvent("cookie_consent_changed_v1", { detail: "accepted" })
       );
     }
     setShowBanner(false);
   };
 
   const handleDecline = () => {
-    localStorage.setItem("cookie-consent", "declined");
+    localStorage.setItem("cookie_consent_v1", "declined");
     if (typeof window !== "undefined") {
       window.dispatchEvent(
-        new CustomEvent("cookie-consent-changed", { detail: "declined" })
+        new CustomEvent("cookie_consent_changed_v1", { detail: "declined" })
       );
     }
     setShowBanner(false);

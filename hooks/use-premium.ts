@@ -9,7 +9,7 @@ import { onAuthStateChanged } from "firebase/auth";
 /**
  * Premium/Access hook for gating premium-only features.
  * - Enables access if:
- *   a) localStorage flag `cf_premium` is "1" (manual override), OR
+ *   a) localStorage flag `cf_premium_v1` is "1" (manual override), OR
  *   b) the authenticated user's ID token has custom claim `premium: true`
  */
 export function usePremium() {
@@ -20,7 +20,7 @@ export function usePremium() {
       try {
         return (
           typeof window !== "undefined" &&
-          localStorage.getItem("cf_premium") === "1"
+          localStorage.getItem("cf_premium_v1") === "1"
         );
       } catch {
         return false;
