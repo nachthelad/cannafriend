@@ -12,12 +12,21 @@ import {
   ImageUpload,
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
-import { Brain, User, X, Sparkles, ImageIcon } from "lucide-react";
+import {
+  Brain,
+  User,
+  X,
+  Sparkles,
+  ImageIcon,
+  Droplets,
+  Camera,
+} from "lucide-react";
 import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChatSidebar } from "@/components/ai/chat-sidebar";
 import { ChatInput } from "@/components/ai/chat-input";
+import { PlantPhotoModal } from "@/components/ai/plant-photo-modal";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
@@ -39,6 +48,7 @@ export function AIChat({
     sessionId,
   );
   const [provider, setProvider] = useState<"gemini" | "openai">("gemini");
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const imageUploadRef = useRef<ImageUploadHandle>(null);
@@ -167,6 +177,16 @@ export function AIChat({
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handlePlantPhotoSelect = (photoUrl: string, promptText: string) => {
+    setImages([{ url: photoUrl, type: "image/jpeg" }]);
+    setInput(promptText);
+    setIsPhotoModalOpen(false);
+    // Focus the input to let user review before sending
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -234,7 +254,7 @@ export function AIChat({
               {t("helpSubtext", { ns: "aiAssistant" })}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">
               <Card
                 variant="interactive"
                 className="p-4 cursor-pointer"
@@ -243,14 +263,14 @@ export function AIChat({
                 }
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-warning/10 rounded-lg">
+                  <div className="p-2 bg-warning/10 rounded-lg shrink-0">
                     <ImageIcon className="w-4 h-4 text-warning" />
                   </div>
                   <div>
                     <h3 className="font-medium text-sm">
                       {t("diagnoseIssue", { ns: "aiAssistant" })}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                       {t("diagnoseIssueDesc", { ns: "aiAssistant" })}
                     </p>
                   </div>
@@ -265,15 +285,35 @@ export function AIChat({
                 }
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-success/10 rounded-lg">
-                    <OpenAIIcon size={16} />
+                  <div className="p-2 bg-success/10 rounded-lg shrink-0">
+                    <Droplets className="w-4 h-4 text-success" />
                   </div>
                   <div>
                     <h3 className="font-medium text-sm">
                       {t("feedingSchedule", { ns: "aiAssistant" })}
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                       {t("feedingScheduleDesc", { ns: "aiAssistant" })}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card
+                variant="interactive"
+                className="p-4 cursor-pointer"
+                onClick={() => setIsPhotoModalOpen(true)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-indigo-500/10 rounded-lg shrink-0">
+                    <Camera className="w-4 h-4 text-indigo-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm">
+                      {t("plantPhotoQuery", { ns: "aiAssistant" })}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      {t("plantPhotoQueryDesc", { ns: "aiAssistant" })}
                     </p>
                   </div>
                 </div>
@@ -480,6 +520,12 @@ export function AIChat({
           className="sr-only"
           hideDefaultTrigger
           userId={user?.uid}
+        />
+
+        <PlantPhotoModal
+          isOpen={isPhotoModalOpen}
+          onClose={() => setIsPhotoModalOpen(false)}
+          onSelectPhoto={handlePlantPhotoSelect}
         />
       </div>
     </div>
