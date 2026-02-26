@@ -368,28 +368,6 @@ function DashboardContent({
   );
 }
 
-function AIAssistantButton({ userId }: { userId: string }) {
-  const { t } = useTranslation(["aiAssistant"]);
-  const cacheKey = `dashboard-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () =>
-    fetchDashboardData(userId),
-  );
-  const { isPremium } = resource.read();
-
-  if (!isPremium) return null;
-
-  return (
-    <Button
-      asChild
-      className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
-    >
-      <Link href={ROUTE_AI_ASSISTANT}>
-        <Brain className="h-5 w-5 mr-1" /> {t("title", { ns: "aiAssistant" })}
-      </Link>
-    </Button>
-  );
-}
-
 export function DashboardContainer({
   userId,
   userEmail,
@@ -406,9 +384,15 @@ export function DashboardContainer({
           </h1>
         </div>
         <div className="flex flex-wrap gap-2 p-4 bg-card rounded-lg border shadow-sm shrink-0 mb-6">
-          <Suspense fallback={null}>
-            <AIAssistantButton userId={userId} />
-          </Suspense>
+          <Button
+            asChild
+            className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
+          >
+            <Link href={ROUTE_AI_ASSISTANT}>
+              <Brain className="h-5 w-5 mr-1" />{" "}
+              {t("title", { ns: "aiAssistant" })}
+            </Link>
+          </Button>
           <Button asChild variant="secondary">
             <Link href={ROUTE_REMINDERS}>
               <Bell className="h-5 w-5 mr-1" />{" "}
