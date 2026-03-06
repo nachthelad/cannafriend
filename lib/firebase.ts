@@ -47,20 +47,16 @@ export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Initialize Analytics only on client side
-let analytics: any = null;
 if (typeof window !== "undefined") {
-  try {
-    const { getAnalytics, isSupported } = require("firebase/analytics");
-    isSupported().then((supported: boolean) => {
-      if (supported) {
-        analytics = getAnalytics(app);
-      }
-    }).catch(() => {
-      // Analytics not supported
+  import("firebase/analytics")
+    .then(({ getAnalytics, isSupported }) =>
+      isSupported().then((supported) => {
+        if (supported) getAnalytics(app);
+      }),
+    )
+    .catch(() => {
+      // Analytics not supported or unavailable
     });
-  } catch (e) {
-    // Analytics not available
-  }
 }
 
 // Configure Google Auth provider

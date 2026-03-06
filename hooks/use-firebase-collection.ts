@@ -162,7 +162,6 @@ export function useFirebaseCollection<T extends DocumentData>(
     }
   }, [
     resolvedPath,
-    JSON.stringify(constraints),
     realtime,
     enabled,
     user?.uid,

@@ -44,17 +44,42 @@ export function createSuspenseResource<T>(promise: Promise<T>): SuspenseResource
   };
 }
 
-// Cache for resources to avoid re-fetching on re-renders
-const resourceCache = new Map<string, SuspenseResource<any>>();
+type CacheEntry<T> = {
+  resource: SuspenseResource<T>;
+  expiresAt: number;
+};
+
+// Cache for resources to avoid re-fetching on re-renders.
+// Entries expire after DEFAULT_TTL_MS even if explicit invalidation is missed.
+const resourceCache = new Map<string, CacheEntry<any>>();
+
+const DEFAULT_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+// Periodically purge expired entries to prevent unbounded growth
+if (typeof window !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of resourceCache) {
+      if (now > entry.expiresAt) resourceCache.delete(key);
+    }
+  }, 60 * 1000);
+}
 
 export function getSuspenseResource<T>(
   key: string,
-  fetcher: () => Promise<T>
+  fetcher: () => Promise<T>,
+  ttlMs = DEFAULT_TTL_MS,
 ): SuspenseResource<T> {
-  if (!resourceCache.has(key)) {
-    resourceCache.set(key, createSuspenseResource(fetcher()));
+  const now = Date.now();
+  const cached = resourceCache.get(key);
+
+  if (cached && now < cached.expiresAt) {
+    return cached.resource as SuspenseResource<T>;
   }
-  return resourceCache.get(key)!;
+
+  const resource = createSuspenseResource(fetcher());
+  resourceCache.set(key, { resource, expiresAt: now + ttlMs });
+  return resource;
 }
 
 // Clear cache when needed (e.g., on data mutations)
