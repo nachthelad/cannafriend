@@ -1,25 +1,9 @@
-// Simple in-memory rate limiter for Node runtime routes
-// Fixed-window counter keyed by arbitrary string (e.g., `${uid}:${ip}`)
+// Persistent rate limiter backed by Firestore Admin SDK.
+// Uses a Firestore transaction per request for atomic fixed-window counting.
+// Works correctly across multiple serverless instances (no in-memory state).
 
-type RateEntry = {
-  count: number;
-  resetAt: number;
-};
-
-const store = new Map<string, RateEntry>();
-
-// Periodically purge expired entries to prevent unbounded memory growth.
-// Runs every 5 minutes; safe to call in serverless since it only fires
-// while the instance is alive.
-setInterval(
-  () => {
-    const now = Date.now();
-    for (const [key, entry] of store) {
-      if (now > entry.resetAt) store.delete(key);
-    }
-  },
-  5 * 60 * 1000,
-).unref?.();
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { ensureAdminApp } from "@/lib/firebase-admin";
 
 export type RateCheck = {
   ok: boolean;
@@ -28,32 +12,42 @@ export type RateCheck = {
   limit: number;
 };
 
-export function checkRateLimit(
+export async function checkRateLimit(
   key: string,
   maxRequests: number,
   windowMs: number,
-): RateCheck {
+): Promise<RateCheck> {
+  ensureAdminApp();
+  const db = getFirestore();
+
+  // Firestore doc IDs cannot contain '/', replace unsafe chars
+  const docId = key.replace(/\//g, "_").replace(/[^a-zA-Z0-9_:.@-]/g, "_");
+  const docRef = db.collection("_rateLimits").doc(docId);
+
   const now = Date.now();
-  const current = store.get(key);
 
-  if (!current || now > current.resetAt) {
-    const fresh: RateEntry = { count: 0, resetAt: now + windowMs };
-    store.set(key, fresh);
-  }
+  const { count, resetAt } = await db.runTransaction(async (tx) => {
+    const doc = await tx.get(docRef);
 
-  const entry = store.get(key)!;
-  entry.count += 1;
-  store.set(key, entry);
+    if (!doc.exists || now > (doc.data()!.resetAt as number)) {
+      const fresh = { count: 1, resetAt: now + windowMs };
+      tx.set(docRef, fresh);
+      return fresh;
+    }
 
-  const remaining = Math.max(0, maxRequests - entry.count);
-  const ok = entry.count <= maxRequests;
-  const resetMs = Math.max(0, entry.resetAt - now);
+    const data = doc.data()!;
+    tx.update(docRef, { count: FieldValue.increment(1) });
+    return { count: (data.count as number) + 1, resetAt: data.resetAt as number };
+  });
+
+  const remaining = Math.max(0, maxRequests - count);
+  const ok = count <= maxRequests;
+  const resetMs = Math.max(0, resetAt - now);
 
   return { ok, remaining, resetMs, limit: maxRequests };
 }
 
 export function extractClientIp(headers: Headers): string {
-  // Try common forwarding headers first
   const order = [
     "cf-connecting-ip",
     "x-forwarded-for",

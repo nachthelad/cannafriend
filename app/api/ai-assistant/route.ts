@@ -208,7 +208,7 @@ export async function POST(req: NextRequest) {
     const windowMs = Number(process.env.AI_CHAT_RATELIMIT_WINDOW_MS || 60_000);
     const ip = extractClientIp(req.headers) || "unknown";
     const key = `ai-chat:${decoded.uid}:${ip}`;
-    const rl = checkRateLimit(key, limit, windowMs);
+    const rl = await checkRateLimit(key, limit, windowMs);
     if (!rl.ok) {
       return NextResponse.json(
         { error: "rate_limited" },
