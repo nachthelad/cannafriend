@@ -3,17 +3,9 @@
 import type { ChatInputProps } from "@/types/ai";
 import { Button } from "@/components/ui/button";
 import { Send, Paperclip, Loader2, History } from "lucide-react";
-import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
   (
@@ -24,8 +16,6 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
       onSendMessage,
       onShowImageUpload,
       isLoading,
-      provider,
-      onProviderChange,
       onToggleSidebar,
     },
     ref,
@@ -112,30 +102,8 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
             </Button>
           </div>
 
-          {/* Right: Provider & Send */}
+          {/* Right: Send */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <Select value={provider} onValueChange={onProviderChange}>
-              <SelectTrigger className="h-8 sm:h-9 w-[130px] sm:w-[140px] rounded-full text-xs sm:text-sm border-0 bg-transparent hover:bg-muted/50 focus:ring-0 px-2 sm:px-3 text-muted-foreground hover:text-foreground transition-colors">
-                <div className="flex items-center gap-2">
-                  <SelectValue />
-                </div>
-              </SelectTrigger>
-              <SelectContent align="end" className="rounded-xl">
-                <SelectItem value="gemini" className="rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <GeminiIcon size={16} />
-                    <span>Gemini</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="openai" className="rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <OpenAIIcon size={16} />
-                    <span>OpenAI</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-
             <Button
               onClick={onSendMessage}
               variant={value.trim() ? "default" : "secondary"}
