@@ -8,7 +8,8 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "UTC"
-    open-pull-requests-limit: 10
+    # Menos PRs abiertos a la vez: revisas en bloques y no se acumulan
+    open-pull-requests-limit: 5
     reviewers:
       - "nachthelad"
     assignees:
@@ -19,7 +20,7 @@ updates:
     labels:
       - "dependencies"
       - "automated"
-    # Group minor and patch updates
+    # Un solo grupo minor+patch → 1 PR por semana; majors en otro PR
     groups:
       minor-and-patch:
         patterns:
@@ -27,41 +28,24 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      
-      # Separate group for major updates
+
       major-updates:
         patterns:
           - "*"
         update-types:
           - "major"
-      
-      # Group React ecosystem updates
-      react-ecosystem:
-        patterns:
-          - "react*"
-          - "@types/react*"
-          - "next*"
-        update-types:
-          - "minor"
-          - "patch"
-      
-      # Group testing dependencies
-      testing-dependencies:
-        patterns:
-          - "@testing-library/*"
-          - "jest*"
-        update-types:
-          - "minor"
-          - "patch"
-    
-    # Ignore certain dependencies that need manual updates
+
+    # Evitar PRs que suelen romper CI; los actualizas cuando quieras
     ignore:
       - dependency-name: "node"
-        versions: [">= 21"]  # Keep Node.js version stable
+        versions: [">= 21"]
       - dependency-name: "react"
-        update-types: ["version-update:semver-major"]  # Manual React major updates
+        update-types: ["version-update:semver-major"]
       - dependency-name: "next"
-        update-types: ["version-update:semver-major"]  # Manual Next.js major updates
+        update-types: ["version-update:semver-major"]
+      # Stripe major suele tener breaking changes; actualizar manualmente
+      - dependency-name: "stripe"
+        update-types: ["version-update:semver-major"]
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
