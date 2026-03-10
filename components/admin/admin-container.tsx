@@ -79,7 +79,7 @@ function AdminContent() {
     try {
       const next = await fetchAdminUsers();
       setUsers(next);
-    } catch (error: any) {
+    } catch (error) {
       handleError(error);
     } finally {
       setUsersLoading(false);
@@ -104,7 +104,7 @@ function AdminContent() {
         if (!response.ok) {
           throw new Error(data?.error || "update_failed");
         }
-      } catch (error: any) {
+      } catch (error) {
         setUsers(previous);
         handleError(error);
       }
@@ -142,7 +142,7 @@ function AdminContent() {
       }
       const items = (data?.items || []) as MpSearchItem[];
       setMpItems(items);
-    } catch (error: any) {
+    } catch (error) {
       handleError(error);
     } finally {
       setMpLoading(false);
@@ -167,7 +167,7 @@ function AdminContent() {
           description: `premium: ${data?.premium ? "true" : "false"}`,
         });
         await refreshUsers();
-      } catch (error: any) {
+      } catch (error) {
         handleError(error);
       } finally {
         setMpLoading(false);
@@ -193,7 +193,7 @@ function AdminContent() {
       }
       const items = (data?.items || []) as StripeSearchItem[];
       setStripeItems(items);
-    } catch (error: any) {
+    } catch (error) {
       handleError(error);
     } finally {
       setStripeLoading(false);
@@ -218,7 +218,7 @@ function AdminContent() {
           description: `premium: ${data?.premium ? "true" : "false"}`,
         });
         await refreshUsers();
-      } catch (error: any) {
+      } catch (error) {
         handleError(error);
       } finally {
         setStripeLoading(false);

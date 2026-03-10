@@ -69,7 +69,7 @@ export function MultiPlantSelector({
                 key={plant.id}
                 onClick={() => togglePlant(plant.id)}
                 className={cn(
-                  "relative w-[100px] cursor-pointer transition-all duration-200 rounded-lg overflow-hidden border-2",
+                  "relative w-[100px] cursor-pointer transition-[border-color,box-shadow,transform,opacity] duration-200 rounded-lg overflow-hidden border-2",
                   isSelected
                     ? "border-primary ring-2 ring-primary/20 scale-[0.98]"
                     : "border-transparent opacity-80 hover:opacity-100 bg-background"

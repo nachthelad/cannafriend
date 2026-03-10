@@ -195,7 +195,7 @@ export function ChatSidebar({
       {/* Desktop Sidebar */}
       <div
         className={cn(
-          "hidden md:flex md:flex-col md:h-full md:bg-background md:border-r transition-all duration-300",
+          "hidden md:flex md:flex-col md:h-full md:bg-background md:border-r transition-[width] duration-300",
           isOpen ? "md:w-80" : "md:w-16",
           className,
         )}

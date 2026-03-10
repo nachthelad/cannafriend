@@ -36,7 +36,7 @@ export function DataCard({
   const content = (
     <Card
       className={cn(
-        "p-6 transition-all duration-200",
+        "p-6 transition-[box-shadow,border-color,transform] duration-200",
         href && "hover:shadow-md hover:border-primary/30 cursor-pointer active:scale-[0.99]",
         className
       )}

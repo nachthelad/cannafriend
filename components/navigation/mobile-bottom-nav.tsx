@@ -91,7 +91,7 @@ export function MobileBottomNav(): React.ReactElement {
                 href={item.href}
                 onClick={() => handleHapticClick("light")}
                 className={cn(
-                  "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
+                  "flex min-h-[48px] items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 active:scale-95",
                   isActive(item.href)
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -108,7 +108,7 @@ export function MobileBottomNav(): React.ReactElement {
             <Link
               href="/plants/new"
               onClick={() => triggerHaptic("medium")}
-              className="relative -translate-y-2 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 active:scale-95 hover:shadow-xl hover:shadow-primary/30"
+              className="relative -translate-y-2 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/25 transition-[box-shadow,transform] duration-300 active:scale-95 hover:shadow-xl hover:shadow-primary/30"
               aria-label="Add"
             >
               <Plus className="h-7 w-7" />
@@ -125,7 +125,7 @@ export function MobileBottomNav(): React.ReactElement {
                 href={item.href}
                 onClick={() => handleHapticClick("light")}
                 className={cn(
-                  "flex min-h-[48px] items-center justify-center rounded-xl transition-all duration-200 active:scale-95",
+                  "flex min-h-[48px] items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 active:scale-95",
                   isActive(item.href)
                     ? "text-primary bg-primary/10"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent/50"

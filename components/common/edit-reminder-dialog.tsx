@@ -275,7 +275,7 @@ export function EditReminderDialog({
               >
                 <SelectTrigger
                   className={cn(
-                    "h-12 bg-background border-input/50 focus:ring-primary/20 transition-all",
+                    "h-12 bg-background border-input/50 focus:ring-primary/20 transition-[border-color,box-shadow]",
                     errors.selectedPlant &&
                       "border-destructive focus:ring-destructive/20"
                   )}
@@ -317,7 +317,7 @@ export function EditReminderDialog({
                   {...register("label")}
                   placeholder={t("customTitle", { ns: "reminders" })}
                   className={cn(
-                    "h-12 pl-10 bg-background border-input/50 focus:ring-primary/20 transition-all",
+                    "h-12 pl-10 bg-background border-input/50 focus:ring-primary/20 transition-[border-color,box-shadow]",
                     errors.label &&
                       "border-destructive focus:ring-destructive/20"
                   )}
@@ -361,7 +361,7 @@ export function EditReminderDialog({
                     const selected = daysOfWeek?.includes(dayIndex);
                     return (
                       <button
-                        key={index}
+                        key={day}
                         type="button"
                         onClick={() => {
                           const current = new Set(daysOfWeek || []);
@@ -375,7 +375,7 @@ export function EditReminderDialog({
                           });
                         }}
                         className={cn(
-                          "h-9 w-9 rounded-full text-xs font-medium transition-all duration-200 flex items-center justify-center",
+                          "h-9 w-9 rounded-full text-xs font-medium transition-[background-color,color,transform] duration-200 flex items-center justify-center",
                           selected
                             ? "bg-primary text-primary-foreground shadow-sm scale-105"
                             : "bg-background border border-input hover:bg-accent hover:text-accent-foreground text-muted-foreground"

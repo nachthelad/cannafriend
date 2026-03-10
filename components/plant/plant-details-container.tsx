@@ -244,7 +244,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidateDashboardCache(userId);
 
       router.push(ROUTE_DASHBOARD);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "delete plant");
     } finally {
       setIsDeleting(false);
@@ -271,7 +271,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
         titleKey: "deleted",
         descriptionKey: "deletedDesc",
       });
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "delete log");
     }
   };
@@ -304,11 +304,11 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
         titleKey: "photos.uploadSuccess",
         descriptionKey: "photos.photosUpdated",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: t("photos.uploadError", { ns: "plants" }),
-        description: error.message,
+        description: error instanceof Error ? error.message : undefined,
       });
     }
   };
@@ -349,7 +349,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "remove photo");
     }
   };
@@ -365,7 +365,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "set cover photo");
     }
   };

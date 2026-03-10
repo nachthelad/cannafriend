@@ -327,7 +327,7 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
                 placeholder={t("searchPlaceholder", { ns: "journal" })}
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-all"
+                className="pl-9 bg-background/50 border-border/50 focus:bg-background transition-[border-color,background-color,box-shadow]"
               />
               {searchText && (
                 <button

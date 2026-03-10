@@ -792,7 +792,7 @@ export function SessionDetailView({
             <div className="flex gap-2 overflow-x-auto pb-2">
               {session.photos!.map((photo, index) => (
                 <button
-                  key={index}
+                  key={photo}
                   onClick={() => setCurrentPhotoIndex(index)}
                   className={`relative h-16 w-16 flex-shrink-0 overflow-hidden rounded border-2 transition-colors ${
                     currentPhotoIndex === index

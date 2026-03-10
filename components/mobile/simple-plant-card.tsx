@@ -29,7 +29,7 @@ export function SimplePlantCard({
       <Link
         href={`/plants/${plant.id}`}
         className={cn(
-          "relative overflow-hidden rounded-lg cursor-pointer transition-all active:scale-95 bg-card flex",
+          "relative overflow-hidden rounded-lg cursor-pointer transition-[box-shadow,transform] active:scale-95 bg-card flex",
           isOverlay && "md:hover:-translate-y-0.5 md:hover:shadow-lg",
           className
         )}
@@ -97,7 +97,7 @@ export function SimplePlantCard({
     <Link
       href={`/plants/${plant.id}`}
       className={cn(
-        "relative overflow-hidden rounded-lg cursor-pointer transition-all active:scale-95 bg-card block",
+        "relative overflow-hidden rounded-lg cursor-pointer transition-[box-shadow,transform] active:scale-95 bg-card block",
         isOverlay && "md:hover:-translate-y-0.5 md:hover:shadow-lg",
         className
       )}

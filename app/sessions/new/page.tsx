@@ -224,6 +224,7 @@ export default function NewSessionPage() {
             </label>
             <Input
               id="strain"
+              autoComplete="off"
               {...register("strain", {
                 required: t("required", { ns: "sessions" }) as any,
               })}
@@ -304,6 +305,7 @@ export default function NewSessionPage() {
               </label>
               <Input
                 id="method"
+                autoComplete="off"
                 {...register("method")}
                 placeholder={t("methodPlaceholder", { ns: "sessions" })}
                 className="min-h-[48px] text-base"
@@ -315,6 +317,7 @@ export default function NewSessionPage() {
               </label>
               <Input
                 id="amount"
+                autoComplete="off"
                 {...register("amount")}
                 placeholder={t("amountPlaceholder", { ns: "sessions" })}
                 className="min-h-[48px] text-base"

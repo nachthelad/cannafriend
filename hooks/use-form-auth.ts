@@ -18,7 +18,7 @@ interface UseFormAuthReturn<T extends FieldValues> {
   setShowPassword: (show: boolean) => void
   showConfirmPassword?: boolean
   setShowConfirmPassword?: (show: boolean) => void
-  handleFirebaseError: (error: any, context?: string) => void
+  handleFirebaseError: (error: unknown, context?: string) => void
   toast: ReturnType<typeof useToast>['toast']
   t: ReturnType<typeof useTranslation>['t']
 }

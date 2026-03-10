@@ -30,7 +30,7 @@ export function PlantCard({
     <Link href={`/plants/${plant.id}`} className="block h-full">
       <Card
         className={cn(
-          "group overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5 h-full",
+          "group overflow-hidden cursor-pointer transition-[box-shadow,transform] hover:shadow-lg hover:-translate-y-0.5 h-full",
           isMobileVariant &&
             "rounded-xl border-none bg-gradient-to-b from-emerald-500/10 to-background hover:shadow-xl",
           className

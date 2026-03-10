@@ -167,6 +167,7 @@ export default function NewPlantPage() {
             </label>
             <Input
               id="name"
+              autoComplete="off"
               placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
               className="min-h-[48px] text-base"
               {...register("name", {
@@ -206,7 +207,7 @@ export default function NewPlantPage() {
                 <Label
                   htmlFor="autoflowering"
                   className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all h-full",
+                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
                     seedType === SEED_TYPES.AUTOFLOWERING &&
                       "border-primary bg-primary/5"
                   )}
@@ -228,7 +229,7 @@ export default function NewPlantPage() {
                 <Label
                   htmlFor="photoperiodic"
                   className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all h-full",
+                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
                     seedType === SEED_TYPES.PHOTOPERIODIC &&
                       "border-primary bg-primary/5"
                   )}
@@ -272,7 +273,7 @@ export default function NewPlantPage() {
                 <Label
                   htmlFor="indoor"
                   className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all h-full",
+                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
                     growType === GROW_TYPES.INDOOR &&
                       "border-primary bg-primary/5"
                   )}
@@ -294,7 +295,7 @@ export default function NewPlantPage() {
                 <Label
                   htmlFor="outdoor"
                   className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all h-full",
+                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
                     growType === GROW_TYPES.OUTDOOR &&
                       "border-primary bg-primary/5"
                   )}
@@ -367,6 +368,7 @@ export default function NewPlantPage() {
                 </Label>
                 <Input
                   id="lightSchedule"
+                  autoComplete="off"
                   placeholder={t("newPlant.lightSchedulePlaceholder", {
                     ns: "plants",
                   })}
@@ -398,6 +400,7 @@ export default function NewPlantPage() {
             </label>
             <Input
               id="seedBank"
+              autoComplete="organization"
               placeholder={t("newPlant.seedBankPlaceholder", { ns: "plants" })}
               className="min-h-[48px] text-base"
               {...register("seedBank")}

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getImageAltText } from "@/lib/image-config";
+import Image from "next/image";
 
 export function ImageGalleryModal({
   images,
@@ -65,14 +66,19 @@ export function ImageGalleryModal({
           </Button>
 
           {/* Imagen principal */}
-          <div className="flex items-center justify-center h-full">
-            <img
+          <div
+            className="relative flex items-center justify-center"
+            style={{ height: "70vh" }}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+          >
+            <Image
               src={images[currentIndex]}
               alt={getImageAltText(currentIndex, t("gallery.image"))}
-              className="max-w-full max-h-full object-contain"
-              loading="lazy"
-              onKeyDown={handleKeyDown}
-              tabIndex={0}
+              fill
+              className="object-contain"
+              sizes="100vw"
+              priority
             />
           </div>
 
@@ -111,18 +117,20 @@ export function ImageGalleryModal({
             <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 flex gap-2 bg-black/70 p-2 rounded-lg max-w-sm overflow-x-auto">
               {images.map((image, index) => (
                 <button
-                  key={index}
+                  key={image}
                   onClick={() => setCurrentIndex(index)}
-                  className={`w-12 h-12 rounded overflow-hidden border-2 transition-all ${
+                  className={`relative w-12 h-12 flex-shrink-0 rounded overflow-hidden border-2 transition-[border-color] ${
                     index === currentIndex
                       ? "border-white"
                       : "border-transparent hover:border-white/50"
                   }`}
                 >
-                  <img
+                  <Image
                     src={image}
                     alt={getImageAltText(index, t("gallery.thumbnail"))}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="48px"
                     loading="lazy"
                   />
                 </button>

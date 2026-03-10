@@ -60,11 +60,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       // Let the auth state change handler in Home component handle navigation
       // to avoid race conditions with competing redirects
-    } catch (error: any) {
+    } catch (error) {
       // Handle specific field clearing for certain errors
-      if (error?.code === "auth/wrong-password") {
+      const code = (error as { code?: string })?.code;
+      if (code === "auth/wrong-password") {
         setValue("password", "");
-      } else if (error?.code === "auth/user-not-found") {
+      } else if (code === "auth/user-not-found") {
         setValue("email", "");
       }
 

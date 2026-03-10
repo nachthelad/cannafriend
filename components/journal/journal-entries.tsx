@@ -186,7 +186,7 @@ export function JournalEntries({
               <Icon className="h-4 w-4" />
             </div>
 
-            <div className="bg-card rounded-xl border shadow-sm hover:shadow-md transition-all duration-200 p-4">
+            <div className="bg-card rounded-xl border shadow-sm hover:shadow-md transition-[box-shadow] duration-200 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <div className="font-semibold text-base flex flex-wrap items-center gap-x-2">
