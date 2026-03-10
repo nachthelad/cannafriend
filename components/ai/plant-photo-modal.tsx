@@ -152,7 +152,7 @@ export function PlantPhotoModal({
                     {plant.photos?.map((photoUrl, index) => (
                       <div
                         key={index}
-                        className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 transition-[border-color,box-shadow] ${
                           selectedPhoto?.url === photoUrl
                             ? "border-primary ring-2 ring-primary ring-offset-2"
                             : "border-transparent hover:border-primary/50"

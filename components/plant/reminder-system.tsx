@@ -385,7 +385,7 @@ export function ReminderSystem({
               <Card
                 key={reminder.id}
                 variant="interactive"
-                className={`group relative overflow-hidden transition-all duration-300 ${
+                className={`group relative overflow-hidden transition-[opacity,filter,box-shadow] duration-300 ${
                   !reminder.isActive ? "opacity-75 grayscale-[0.5]" : ""
                 }`}
               >

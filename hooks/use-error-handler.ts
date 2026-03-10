@@ -8,25 +8,38 @@ interface ErrorHandlerOptions {
   fallbackMessage?: string;
 }
 
+type FirebaseLikeError = {
+  code?: string;
+  message?: string;
+  error?: string;
+  errors?: { message?: string }[];
+};
+
+function toFirebaseError(error: unknown): FirebaseLikeError {
+  if (error && typeof error === "object") return error as FirebaseLikeError;
+  if (typeof error === "string") return { message: error };
+  return {};
+}
+
 export const useErrorHandler = () => {
   const { toast } = useToast();
   const { t } = useTranslation(["common"]);
 
-  const handleError = (error: any, options: ErrorHandlerOptions = {}) => {
+  const handleError = (error: unknown, options: ErrorHandlerOptions = {}) => {
     const { showToast = true, fallbackMessage } = options;
+    const e = toFirebaseError(error);
 
-    // Extract error message
     let errorMessage = fallbackMessage || t("common.unknownError");
 
     if (error) {
       if (typeof error === "string") {
         errorMessage = error;
-      } else if (error.message) {
-        errorMessage = error.message;
-      } else if (error.error) {
-        errorMessage = error.error;
-      } else if (error.errors && Array.isArray(error.errors)) {
-        errorMessage = error.errors[0]?.message || errorMessage;
+      } else if (e.message) {
+        errorMessage = e.message;
+      } else if (e.error) {
+        errorMessage = e.error;
+      } else if (e.errors && Array.isArray(e.errors)) {
+        errorMessage = e.errors[0]?.message || errorMessage;
       }
     }
 
@@ -45,11 +58,12 @@ export const useErrorHandler = () => {
     return errorMessage;
   };
 
-  const handleFirebaseError = (error: any, context?: string) => {
+  const handleFirebaseError = (error: unknown, context?: string) => {
+    const e = toFirebaseError(error);
     let errorMessage = t("common.unknownError");
 
-    if (error?.code) {
-      switch (error.code) {
+    if (e.code) {
+      switch (e.code) {
         case "auth/user-not-found":
           errorMessage = t("auth.userNotFound");
           break;
@@ -81,10 +95,10 @@ export const useErrorHandler = () => {
           errorMessage = t("firebase.notFound");
           break;
         default:
-          errorMessage = error.message || t("common.unknownError");
+          errorMessage = e.message || t("common.unknownError");
       }
-    } else if (error?.message) {
-      errorMessage = error.message;
+    } else if (e.message) {
+      errorMessage = e.message;
     }
 
     console.error(`Firebase error${context ? ` in ${context}` : ""}:`, error);

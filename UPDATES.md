@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: suspense cache TTL, firebase collection hook dep, analytics ESM import — 2026-03-10
 - [MINOR]: persistent rate limiter and CSP headers for all pages — 2026-03-06
 - [MID]: Implement AI assistant with chat functionality, plant photo analysis, and updated localization. — 2026-03-06
 - [MINOR]: implementar Vercel React Best Practices — 2026-02-26

@@ -20,7 +20,7 @@ export function PlantListSkeleton() {
 
 export function PlantCardSkeleton() {
   return (
-    <Card className="overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5">
+    <Card className="overflow-hidden cursor-pointer transition-[box-shadow,transform] hover:shadow-lg hover:-translate-y-0.5">
       <div className="relative aspect-[4/3] sm:aspect-video">
         {/* Plant image skeleton - main background */}
         <Skeleton className="h-full w-full rounded-none" />

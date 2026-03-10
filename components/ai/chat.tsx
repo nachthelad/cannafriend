@@ -324,8 +324,8 @@ export function AIChat({
             <div className="w-full">
               {images.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
-                  {images.map((img, index) => (
-                    <div key={index} className="relative flex-shrink-0 group">
+                  {images.map((img) => (
+                    <div key={img.url} className="relative flex-shrink-0 group">
                       <div className="relative w-20 h-20 rounded-lg overflow-hidden border bg-background shadow-sm">
                         <Image
                           src={img.url}
@@ -369,7 +369,7 @@ export function AIChat({
               <div className="max-w-3xl mx-auto space-y-6 pb-4">
                 {messages.map((message, index) => (
                   <div
-                    key={index}
+                    key={`${message.role}-${message.timestamp}-${index}`}
                     className={cn(
                       "flex gap-4",
                       message.role === "user" ? "justify-end" : "justify-start",
@@ -469,8 +469,8 @@ export function AIChat({
               <div className="max-w-3xl mx-auto w-full">
                 {images.length > 0 ? (
                   <div className="flex gap-3 overflow-x-auto mb-3 p-2">
-                    {images.map((img, index) => (
-                      <div key={index} className="relative flex-shrink-0 group">
+                    {images.map((img) => (
+                      <div key={img.url} className="relative flex-shrink-0 group">
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden border bg-background">
                           <Image
                             src={img.url}

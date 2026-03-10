@@ -117,7 +117,7 @@ function MobileSettingsContent({
       const next = { ...preferences, timezone: value };
       setPreferences(next);
       invalidateSettingsCache(userId);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "update timezone");
     }
   };
@@ -141,7 +141,7 @@ function MobileSettingsContent({
           window.location.reload();
         }
       }, 500);
-    } catch (error: any) {
+    } catch (error) {
       setPreferences((prev) => ({ ...prev, darkMode: previous }));
       setTheme(previous ? "dark" : "light");
       handleFirebaseError(error, "update dark mode");
@@ -152,7 +152,7 @@ function MobileSettingsContent({
     try {
       await signOut(auth);
       router.push(ROUTE_LOGIN);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "sign out");
     }
   };
@@ -202,11 +202,11 @@ function MobileSettingsContent({
       } else {
         throw new Error(data.message || "Failed to cancel subscription");
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: t("subscription.cancelError"),
-        description: error.message || "Failed to cancel subscription",
+        description: error instanceof Error ? error.message : "Failed to cancel subscription",
       });
     } finally {
       setIsCancellingSubscription(false);
@@ -228,8 +228,9 @@ function MobileSettingsContent({
       });
 
       router.push(ROUTE_LOGIN);
-    } catch (error: any) {
-      if (error.message === "DATA_DELETED_AUTH_FAILED") {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (errorMessage === "DATA_DELETED_AUTH_FAILED") {
         // Data deletion succeeded, but auth requires re-login
         // Show success message and sign out after delay
         toast({
@@ -245,7 +246,7 @@ function MobileSettingsContent({
           }
           router.push(ROUTE_LOGIN);
         }, 2000);
-      } else if (error.message === "REAUTH_REQUIRED") {
+      } else if (errorMessage === "REAUTH_REQUIRED") {
         toast({
           variant: "destructive",
           title: t("settings.deleteError"),
@@ -255,7 +256,7 @@ function MobileSettingsContent({
         toast({
           variant: "destructive",
           title: t("settings.deleteError"),
-          description: error.message || "Failed to delete account",
+          description: errorMessage || "Failed to delete account",
         });
       }
     } finally {

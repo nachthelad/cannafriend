@@ -74,8 +74,8 @@ export function SubscriptionManagement({
 
         {subscriptionLines.length > 0 && (
           <div className="space-y-2 text-sm">
-            {subscriptionLines.map((line, index) => (
-              <div key={index} className="flex justify-left">
+            {subscriptionLines.map((line) => (
+              <div key={line.label} className="flex justify-left">
                 <span className="text-muted-foreground">{line.label}:</span>
                 <span className="font-medium ml-2">{line.value}</span>
               </div>

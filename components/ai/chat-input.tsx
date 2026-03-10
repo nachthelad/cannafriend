@@ -70,7 +70,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
     };
 
     return (
-      <div className="relative flex flex-col w-full bg-muted/40 border hover:border-primary/20 focus-within:border-primary/50 focus-within:bg-background/50 focus-within:ring-4 focus-within:ring-primary/5 transition-all duration-200 rounded-3xl p-2 sm:p-3 shadow-sm">
+      <div className="relative flex flex-col w-full bg-muted/40 border hover:border-primary/20 focus-within:border-primary/50 focus-within:bg-background/50 focus-within:ring-4 focus-within:ring-primary/5 transition-[border-color,background-color,box-shadow] duration-200 rounded-3xl p-2 sm:p-3 shadow-sm">
         {/* Top: Text Area */}
         <textarea
           ref={setRefs}
@@ -142,7 +142,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
               disabled={isLoading || !value.trim()}
               size="icon"
               className={cn(
-                "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-all duration-200",
+                "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-[background-color,box-shadow,transform,opacity] duration-200",
                 value.trim()
                   ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
                   : "bg-muted text-muted-foreground/50 hover:bg-muted",

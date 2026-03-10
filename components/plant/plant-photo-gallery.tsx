@@ -112,7 +112,7 @@ export function PlantPhotoGallery({
                             setSelectedPhoto(photo);
                           }
                         }}
-                        className={`relative w-full aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-all`}
+                        className={`relative w-full aspect-square overflow-hidden rounded-lg border-2 cursor-pointer transition-[border-color,box-shadow]`}
                       >
                         <Image
                           src={photo}
@@ -367,7 +367,7 @@ export function PlantPhotoGallery({
                       setSelectedPhoto(photo);
                       openLightbox(photo);
                     }}
-                    className={`relative flex-shrink-0 w-20 h-20 overflow-hidden rounded-lg border-2 cursor-pointer transition-all duration-200 active:scale-90 snap-center`}
+                    className={`relative flex-shrink-0 w-20 h-20 overflow-hidden rounded-lg border-2 cursor-pointer transition-[border-color,transform] duration-200 active:scale-90 snap-center`}
                   >
                     <Image
                       src={photo}

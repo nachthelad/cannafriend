@@ -11,7 +11,7 @@ function Card({ className, variant = "default", ...props }: CardProps) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-[box-shadow,border-color,transform] duration-200",
         variant === "elevated" && "shadow-md hover:shadow-lg",
         variant === "interactive" &&
           "hover:shadow-md hover:border-primary/30 cursor-pointer active:scale-[0.99]",

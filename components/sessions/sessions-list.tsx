@@ -134,7 +134,7 @@ function SessionCard({
     <>
       <Card
         variant="interactive"
-        className="group relative overflow-hidden transition-all hover:border-primary/50"
+        className="group relative overflow-hidden transition-[border-color,box-shadow] hover:border-primary/50"
         onClick={handleViewClick}
       >
         <CardContent className="p-4 sm:p-5">
@@ -268,7 +268,7 @@ function SessionCard({
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {session.photos.map((photo, index) => (
                       <button
-                        key={index}
+                        key={photo}
                         onClick={() => setCurrentPhotoIndex(index)}
                         className={cn(
                           "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded border-2 transition-colors",

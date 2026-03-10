@@ -125,7 +125,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
 
       // Let the auth state change handler in Home component handle navigation
       // to avoid race conditions with competing redirects
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "signup");
     } finally {
       stopLoading();
