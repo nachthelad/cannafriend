@@ -47,7 +47,7 @@ export function AIChat({
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId,
   );
-  const [provider, setProvider] = useState<"gemini" | "openai">("gemini");
+  const [activeProvider, setActiveProvider] = useState<"gemini" | "openai">("gemini");
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -121,7 +121,6 @@ export function AIChat({
         body: JSON.stringify({
           messages: newMessages,
           sessionId: currentSessionId,
-          provider,
         }),
       });
 
@@ -148,6 +147,15 @@ export function AIChat({
 
       if (data.sessionId && !currentSessionId) {
         setCurrentSessionId(data.sessionId);
+      }
+
+      if (data.provider) setActiveProvider(data.provider);
+
+      if (data.providerSwitched) {
+        toast({
+          title: "Cambiando a OpenAI",
+          description: "Alcanzaste el límite diario de Gemini. Continuando con OpenAI.",
+        });
       }
     } catch (error: any) {
       setMessages(messages);
@@ -356,8 +364,6 @@ export function AIChat({
                 onSendMessage={handleSendMessage}
                 onShowImageUpload={() => imageUploadRef.current?.open()}
                 isLoading={isLoading}
-                provider={provider}
-                onProviderChange={setProvider}
                 onToggleSidebar={onToggleSidebar}
               />
             </div>
@@ -453,7 +459,7 @@ export function AIChat({
                 {isLoading ? (
                   <div className="flex gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50/50 dark:bg-indigo-950/30 flex items-center justify-center mt-1">
-                      <GeminiIcon size={16} />
+                      {activeProvider === "openai" ? <OpenAIIcon size={16} /> : <GeminiIcon size={16} />}
                     </div>
                     <div className="bg-muted/30 border rounded-2xl rounded-tl-sm p-4 min-w-[200px]">
                       <ThinkingAnimation />
@@ -501,8 +507,6 @@ export function AIChat({
                   onSendMessage={handleSendMessage}
                   onShowImageUpload={() => imageUploadRef.current?.open()}
                   isLoading={isLoading}
-                  provider={provider}
-                  onProviderChange={setProvider}
                   onToggleSidebar={onToggleSidebar}
                 />
                 <p className="text-[10px] text-center text-muted-foreground mt-2">

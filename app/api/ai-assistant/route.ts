@@ -21,9 +21,8 @@ type ClientMessage = {
 
 type ChatRequest = {
   messages: ClientMessage[];
-  chatType?: string; // Optional, keeping for backward compatibility
+  chatType?: string;
   sessionId?: string;
-  provider?: "openai" | "gemini";
 };
 
 type VisionPart =
@@ -37,11 +36,15 @@ type OpenAIMessage =
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
 // Modelos OpenAI
-const PRIMARY_MODEL_OPENAI = "gpt-5-mini";
-const FALLBACK_MODELS_OPENAI = ["gpt-5"] as const;
+const PRIMARY_MODEL_OPENAI = "gpt-4.1-nano";
+const FALLBACK_MODELS_OPENAI = ["gpt-4o-mini"] as const;
 
 // Modelos Gemini
-const PRIMARY_MODEL_GEMINI = "gemini-2.0-flash-exp";
+const PRIMARY_MODEL_GEMINI = "gemini-2.5-flash-lite";
+
+// Límites y tokens
+const MAX_OUTPUT_TOKENS = 600;
+const GEMINI_DAILY_LIMIT = Number(process.env.GEMINI_DAILY_LIMIT || 10);
 
 // === Utilidades ===
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -117,19 +120,22 @@ async function callOpenAI<T extends object>(
   );
 }
 
-const SYSTEM_PROMPT = `You are a comprehensive cannabis assistant. Answer ONLY questions related to cannabis, including:
+const SYSTEM_PROMPT = `You are a concise cannabis assistant. Answer ONLY cannabis-related questions.
 
-CULTIVATION: Growing, plant health, nutrients, environment, pests, equipment, genetics, harvest, etc.
-CONSUMPTION: Effects, strains, dosing, methods, storage, harm reduction, legality context, etc.
+CULTIVATION: Growing, plant health, nutrients, environment, pests, equipment, genetics, harvest.
+CONSUMPTION: Effects, strains, dosing, methods, storage, harm reduction, legality.
 
-If the question is unrelated to cannabis, briefly refuse and ask to rephrase within cannabis scope. Be concise, actionable, and prioritize safety. Respond in the same language as the user's question (Spanish or English).`;
+IMPORTANT: Keep responses SHORT (2-4 sentences max). Use bullet points for lists. Skip preamble. If unrelated to cannabis, refuse in one sentence. Prioritize safety. Respond in the user's language (Spanish or English).`;
 
 async function callGemini(
   messages: ClientMessage[],
   apiKey: string,
 ): Promise<{ content: string; model: string }> {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL_GEMINI });
+  const model = genAI.getGenerativeModel({
+    model: PRIMARY_MODEL_GEMINI,
+    generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
+  });
 
   const chatHistory = messages.slice(0, -1).map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
@@ -176,6 +182,29 @@ async function callGemini(
   const result = await chat.sendMessage(parts);
   const response = result.response;
   return { content: response.text(), model: PRIMARY_MODEL_GEMINI };
+}
+
+async function checkAndIncrementGeminiUsage(uid: string): Promise<boolean> {
+  const today = new Date().toISOString().split("T")[0];
+  const db = getFirestore();
+  const usageRef = db
+    .collection("users")
+    .doc(uid)
+    .collection("aiUsage")
+    .doc("gemini");
+  try {
+    const snap = await usageRef.get();
+    const data = snap.data();
+    if (!data || data.resetDate !== today) {
+      await usageRef.set({ count: 1, resetDate: today });
+      return true;
+    }
+    if (data.count >= GEMINI_DAILY_LIMIT) return false;
+    await usageRef.update({ count: data.count + 1 });
+    return true;
+  } catch {
+    return true; // ante error, permitir
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -228,7 +257,6 @@ export async function POST(req: NextRequest) {
       messages,
       chatType,
       sessionId,
-      provider = "gemini",
     } = (await req.json()) as ChatRequest;
 
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -298,28 +326,34 @@ export async function POST(req: NextRequest) {
 
     let content: string = "";
     let modelUsed: string = "";
+    let providerUsed: "gemini" | "openai" = "gemini";
+    let providerSwitched = false;
 
-    if (provider === "gemini") {
-      const geminiKey = process.env.GEMINI_API_KEY;
-      if (!geminiKey) {
-        return NextResponse.json(
-          { error: "missing_GEMINI_API_KEY" },
-          { status: 500 },
-        );
+    // === Primario: Gemini (free tier) ===
+    const geminiKey = process.env.GEMINI_API_KEY;
+    let geminiSucceeded = false;
+    if (geminiKey) {
+      ensureAdminApp();
+      const geminiAllowed = await checkAndIncrementGeminiUsage(decoded.uid);
+      if (geminiAllowed) {
+        try {
+          const result = await callGemini(messages, geminiKey);
+          content = result.content;
+          modelUsed = result.model;
+          providerUsed = "gemini";
+          geminiSucceeded = true;
+        } catch (error: any) {
+          console.error("Gemini error, usando OpenAI:", error);
+          providerSwitched = true;
+        }
+      } else {
+        providerSwitched = true; // límite diario alcanzado
       }
-      try {
-        const result = await callGemini(messages, geminiKey);
-        content = result.content;
-        modelUsed = result.model;
-      } catch (error: any) {
-        console.error("Gemini API error:", error);
-        return NextResponse.json(
-          { error: error.message || "Gemini error" },
-          { status: 500 },
-        );
-      }
-    } else {
-      // OpenAI Fallback
+    }
+
+    // === Fallback: OpenAI ===
+    if (!geminiSucceeded) {
+      providerUsed = "openai";
       const apiKey = process.env.OPENAI_API_KEY;
       if (!apiKey) {
         return NextResponse.json(
@@ -328,7 +362,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // === Construcción de mensajes para OpenAI ===
       const openaiMessages: OpenAIMessage[] = [
         { role: "system", content: SYSTEM_PROMPT },
         ...messages.map<OpenAIMessage>((m) => {
@@ -346,13 +379,12 @@ export async function POST(req: NextRequest) {
         }),
       ];
 
-      // === Llamada a OpenAI con fallback/timeout/retry ===
       const modelCandidates = [PRIMARY_MODEL_OPENAI, ...FALLBACK_MODELS_OPENAI];
       const resp = await callOpenAI(
         {
           messages: openaiMessages,
-          temperature: 1,
-          max_completion_tokens: 3500, // GPT-5 reasoning tokens + detailed responses
+          temperature: 0.7,
+          max_completion_tokens: MAX_OUTPUT_TOKENS,
         },
         apiKey,
         modelCandidates,
@@ -376,11 +408,9 @@ export async function POST(req: NextRequest) {
           }
         | undefined;
 
-      // Prefer normalized assistant message, but add robust fallbacks
       const message = choice0?.message as OpenAIResponseMessage | undefined;
       content = normalizeOpenAIContent(message) || "";
 
-      // Fallback 1: some providers place text directly on choice.content
       if (!content) {
         const direct = normalizeOpenAIContent({
           content: choice0?.content,
@@ -388,7 +418,6 @@ export async function POST(req: NextRequest) {
         if (direct) content = direct;
       }
 
-      // Fallback 2: stringify tool calls if they contain textual output
       if (!content && message && (message as any).tool_calls) {
         try {
           const toolText = JSON.stringify((message as any).tool_calls);
@@ -398,7 +427,6 @@ export async function POST(req: NextRequest) {
         } catch {}
       }
 
-      // Fallback 3: check if there's any content in the choice
       if (!content && choice0?.message?.content) {
         content = String(choice0.message.content);
       }
@@ -448,8 +476,8 @@ export async function POST(req: NextRequest) {
           (firstMessage?.content?.slice(0, 50) || "New Chat") +
           ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
         ...(sessionId ? {} : { createdAt: new Date() }),
-        modelUsed, // <-- guardamos qué modelo respondió
-        provider,
+        modelUsed,
+        provider: providerUsed,
       };
       await chatRef.set(chatData, { merge: true });
     } catch (err: unknown) {
@@ -459,6 +487,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       response: content,
       sessionId: currentSessionId,
+      provider: providerUsed,
+      providerSwitched,
     });
   } catch (err: unknown) {
     return NextResponse.json(
