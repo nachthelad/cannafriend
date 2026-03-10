@@ -324,7 +324,7 @@ export function AIChat({
             <div className="w-full">
               {images.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
-                  {images.map((img) => (
+                  {images.map((img, index) => (
                     <div key={img.url} className="relative flex-shrink-0 group">
                       <div className="relative w-20 h-20 rounded-lg overflow-hidden border bg-background shadow-sm">
                         <Image
@@ -469,7 +469,7 @@ export function AIChat({
               <div className="max-w-3xl mx-auto w-full">
                 {images.length > 0 ? (
                   <div className="flex gap-3 overflow-x-auto mb-3 p-2">
-                    {images.map((img) => (
+                    {images.map((img, index) => (
                       <div key={img.url} className="relative flex-shrink-0 group">
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden border bg-background">
                           <Image
