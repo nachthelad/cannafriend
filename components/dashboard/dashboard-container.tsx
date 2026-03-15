@@ -278,7 +278,7 @@ function DashboardContent({
         {hasOverdue && !isDismissed && (
           <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <AlertTriangle className="h-5 w-5 text-orange-600" aria-hidden="true" />
               <span className="font-semibold text-orange-800 dark:text-orange-200">
                 {t("overdue", { ns: "reminders" })}:{" "}
                 {t("overdueRemindersDesc", { ns: "dashboard" })}
@@ -301,8 +301,9 @@ function DashboardContent({
                 size="icon-sm"
                 className="text-orange-600 hover:bg-orange-200 dark:hover:bg-orange-900/40"
                 onClick={handleDismiss}
+                aria-label={t("close", { ns: "common" })}
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </Button>
             </div>
           </div>
@@ -389,32 +390,32 @@ export function DashboardContainer({
             className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
           >
             <Link href={ROUTE_AI_ASSISTANT}>
-              <Brain className="h-5 w-5 mr-1" />{" "}
+              <Brain className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
               {t("title", { ns: "aiAssistant" })}
             </Link>
           </Button>
           <Button asChild variant="secondary">
             <Link href={ROUTE_REMINDERS}>
-              <Bell className="h-5 w-5 mr-1" />{" "}
+              <Bell className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
               {t("reminders", { ns: "dashboard" })}
             </Link>
           </Button>
           <Button asChild variant="secondary">
             <Link href={ROUTE_PLANTS_NEW}>
-              <Plus className="h-5 w-5 mr-1" />{" "}
+              <Plus className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
               {t("addPlant", { ns: "dashboard" })}
             </Link>
           </Button>
           <Button asChild variant="secondary">
             <Link href={ROUTE_STASH}>
-              <Package className="h-5 w-5 mr-1" />{" "}
+              <Package className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
               {t("stash.title", { ns: "common" })}
             </Link>
           </Button>
           {isAdmin && (
             <Button asChild variant="outline">
               <Link href={ROUTE_ADMIN}>
-                <Shield className="h-5 w-5 mr-1" /> Admin
+                <Shield className="h-5 w-5 mr-1" aria-hidden="true" /> Admin
               </Link>
             </Button>
           )}

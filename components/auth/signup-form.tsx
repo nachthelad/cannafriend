@@ -227,6 +227,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={togglePassword}
+            aria-label={
+              showPassword
+                ? t("hidePassword", { ns: "auth" })
+                : t("showPassword", { ns: "auth" })
+            }
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -268,6 +273,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={toggleConfirmPassword}
+            aria-label={
+              showConfirmPassword
+                ? t("hidePassword", { ns: "auth" })
+                : t("showPassword", { ns: "auth" })
+            }
           >
             {showConfirmPassword ? (
               <EyeOff className="h-4 w-4" />

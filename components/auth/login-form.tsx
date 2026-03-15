@@ -144,7 +144,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={togglePassword}
             aria-label={
-              showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+              showPassword
+                ? t("hidePassword", { ns: "auth" })
+                : t("showPassword", { ns: "auth" })
             }
           >
             {showPassword ? (

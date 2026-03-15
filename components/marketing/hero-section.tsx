@@ -38,7 +38,7 @@ export function HeroSection({
             size="lg"
             className="bg-primary hover:bg-primary/90 text-black px-8 py-4 text-lg"
           >
-            <PlayCircle className="mr-2 h-6 w-6" />
+            <PlayCircle className="mr-2 h-6 w-6" aria-hidden="true" />
             {isLoggedIn
               ? t("nav.goToApp", { ns: "landing" })
               : t("hero.startFree", { ns: "landing" })}
@@ -51,7 +51,7 @@ export function HeroSection({
               variant="outline"
               className="px-8 py-4 text-lg border-2"
             >
-              <Download className="mr-2 h-6 w-6" />
+              <Download className="mr-2 h-6 w-6" aria-hidden="true" />
               {t("app.installPWA", { ns: "common" })}
             </Button>
           )}
@@ -61,7 +61,7 @@ export function HeroSection({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" />
+              <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               {t("hero.professionalGrowing", { ns: "landing" })}
@@ -73,7 +73,7 @@ export function HeroSection({
 
           <div className="text-center">
             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Camera className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <Camera className="h-8 w-8 text-blue-600 dark:text-blue-400" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               {t("hero.documentEverything", { ns: "landing" })}
@@ -85,7 +85,7 @@ export function HeroSection({
 
           <div className="text-center">
             <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+              <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               {t("hero.aiInformation", { ns: "landing" })}
