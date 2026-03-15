@@ -30,3 +30,7 @@ next-env.d.ts
 
 #inspiration_images
 public/app_inspiration.png
+
+# Claude Code
+.agents/
+skills-lock.json
