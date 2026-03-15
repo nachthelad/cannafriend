@@ -10,13 +10,9 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/admin/",
         "/api/",
-        "/dashboard/",
-        "/plants/",
         "/settings/",
-        "/journal/",
         "/reminders/",
         "/ai-assistant/",
-        "/stash/",
       ],
     },
     sitemap: `${baseUrl}/sitemap.xml`,

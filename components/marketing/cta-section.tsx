@@ -32,7 +32,7 @@ export function CTASection({
               size="lg"
               className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
             >
-              <PlayCircle className="mr-2 h-6 w-6" />
+              <PlayCircle className="mr-2 h-6 w-6" aria-hidden="true" />
               {isLoggedIn ? t("nav.goToApp", { ns: "landing" }) : t("cta.startFreeNow", { ns: "landing" })}
             </Button>
 
@@ -43,7 +43,7 @@ export function CTASection({
                 variant="outline"
                 className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 text-lg font-semibold"
               >
-                <Download className="mr-2 h-6 w-6" />
+                <Download className="mr-2 h-6 w-6" aria-hidden="true" />
                 {t("cta.installApp", { ns: "landing" })}
               </Button>
             )}
@@ -54,7 +54,7 @@ export function CTASection({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
-              <Leaf className="h-12 w-12 mx-auto mb-4 text-green-200" />
+              <Leaf className="h-12 w-12 mx-auto mb-4 text-green-200" aria-hidden="true" />
               <h3 className="text-xl font-semibold mb-2">{t("cta.completelyFree", { ns: "landing" })}</h3>
               <p className="opacity-90">
                 {t("cta.completelyFreeDesc", { ns: "landing" })}
@@ -64,7 +64,7 @@ export function CTASection({
 
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-blue-200" />
+              <Shield className="h-12 w-12 mx-auto mb-4 text-blue-200" aria-hidden="true" />
               <h3 className="text-xl font-semibold mb-2">{t("cta.totalPrivacy", { ns: "landing" })}</h3>
               <p className="opacity-90">
                 {t("cta.totalPrivacyDesc", { ns: "landing" })}
@@ -74,7 +74,7 @@ export function CTASection({
 
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
             <CardContent className="p-8 text-center">
-              <Zap className="h-12 w-12 mx-auto mb-4 text-yellow-200" />
+              <Zap className="h-12 w-12 mx-auto mb-4 text-yellow-200" aria-hidden="true" />
               <h3 className="text-xl font-semibold mb-2">{t("cta.instantAccess", { ns: "landing" })}</h3>
               <p className="opacity-90">
                 {t("cta.instantAccessDesc", { ns: "landing" })}
@@ -85,7 +85,7 @@ export function CTASection({
 
         {/* Mobile App Highlight */}
         <div className="bg-white/10 backdrop-blur rounded-lg p-8 text-center text-white">
-          <Smartphone className="h-16 w-16 mx-auto mb-6 text-green-200" />
+          <Smartphone className="h-16 w-16 mx-auto mb-6 text-green-200" aria-hidden="true" />
           <h3 className="text-2xl font-bold mb-4">
             {t("cta.mobileTitle", { ns: "landing" })}
           </h3>

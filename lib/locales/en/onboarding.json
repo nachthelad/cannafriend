@@ -8,7 +8,7 @@
   "consumer": "Consumer",
   "selectAtLeastOneRole": "Select at least one option",
   "submit": "Continue",
-  "loading": "Saving...",
+  "loading": "Saving…",
   "success": "Settings saved!",
   "successMessage": "Your account has been set up successfully",
   "error": "Error saving settings",

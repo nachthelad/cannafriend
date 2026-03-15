@@ -73,8 +73,8 @@ const nextConfig = {
     // 'unsafe-eval' is required in dev for webpack HMR / react-refresh.
     // It is intentionally omitted from the production CSP.
     const scriptSrc = isDev
-      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://storage.googleapis.com https://pagead2.googlesyndication.com"
-      : "script-src 'self' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://storage.googleapis.com https://pagead2.googlesyndication.com";
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://storage.googleapis.com https://pagead2.googlesyndication.com https://va.vercel-scripts.com https://www.googletagmanager.com"
+      : "script-src 'self' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://storage.googleapis.com https://pagead2.googlesyndication.com https://www.googletagmanager.com";
 
     const csp = [
       "default-src 'self'",
@@ -94,6 +94,8 @@ const nextConfig = {
         "https://fcm.googleapis.com",
         "https://va.vercel-insights.com",
         "https://pagead2.googlesyndication.com",
+        "https://firebaseinstallations.googleapis.com",
+        "https://www.googletagmanager.com",
         // Allow webpack HMR websocket in dev
         ...(isDev ? ["ws://localhost:3000"] : []),
       ].join(" "),
@@ -101,7 +103,7 @@ const nextConfig = {
       "font-src 'self' data:",
       "media-src 'self' blob:",
       "worker-src 'self' blob:",
-      "frame-src https://accounts.google.com",
+      "frame-src https://accounts.google.com https://cannafriend-7899f.firebaseapp.com",
       "object-src 'none'",
       "base-uri 'self'",
     ].join("; ");
@@ -112,6 +114,7 @@ const nextConfig = {
         source: "/(.*)",
         headers: [
           { key: "Content-Security-Policy", value: csp },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

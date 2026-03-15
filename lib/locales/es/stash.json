@@ -36,7 +36,7 @@
   "selectType": "Selecciona un tipo",
   "namePlaceholder": "Ej. Blue Dream",
   "vendorPlaceholder": "Ej. Dispensario Local",
-  "notesPlaceholder": "Notas adicionales sobre este artículo...",
+  "notesPlaceholder": "Notas adicionales sobre este artículo…",
   "addSuccess": "Artículo agregado",
   "addSuccessDesc": "El artículo se agregó exitosamente a tu inventario",
   "addError": "Error al agregar",

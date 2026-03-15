@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: optimize Dependabot config and update lockfile — 2026-03-15
 - [MINOR]: switch to Gemini primary with OpenAI fallback and daily limit — 2026-03-10
 - [MINOR]: fix image preview remove index scope — 2026-03-10
 - [MINOR]: suspense cache TTL, firebase collection hook dep, analytics ESM import — 2026-03-10

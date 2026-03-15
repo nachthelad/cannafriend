@@ -21,48 +21,48 @@ export function AppShowcase() {
 
   const features = [
     {
-      icon: <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" />,
+      icon: <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" aria-hidden="true" />,
       title: t("features.plantManagement.title", { ns: "landing" }),
       description: t("features.plantManagement.desc", { ns: "landing" }),
     },
     {
-      icon: <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400" />,
+      icon: <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400" aria-hidden="true" />,
       title: t("features.growJournal.title", { ns: "landing" }),
       description: t("features.growJournal.desc", { ns: "landing" }),
     },
     {
-      icon: <Thermometer className="h-8 w-8 text-red-600 dark:text-red-400" />,
+      icon: <Thermometer className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />,
       title: t("features.environmentControl.title", { ns: "landing" }),
       description: t("features.environmentControl.desc", { ns: "landing" }),
     },
     {
-      icon: <Bell className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />,
+      icon: <Bell className="h-8 w-8 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />,
       title: t("features.reminders.title", { ns: "landing" }),
       description: t("features.reminders.desc", { ns: "landing" }),
     },
     {
-      icon: <Droplets className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />,
+      icon: <Droplets className="h-8 w-8 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />,
       title: t("features.nutrientMixes.title", { ns: "landing" }),
       description: t("features.nutrientMixes.desc", { ns: "landing" }),
     },
     {
-      icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />,
+      icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />,
       title: t("features.sessionTracking.title", { ns: "landing" }),
       description: t("features.sessionTracking.desc", { ns: "landing" }),
     },
     {
-      icon: <BarChart3 className="h-8 w-8 text-teal-600 dark:text-teal-400" />,
+      icon: <BarChart3 className="h-8 w-8 text-teal-600 dark:text-teal-400" aria-hidden="true" />,
       title: t("features.consumptionHistory.title", { ns: "landing" }),
       description: t("features.consumptionHistory.desc", { ns: "landing" }),
     },
     {
-      icon: <Heart className="h-8 w-8 text-pink-600 dark:text-pink-400" />,
+      icon: <Heart className="h-8 w-8 text-pink-600 dark:text-pink-400" aria-hidden="true" />,
       title: t("features.favoriteStrains.title", { ns: "landing" }),
       description: t("features.favoriteStrains.desc", { ns: "landing" }),
     },
     {
       icon: (
-        <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+        <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" aria-hidden="true" />
       ),
       title: t("features.personalInventory.title", { ns: "landing" }),
       description: t("features.personalInventory.desc", { ns: "landing" }),
@@ -113,7 +113,7 @@ export function AppShowcase() {
           <Card className="max-w-4xl mx-auto bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800">
             <CardContent className="p-12">
               <div className="flex items-center justify-center mb-6">
-                <Brain className="h-16 w-16 text-purple-600 dark:text-purple-400 mr-4" />
+                <Brain className="h-16 w-16 text-purple-600 dark:text-purple-400 mr-4" aria-hidden="true" />
               </div>
               <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 {t("showcase.aiTitle", { ns: "landing" })}

@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cannafriend.app"),
-  title: "cannafriend",
+  title: "Cannafriend - Seguimiento de Plantas y Diario de Cultivo",
   description:
     "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
   keywords:
@@ -29,24 +29,18 @@ export const metadata: Metadata = {
     locale: "es_ES",
     url: "https://cannafriend.app",
     siteName: "Cannafriend",
-    title: "Cannafriend - Plant Growth Tracker",
+    title: "Cannafriend - Seguimiento de Plantas y Diario de Cultivo",
     description:
       "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
-    images: [
-      {
-        url: "/web-app-manifest-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "Cannafriend Logo",
-      },
-    ],
+  },
+  alternates: {
+    canonical: "https://cannafriend.app",
   },
   twitter: {
-    card: "summary",
-    title: "Cannafriend - Plant Growth Tracker",
+    card: "summary_large_image",
+    title: "Cannafriend - Seguimiento de Plantas y Diario de Cultivo",
     description:
       "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
-    images: ["/web-app-manifest-512x512.png"],
   },
   icons: {
     icon: [
@@ -80,8 +74,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#121212",
+  themeColor: "#10b981",
 };
 
 export default function RootLayout({
@@ -92,12 +85,38 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#121212" />
+        <meta name="theme-color" content="#10b981" />
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Cannafriend" />
         <meta name="author" content="Cannafriend Team" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="alternate" hrefLang="es" href="https://cannafriend.app/" />
+        <link rel="alternate" hrefLang="en" href="https://cannafriend.app/" />
+        <link rel="alternate" hrefLang="x-default" href="https://cannafriend.app/" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Cannafriend",
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "Web, Android, iOS",
+              url: "https://cannafriend.app",
+              description:
+                "Registra el crecimiento de tus plantas y mantén el seguimiento con registros detallados y monitoreo ambiental",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+              },
+            }),
+          }}
+        />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link
           rel="icon"
@@ -136,6 +155,12 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:shadow-md"
+        >
+          Saltar al contenido
+        </a>
         <I18nProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <ThemeSynchronizer />

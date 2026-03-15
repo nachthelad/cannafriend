@@ -224,7 +224,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
       <div className="space-y-4">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder={t("searchPlaceholder", { ns: "journal" })}
             value={searchText}
@@ -235,8 +235,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <button
               onClick={() => setSearchText("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label={t("clear", { ns: "common" })}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -250,7 +251,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             onClick={() => setShowFilters(true)}
             className="relative h-11 flex-1 max-w-32"
           >
-            <Filter className="h-4 w-4 mr-2" />
+            <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
             {t("filters.title", { ns: "journal" })}
             {activeFiltersCount > 0 && (
               <Badge
@@ -269,7 +270,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             onClick={() => setShowCalendar(true)}
             className="h-11 px-3"
           >
-            <Calendar className="h-4 w-4" />
+            <Calendar className="h-4 w-4" aria-hidden="true" />
           </Button>
 
           {/* Sort Menu */}
@@ -277,9 +278,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-11 px-3">
                 {sortOrder === "asc" ? (
-                  <SortAsc className="h-4 w-4" />
+                  <SortAsc className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <SortDesc className="h-4 w-4" />
+                  <SortDesc className="h-4 w-4" aria-hidden="true" />
                 )}
               </Button>
             </DropdownMenuTrigger>
@@ -322,7 +323,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             >
               "{searchText.slice(0, 15)}
               {searchText.length > 15 ? "..." : ""}"
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3" aria-hidden="true" />
             </Badge>
           )}
           {selectedPlant !== "all" && (
@@ -332,7 +333,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               onClick={() => setSelectedPlant("all")}
             >
               {plants.find((p) => p.id === selectedPlant)?.name || "Plant"}
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3" aria-hidden="true" />
             </Badge>
           )}
           {selectedLogType !== "all" && (
@@ -342,7 +343,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               onClick={() => setSelectedLogType("all")}
             >
               {t(`logType.${selectedLogType}`, { ns: "journal" })}
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3" aria-hidden="true" />
             </Badge>
           )}
           {selectedDate && (
@@ -352,7 +353,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               onClick={() => setSelectedDate(undefined)}
             >
               {format(selectedDate, "MMM d", { locale: getCalendarLocale() })}
-              <X className="h-3 w-3" />
+              <X className="h-3 w-3" aria-hidden="true" />
             </Badge>
           )}
           {activeFiltersCount > 1 && (
@@ -380,7 +381,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
       ) : (
         <Card className="text-center py-8">
           <CardContent>
-            <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
             <CardTitle className="mb-2">
               {activeFiltersCount > 0
                 ? t("noFilteredLogs", { ns: "journal" })
@@ -412,9 +413,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           <div className="space-y-6">
             {/* Plant Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium">
+              <h3 className="text-sm font-medium">
                 {t("filterByPlant", { ns: "journal" })}
-              </label>
+              </h3>
               <div className="flex flex-wrap gap-2">
                 <Badge
                   variant={selectedPlant === "all" ? "default" : "outline"}
@@ -438,9 +439,9 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
 
             {/* Log Type Filter */}
             <div className="space-y-3">
-              <label className="text-sm font-medium">
+              <h3 className="text-sm font-medium">
                 {t("filterByType", { ns: "journal" })}
-              </label>
+              </h3>
               <div className="flex flex-wrap gap-2">
                 <Badge
                   variant={selectedLogType === "all" ? "default" : "outline"}

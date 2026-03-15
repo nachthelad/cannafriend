@@ -61,7 +61,7 @@ export function PlantCard({
           ) : (
             <div className="h-full bg-gradient-to-r from-green-400 to-emerald-500 relative">
               <div className="absolute inset-0 flex items-center justify-center">
-                <Leaf className="h-16 w-16 text-white opacity-50" />
+                <Leaf className="h-16 w-16 text-white opacity-50" aria-hidden="true" />
               </div>
             </div>
           )}
@@ -165,12 +165,12 @@ export function PlantCard({
             >
               <div className="space-y-1 mb-2">
                 <div className="flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
+                  <Calendar className="h-3 w-3 mr-1" aria-hidden="true" />
                   {plant.plantingDate &&
                     formatDateWithLocale(plant.plantingDate, "PPP", language)}
                 </div>
                 <div className="flex items-center">
-                  <Droplet className="h-3 w-3 mr-1" />
+                  <Droplet className="h-3 w-3 mr-1" aria-hidden="true" />
                   {lastWatering ? (
                     <span>
                       {t("plantCard.lastWatering")}: {lastWatering.amount}ml (
@@ -181,7 +181,7 @@ export function PlantCard({
                   )}
                 </div>
                 <div className="flex items-center">
-                  <Zap className="h-3 w-3 mr-1" />
+                  <Zap className="h-3 w-3 mr-1" aria-hidden="true" />
                   {lastFeeding ? (
                     <span>
                       {t("plantCard.lastFeeding")}: {lastFeeding.npk} (
@@ -192,7 +192,7 @@ export function PlantCard({
                   )}
                 </div>
                 <div className="flex items-center">
-                  <Scissors className="h-3 w-3 mr-1" />
+                  <Scissors className="h-3 w-3 mr-1" aria-hidden="true" />
                   {lastTraining ? (
                     <span>
                       {t("plantCard.lastTraining")}:{" "}
