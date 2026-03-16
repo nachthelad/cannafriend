@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: untrack skills-lock.json — 2026-03-16
 - [MINOR]: ignore Claude Code internal files (.agents/, skills-lock.json) — 2026-03-15
 - [MINOR]: complete SEO, a11y, and PWA audit improvements — 2026-03-15
 - [MINOR]: optimize Dependabot config and update lockfile — 2026-03-15
