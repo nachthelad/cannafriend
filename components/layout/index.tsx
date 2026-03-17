@@ -21,7 +21,7 @@ import {
   Leaf,
 } from "lucide-react";
 
-import { usePremium } from "@/hooks/use-premium";
+import { usePremium } from "@/hooks";
 import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
 import DarkModeLogo from "@/components/common/darkmode-logo";
@@ -38,7 +38,6 @@ import {
   ROUTE_SETTINGS,
   ROUTE_PREMIUM,
   ROUTE_STASH,
-  ROUTE_NUTRIENTS,
 } from "@/lib/routes";
 import { CookieConsent } from "@/components/common/cookie-consent";
 

@@ -78,8 +78,8 @@ export default function OnboardingPage() {
       invalidateDashboardCache(userId);
 
       toast({
-        title: t("success"),
-        description: t("successMessage"),
+        title: t("success", { ns: "onboarding" }),
+        description: t("successMessage", { ns: "onboarding" }),
       });
 
       // Redirect to dashboard
@@ -87,7 +87,7 @@ export default function OnboardingPage() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: t("error"),
+        title: t("error", { ns: "onboarding" }),
         description: error.message,
       });
     } finally {

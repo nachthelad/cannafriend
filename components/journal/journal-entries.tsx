@@ -187,8 +187,8 @@ export function JournalEntries({
             </div>
 
             <div className="bg-card rounded-xl border shadow-sm hover:shadow-md transition-[box-shadow] duration-200 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0 space-y-1">
                   <div className="font-semibold text-base flex flex-wrap items-center gap-x-2">
                     {getLogTitle(log)}
                   </div>
@@ -224,7 +224,7 @@ export function JournalEntries({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive -mr-2 -mt-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                    className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive -mr-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     aria-label="Delete log"
                     onClick={() => onDelete(log)}
                   >

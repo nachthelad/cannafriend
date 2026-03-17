@@ -12,7 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { resolveHomePathForRoles } from "@/lib/routes";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { useUserRoles } from "@/hooks";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";

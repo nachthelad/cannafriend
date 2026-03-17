@@ -1,3 +1,4 @@
+import type React from "react";
 import type { TFunction } from "i18next";
 import type { Plant, LogEntry, Reminder } from "./entities";
 import type { UploadingState } from "./common";
@@ -53,6 +54,7 @@ export interface SimplePlantCardProps {
 export interface MobileJournalProps {
   userId: string;
   language: string;
+  mobileActions?: React.ReactNode;
 }
 
 export interface MobileJournalData {

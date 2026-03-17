@@ -16,8 +16,8 @@ export const ROUTE_REMINDERS = "/reminders" as const;
 export const ROUTE_REMINDERS_NEW = "/reminders/new" as const;
 export const ROUTE_STASH = "/stash" as const;
 export const ROUTE_STASH_NEW = "/stash/new" as const;
-export const ROUTE_NUTRIENTS = "/nutrients" as const;
-export const ROUTE_NUTRIENTS_NEW = "/nutrients/new" as const;
+export const ROUTE_FORGOT_PASSWORD = "/forgot-password" as const;
+export const ROUTE_RESET_PASSWORD = "/reset-password" as const;
 export const ROUTE_PRIVACY = "/privacy" as const;
 export const ROUTE_TERMS = "/terms" as const;
 export const ROUTE_ADMIN = "/admin" as const;
@@ -39,8 +39,8 @@ export type AppPath =
   | typeof ROUTE_REMINDERS_NEW
   | typeof ROUTE_STASH
   | typeof ROUTE_STASH_NEW
-  | typeof ROUTE_NUTRIENTS
-  | typeof ROUTE_NUTRIENTS_NEW
+  | typeof ROUTE_FORGOT_PASSWORD
+  | typeof ROUTE_RESET_PASSWORD
   | typeof ROUTE_PRIVACY
   | typeof ROUTE_TERMS
   | typeof ROUTE_ADMIN

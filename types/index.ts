@@ -15,6 +15,5 @@ export * from './mobile';
 export * from './reminders';
 export * from './dashboard';
 export * from './stash';
-export * from './nutrients';
 export * from './firestore';
 export * from './pwa';

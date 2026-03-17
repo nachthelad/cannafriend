@@ -12,7 +12,7 @@ import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 
 import { useRouter } from "next/navigation";
-import { ROUTE_ONBOARDING } from "@/lib/routes";
+import { ROUTE_ONBOARDING, ROUTE_FORGOT_PASSWORD } from "@/lib/routes";
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const router = useRouter();
@@ -78,7 +78,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   const handlePasswordReset = () => {
     // Redirigir a la página de recuperación de contraseña
-    window.location.href = "/forgot-password";
+    router.push(ROUTE_FORGOT_PASSWORD);
   };
 
   return (

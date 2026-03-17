@@ -15,7 +15,7 @@ import { Layout } from "@/components/layout";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Skeleton, ReminderFormSkeleton } from "@/components/skeletons";
 import { Switch } from "@/components/ui/switch";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { useUserRoles } from "@/hooks";
 import {
   resolveHomePathForRoles,
   ROUTE_LOGIN,

@@ -21,7 +21,7 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/layout";
 import { AlertCircle } from "lucide-react";
-import { ROUTE_STASH } from "@/lib/routes";
+import { ROUTE_STASH, ROUTE_LOGIN } from "@/lib/routes";
 import { db } from "@/lib/firebase";
 import { addDoc } from "firebase/firestore";
 import { stashCol } from "@/lib/paths";
@@ -84,7 +84,7 @@ function NewStashPageContent() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      router.push("/auth/login");
+      router.push(ROUTE_LOGIN);
     }
   }, [authLoading, user, router]);
 

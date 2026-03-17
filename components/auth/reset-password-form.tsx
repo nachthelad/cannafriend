@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
-import { ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_FORGOT_PASSWORD } from "@/lib/routes";
 
 export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
   const { t } = useTranslation(["auth", "common"]);
@@ -71,7 +71,7 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
         title: t("common.error"),
         description: t("resetPassword.invalidLinkError", { ns: "auth" }),
       });
-      router.push("/forgot-password");
+      router.push(ROUTE_FORGOT_PASSWORD);
       return;
     }
 
@@ -87,7 +87,7 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
           title: t("common.error"),
           description: t("resetPassword.expiredLinkError"),
         });
-        router.push("/forgot-password");
+        router.push(ROUTE_FORGOT_PASSWORD);
       })
       .finally(() => {
         setIsValidating(false);
