@@ -1,7 +1,6 @@
 "use client";
 
 import type {
-  MobileJournalData,
   MobileJournalProps,
   MobileJournalSortBy,
   MobileJournalSortOrder,
@@ -12,20 +11,17 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { LocalizedCalendar as CalendarComponent } from "@/components/ui/calendar";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Filter,
   Plus,
   Calendar,
   X,
-  Search,
   SortAsc,
   SortDesc,
 } from "lucide-react";
@@ -44,10 +40,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { getSuspenseResource } from "@/lib/suspense-utils";
+import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
+import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { fetchJournalData } from "@/lib/journal-data";
-import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
+import { JournalEntrySkeleton } from "@/components/skeletons/journal-skeleton";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -71,39 +69,74 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-function MobileJournalContent({ userId, language }: MobileJournalProps) {
+// Props for the inner content component — receives filter state from parent
+interface MobileJournalContentProps {
+  userId: string;
+  language: string;
+  selectedDate: Date | undefined;
+  onDateChange: (date: Date | undefined) => void;
+  selectedPlant: string;
+  onPlantChange: (plant: string) => void;
+  selectedLogType: string;
+  onLogTypeChange: (type: string) => void;
+  showFilters: boolean;
+  onShowFiltersChange: (show: boolean) => void;
+  searchText: string;
+  sortBy: MobileJournalSortBy;
+  sortOrder: MobileJournalSortOrder;
+  showCalendar: boolean;
+  onShowCalendarChange: (show: boolean) => void;
+  onSearchTextChange: (text: string) => void;
+  activeFiltersCount: number;
+  clearFilters: () => void;
+}
+
+function MobileJournalContent({
+  userId,
+  language,
+  selectedDate,
+  onDateChange,
+  selectedPlant,
+  onPlantChange,
+  selectedLogType,
+  onLogTypeChange,
+  showFilters,
+  onShowFiltersChange,
+  searchText,
+  sortBy,
+  sortOrder,
+  showCalendar,
+  onShowCalendarChange,
+  onSearchTextChange,
+  activeFiltersCount,
+  clearFilters,
+}: MobileJournalContentProps) {
   const cacheKey = `mobile-journal-${userId}`;
   const resource = getSuspenseResource(cacheKey, () =>
     fetchJournalData(userId)
   );
   const { logs: initialLogs, plants } = resource.read();
   const { t } = useTranslation(["journal", "common"]);
-  const router = useRouter();
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
 
   // Local state for logs to support optimistic updates
   const [logs, setLogs] = useState(initialLogs);
+  const [logToDelete, setLogToDelete] = useState<LogEntry | null>(null);
 
-  // Update local logs if initialLogs changes (e.g. re-suspense)
+  // Sync when resource changes after cache invalidation
   if (logs !== initialLogs && logs.length === 0 && initialLogs.length > 0) {
     setLogs(initialLogs);
   }
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedPlant, setSelectedPlant] = useState<string>("all");
-  const [selectedLogType, setSelectedLogType] = useState<string>("all");
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchText, setSearchText] = useState("");
-  const [sortBy, setSortBy] = useState<MobileJournalSortBy>("date");
-  const [sortOrder, setSortOrder] = useState<MobileJournalSortOrder>("desc");
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [logToDelete, setLogToDelete] = useState<LogEntry | null>(null);
+  const getCalendarLocale = () => (language === "es" ? es : enUS);
+
+  // Available log types from current logs
+  const logTypes = [...new Set(logs.map((log) => log.type))];
 
   // Filter and sort logs
   const filteredAndSortedLogs = logs
     .filter((log) => {
-      // Text search
       if (searchText) {
         const searchLower = searchText.toLowerCase();
         const matchesNotes = log.notes?.toLowerCase().includes(searchLower);
@@ -111,29 +144,13 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
         const matchesType = t(`logType.${log.type}`, { ns: "journal" })
           .toLowerCase()
           .includes(searchLower);
-        if (!matchesNotes && !matchesPlant && !matchesType) {
-          return false;
-        }
+        if (!matchesNotes && !matchesPlant && !matchesType) return false;
       }
-
-      // Plant filter
-      if (selectedPlant !== "all" && (log as any).plantId !== selectedPlant) {
-        return false;
-      }
-
-      // Log type filter
-      if (selectedLogType !== "all" && log.type !== selectedLogType) {
-        return false;
-      }
-
-      // Date filter
+      if (selectedPlant !== "all" && (log as any).plantId !== selectedPlant) return false;
+      if (selectedLogType !== "all" && log.type !== selectedLogType) return false;
       if (selectedDate && log.date) {
-        const logDate = parseISO(log.date);
-        if (!isSameDay(logDate, selectedDate)) {
-          return false;
-        }
+        if (!isSameDay(parseISO(log.date), selectedDate)) return false;
       }
-
       return true;
     })
     .sort((a, b) => {
@@ -154,51 +171,22 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
-  // Active filters count
-  const activeFiltersCount = [
-    selectedPlant !== "all",
-    selectedLogType !== "all",
-    selectedDate !== undefined,
-    searchText.trim() !== "",
-  ].filter(Boolean).length;
-
-  // Available log types from current logs
-  const logTypes = [...new Set(logs.map((log) => log.type))];
-
-  const getCalendarLocale = () => (language === "es" ? es : enUS);
-
-  const clearFilters = () => {
-    setSelectedPlant("all");
-    setSelectedLogType("all");
-    setSelectedDate(undefined);
-    setSearchText("");
-  };
-
-  const logsFoundDescription = `${filteredAndSortedLogs.length} ${t(
-    "logsFound",
-    { ns: "journal" }
-  )}`;
-
   const confirmDeleteLog = async () => {
     if (!userId || !logToDelete || !logToDelete.id) return;
 
     const log = logToDelete;
-    setLogToDelete(null); // Close dialog immediately
+    setLogToDelete(null);
 
-    // Optimistic update
     const previousLogs = [...logs];
     setLogs((prev) => prev.filter((l) => l.id !== log.id));
 
     try {
-      if (!log.plantId) {
-        throw new Error("Log missing plantId");
-      }
+      if (!log.plantId) throw new Error("Log missing plantId");
 
       await deleteDoc(
         doc(db, "users", userId, "plants", log.plantId, "logs", log.id)
       );
 
-      // Invalidate caches
       invalidateJournalCache(userId);
       invalidatePlantsCache(userId);
       invalidatePlantDetails(userId, log.plantId);
@@ -209,106 +197,13 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
         description: t("deletedDesc", { ns: "journal" }),
       });
     } catch (error: any) {
-      // Revert optimistic update on error
       setLogs(previousLogs);
       handleFirebaseError(error, "delete log");
     }
   };
 
-  const handleDeleteClick = (log: LogEntry) => {
-    setLogToDelete(log);
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input
-            placeholder={t("searchPlaceholder", { ns: "journal" })}
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="pl-10 pr-10 h-11"
-          />
-          {searchText && (
-            <button
-              onClick={() => setSearchText("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              aria-label={t("clear", { ns: "common" })}
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
-          )}
-        </div>
-
-        {/* Filter and Sort Row */}
-        <div className="flex items-center gap-2">
-          {/* Filters Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(true)}
-            className="relative h-11 flex-1 max-w-32"
-          >
-            <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
-            {t("filters.title", { ns: "journal" })}
-            {activeFiltersCount > 0 && (
-              <Badge
-                variant="destructive"
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs"
-              >
-                {activeFiltersCount}
-              </Badge>
-            )}
-          </Button>
-
-          {/* Calendar Button */}
-          <Button
-            variant={selectedDate ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowCalendar(true)}
-            className="h-11 px-3"
-          >
-            <Calendar className="h-4 w-4" aria-hidden="true" />
-          </Button>
-
-          {/* Sort Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-11 px-3">
-                {sortOrder === "asc" ? (
-                  <SortAsc className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <SortDesc className="h-4 w-4" aria-hidden="true" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setSortBy("date")}>
-                {t("sort.byDate", { ns: "journal" })}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy("type")}>
-                {t("sort.byType", { ns: "journal" })}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSortBy("plant")}>
-                {t("sort.byPlant", { ns: "journal" })}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() =>
-                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                }
-              >
-                {sortOrder === "asc"
-                  ? t("sort.descending", { ns: "journal" })
-                  : t("sort.ascending", { ns: "journal" })}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
+    <div className="space-y-4 px-4">
       {/* Active Filters Display */}
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
@@ -319,7 +214,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer"
-              onClick={() => setSearchText("")}
+              onClick={() => onSearchTextChange("")}
             >
               "{searchText.slice(0, 15)}
               {searchText.length > 15 ? "..." : ""}"
@@ -330,7 +225,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer"
-              onClick={() => setSelectedPlant("all")}
+              onClick={() => onPlantChange("all")}
             >
               {plants.find((p) => p.id === selectedPlant)?.name || "Plant"}
               <X className="h-3 w-3" aria-hidden="true" />
@@ -340,7 +235,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer"
-              onClick={() => setSelectedLogType("all")}
+              onClick={() => onLogTypeChange("all")}
             >
               {t(`logType.${selectedLogType}`, { ns: "journal" })}
               <X className="h-3 w-3" aria-hidden="true" />
@@ -350,7 +245,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             <Badge
               variant="secondary"
               className="gap-1 cursor-pointer"
-              onClick={() => setSelectedDate(undefined)}
+              onClick={() => onDateChange(undefined)}
             >
               {format(selectedDate, "MMM d", { locale: getCalendarLocale() })}
               <X className="h-3 w-3" aria-hidden="true" />
@@ -375,13 +270,16 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
           <JournalEntries
             logs={filteredAndSortedLogs}
             showPlantName={true}
-            onDelete={handleDeleteClick}
+            onDelete={(log) => setLogToDelete(log)}
           />
         </div>
       ) : (
         <Card className="text-center py-8">
           <CardContent>
-            <Calendar className="h-16 w-16 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+            <Calendar
+              className="h-16 w-16 text-muted-foreground mx-auto mb-4"
+              aria-hidden="true"
+            />
             <CardTitle className="mb-2">
               {activeFiltersCount > 0
                 ? t("noFilteredLogs", { ns: "journal" })
@@ -395,7 +293,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
             {activeFiltersCount === 0 && (
               <Button asChild>
                 <Link href="/journal/new">
-                  <Plus className="h-4 w-4 mr-2" />{" "}
+                  <Plus className="h-4 w-4 mr-2" />
                   {t("addLog", { ns: "journal" })}
                 </Link>
               </Button>
@@ -405,13 +303,12 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
       )}
 
       {/* Filters Modal */}
-      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+      <Dialog open={showFilters} onOpenChange={onShowFiltersChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("filters.title", { ns: "journal" })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
-            {/* Plant Filter */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium">
                 {t("filterByPlant", { ns: "journal" })}
@@ -420,7 +317,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                 <Badge
                   variant={selectedPlant === "all" ? "default" : "outline"}
                   className="cursor-pointer"
-                  onClick={() => setSelectedPlant("all")}
+                  onClick={() => onPlantChange("all")}
                 >
                   {t("allPlants", { ns: "journal" })}
                 </Badge>
@@ -429,7 +326,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                     key={plant.id}
                     variant={selectedPlant === plant.id ? "default" : "outline"}
                     className="cursor-pointer"
-                    onClick={() => setSelectedPlant(plant.id)}
+                    onClick={() => onPlantChange(plant.id)}
                   >
                     {plant.name}
                   </Badge>
@@ -437,7 +334,6 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               </div>
             </div>
 
-            {/* Log Type Filter */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium">
                 {t("filterByType", { ns: "journal" })}
@@ -446,7 +342,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                 <Badge
                   variant={selectedLogType === "all" ? "default" : "outline"}
                   className="cursor-pointer"
-                  onClick={() => setSelectedLogType("all")}
+                  onClick={() => onLogTypeChange("all")}
                 >
                   {t("allTypes", { ns: "journal" })}
                 </Badge>
@@ -455,7 +351,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
                     key={type}
                     variant={selectedLogType === type ? "default" : "outline"}
                     className="cursor-pointer"
-                    onClick={() => setSelectedLogType(type)}
+                    onClick={() => onLogTypeChange(type)}
                   >
                     {t(`logType.${type}`, { ns: "journal" })}
                   </Badge>
@@ -463,13 +359,12 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               </div>
             </div>
 
-            {/* Clear Filters */}
             {activeFiltersCount > 0 && (
               <Button
                 variant="outline"
                 onClick={() => {
                   clearFilters();
-                  setShowFilters(false);
+                  onShowFiltersChange(false);
                 }}
                 className="w-full"
               >
@@ -481,7 +376,7 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
       </Dialog>
 
       {/* Calendar Modal */}
-      <Dialog open={showCalendar} onOpenChange={setShowCalendar}>
+      <Dialog open={showCalendar} onOpenChange={onShowCalendarChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("selectDate", { ns: "journal" })}</DialogTitle>
@@ -491,8 +386,8 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               mode="single"
               selected={selectedDate}
               onSelect={(date) => {
-                setSelectedDate(date);
-                setShowCalendar(false);
+                onDateChange(date);
+                onShowCalendarChange(false);
               }}
               locale={getCalendarLocale()}
               className="rounded-md border w-full"
@@ -501,8 +396,8 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setSelectedDate(undefined);
-                  setShowCalendar(false);
+                  onDateChange(undefined);
+                  onShowCalendarChange(false);
                 }}
                 className="w-full"
               >
@@ -543,10 +438,153 @@ function MobileJournalContent({ userId, language }: MobileJournalProps) {
   );
 }
 
-export function MobileJournal(props: MobileJournalProps) {
+/**
+ * Mobile Journal — filter state lives here (outside Suspense) so the sticky
+ * header with controls renders immediately while entries are loading.
+ */
+export function MobileJournal({ userId, language, mobileActions }: MobileJournalProps) {
+  const { t } = useTranslation(["journal", "common"]);
+
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedPlant, setSelectedPlant] = useState("all");
+  const [selectedLogType, setSelectedLogType] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<MobileJournalSortBy>("date");
+  const [sortOrder, setSortOrder] = useState<MobileJournalSortOrder>("desc");
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  const activeFiltersCount = [
+    selectedPlant !== "all",
+    selectedLogType !== "all",
+    selectedDate !== undefined,
+    searchText.trim() !== "",
+  ].filter(Boolean).length;
+
+  const clearFilters = () => {
+    setSelectedPlant("all");
+    setSelectedLogType("all");
+    setSelectedDate(undefined);
+    setSearchText("");
+  };
+
+  const filterRow = (
+    <div className="flex items-center gap-2">
+      {/* Search — first on the left */}
+      <MobileSearchBar
+        value={searchText}
+        onChange={setSearchText}
+        isOpen={isSearchOpen}
+        onOpen={() => setIsSearchOpen(true)}
+        onClose={() => setIsSearchOpen(false)}
+        placeholder={t("searchPlaceholder", { ns: "journal" })}
+      />
+
+      {/* Filters Button */}
+      <Button
+        variant="outline"
+        onClick={() => setShowFilters(true)}
+        className="relative h-11 flex-1 max-w-32"
+      >
+        <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+        {t("filters.title", { ns: "journal" })}
+        {activeFiltersCount > 0 && (
+          <Badge
+            variant="destructive"
+            className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs"
+          >
+            {activeFiltersCount}
+          </Badge>
+        )}
+      </Button>
+
+      {/* Calendar Button */}
+      <Button
+        variant={selectedDate ? "default" : "outline"}
+        onClick={() => setShowCalendar(true)}
+        className="h-11 px-3"
+      >
+        <Calendar className="h-4 w-4" aria-hidden="true" />
+      </Button>
+
+      {/* Sort Menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="h-11 px-3">
+            {sortOrder === "asc" ? (
+              <SortAsc className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <SortDesc className="h-4 w-4" aria-hidden="true" />
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setSortBy("date")}>
+            {t("sort.byDate", { ns: "journal" })}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSortBy("type")}>
+            {t("sort.byType", { ns: "journal" })}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSortBy("plant")}>
+            {t("sort.byPlant", { ns: "journal" })}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+          >
+            {sortOrder === "asc"
+              ? t("sort.descending", { ns: "journal" })
+              : t("sort.ascending", { ns: "journal" })}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+
   return (
-    <Suspense fallback={<JournalSkeleton />}>
-      <MobileJournalContent {...props} />
-    </Suspense>
+    <>
+      {/* Sticky mobile header — renders immediately, outside Suspense */}
+      <ResponsivePageHeader
+        className="md:hidden"
+        title={t("title", { ns: "journal" })}
+        description={t("description", { ns: "journal" })}
+        backHref={ROUTE_DASHBOARD}
+        mobileControls={filterRow}
+        mobileActions={mobileActions}
+      />
+
+      {/* Entries — suspends while loading; only the list area shows skeleton */}
+      <Suspense
+        fallback={
+          <div className="space-y-4 px-4 pt-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <JournalEntrySkeleton key={i} />
+            ))}
+          </div>
+        }
+      >
+        <MobileJournalContent
+          userId={userId}
+          language={language}
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          selectedPlant={selectedPlant}
+          onPlantChange={setSelectedPlant}
+          selectedLogType={selectedLogType}
+          onLogTypeChange={setSelectedLogType}
+          showFilters={showFilters}
+          onShowFiltersChange={setShowFilters}
+          searchText={searchText}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          showCalendar={showCalendar}
+          onShowCalendarChange={setShowCalendar}
+          onSearchTextChange={setSearchText}
+          activeFiltersCount={activeFiltersCount}
+          clearFilters={clearFilters}
+        />
+      </Suspense>
+    </>
   );
 }

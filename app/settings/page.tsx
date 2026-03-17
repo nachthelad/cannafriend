@@ -11,7 +11,7 @@ import { SettingsSkeleton } from "@/components/skeletons";
 import { Layout } from "@/components/layout";
 import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { useUserRoles } from "@/hooks";
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuthUser();

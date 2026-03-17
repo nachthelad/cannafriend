@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-Cannafriend is a cannabis growing and consumption tracking app built with **Next.js 15, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Features: plant tracking, grow journal, stash, nutrients, AI assistant, PWA.
+Cannafriend is a cannabis growing and consumption tracking app built with **Next.js 15, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Features: plant tracking, grow journal, stash, AI assistant, PWA.
 
 ## Directory Structure
 
 ```
 app/                  # Next.js App Router pages
-  [feature]/          # admin, dashboard, journal, plants, stash, nutrients,
+  [feature]/          # admin, dashboard, journal, plants, stash,
                       # sessions, reminders, ai-assistant, settings, premium
   api/                # Server-side API routes
 components/
@@ -110,7 +110,7 @@ t("logType.watering", { ns: "journal" });
 **Page level**: `useTranslation(["primary-namespace", "common"])`
 **Component level**: `t("key", { ns: "namespace" })`
 
-Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journal`, `stash`, `nutrients`, `sessions`, `reminders`, `aiAssistant`, `onboarding`, `premium`, `nav`, `validation`
+Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journal`, `stash`, `sessions`, `reminders`, `aiAssistant`, `onboarding`, `premium`, `nav`, `validation`
 
 ### Route Constants
 
@@ -120,7 +120,7 @@ Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journ
 import { ROUTE_PLANTS, ROUTE_JOURNAL_NEW } from "@/lib/routes";
 ```
 
-Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_NUTRIENTS`, `ROUTE_NUTRIENTS_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`
+Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
 
 ### Shared Constants
 
@@ -134,7 +134,6 @@ users/{userId}
     logs/{logId}          # Grow journal entries
     environment/{docId}   # Environmental data
   reminders/{reminderId}
-  nutrientMixes/{mixId}
 ```
 
 Storage: `images/{userId}/{fileName}`

@@ -10,7 +10,6 @@ import {
   Bell,
   Users,
   Leaf,
-  Droplets,
   Thermometer,
   Notebook,
   Heart,
@@ -39,11 +38,6 @@ export function AppShowcase() {
       icon: <Bell className="h-8 w-8 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />,
       title: t("features.reminders.title", { ns: "landing" }),
       description: t("features.reminders.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Droplets className="h-8 w-8 text-cyan-600 dark:text-cyan-400" aria-hidden="true" />,
-      title: t("features.nutrientMixes.title", { ns: "landing" }),
-      description: t("features.nutrientMixes.desc", { ns: "landing" }),
     },
     {
       icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />,

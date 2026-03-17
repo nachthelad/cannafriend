@@ -9,7 +9,6 @@ import {
   ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
-  ROUTE_NUTRIENTS,
   ROUTE_ADMIN,
   ROUTE_STASH,
 } from "@/lib/routes";
@@ -52,7 +51,6 @@ export function MobileDashboard({
   const { t } = useTranslation([
     "dashboard",
     "common",
-    "nutrients",
     "journal",
     "nav",
     "reminders",

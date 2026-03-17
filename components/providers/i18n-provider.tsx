@@ -15,8 +15,6 @@ import esValidation from "@/lib/locales/es/validation.json";
 import enValidation from "@/lib/locales/en/validation.json";
 import esDashboard from "@/lib/locales/es/dashboard.json";
 import enDashboard from "@/lib/locales/en/dashboard.json";
-import esNutrients from "@/lib/locales/es/nutrients.json";
-import enNutrients from "@/lib/locales/en/nutrients.json";
 import esPlants from "@/lib/locales/es/plants.json";
 import enPlants from "@/lib/locales/en/plants.json";
 import esOnboarding from "@/lib/locales/es/onboarding.json";
@@ -46,7 +44,6 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       auth: esAuth,
       validation: esValidation,
       dashboard: esDashboard,
-      nutrients: esNutrients,
       plants: esPlants,
       onboarding: esOnboarding,
       journal: esJournal,
@@ -63,7 +60,6 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       auth: enAuth,
       validation: enValidation,
       dashboard: enDashboard,
-      nutrients: enNutrients,
       plants: enPlants,
       onboarding: enOnboarding,
       journal: enJournal,
@@ -91,7 +87,6 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
       "auth",
       "validation",
       "dashboard",
-      "nutrients",
       "plants",
       "onboarding",
       "journal",
