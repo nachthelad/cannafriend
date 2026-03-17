@@ -15,9 +15,8 @@ import { Layout } from "@/components/layout";
 import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Plus } from "lucide-react";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { useUserRoles, useHasPlants } from "@/hooks";
 import { JournalDesktop } from "@/components/journal/journal-desktop";
-import { useHasPlants } from "@/hooks/use-has-plants";
 
 export default function JournalPage() {
   const { t, i18n } = useTranslation(["journal", "common", "plants"]);
@@ -45,32 +44,43 @@ export default function JournalPage() {
     ? t("emptyState.addPlant", { ns: "plants" })
     : t("addLog", { ns: "journal" });
 
+  const mobileAddAction = (
+    <Button
+      size="icon"
+      aria-label={addButtonLabel}
+      onClick={handleAddClick}
+      disabled={plantsLoading}
+    >
+      <Plus className="h-5 w-5" />
+    </Button>
+  );
+
   return (
     <Layout>
-      <ResponsivePageHeader
-        title={t("title", { ns: "journal" })}
-        description={t("description", { ns: "journal" })}
-        backHref={homePath}
-        mobileActions={
-          <Button
-            size="icon"
-            aria-label={addButtonLabel}
-            onClick={handleAddClick}
-            disabled={plantsLoading}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
-        }
-        desktopActions={
-          <Button onClick={handleAddClick} disabled={plantsLoading}>
-            <Plus className="h-4 w-4 mr-2" />
-            {addButtonLabel}
-          </Button>
-        }
-      />
-      {/* Mobile Journal */}
+      {/* Desktop-only header */}
+      <div className="hidden md:block">
+        <ResponsivePageHeader
+          title={t("title", { ns: "journal" })}
+          description={t("description", { ns: "journal" })}
+          backHref={homePath}
+          desktopActions={
+            <Button onClick={handleAddClick} disabled={plantsLoading}>
+              <Plus className="h-4 w-4 mr-2" />
+              {addButtonLabel}
+            </Button>
+          }
+        />
+      </div>
+
+      {/* Mobile Journal — renders its own mobile header internally */}
       <div className="md:hidden">
-        {userId && <MobileJournal userId={userId} language={i18n.language} />}
+        {userId && (
+          <MobileJournal
+            userId={userId}
+            language={i18n.language}
+            mobileActions={mobileAddAction}
+          />
+        )}
       </div>
 
       {/* Desktop Journal */}

@@ -32,6 +32,7 @@ import {
   List,
   ArrowUpDown,
 } from "lucide-react";
+import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
 import { PlantGrid } from "@/components/plant/plant-grid";
 import { PlantListSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -57,6 +58,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
 
   // Filter and sort states
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortBy>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -86,26 +88,17 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
 
   const mobileControls = (
     <div className="space-y-4">
-      {/* Search and Controls Row */}
+      {/* Controls Row */}
       <div className="flex items-center gap-2">
-        {/* Search Bar */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder={t("searchPlaceholder", { ns: "plants" })}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-10 h-11"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        {/* Search — first on the left */}
+        <MobileSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          isOpen={isSearchOpen}
+          onOpen={() => setIsSearchOpen(true)}
+          onClose={() => setIsSearchOpen(false)}
+          placeholder={t("searchPlaceholder", { ns: "plants" })}
+        />
 
         {/* Filters Button */}
         <Button
@@ -141,7 +134,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
 
         {/* Sort Menu */}
         <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-          <SelectTrigger className="h-11 px-3 w-fit">
+          <SelectTrigger className="!h-11 px-3 w-fit">
             <ArrowUpDown className="h-4 w-4" />
             <SelectValue placeholder={t("sort", { ns: "common" })} />
           </SelectTrigger>

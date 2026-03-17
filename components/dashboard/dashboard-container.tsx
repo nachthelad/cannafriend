@@ -210,7 +210,6 @@ function DashboardContent({
     "common",
     "reminders",
     "journal",
-    "nutrients",
     "nav",
     "aiAssistant",
   ]);

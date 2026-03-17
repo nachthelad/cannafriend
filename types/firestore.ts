@@ -3,8 +3,3 @@ export interface UserProfile {
   createdAt?: string;
 }
 
-export interface NutrientMix {
-  name?: string;
-  npk?: string;
-  notes?: string;
-}

@@ -19,7 +19,7 @@ import {
   ROUTE_PLANTS_NEW,
   resolveHomePathForRoles,
 } from "@/lib/routes";
-import { useUserRoles } from "@/hooks/use-user-roles";
+import { useUserRoles } from "@/hooks";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { useTranslation } from "react-i18next";

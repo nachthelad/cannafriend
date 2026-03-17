@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, ArrowUpDown, Plus } from "lucide-react";
+import { MobileSearchBar } from "@/components/mobile/mobile-search-bar";
 import Link from "next/link";
 import {
   MobileSessions,
@@ -394,6 +395,7 @@ function SessionsContainerContent({
 export function SessionsContainer({ userId }: SessionsContainerProps) {
   const { t } = useTranslation(["sessions", "common"]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [filterMethod, setFilterMethod] = useState("all");
   const [sortBy, setSortBy] = useState("date-desc");
   const [isPremium, setIsPremium] = useState(false);
@@ -425,72 +427,61 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
   }, [userId]);
 
   const mobileControls = (
-    <>
-      <div className="relative mt-2">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder={t("search.placeholder", { ns: "sessions" })}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <Select value={filterMethod} onValueChange={setFilterMethod}>
-          <SelectTrigger className="flex-1">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              <SelectValue
-                placeholder={t("filter.method", { ns: "sessions" })}
-              />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">
-              {t("filter.allMethods", { ns: "sessions" })}
-            </SelectItem>
-            {availableMethods.map((method) => (
-              <SelectItem key={method} value={method}>
-                {method}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="flex items-center gap-2">
+      {/* Search — first on the left */}
+      <MobileSearchBar
+        value={searchQuery}
+        onChange={setSearchQuery}
+        isOpen={isSearchOpen}
+        onOpen={() => setIsSearchOpen(true)}
+        onClose={() => setIsSearchOpen(false)}
+        placeholder={t("search.placeholder", { ns: "sessions" })}
+      />
 
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="flex-1">
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4" />
-              <SelectValue placeholder={t("sort.label", { ns: "sessions" })} />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="date-desc">
-              {t("sort.dateDesc", { ns: "sessions" })}
+      <Select value={filterMethod} onValueChange={setFilterMethod}>
+        <SelectTrigger className="!h-11 flex-1">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4" />
+            <SelectValue
+              placeholder={t("filter.method", { ns: "sessions" })}
+            />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">
+            {t("filter.allMethods", { ns: "sessions" })}
+          </SelectItem>
+          {availableMethods.map((method) => (
+            <SelectItem key={method} value={method}>
+              {method}
             </SelectItem>
-            <SelectItem value="date-asc">
-              {t("sort.dateAsc", { ns: "sessions" })}
-            </SelectItem>
-            <SelectItem value="strain-asc">
-              {t("sort.strainAsc", { ns: "sessions" })}
-            </SelectItem>
-            <SelectItem value="strain-desc">
-              {t("sort.strainDesc", { ns: "sessions" })}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+          ))}
+        </SelectContent>
+      </Select>
 
-        <Button
-          asChild
-          className="bg-white text-black border h-10 w-10 p-0"
-          aria-label={t("addSession", { ns: "sessions" })}
-        >
-          <Link href={`${ROUTE_SESSIONS}/new`}>
-            <Plus className="h-5 w-5" />
-          </Link>
-        </Button>
-      </div>
-    </>
+      <Select value={sortBy} onValueChange={setSortBy}>
+        <SelectTrigger className="!h-11 flex-1">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4" />
+            <SelectValue placeholder={t("sort.label", { ns: "sessions" })} />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="date-desc">
+            {t("sort.dateDesc", { ns: "sessions" })}
+          </SelectItem>
+          <SelectItem value="date-asc">
+            {t("sort.dateAsc", { ns: "sessions" })}
+          </SelectItem>
+          <SelectItem value="strain-asc">
+            {t("sort.strainAsc", { ns: "sessions" })}
+          </SelectItem>
+          <SelectItem value="strain-desc">
+            {t("sort.strainDesc", { ns: "sessions" })}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 
   const desktopControls = (
@@ -557,6 +548,13 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
         description={t("description", { ns: "sessions" })}
         backHref={ROUTE_DASHBOARD}
         mobileControls={mobileControls}
+        mobileActions={
+          <Button size="icon" asChild>
+            <Link href={`${ROUTE_SESSIONS}/new`}>
+              <Plus className="h-5 w-5" />
+            </Link>
+          </Button>
+        }
         desktopControls={desktopControls}
         desktopActions={
           <Button asChild>
