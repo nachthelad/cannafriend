@@ -8,20 +8,12 @@ const DEFAULT_MAX_DIMENSION = 1600;
 const DEFAULT_OUTPUT_QUALITY = 0.8;
 const DEFAULT_PREFERRED_MIME = "image/webp";
 
-function fileToDataURL(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = reject;
+    const timer = setTimeout(() => reject(new Error("Image load timeout")), 15000);
+    img.onload = () => { clearTimeout(timer); resolve(img); };
+    img.onerror = (e) => { clearTimeout(timer); reject(e); };
     img.src = src;
   });
 }
@@ -32,8 +24,10 @@ function canvasToBlob(
   quality: number
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Canvas toBlob timeout")), 15000);
     canvas.toBlob(
       (blob) => {
+        clearTimeout(timer);
         if (blob) resolve(blob);
         else reject(new Error("Failed to create blob"));
       },
@@ -51,8 +45,13 @@ export async function downscaleAndConvert(
   const outputQuality = options.outputQuality ?? DEFAULT_OUTPUT_QUALITY;
   const preferredMime = options.preferMimeType ?? DEFAULT_PREFERRED_MIME;
 
-  const dataUrl = await fileToDataURL(file);
-  const img = await loadImage(dataUrl);
+  const objectUrl = URL.createObjectURL(file);
+  let img: HTMLImageElement;
+  try {
+    img = await loadImage(objectUrl);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 
   const srcWidth = img.naturalWidth || img.width;
   const srcHeight = img.naturalHeight || img.height;

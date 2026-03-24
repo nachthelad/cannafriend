@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: document mobile patterns, Suspense split, MobileSearchBar, and Button/Select gotchas — 2026-03-24
+
 - [MINOR]: refactor CLAUDE.md into a concise, actionable reference — 2026-03-17
 - [MINOR]: untrack skills-lock.json — 2026-03-16
 - [MINOR]: ignore Claude Code internal files (.agents/, skills-lock.json) — 2026-03-15

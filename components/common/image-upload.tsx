@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import {
   ref as createStorageRef,
-  uploadBytesResumable,
+  uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
 import { Upload, Plus } from "lucide-react";
@@ -105,23 +105,11 @@ function ImageUploadComponent(
     const storagePath = getImageStoragePath(resolvedUserId, fileName);
     const storageRef = createStorageRef(storage, storagePath);
 
-    const task = uploadBytesResumable(
-      storageRef,
-      processed,
-      {
-        cacheControl: "public,max-age=31536000,immutable",
-        contentType: processed.type,
-      }
-    );
-    await new Promise<void>((resolve, reject) => {
-      task.on(
-        "state_changed",
-        () => {},
-        (err) => reject(err),
-        () => resolve()
-      );
+    const snapshot = await uploadBytes(storageRef, processed, {
+      cacheControl: "public,max-age=31536000,immutable",
+      contentType: processed.type,
     });
-    const downloadURL = await getDownloadURL(task.snapshot.ref);
+    const downloadURL = await getDownloadURL(snapshot.ref);
 
     return downloadURL;
   };
