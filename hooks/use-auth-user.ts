@@ -16,8 +16,8 @@ export function useAuthUser() {
       try {
         if (u) {
           try {
-            // Try to get a fresh token to validate the user
-            await u.getIdToken(true);
+            // Get the token (Firebase auto-refreshes when near expiry)
+            await u.getIdToken();
             cachedUser = u;
             setUser(u);
           } catch (tokenError: unknown) {

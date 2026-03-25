@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { JournalSkeleton } from "@/components/skeletons/journal-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -42,8 +43,10 @@ function JournalGridContent({ userId, selectedPlant, selectedLogType, selectedDa
 
 export function JournalGrid(props: JournalGridProps) {
   return (
-    <Suspense fallback={<JournalSkeleton />}>
-      <JournalGridContent {...props} />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense fallback={<JournalSkeleton />}>
+        <JournalGridContent {...props} />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

@@ -67,6 +67,7 @@ import type {
   StashItem,
 } from "@/types";
 import { EmptyState } from "@/components/common/empty-state";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
@@ -80,7 +81,12 @@ async function fetchStashData(userId: string): Promise<StashData> {
   return { items };
 }
 
-function StashContent({ userId }: StashContainerProps) {
+function StashContent({
+  userId,
+  onItemsCountChange,
+}: StashContainerProps & {
+  onItemsCountChange?: (hasItems: boolean) => void;
+}) {
   const { t } = useTranslation(["stash", "common"]);
   const { toast } = useToast();
   const cacheKey = `stash-${userId}`;
@@ -104,6 +110,10 @@ function StashContent({ userId }: StashContainerProps) {
     previousItemsRef.current = initialItems;
     setItems(initialItems);
   }, [initialItems]);
+
+  useEffect(() => {
+    onItemsCountChange?.(items.length > 0);
+  }, [items.length, onItemsCountChange]);
 
   const {
     register,
@@ -524,6 +534,7 @@ function StashContent({ userId }: StashContainerProps) {
 export function StashContainer({ userId }: StashContainerProps) {
   const { t } = useTranslation(["stash", "common"]);
   const router = useRouter();
+  const [hasItems, setHasItems] = useState<boolean | null>(null);
   const homePath = ROUTE_DASHBOARD;
 
   return (
@@ -534,25 +545,31 @@ export function StashContainer({ userId }: StashContainerProps) {
         description={t("description")}
         onBackClick={() => router.replace(homePath)}
         desktopActions={
-          <Button asChild>
-            <Link href={ROUTE_STASH_NEW}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("addItem")}
-            </Link>
-          </Button>
+          hasItems !== false ? (
+            <Button asChild>
+              <Link href={ROUTE_STASH_NEW}>
+                <Plus className="h-4 w-4 mr-2" />
+                {t("addItem")}
+              </Link>
+            </Button>
+          ) : undefined
         }
         mobileActions={
-          <Button size="icon" asChild>
-            <Link href={ROUTE_STASH_NEW}>
-              <Plus className="h-5 w-5" />
-            </Link>
-          </Button>
+          hasItems !== false ? (
+            <Button size="icon" asChild>
+              <Link href={ROUTE_STASH_NEW}>
+                <Plus className="h-5 w-5" />
+              </Link>
+            </Button>
+          ) : undefined
         }
         sticky={false}
       />
-      <Suspense fallback={<StashSkeleton />}>
-        <StashContent userId={userId} />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense fallback={<StashSkeleton />}>
+          <StashContent userId={userId} onItemsCountChange={setHasItems} />
+        </Suspense>
+      </DataErrorBoundary>
     </>
   );
 }

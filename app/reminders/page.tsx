@@ -17,9 +17,8 @@ import {
   ROUTE_LOGIN,
   ROUTE_REMINDERS_NEW,
   ROUTE_PLANTS_NEW,
-  resolveHomePathForRoles,
+  ROUTE_DASHBOARD,
 } from "@/lib/routes";
-import { useUserRoles } from "@/hooks";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { ReminderSystem } from "@/components/plant/reminder-system";
 import { useTranslation } from "react-i18next";
@@ -37,6 +36,7 @@ import { Button } from "@/components/ui/button";
 
 import { MobileReminders } from "@/components/mobile/mobile-reminders";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchRemindersData(userId: string): Promise<RemindersData> {
   const [plantsSnapshot, remindersSnapshot] = await Promise.all([
@@ -67,9 +67,7 @@ async function fetchRemindersData(userId: string): Promise<RemindersData> {
 
 function RemindersContent({ userId }: RemindersContentProps) {
   const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
-  const { roles } = useUserRoles();
   const router = useRouter();
-  const homePath = resolveHomePathForRoles(roles);
   const [showMigrationModal, setShowMigrationModal] = useState(false);
 
   const cacheKey = `reminders-${userId}`;
@@ -193,9 +191,7 @@ function RemindersContent({ userId }: RemindersContentProps) {
 export default function RemindersPage() {
   const { t } = useTranslation(["reminders", "common", "dashboard", "plants"]);
   const { user, isLoading: authLoading } = useAuthUser();
-  const { roles } = useUserRoles();
   const router = useRouter();
-  const homePath = resolveHomePathForRoles(roles);
 
   useEffect(() => {
     if (authLoading) return;
@@ -224,7 +220,7 @@ export default function RemindersPage() {
       <ResponsivePageHeader
         title={t("reminders", { ns: "dashboard" })}
         description={t("pageDescription", { ns: "reminders" })}
-        backHref={homePath}
+        backHref={ROUTE_DASHBOARD}
         mobileActions={
           <Button size="icon" onClick={handleAddClick}>
             <Plus className="h-5 w-5" />
@@ -237,15 +233,17 @@ export default function RemindersPage() {
           </Button>
         }
       />
-      <Suspense
-        fallback={
-          <div className="p-4 md:px-0 md:py-6">
-            <RemindersSkeleton />
-          </div>
-        }
-      >
-        <RemindersContent userId={user.uid} />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="p-4 md:px-0 md:py-6">
+              <RemindersSkeleton />
+            </div>
+          }
+        >
+          <RemindersContent userId={user.uid} />
+        </Suspense>
+      </DataErrorBoundary>
     </Layout>
   );
 }

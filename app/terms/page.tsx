@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Button } from "@/components/ui/button";
 import { DEV_EMAIL } from "@/lib/constants";
-import { ROUTE_DASHBOARD } from "@/lib/routes";
+import { ROUTE_HOME } from "@/lib/routes";
 
 const PROHIBITED_KEYS = ["illegal", "abuse", "security", "scraping"] as const;
 
@@ -27,7 +27,7 @@ export default function TermsPage() {
           <ResponsivePageHeader
             title={t("terms.title")}
             description={`${t("terms.lastUpdated")}: ${formattedDate}`}
-            backHref={ROUTE_DASHBOARD}
+            backHref={ROUTE_HOME}
             sticky={false}
             className="border-none bg-background px-0"
             showDesktopBackButton
@@ -130,7 +130,7 @@ export default function TermsPage() {
               asChild
               className="gap-2 px-0 text-base font-medium"
             >
-              <Link href={ROUTE_DASHBOARD}>{backLabel}</Link>
+              <Link href={ROUTE_HOME}>{backLabel}</Link>
             </Button>
           </div>
         </div>

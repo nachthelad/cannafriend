@@ -43,7 +43,7 @@ export function CookieConsent() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:max-w-md">
+    <div className="fixed bottom-20 left-4 right-4 z-50 md:bottom-4 md:left-auto md:max-w-md">
       <Card className="shadow-lg border">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-2">
