@@ -21,8 +21,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { authorizedFetch, copyToClipboard } from "@/lib/admin/utils";
 import { ADMIN_EMAIL } from "@/lib/constants";
-import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_LOGIN } from "@/lib/routes";
 import { getSuspenseResource } from "@/lib/suspense-utils";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 const USERS_CACHE_KEY = "admin-users";
 
@@ -339,8 +340,10 @@ export function AdminContainer() {
   }
 
   return (
-    <Suspense fallback={<AdminSkeleton />}>
-      <AdminContent />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense fallback={<AdminSkeleton />}>
+        <AdminContent />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

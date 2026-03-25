@@ -68,6 +68,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 // Props for the inner content component — receives filter state from parent
 interface MobileJournalContentProps {
@@ -555,36 +556,38 @@ export function MobileJournal({ userId, language, mobileActions }: MobileJournal
       />
 
       {/* Entries — suspends while loading; only the list area shows skeleton */}
-      <Suspense
-        fallback={
-          <div className="space-y-4 px-4 pt-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <JournalEntrySkeleton key={i} />
-            ))}
-          </div>
-        }
-      >
-        <MobileJournalContent
-          userId={userId}
-          language={language}
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-          selectedPlant={selectedPlant}
-          onPlantChange={setSelectedPlant}
-          selectedLogType={selectedLogType}
-          onLogTypeChange={setSelectedLogType}
-          showFilters={showFilters}
-          onShowFiltersChange={setShowFilters}
-          searchText={searchText}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          showCalendar={showCalendar}
-          onShowCalendarChange={setShowCalendar}
-          onSearchTextChange={setSearchText}
-          activeFiltersCount={activeFiltersCount}
-          clearFilters={clearFilters}
-        />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="space-y-4 px-4 pt-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <JournalEntrySkeleton key={i} />
+              ))}
+            </div>
+          }
+        >
+          <MobileJournalContent
+            userId={userId}
+            language={language}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            selectedPlant={selectedPlant}
+            onPlantChange={setSelectedPlant}
+            selectedLogType={selectedLogType}
+            onLogTypeChange={setSelectedLogType}
+            showFilters={showFilters}
+            onShowFiltersChange={setShowFilters}
+            searchText={searchText}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            showCalendar={showCalendar}
+            onShowCalendarChange={setShowCalendar}
+            onSearchTextChange={setSearchText}
+            activeFiltersCount={activeFiltersCount}
+            clearFilters={clearFilters}
+          />
+        </Suspense>
+      </DataErrorBoundary>
     </>
   );
 }

@@ -1,4 +1,6 @@
-# Claude Development Notes
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -18,14 +20,18 @@ components/
   marketing/          # Landing page components
   skeletons/          # Loading skeletons
 lib/
-  constants.ts        # Shared constants (client + server)
+  constants.ts        # Shared constants (ADMIN_EMAIL, DEV_EMAIL — client + server)
   routes.ts           # All route constants
   firebase.ts         # Firebase client initialization
   firebase-admin.ts   # Firebase Admin (server only)
-  suspense-utils.ts   # Suspense resource helpers
+  suspense-utils.ts   # Suspense resource helpers (getSuspenseResource, clearSuspenseCache)
+  suspense-cache.ts   # Cache invalidation helpers (invalidatePlantsCache, etc.)
   locales/{en,es}/    # i18n translation files (15 namespaces)
 hooks/                # Custom hooks (all exported from hooks/index.ts)
+types/                # TypeScript types (all re-exported from types/index.ts)
 __tests__/            # Jest tests
+.githooks/            # Git hooks (autolog + autoversion on commit)
+scripts/              # autolog.mjs, autoversion.mjs, optimize-images.mjs
 ```
 
 ## Environment Variables
@@ -42,6 +48,8 @@ Copy `.env.example` to `.env.local`. Required groups:
 
 ## Commands
 
+The project uses **pnpm** (lock file is `pnpm-lock.yaml`). Both `npm run` and `pnpm run` work for scripts.
+
 ```bash
 # Development
 npm run dev           # Start dev server
@@ -54,10 +62,25 @@ npm run lint:fix      # Auto-fix ESLint issues
 npm run lint:unused   # Show unused vars only
 
 # Testing
-npm run test          # Run Jest
-npm run test:watch    # Watch mode
-npm run test:coverage # Coverage report in coverage/
+npm run test                              # Run all Jest tests
+npm run test:watch                        # Watch mode
+npm run test:coverage                     # Coverage report in coverage/
+npx jest --testPathPattern=<name>         # Run a single test file
+
+# Versioning (also run automatically via git hooks)
+npm run autolog:major|mid|minor -- "msg"  # Append to UPDATES.md
+npm run version:major|mid|minor           # Bump package.json version
 ```
+
+### Git Hooks
+
+Activate once per clone to enable automatic UPDATES.md + version bump on commit:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The `pre-commit` hook detects the commit level from the subject (`feat!`/`[major]`, `feat`/`[mid]`, `fix`/`chore`/etc.`/[minor]`), appends to `UPDATES.md`, bumps `package.json`, and stages both files automatically.
 
 ## Architecture Patterns
 
@@ -83,6 +106,15 @@ export function Component(props) {
 }
 ```
 
+After mutations, call the appropriate cache invalidation from `lib/suspense-cache.ts`:
+
+```typescript
+import { invalidatePlantsCache, invalidateJournalCache } from "@/lib/suspense-cache";
+// Available: invalidatePlantsCache, invalidatePlantDetails, invalidateAllPlantDetails,
+//            invalidateJournalCache, invalidateDashboardCache, invalidateRemindersCache,
+//            invalidateSettingsCache, invalidateUserCaches
+```
+
 Keep `useAuthUser` loading states (auth ≠ data loading), form submission loading, and component-specific operations (file uploads).
 
 ### Custom Hooks
@@ -94,6 +126,10 @@ import { useFormAuth, useToggle, useLoadingSteps, useFirebaseCollection } from "
 ```
 
 Available hooks: `useAuthUser`, `useFormAuth<T>`, `useFirebaseCollection`, `useFirebaseDocument`, `useAsync`, `useLoadingSteps`, `useToggle`, `usePagination`, `useLocalStorage`, `usePremium`, `useUserRoles`, `useHasPlants`, `useErrorHandler`, `useToast`, `useAppVersion`
+
+### TypeScript Types
+
+All types re-exported from `@/types`. Domain-split files: `entities`, `auth`, `plants`, `journal`, `common`, `admin`, `ai`, `layout`, `marketing`, `providers`, `sessions`, `ui`, `settings`, `mobile`, `reminders`, `dashboard`, `stash`, `firestore`, `pwa`.
 
 ### Internationalization
 
@@ -120,11 +156,15 @@ Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journ
 import { ROUTE_PLANTS, ROUTE_JOURNAL_NEW } from "@/lib/routes";
 ```
 
-Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
+Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_CONSUMER_CHAT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
+
+Helper: `consumerChatDetailPath(id)` builds `/consumer-chat/:id`.
 
 ### Shared Constants
 
 **Rule**: Constants used by both client and server go in `lib/constants.ts`. Never define shared constants inside API routes — they import `firebase-admin` which is server-only and will cause build errors in client components.
+
+Current exports: `ADMIN_EMAIL`, `DEV_EMAIL`.
 
 ### Firebase Collections
 
@@ -204,3 +244,6 @@ Examples:
 
 **Firebase operation fails silently**
 → Check `useAuthUser` state — user may not be authenticated yet
+
+**Stale data after mutation**
+→ Call the relevant `invalidate*Cache` function from `lib/suspense-cache.ts`

@@ -32,6 +32,7 @@ import { getSuspenseResource } from "@/lib/suspense-utils";
 import type { Plant, LogEntry } from "@/types";
 import type { PlantLogsContainerProps, PlantLogsData } from "@/types/plants";
 import { normalizePlant } from "@/lib/plant-utils";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchPlantData(
   userId: string,
@@ -203,14 +204,16 @@ export function PlantLogsContainer({
   plantId,
 }: PlantLogsContainerProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="p-4 md:p-6">
-          <JournalSkeleton />
-        </div>
-      }
-    >
-      <PlantLogsContent userId={userId} plantId={plantId} />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="p-4 md:p-6">
+            <JournalSkeleton />
+          </div>
+        }
+      >
+        <PlantLogsContent userId={userId} plantId={plantId} />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

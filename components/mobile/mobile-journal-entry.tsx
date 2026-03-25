@@ -209,7 +209,7 @@ export function MobileJournalEntry({
                 <div className="flex-1 min-w-0 space-y-2">
                   {/* Header */}
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
                       <Badge variant="secondary" className="shrink-0">
                         {t(`${log.type}`, { ns: "logType" })}
                       </Badge>

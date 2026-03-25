@@ -10,6 +10,7 @@ import { ROUTE_LOGIN } from "@/lib/routes";
 import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { auth } from "@/lib/firebase";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchPremiumStatus(_userId: string): Promise<boolean> {
   // Check localStorage flag first
@@ -110,13 +111,15 @@ export default function AIAssistantPage() {
 
   return (
     <AILayout onToggleSidebar={handleToggleSidebar}>
-      <Suspense fallback={<AIChatSkeleton />}>
-        <AIAssistantContent
-          userId={user.uid}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={handleToggleSidebar}
-        />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense fallback={<AIChatSkeleton />}>
+          <AIAssistantContent
+            userId={user.uid}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={handleToggleSidebar}
+          />
+        </Suspense>
+      </DataErrorBoundary>
     </AILayout>
   );
 }

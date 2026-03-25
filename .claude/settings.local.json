@@ -19,7 +19,12 @@
       "WebSearch",
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_click",
+      "Skill(update-config)"
     ],
     "deny": [],
     "ask": []

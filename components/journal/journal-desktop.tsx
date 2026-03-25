@@ -59,6 +59,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import type { LogEntry } from "@/types";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   const { t } = useTranslation(["journal", "common"]);
@@ -420,8 +421,10 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
 
 export function JournalDesktop(props: JournalDesktopProps) {
   return (
-    <Suspense fallback={<JournalSkeleton />}>
-      <JournalDesktopContent {...props} />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense fallback={<JournalSkeleton />}>
+        <JournalDesktopContent {...props} />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

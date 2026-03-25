@@ -28,6 +28,7 @@ import type {
 } from "@/types/plants";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { ROUTE_PLANTS_NEW } from "@/lib/routes";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchPlantsData(userId: string): Promise<PlantGridData> {
   // 1. Fetch plants and logs concurrently
@@ -257,8 +258,10 @@ function PlantGridContent({
 
 export function PlantGrid(props: PlantGridProps) {
   return (
-    <Suspense fallback={<PlantListSkeleton />}>
-      <PlantGridContent {...props} />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense fallback={<PlantListSkeleton />}>
+        <PlantGridContent {...props} />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

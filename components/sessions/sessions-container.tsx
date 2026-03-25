@@ -52,6 +52,7 @@ import type {
 } from "@/types";
 import { auth } from "@/lib/firebase";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchSessionsData(userId: string): Promise<SessionsData> {
   const ref = sessionsCol(userId);
@@ -567,20 +568,22 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
         sticky={true}
       />
 
-      <Suspense fallback={<SessionsSkeleton />}>
-        <SessionsContainerContent
-          userId={userId}
-          searchQuery={searchQuery}
-          filterMethod={filterMethod}
-          sortBy={sortBy}
-          onSearchChange={setSearchQuery}
-          onFilterMethodChange={setFilterMethod}
-          onSortByChange={setSortBy}
-          availableMethods={availableMethods}
-          isPremium={isPremium}
-          onMethodsUpdate={setAvailableMethods}
-        />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense fallback={<SessionsSkeleton />}>
+          <SessionsContainerContent
+            userId={userId}
+            searchQuery={searchQuery}
+            filterMethod={filterMethod}
+            sortBy={sortBy}
+            onSearchChange={setSearchQuery}
+            onFilterMethodChange={setFilterMethod}
+            onSortByChange={setSortBy}
+            availableMethods={availableMethods}
+            isPremium={isPremium}
+            onMethodsUpdate={setAvailableMethods}
+          />
+        </Suspense>
+      </DataErrorBoundary>
     </div>
   );
 }

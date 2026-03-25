@@ -15,11 +15,10 @@ import { Layout } from "@/components/layout";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Skeleton, ReminderFormSkeleton } from "@/components/skeletons";
 import { Switch } from "@/components/ui/switch";
-import { useUserRoles } from "@/hooks";
 import {
-  resolveHomePathForRoles,
   ROUTE_LOGIN,
   ROUTE_REMINDERS,
+  ROUTE_DASHBOARD,
 } from "@/lib/routes";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { auth, db } from "@/lib/firebase";
@@ -83,8 +82,7 @@ export default function NewReminderPage() {
   const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const router = useRouter();
-  const { roles } = useUserRoles();
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
 
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);

@@ -21,7 +21,6 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { resolveHomePathForRoles } from "@/lib/routes";
 import { PlantDetailSkeleton } from "@/components/skeletons/plant-list-skeleton";
 import { PlantDetailsHeader } from "@/components/plant/plant-details-header";
 import { PlantPhotoGallery } from "@/components/plant/plant-photo-gallery";
@@ -57,6 +56,7 @@ import type {
 } from "@/types/plants";
 import type { UploadingState } from "@/types/common";
 import { normalizePlant } from "@/lib/plant-utils";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 async function fetchPlantDetailsData(
   userId: string,
@@ -512,14 +512,16 @@ export function PlantDetailsContainer({
   plantId,
 }: PlantDetailsContainerProps) {
   return (
-    <Suspense
-      fallback={
-        <div className="p-4 md:p-6">
-          <PlantDetailSkeleton />
-        </div>
-      }
-    >
-      <PlantDetailsContent userId={userId} plantId={plantId} />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="p-4 md:p-6">
+            <PlantDetailSkeleton />
+          </div>
+        }
+      >
+        <PlantDetailsContent userId={userId} plantId={plantId} />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }
