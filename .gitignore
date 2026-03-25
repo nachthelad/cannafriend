@@ -34,3 +34,6 @@ public/app_inspiration.png
 # Claude Code
 .agents/
 skills-lock.json
+
+# Playwright MCP (logs and screenshots)
+.playwright-mcp/

@@ -28,6 +28,7 @@ import { stashCol } from "@/lib/paths";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Skeleton, StashFormSkeleton } from "@/components/skeletons";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 // Form validation schema
 const createStashFormSchema = (t: any) =>
@@ -373,9 +374,11 @@ export default function NewStashPage() {
         description={t("addItemDesc", { ns: "stash" })}
         onBackClick={handleBack}
       />
-      <Suspense fallback={<StashFormSkeleton />}>
-        <NewStashPageContent />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense fallback={<StashFormSkeleton />}>
+          <NewStashPageContent />
+        </Suspense>
+      </DataErrorBoundary>
     </Layout>
   );
 }

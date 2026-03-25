@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: fix infinite loading on mobile PWA — 2026-03-25
 - [MINOR]: document mobile patterns, Suspense split, MobileSearchBar, and Button/Select gotchas — 2026-03-24
 
 - [MINOR]: refactor CLAUDE.md into a concise, actionable reference — 2026-03-17

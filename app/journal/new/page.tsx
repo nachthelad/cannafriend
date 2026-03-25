@@ -74,6 +74,7 @@ import { ResponsivePageHeader } from "@/components/common/responsive-page-header
 import { PLANT_STATUS } from "@/lib/plant-config";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { MultiPlantSelector } from "@/components/plant/multi-plant-selector";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 function JournalFormSkeleton() {
   return (
@@ -967,14 +968,16 @@ function NewJournalPageContent() {
 
 export default function NewJournalPage() {
   return (
-    <Suspense
-      fallback={
-        <Layout>
-          <JournalFormSkeleton />
-        </Layout>
-      }
-    >
-      <NewJournalPageContent />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense
+        fallback={
+          <Layout>
+            <JournalFormSkeleton />
+          </Layout>
+        }
+      >
+        <NewJournalPageContent />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

@@ -9,16 +9,15 @@ import { SettingsContainer } from "@/components/settings/settings-container";
 import { MobileSettings } from "@/components/mobile/mobile-settings";
 import { SettingsSkeleton } from "@/components/skeletons";
 import { Layout } from "@/components/layout";
-import { ROUTE_LOGIN, resolveHomePathForRoles } from "@/lib/routes";
+import { ROUTE_LOGIN, ROUTE_DASHBOARD } from "@/lib/routes";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useUserRoles } from "@/hooks";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuthUser();
   const router = useRouter();
-  const { roles } = useUserRoles();
   const { t } = useTranslation(["common"]);
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
 
   useEffect(() => {
     if (isLoading) {
@@ -57,26 +56,30 @@ export default function SettingsPage() {
       />
       {/* Mobile Settings */}
       <div className="md:hidden">
-        <Suspense fallback={skeletonFallback}>
-          <MobileSettings
-            userId={user.uid}
-            email={user.email}
-            providerId={providerId}
-            showHeader={false}
-          />
-        </Suspense>
+        <DataErrorBoundary>
+          <Suspense fallback={skeletonFallback}>
+            <MobileSettings
+              userId={user.uid}
+              email={user.email}
+              providerId={providerId}
+              showHeader={false}
+            />
+          </Suspense>
+        </DataErrorBoundary>
       </div>
 
       {/* Desktop Settings */}
       <div className="hidden md:block">
-        <Suspense fallback={skeletonFallback}>
-          <SettingsContainer
-            userId={user.uid}
-            email={user.email}
-            providerId={providerId}
-            showHeader={false}
-          />
-        </Suspense>
+        <DataErrorBoundary>
+          <Suspense fallback={skeletonFallback}>
+            <SettingsContainer
+              userId={user.uid}
+              email={user.email}
+              providerId={providerId}
+              showHeader={false}
+            />
+          </Suspense>
+        </DataErrorBoundary>
       </div>
     </Layout>
   );

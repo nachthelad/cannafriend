@@ -30,6 +30,7 @@ export type AppPath =
   | typeof ROUTE_SESSIONS
   | typeof ROUTE_PLANTS_NEW
   | typeof ROUTE_PLANTS
+  | typeof ROUTE_AI_ASSISTANT
   | typeof ROUTE_CONSUMER_CHAT
   | typeof ROUTE_PREMIUM
   | typeof ROUTE_SETTINGS
@@ -47,14 +48,6 @@ export type AppPath =
   | typeof ROUTE_HOME
   | string;
 
-/**
- * Resolves the home path for authenticated users.
- * Always returns dashboard. Parameter kept for backward compatibility.
- * @deprecated roles parameter is no longer used
- */
-export function resolveHomePathForRoles(_roles?: any): AppPath {
-  return ROUTE_DASHBOARD;
-}
 
 export function consumerChatDetailPath(id: string): string {
   return `${ROUTE_CONSUMER_CHAT}/${id}`;

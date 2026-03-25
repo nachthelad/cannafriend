@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
-import { resolveHomePathForRoles } from "@/lib/routes";
-import { useUserRoles } from "@/hooks";
+import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +20,6 @@ import { Crown, CreditCard, Banknote } from "lucide-react";
 export default function PremiumPage() {
   const { t } = useTranslation(["premium", "common"]);
   const router = useRouter();
-  const { roles } = useUserRoles();
   const { user } = useAuthUser();
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
@@ -281,7 +279,7 @@ export default function PremiumPage() {
 
         <div className="text-center">
           <Button
-            onClick={() => router.push(resolveHomePathForRoles(roles))}
+            onClick={() => router.push(ROUTE_DASHBOARD)}
             variant="ghost"
           >
             {t("back", { ns: "premium" })}

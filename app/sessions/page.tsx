@@ -8,6 +8,7 @@ import { ROUTE_LOGIN } from "@/lib/routes";
 import { SessionsContainer } from "@/components/sessions/sessions-container";
 import { SessionsSkeleton } from "@/components/skeletons";
 import { clearSuspenseCache } from "@/lib/suspense-utils";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 interface RefreshHandlerProps {
   userId: string;
@@ -49,9 +50,11 @@ function SessionsContent() {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <RefreshHandler userId={user.uid} />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense fallback={null}>
+          <RefreshHandler userId={user.uid} />
+        </Suspense>
+      </DataErrorBoundary>
       <SessionsContainer userId={user.uid} />
     </>
   );

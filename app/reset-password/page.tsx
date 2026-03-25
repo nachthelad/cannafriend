@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { ROUTE_LOGIN } from "@/lib/routes";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 
 function ResetPasswordContent() {
   const { t } = useTranslation(["auth", "common"]);
@@ -53,8 +54,10 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ResetPasswordContent />
-    </Suspense>
+    <DataErrorBoundary>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ResetPasswordContent />
+      </Suspense>
+    </DataErrorBoundary>
   );
 }

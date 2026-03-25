@@ -9,13 +9,13 @@ import {
   ROUTE_LOGIN,
   ROUTE_JOURNAL_NEW,
   ROUTE_PLANTS_NEW,
-  resolveHomePathForRoles,
+  ROUTE_DASHBOARD,
 } from "@/lib/routes";
 import { Layout } from "@/components/layout";
 import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Plus } from "lucide-react";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useUserRoles, useHasPlants } from "@/hooks";
+import { useHasPlants } from "@/hooks";
 import { JournalDesktop } from "@/components/journal/journal-desktop";
 
 export default function JournalPage() {
@@ -23,8 +23,7 @@ export default function JournalPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuthUser();
   const userId = user?.uid ?? null;
-  const { roles } = useUserRoles();
-  const homePath = resolveHomePathForRoles(roles);
+  const homePath = ROUTE_DASHBOARD;
   const { hasPlants, isLoading: plantsLoading } = useHasPlants();
 
   useEffect(() => {

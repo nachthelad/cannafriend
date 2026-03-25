@@ -51,6 +51,7 @@ import {
 import { Skeleton, DashboardSkeleton } from "@/components/skeletons";
 
 import { DataCard } from "@/components/common/data-card";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import type {
   DashboardContainerProps,
   DashboardData,
@@ -80,7 +81,7 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
   const remindersPromise = getDocs(remindersQuery);
 
   const tokenPromise = auth.currentUser
-    ? auth.currentUser.getIdTokenResult(true)
+    ? auth.currentUser.getIdTokenResult()
     : Promise.resolve(null);
 
   // 2. Await results
@@ -220,6 +221,9 @@ function DashboardContent({
   );
   const {
     plants,
+    lastWaterings,
+    lastFeedings,
+    lastTrainings,
     recentLogs,
     remindersCount,
     hasOverdue,
@@ -326,7 +330,13 @@ function DashboardContent({
                 {plants.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {plants.map((plant) => (
-                      <PlantCard key={plant.id} plant={plant} compact />
+                      <PlantCard
+                        key={plant.id}
+                        plant={plant}
+                        lastWatering={lastWaterings[plant.id]}
+                        lastFeeding={lastFeedings[plant.id]}
+                        lastTraining={lastTrainings[plant.id]}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -420,19 +430,21 @@ export function DashboardContainer({
           )}
         </div>
       </div>
-      <Suspense
-        fallback={
-          <div className="p-0">
-            <DashboardSkeleton />
-          </div>
-        }
-      >
-        <DashboardContent
-          userId={userId}
-          userEmail={userEmail}
-          isAdmin={isAdmin}
-        />
-      </Suspense>
+      <DataErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="p-0">
+              <DashboardSkeleton />
+            </div>
+          }
+        >
+          <DashboardContent
+            userId={userId}
+            userEmail={userEmail}
+            isAdmin={isAdmin}
+          />
+        </Suspense>
+      </DataErrorBoundary>
     </div>
   );
 }

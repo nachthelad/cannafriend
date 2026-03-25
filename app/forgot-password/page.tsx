@@ -25,8 +25,8 @@ export default function ForgotPasswordPage() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block">
-        <div className="flex items-center justify-center p-4">
+      <div className="hidden md:flex min-h-screen items-center justify-center">
+        <div className="p-4">
           <div className="w-full max-w-md space-y-6">
             <ResponsivePageHeader
               title={
