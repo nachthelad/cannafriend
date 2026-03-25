@@ -1,7 +1,8 @@
 {
   "name": "cannafriend",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
     "build": "next build",
     "dev": "next dev",
