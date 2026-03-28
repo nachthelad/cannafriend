@@ -14,6 +14,16 @@ Tareas pendientes para abordar cuando haya más contexto disponible.
 
 ---
 
+## PWA
+
+### [ ] 2. Agregar screenshots al manifest
+**Priority: Medium**
+**File**: `public/manifest.json`
+**Problem**: Sin screenshots, el prompt de instalación de PWA es menos atractivo en navegadores modernos.
+**Fix**: Crear screenshots (1280x720 landscape, 540x720 portrait) y agregarlos al manifest.
+
+---
+
 ## Testing
 
 ### [ ] 2. Expand test coverage beyond utilities
@@ -25,3 +35,18 @@ Tareas pendientes para abordar cuando haya más contexto disponible.
 - `hooks/use-firebase-collection.ts` — data fetching
 - `components/plant/plant-card.tsx` — core UI
 - `app/api/ai-assistant/route.ts` — topic guard and rate limit logic
+
+---
+
+## UX / Copy
+
+### [ ] 4. Evaluar virtualización en listas grandes
+**Priority: Low**
+**Files**: `components/plant/plant-grid.tsx`, `components/mobile/mobile-journal.tsx`
+**Problem**: Si las listas de plantas o entradas de journal superan 50 items, el render puede degradarse.
+**Fix**: Considerar `virtua` o `content-visibility: auto`.
+
+### [ ] 5. Verificar Title Case en headings y botones (en inglés)
+**Priority: Low**
+**Problem**: Revisar los textos de botones de acción principales en inglés para asegurar Title Case según Chicago style.
+**Fix**: Búsqueda manual en archivos de traducción `lib/locales/en/`.

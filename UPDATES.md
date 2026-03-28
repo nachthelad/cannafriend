@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: fix pnpm-lock file — 2026-03-28
+
 - [MINOR]: fix vercel — 2026-03-25
 - [MINOR]: apply UX, reliability, and cleanup fixes from backlog — 2026-03-25
 - [MINOR]: fix infinite loading on mobile PWA — 2026-03-25
