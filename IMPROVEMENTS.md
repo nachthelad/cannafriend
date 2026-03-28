@@ -6,11 +6,10 @@ Tareas pendientes para abordar cuando haya más contexto disponible.
 
 ## Performance
 
-### [ ] 1. Memoize expensive computations in `mobile-sessions.tsx`
+### [x] 1. Memoize expensive computations in `mobile-sessions.tsx`
 **Priority: High**
-**File**: `components/mobile/mobile-sessions.tsx` (1127 lines)
-**Problem**: Zero use of `useCallback` or `useMemo`. Filter/sort/search operations run on every render, triggered on every keystroke.
-**Fix**: Wrap filter/sort logic in `useMemo`, event handlers in `useCallback`. Consider splitting into smaller sub-components.
+**File**: `components/mobile/mobile-sessions.tsx`
+**Done**: Wrapped all event handlers in `useCallback` (`handleSessionView`, `handleBackToList`, `handleSessionEdit`, `handleSessionDelete` in `MobileSessions`; all handlers in `SessionDetailView`). Wrapped derived values in `useMemo` (`sessionDate`, `startTime`, `endTime`, `timeRange`, `methodAndAmount`, `hasMultiplePhotos`). Extracted `parseIsoToHHMM` and `safeFormatTime` as module-level pure functions (eliminating duplication). Replaced `selectedSession` closure in `handleSessionEdit` with functional `setSelectedSession` update.
 
 ---
 
@@ -46,7 +45,6 @@ Tareas pendientes para abordar cuando haya más contexto disponible.
 **Problem**: Si las listas de plantas o entradas de journal superan 50 items, el render puede degradarse.
 **Fix**: Considerar `virtua` o `content-visibility: auto`.
 
-### [ ] 5. Verificar Title Case en headings y botones (en inglés)
+### [x] 5. Verificar Title Case en headings y botones (en inglés)
 **Priority: Low**
-**Problem**: Revisar los textos de botones de acción principales en inglés para asegurar Title Case según Chicago style.
-**Fix**: Búsqueda manual en archivos de traducción `lib/locales/en/`.
+**Done**: Aplicado Chicago-style Title Case en ~80 strings a través de 9 archivos: `common.json`, `dashboard.json`, `journal.json`, `plants.json`, `sessions.json`, `stash.json`, `reminders.json`, `auth.json`, `aiAssistant.json`. Se mantuvieron en minúscula preposiciones cortas (to, by, as, from) y artículos (a, an, the) según Chicago style. Se omitieron descripciones largas, placeholders y mensajes de validación.
