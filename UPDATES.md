@@ -5,6 +5,11 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: expand coverage to hooks, plant-card component, and AI route — 2026-03-29
+- [MINOR]: apply Title Case to EN locale button and heading strings — 2026-03-29
+- [MINOR]: clean up root files and consolidate backlog — 2026-03-28
+- [MINOR]: fix pnpm-lock file — 2026-03-28
+
 - [MINOR]: fix vercel — 2026-03-25
 - [MINOR]: apply UX, reliability, and cleanup fixes from backlog — 2026-03-25
 - [MINOR]: fix infinite loading on mobile PWA — 2026-03-25

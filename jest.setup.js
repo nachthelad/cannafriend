@@ -64,6 +64,9 @@ jest.mock('react-i18next', () => ({
   }),
 }))
 
+// Browser globals — only available in jsdom environment
+if (typeof window !== 'undefined') {
+
 // Mock IntersectionObserver
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -92,3 +95,5 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 })
+
+} // end typeof window !== 'undefined'

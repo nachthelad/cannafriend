@@ -5,7 +5,7 @@ import type {
   SessionDetailViewProps,
   SessionListItemProps,
 } from "@/types/mobile";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -49,6 +49,31 @@ import type { Session, SessionEditFormValues } from "@/types";
 import { TimeField } from "@/components/sessions/time-field";
 import { cn } from "@/lib/utils";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+
+function parseIsoToHHMM(value?: string | null): string {
+  if (!value) return "";
+  try {
+    const date = new Date(value);
+    const hh = String(date.getHours()).padStart(2, "0");
+    const mm = String(date.getMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+  } catch {
+    return "";
+  }
+}
+
+function safeFormatTime(timeString: string): string {
+  if (!timeString) return "";
+  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (timeRegex.test(timeString)) {
+    try {
+      return formatTime(new Date(`1970-01-01T${timeString}:00`).toISOString());
+    } catch {
+      return timeString;
+    }
+  }
+  return timeString;
+}
 
 function formatDate(iso?: string | null) {
   if (!iso) return "";
@@ -114,6 +139,84 @@ function SessionListItem({ session, t, onView }: SessionListItemProps) {
   );
 }
 
+interface SessionPhotoGalleryProps {
+  photos: string[] | null | undefined;
+  strain: string;
+  currentIndex: number;
+  hasMultiple: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
+  children?: React.ReactNode;
+}
+
+function SessionPhotoGallery({
+  photos,
+  strain,
+  currentIndex,
+  hasMultiple,
+  onNext,
+  onPrev,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
+  children,
+}: SessionPhotoGalleryProps) {
+  const { t } = useTranslation(["common"]);
+
+  return (
+    <div
+      className="relative rounded-2xl h-96 w-full overflow-hidden"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {photos && photos.length > 0 ? (
+        <>
+          <Image
+            src={photos[currentIndex]}
+            alt={`${strain} session`}
+            fill
+            className="object-cover"
+            loading="lazy"
+          />
+          {hasMultiple && (
+            <>
+              <button
+                onClick={onPrev}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full p-2"
+              >
+                <ArrowLeft className="h-5 w-5 text-white" />
+              </button>
+              <button
+                onClick={onNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full p-2 rotate-180"
+              >
+                <ArrowLeft className="h-5 w-5 text-white" />
+              </button>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full">
+                <span className="text-white text-sm font-medium">
+                  {currentIndex + 1} {t("of", { ns: "common" })}{" "}
+                  {photos.length}
+                </span>
+              </div>
+            </>
+          )}
+        </>
+      ) : (
+        <div className="h-full bg-gradient-to-br from-purple-600/30 to-pink-700/40 relative">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Pill className="h-24 w-24 text-purple-400/60" />
+          </div>
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
 export function SessionDetailView({
   session,
   t,
@@ -128,160 +231,89 @@ export function SessionDetailView({
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editValues, setEditValues] = useState(() => {
-    const parseIsoToHHMM = (value?: string | null) => {
-      if (!value) return "";
-      try {
-        const date = new Date(value);
-        const hh = String(date.getHours()).padStart(2, "0");
-        const mm = String(date.getMinutes()).padStart(2, "0");
-        return `${hh}:${mm}`;
-      } catch {
-        return "";
-      }
-    };
+  const [editValues, setEditValues] = useState(() => ({
+    strain: session.strain,
+    notes: session.notes || "",
+    startTime: parseIsoToHHMM(session.startTime),
+    endTime: parseIsoToHHMM(session.endTime),
+    method: session.method || "",
+    amount: session.amount || "",
+  }));
 
-    return {
-      strain: session.strain,
-      notes: session.notes || "",
-      startTime: parseIsoToHHMM(session.startTime),
-      endTime: parseIsoToHHMM(session.endTime),
-      method: session.method || "",
-      amount: session.amount || "",
-    };
-  });
-  // Helper function to safely format time strings
-  const safeFormatTime = (timeString: string) => {
-    if (!timeString) return "";
+  const sessionDate = useMemo(() => formatDate(session.date), [session.date]);
+  const startTime = useMemo(
+    () =>
+      editValues.startTime
+        ? safeFormatTime(editValues.startTime)
+        : formatTime(session.startTime),
+    [editValues.startTime, session.startTime],
+  );
+  const endTime = useMemo(
+    () =>
+      editValues.endTime
+        ? safeFormatTime(editValues.endTime)
+        : formatTime(session.endTime),
+    [editValues.endTime, session.endTime],
+  );
+  const timeRange = useMemo(
+    () =>
+      startTime && endTime
+        ? `${startTime} – ${endTime}`
+        : startTime || endTime || "",
+    [startTime, endTime],
+  );
+  const methodAndAmount = useMemo(
+    () => [editValues.method, editValues.amount].filter(Boolean).join(" • "),
+    [editValues.method, editValues.amount],
+  );
+  const hasMultiplePhotos = useMemo(
+    () => !!(session.photos && session.photos.length > 1),
+    [session.photos],
+  );
 
-    // Check if it's a valid HH:MM format
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (timeRegex.test(timeString)) {
-      try {
-        return formatTime(
-          new Date(`1970-01-01T${timeString}:00`).toISOString(),
-        );
-      } catch {
-        return timeString; // Return as-is if conversion fails
-      }
-    }
-    return timeString; // Return partial input as-is while user is typing
-  };
-
-  const sessionDate = formatDate(session.date);
-  const startTime = editValues.startTime
-    ? safeFormatTime(editValues.startTime)
-    : formatTime(session.startTime);
-  const endTime = editValues.endTime
-    ? safeFormatTime(editValues.endTime)
-    : formatTime(session.endTime);
-  const timeRange =
-    startTime && endTime
-      ? `${startTime} – ${endTime}`
-      : startTime || endTime || "";
-  const methodAndAmount = [editValues.method, editValues.amount]
-    .filter(Boolean)
-    .join(" • ");
-
-  const hasMultiplePhotos = session.photos && session.photos.length > 1;
-
-  const nextPhoto = () => {
+  const nextPhoto = useCallback(() => {
     if (hasMultiplePhotos) {
       setCurrentPhotoIndex((prev) =>
         prev === session.photos!.length - 1 ? 0 : prev + 1,
       );
     }
-  };
+  }, [hasMultiplePhotos, session.photos]);
 
-  const prevPhoto = () => {
+  const prevPhoto = useCallback(() => {
     if (hasMultiplePhotos) {
       setCurrentPhotoIndex((prev) =>
         prev === 0 ? session.photos!.length - 1 : prev - 1,
       );
     }
-  };
+  }, [hasMultiplePhotos, session.photos]);
 
-  // Touch handlers for swipe navigation (only when multiple photos)
   const minSwipeDistance = 50;
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    if (!hasMultiplePhotos) return;
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!hasMultiplePhotos) return;
+      setTouchEnd(null);
+      setTouchStart(e.targetTouches[0].clientX);
+    },
+    [hasMultiplePhotos],
+  );
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!hasMultiplePhotos) return;
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+  const onTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!hasMultiplePhotos) return;
+      setTouchEnd(e.targetTouches[0].clientX);
+    },
+    [hasMultiplePhotos],
+  );
 
-  const onTouchEnd = () => {
+  const onTouchEnd = useCallback(() => {
     if (!hasMultiplePhotos || !touchStart || !touchEnd) return;
-
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
+    if (distance > minSwipeDistance) nextPhoto();
+    if (distance < -minSwipeDistance) prevPhoto();
+  }, [hasMultiplePhotos, touchStart, touchEnd, nextPhoto, prevPhoto]);
 
-    if (isLeftSwipe) {
-      nextPhoto();
-    }
-    if (isRightSwipe) {
-      prevPhoto();
-    }
-  };
-
-  const handleToggleEditMode = () => {
-    if (isEditMode) {
-      // Exit edit mode - reset any unsaved changes
-      handleCancelEdit();
-      setIsEditMode(false);
-    } else {
-      // Enter edit mode
-      setIsEditMode(true);
-    }
-  };
-
-  const handleEditField = (field: string) => {
-    if (isEditMode) {
-      setEditingField(field);
-    }
-  };
-
-  const handleSaveField = async (field: string) => {
-    setIsEditing(true);
-    try {
-      const formValues: SessionEditFormValues = {
-        strain: editValues.strain,
-        notes: editValues.notes,
-        date: new Date(session.date), // Keep original date, no editing
-        startTime: editValues.startTime,
-        endTime: editValues.endTime,
-        photos: session.photos || [],
-        method: editValues.method,
-        amount: editValues.amount,
-      };
-
-      await onEdit({ ...formValues, id: session.id });
-      setEditingField(null);
-    } finally {
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    // Reset values to original
-    const parseIsoToHHMM = (value?: string | null) => {
-      if (!value) return "";
-      try {
-        const date = new Date(value);
-        const hh = String(date.getHours()).padStart(2, "0");
-        const mm = String(date.getMinutes()).padStart(2, "0");
-        return `${hh}:${mm}`;
-      } catch {
-        return "";
-      }
-    };
-
+  const handleCancelEdit = useCallback(() => {
     setEditValues({
       strain: session.strain,
       notes: session.notes || "",
@@ -291,71 +323,71 @@ export function SessionDetailView({
       amount: session.amount || "",
     });
     setEditingField(null);
-  };
+  }, [session]);
 
-  const handleDeleteClick = () => {
+  const handleToggleEditMode = useCallback(() => {
+    if (isEditMode) {
+      handleCancelEdit();
+      setIsEditMode(false);
+    } else {
+      setIsEditMode(true);
+    }
+  }, [isEditMode, handleCancelEdit]);
+
+  const handleEditField = useCallback(
+    (field: string) => {
+      if (isEditMode) setEditingField(field);
+    },
+    [isEditMode],
+  );
+
+  const handleSaveField = useCallback(
+    async (_field: string) => {
+      setIsEditing(true);
+      try {
+        const formValues: SessionEditFormValues = {
+          strain: editValues.strain,
+          notes: editValues.notes,
+          date: new Date(session.date),
+          startTime: editValues.startTime,
+          endTime: editValues.endTime,
+          photos: session.photos || [],
+          method: editValues.method,
+          amount: editValues.amount,
+        };
+        await onEdit({ ...formValues, id: session.id });
+        setEditingField(null);
+      } finally {
+        setIsEditing(false);
+      }
+    },
+    [editValues, session, onEdit],
+  );
+
+  const handleDeleteClick = useCallback(() => {
     setShowDeleteDialog(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = useCallback(() => {
     onDelete(session.id);
     setShowDeleteDialog(false);
-    onBack(); // Go back to list after delete
-  };
+    onBack();
+  }, [onDelete, session.id, onBack]);
 
   return (
     <div className="min-h-screen text-white">
       {/* Header with Image */}
-      <div className="relative">
-        {/* Session Image */}
-        <div
-          className="relative rounded-2xl h-96 w-full overflow-hidden"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          {session.photos && session.photos.length > 0 ? (
-            <>
-              <Image
-                src={session.photos[currentPhotoIndex]}
-                alt={`${session.strain} session`}
-                fill
-                className="object-cover"
-                loading="lazy"
-              />
-              {/* Photo Navigation - only show if multiple photos */}
-              {hasMultiplePhotos && (
-                <>
-                  <button
-                    onClick={prevPhoto}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full p-2"
-                  >
-                    <ArrowLeft className="h-5 w-5 text-white" />
-                  </button>
-                  <button
-                    onClick={nextPhoto}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full p-2 rotate-180"
-                  >
-                    <ArrowLeft className="h-5 w-5 text-white" />
-                  </button>
-                  {/* Photo Counter */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full">
-                    <span className="text-white text-sm font-medium">
-                      {currentPhotoIndex + 1} {t("of", { ns: "common" })}{" "}
-                      {session.photos.length}
-                    </span>
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className="h-full bg-gradient-to-br from-purple-600/30 to-pink-700/40 relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Pill className="h-24 w-24 text-purple-400/60" />
-              </div>
-            </div>
-          )}
-
+      <SessionPhotoGallery
+        photos={session.photos}
+        strain={session.strain}
+        currentIndex={currentPhotoIndex}
+        hasMultiple={hasMultiplePhotos}
+        onNext={nextPhoto}
+        onPrev={prevPhoto}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
           {/* Dark overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
@@ -581,8 +613,7 @@ export function SessionDetailView({
               )}
             </div>
           </div>
-        </div>
-      </div>
+      </SessionPhotoGallery>
 
       {/* Content */}
       <div className="px-4 py-6 space-y-6">
@@ -863,42 +894,48 @@ export function MobileSessions({
   const { t } = useTranslation(["sessions", "common"]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
 
-  const handleSessionView = (session: Session) => {
+  const handleSessionView = useCallback((session: Session) => {
     setSelectedSession(session);
-  };
+  }, []);
 
-  const handleBackToList = () => {
+  const handleBackToList = useCallback(() => {
     setSelectedSession(null);
-  };
+  }, []);
 
-  const handleSessionEdit = async (
-    editedSession: SessionEditFormValues & { id: string },
-  ) => {
-    await onEdit(editedSession);
-    // Update the selected session if still viewing it
-    if (selectedSession && selectedSession.id === editedSession.id) {
-      setSelectedSession({
-        ...selectedSession,
-        strain: editedSession.strain,
-        notes: editedSession.notes,
-        date: editedSession.date.toISOString(),
-        startTime: editedSession.startTime
-          ? new Date(`1970-01-01T${editedSession.startTime}:00`).toISOString()
-          : selectedSession.startTime,
-        endTime: editedSession.endTime
-          ? new Date(`1970-01-01T${editedSession.endTime}:00`).toISOString()
-          : selectedSession.endTime,
-        method: editedSession.method || selectedSession.method,
-        amount: editedSession.amount || selectedSession.amount,
-        photos: editedSession.photos,
+  const handleSessionEdit = useCallback(
+    async (editedSession: SessionEditFormValues & { id: string }) => {
+      await onEdit(editedSession);
+      setSelectedSession((prev) => {
+        if (!prev || prev.id !== editedSession.id) return prev;
+        return {
+          ...prev,
+          strain: editedSession.strain,
+          notes: editedSession.notes,
+          date: editedSession.date.toISOString(),
+          startTime: editedSession.startTime
+            ? new Date(
+                `1970-01-01T${editedSession.startTime}:00`,
+              ).toISOString()
+            : prev.startTime,
+          endTime: editedSession.endTime
+            ? new Date(`1970-01-01T${editedSession.endTime}:00`).toISOString()
+            : prev.endTime,
+          method: editedSession.method || prev.method,
+          amount: editedSession.amount || prev.amount,
+          photos: editedSession.photos,
+        };
       });
-    }
-  };
+    },
+    [onEdit],
+  );
 
-  const handleSessionDelete = (sessionId: string) => {
-    onDelete(sessionId);
-    setSelectedSession(null); // Go back to list after delete
-  };
+  const handleSessionDelete = useCallback(
+    (sessionId: string) => {
+      onDelete(sessionId);
+      setSelectedSession(null);
+    },
+    [onDelete],
+  );
 
   // Show detail view if session selected
   if (selectedSession) {
