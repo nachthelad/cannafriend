@@ -955,10 +955,7 @@ function NewJournalPageContent() {
           >
             {isLoading
               ? t("saving", { ns: "common" })
-              : t("logForm.saveLogs", {
-                  ns: "journal",
-                  count: selectedPlantIds.length,
-                })}
+              : t("logForm.save", { ns: "journal" })}
           </Button>
         </div>
       </form>
