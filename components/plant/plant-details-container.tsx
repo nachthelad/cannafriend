@@ -398,6 +398,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastTraining={lastTraining || undefined}
           lastLighting={lastLighting || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
+          recentLogs={logs.slice(0, 5)}
           onAddPhoto={handleMobileAddPhoto}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}
