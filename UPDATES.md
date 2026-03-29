@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: simplify save button label to always show "Guardar" — 2026-03-29
 - [MINOR]: expand coverage to hooks, plant-card component, and AI route — 2026-03-29
 - [MINOR]: apply Title Case to EN locale button and heading strings — 2026-03-29
 - [MINOR]: clean up root files and consolidate backlog — 2026-03-28
