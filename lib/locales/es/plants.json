@@ -85,7 +85,15 @@
     "growType": "Tipo de cultivo",
     "seedBank": "Banco de semillas",
     "currentEnvironment": "Ambiente Actual",
-    "lastActivities": "Últimas Actividades"
+    "lastActivities": "Últimas Actividades",
+    "tabEstado": "Estado",
+    "tabDiario": "Diario",
+    "tabInfo": "Info",
+    "tabFotos": "Fotos",
+    "temperature": "Temperatura",
+    "humidity": "Humedad",
+    "name": "Nombre",
+    "dangerZone": "Zona de peligro"
   },
   "plantCard": {
     "lastWatering": "Último riego",
