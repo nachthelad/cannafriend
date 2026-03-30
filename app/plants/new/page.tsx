@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 // removed select components for light schedule; using free text input now
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -19,7 +18,9 @@ import { collection, addDoc } from "firebase/firestore";
 import {
   invalidateDashboardCache,
   invalidatePlantsCache,
+  optimisticAddPlant,
 } from "@/lib/suspense-cache";
+import { normalizePlant } from "@/lib/plant-utils";
 import { onAuthStateChanged } from "firebase/auth";
 import { Layout } from "@/components/layout";
 import { Calendar, Check } from "lucide-react";
@@ -46,11 +47,11 @@ import {
   type LightSchedule,
 } from "@/lib/plant-config";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import { toast } from "sonner";
 
 export default function NewPlantPage() {
   const { t, i18n } = useTranslation(["plants", "common", "validation"]);
   const router = useRouter();
-  const { toast } = useToast();
   const { handleFirebaseError, handleValidationError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -130,18 +131,17 @@ export default function NewPlantPage() {
       const plantsRef = collection(db, "users", userId, "plants");
       const docRef = await addDoc(plantsRef, plantData);
 
-      // Invalidate caches to refresh plants list and dashboard count
+      // Optimistically prepend new plant so the list updates instantly
+      optimisticAddPlant(userId, normalizePlant(plantData, docRef.id));
+
+      // Invalidate full caches (dashboard count + any other plant views)
       invalidatePlantsCache(userId);
       invalidateDashboardCache(userId);
-
-      toast({
-        title: t("newPlant.success", { ns: "plants" }),
-        description: t("newPlant.successMessage", { ns: "plants" }),
-      });
 
       router.push(`/plants/${docRef.id}`);
     } catch (error: any) {
       handleFirebaseError(error, "plant creation");
+      toast.error(t("toast.saveError", { ns: "plants" }));
     } finally {
       setIsLoading(false);
     }

@@ -82,6 +82,39 @@ export function getSuspenseResource<T>(
   return resource;
 }
 
+// Create an already-resolved SuspenseResource (for optimistic updates)
+export function createFulfilledResource<T>(value: T): SuspenseResource<T> {
+  return {
+    read() {
+      return value;
+    },
+  };
+}
+
+// Update cached resource value in-place without triggering re-suspension.
+// If the key is not in the cache, does nothing (safe to call speculatively).
+export function updateSuspenseResource<T>(
+  key: string,
+  updater: (current: T) => T,
+): void {
+  const cached = resourceCache.get(key);
+  if (!cached) return;
+
+  let current: T;
+  try {
+    current = (cached.resource as SuspenseResource<T>).read();
+  } catch {
+    // Still pending or rejected — nothing to update
+    return;
+  }
+
+  const updated = updater(current);
+  resourceCache.set(key, {
+    resource: createFulfilledResource(updated),
+    expiresAt: cached.expiresAt,
+  });
+}
+
 // Clear cache when needed (e.g., on data mutations)
 export function clearSuspenseCache(key?: string) {
   if (key) {

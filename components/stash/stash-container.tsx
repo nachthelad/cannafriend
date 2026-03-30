@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { StashSkeleton } from "@/components/skeletons";
@@ -88,7 +87,6 @@ function StashContent({
   onItemsCountChange?: (hasItems: boolean) => void;
 }) {
   const { t } = useTranslation(["stash", "common"]);
-  const { toast } = useToast();
   const cacheKey = `stash-${userId}`;
   const resource = getSuspenseResource(cacheKey, () => fetchStashData(userId));
   const { items: initialItems } = resource.read();
@@ -146,11 +144,7 @@ function StashContent({
       snap.forEach((d) => list.push({ id: d.id, ...(d.data() as any) }));
       setItems(list);
     } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: e?.message || String(e),
-      });
+      console.error("Error fetching stash items:", e);
     }
   };
 
@@ -198,16 +192,8 @@ function StashContent({
       await updateDoc(itemRef, payload);
       await fetchItems();
       closeEdit();
-      toast({
-        title: t("updated", { ns: "common" }),
-        description: t("updatedDesc", { ns: "stash" }),
-      });
     } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: e?.message || String(e),
-      });
+      console.error("Error updating stash item:", e);
     } finally {
       setSaving(false);
     }
@@ -224,16 +210,8 @@ function StashContent({
       const itemRef = doc(db, stashCol(userId).path, itemToDelete.id);
       await deleteDoc(itemRef);
       await fetchItems();
-      toast({
-        title: t("deleted", { ns: "stash" }),
-        description: t("itemDeleted", { ns: "stash" }),
-      });
     } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: e?.message || String(e),
-      });
+      console.error("Error deleting stash item:", e);
     } finally {
       setDeleteOpen(false);
       setItemToDelete(null);

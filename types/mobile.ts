@@ -81,6 +81,7 @@ export interface MobilePlantPageProps {
   lastTraining?: LogEntry;
   lastEnvironment?: LogEntry;
   lastLighting?: LogEntry;
+  recentLogs?: LogEntry[];
   onAddPhoto?: (plant: Plant) => void;
   onRemovePhoto?: (index: number) => void;
   onSetCoverPhoto?: (photoUrl: string) => void;

@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Eye, EyeOff, CheckCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
@@ -26,7 +25,6 @@ import { ROUTE_LOGIN, ROUTE_FORGOT_PASSWORD } from "@/lib/routes";
 
 export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
   const { t } = useTranslation(["auth", "common"]);
-  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -66,11 +64,6 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
     const oobCode = searchParams.get("oobCode");
 
     if (!oobCode) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: t("resetPassword.invalidLinkError", { ns: "auth" }),
-      });
       router.push(ROUTE_FORGOT_PASSWORD);
       return;
     }
@@ -82,25 +75,15 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
       })
       .catch((error) => {
         console.error("Error verifying reset code:", error);
-        toast({
-          variant: "destructive",
-          title: t("common.error"),
-          description: t("resetPassword.expiredLinkError"),
-        });
         router.push(ROUTE_FORGOT_PASSWORD);
       })
       .finally(() => {
         setIsValidating(false);
       });
-  }, [searchParams, router, toast, t]);
+  }, [searchParams, router, t]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (data.password !== data.confirmPassword) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: t("resetPassword.passwordsDoNotMatch"),
-      });
       return;
     }
 
@@ -112,10 +95,6 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
       await confirmPasswordReset(auth, oobCode!, data.password);
 
       setPasswordReset(true);
-      toast({
-        title: t("resetPassword.success"),
-        description: t("resetPassword.successDescription"),
-      });
     } catch (error: any) {
       let errorMessage = t("resetPassword.error");
 
@@ -135,11 +114,7 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
         }
       }
 
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: errorMessage,
-      });
+      console.error("Reset password error:", errorMessage);
     } finally {
       setIsLoading(false);
     }

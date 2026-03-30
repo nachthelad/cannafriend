@@ -10,7 +10,6 @@ import {
 } from "react";
 import type { ImageUploadProps, ImageUploadHandle } from "@/types/common";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import {
@@ -45,7 +44,6 @@ function ImageUploadComponent(
   ref: Ref<ImageUploadHandle>
 ) {
   const { t } = useTranslation(["common"]);
-  const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,13 +136,9 @@ function ImageUploadComponent(
         }
       }
 
-      // Mostrar errores si los hay
+      // Log validation errors
       if (errors.length > 0) {
-        toast({
-          variant: "destructive",
-          title: t("imageUpload.validationErrors", { ns: "common" }),
-          description: errors.join("\n"),
-        });
+        console.warn("Image validation errors:", errors.join("\n"));
       }
 
       // Subir archivos válidos (en paralelo con límite simple)
@@ -156,11 +150,6 @@ function ImageUploadComponent(
             newUrls.push(url);
           } catch (error) {
             console.error("Error uploading file:", file.name, error);
-            toast({
-              variant: "destructive",
-              title: t("imageUpload.uploadError", { ns: "common" }),
-              description: `${file.name}: ${getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t)}`,
-            });
           }
         })
       );
@@ -169,31 +158,12 @@ function ImageUploadComponent(
       if (newUrls.length > 0) {
         try {
           await onImagesChange(newUrls);
-          toast({
-            title: t("imageUpload.uploadSuccess", { ns: "common" }),
-            description: `${t("imageUpload.imagesUploaded", { ns: "common" })} ${
-              newUrls.length
-            }`,
-          });
         } catch (error) {
           console.error("Error after uploading images:", error);
-          toast({
-            variant: "destructive",
-            title: t("imageUpload.uploadError", { ns: "common" }),
-            description: getTranslatedImageError(
-              IMAGE_ERROR_KEYS.UPLOAD_FAILED,
-              t
-            ),
-          });
         }
       }
     } catch (error) {
       console.error("Error in file upload:", error);
-      toast({
-        variant: "destructive",
-        title: t("imageUpload.uploadError", { ns: "common" }),
-        description: getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t),
-      });
     } finally {
       setUploading(false);
       // Limpiar input
