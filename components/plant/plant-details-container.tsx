@@ -3,8 +3,6 @@
 import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
-import { toastSuccess } from "@/lib/toast-helpers";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
@@ -138,7 +136,6 @@ async function fetchPlantDetailsData(
 function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const { t, i18n } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
 
   const cacheKey = `plant-details-${userId}-${plantId}`;
@@ -266,11 +263,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       const updated = logs.filter((l) => l.id !== logId);
       setLogs(updated);
-      toastSuccess(toast, t, {
-        namespace: "journal",
-        titleKey: "deleted",
-        descriptionKey: "deletedDesc",
-      });
     } catch (error) {
       handleFirebaseError(error, "delete log");
     }
@@ -299,17 +291,8 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       invalidatePlantDetails(userId, plantId);
       invalidatePlantsCache(userId);
 
-      toastSuccess(toast, t, {
-        namespace: "plants",
-        titleKey: "photos.uploadSuccess",
-        descriptionKey: "photos.photosUpdated",
-      });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t("photos.uploadError", { ns: "plants" }),
-        description: error instanceof Error ? error.message : undefined,
-      });
+      console.error("Error updating photos:", error);
     }
   };
 
@@ -398,6 +381,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           lastTraining={lastTraining || undefined}
           lastLighting={lastLighting || undefined}
           lastEnvironment={lastEnvironmentFromLogs}
+          recentLogs={logs.slice(0, 5)}
           onAddPhoto={handleMobileAddPhoto}
           onRemovePhoto={handleRemovePhoto}
           onSetCoverPhoto={handleSetCoverPhoto}

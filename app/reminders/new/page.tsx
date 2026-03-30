@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
@@ -79,7 +78,6 @@ type ReminderFormData = z.infer<ReturnType<typeof reminderSchema>>;
 
 export default function NewReminderPage() {
   const { t, i18n } = useTranslation(["reminders", "common", "validation"]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const router = useRouter();
   const homePath = ROUTE_DASHBOARD;
@@ -184,11 +182,6 @@ export default function NewReminderPage() {
       invalidateRemindersCache(auth.currentUser.uid);
       invalidateDashboardCache(auth.currentUser.uid);
       reset();
-
-      toast({
-        title: t("created", { ns: "reminders" }),
-        description: t("createdMessage", { ns: "reminders" }),
-      });
 
       router.push(ROUTE_REMINDERS);
     } catch (error: any) {

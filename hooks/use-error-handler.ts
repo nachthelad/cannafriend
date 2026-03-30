@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
 interface ErrorHandlerOptions {
@@ -22,11 +21,10 @@ function toFirebaseError(error: unknown): FirebaseLikeError {
 }
 
 export const useErrorHandler = () => {
-  const { toast } = useToast();
   const { t } = useTranslation(["common"]);
 
   const handleError = (error: unknown, options: ErrorHandlerOptions = {}) => {
-    const { showToast = true, fallbackMessage } = options;
+    const { fallbackMessage } = options;
     const e = toFirebaseError(error);
 
     let errorMessage = fallbackMessage || t("common.unknownError");
@@ -43,17 +41,7 @@ export const useErrorHandler = () => {
       }
     }
 
-    // Log error for debugging
     console.error("Error occurred:", error);
-
-    // Show toast if requested
-    if (showToast) {
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: errorMessage,
-      });
-    }
 
     return errorMessage;
   };
@@ -103,12 +91,6 @@ export const useErrorHandler = () => {
 
     console.error(`Firebase error${context ? ` in ${context}` : ""}:`, error);
 
-    toast({
-      variant: "destructive",
-      title: t("common.error"),
-      description: errorMessage,
-    });
-
     return errorMessage;
   };
 
@@ -120,12 +102,6 @@ export const useErrorHandler = () => {
       `Validation error${context ? ` in ${context}` : ""}:`,
       errors
     );
-
-    toast({
-      variant: "destructive",
-      title: t("validation.error"),
-      description: errorMessage,
-    });
 
     return errorMessage;
   };

@@ -15,8 +15,6 @@ import {
 import { ROUTE_SESSIONS } from "@/lib/routes";
 import { sessionsCol, userDoc } from "@/lib/paths";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import { useToast } from "@/hooks/use-toast";
-import { toastSuccess } from "@/lib/toast-helpers";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { SessionsList } from "./sessions-list";
 import { SessionsSkeleton } from "@/components/skeletons";
@@ -124,7 +122,6 @@ function SessionsContainerContent({
   onMethodsUpdate: (methods: string[]) => void;
 }) {
   const { t } = useTranslation(["sessions", "common"]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
 
   const cacheKey = `sessions-${userId}`;
@@ -283,14 +280,8 @@ function SessionsContainerContent({
         ),
       );
 
-      toastSuccess(toast, t, { titleKey: "updated", namespace: "sessions" });
     } catch (error) {
       console.error("Error updating session:", error);
-      toast({
-        title: t("error", { ns: "sessions" }),
-        description: t("updateError", { ns: "sessions" }),
-        variant: "destructive",
-      });
     }
   };
 
@@ -298,13 +289,8 @@ function SessionsContainerContent({
     try {
       await deleteDoc(doc(sessionsCol(userId), sessionId));
       setSessions((prev) => prev.filter((session) => session.id !== sessionId));
-      toastSuccess(toast, t, { titleKey: "deleted", namespace: "sessions" });
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: error instanceof Error ? error.message : String(error),
-      });
+      console.error("Error deleting session:", error);
     }
   };
 

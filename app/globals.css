@@ -248,3 +248,11 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
 }
+
+
+/* Sonner toasts: lift above bottom nav on mobile */
+@media (max-width: 767px) {
+  [data-sonner-toaster][data-y-position="bottom"] {
+    bottom: 80px !important;
+  }
+}

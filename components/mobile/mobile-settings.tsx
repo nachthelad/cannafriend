@@ -16,7 +16,6 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 // import { PushNotifications } from "@/components/settings/push-notifications"; // DELETED
 
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { updateDoc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
@@ -24,6 +23,7 @@ import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
+import { toast } from "sonner";
 import { invalidateSettingsCache } from "@/lib/suspense-cache";
 import type {
   MobilePreferencesState,
@@ -76,7 +76,6 @@ function MobileSettingsContent({
 }: MobileSettingsProps) {
   const { t } = useTranslation(["common", "onboarding"]);
   const router = useRouter();
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const { setTheme } = useTheme();
 
@@ -180,34 +179,11 @@ function MobileSettingsContent({
         });
         data = await response.json();
       }
-      if (response.ok && data.success) {
-        toast({
-          title: t("subscription.cancelled"),
-          description: t("subscription.cancelledDesc"),
-        });
-        if (data.note) {
-          setTimeout(() => {
-            toast({
-              title: t("info"),
-              description: data.note,
-            });
-          }, 2000);
-        }
-      } else if (data.error === "not_premium") {
-        toast({
-          variant: "destructive",
-          title: t("subscription.cancelError"),
-          description: t("subscription.alreadyCancelled"),
-        });
-      } else {
+      if (!response.ok && !data.success) {
         throw new Error(data.message || "Failed to cancel subscription");
       }
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: t("subscription.cancelError"),
-        description: error instanceof Error ? error.message : "Failed to cancel subscription",
-      });
+      console.error("Error cancelling subscription:", error);
     } finally {
       setIsCancellingSubscription(false);
     }
@@ -220,24 +196,10 @@ function MobileSettingsContent({
 
     try {
       await deleteUserAccount(userId);
-
-      // Complete success - both data and auth user deleted
-      toast({
-        title: t("settings.accountDeleted"),
-        description: t("settings.accountDeletedDesc"),
-      });
-
       router.push(ROUTE_LOGIN);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "";
       if (errorMessage === "DATA_DELETED_AUTH_FAILED") {
-        // Data deletion succeeded, but auth requires re-login
-        // Show success message and sign out after delay
-        toast({
-          title: t("settings.accountDeleted"),
-          description: t("settings.accountDeletedDesc"),
-        });
-
         setTimeout(async () => {
           try {
             await signOut(auth);
@@ -247,17 +209,10 @@ function MobileSettingsContent({
           router.push(ROUTE_LOGIN);
         }, 2000);
       } else if (errorMessage === "REAUTH_REQUIRED") {
-        toast({
-          variant: "destructive",
-          title: t("settings.deleteError"),
-          description: t("settings.reauthRequired"),
-        });
+        toast.error(t("settings.reauthError", { ns: "common" }));
       } else {
-        toast({
-          variant: "destructive",
-          title: t("settings.deleteError"),
-          description: errorMessage || "Failed to delete account",
-        });
+        console.error("Error deleting account:", error);
+        toast.error(t("settings.deleteAccountError", { ns: "common" }));
       }
     } finally {
       setIsDeletingAccount(false);

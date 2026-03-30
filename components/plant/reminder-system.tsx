@@ -13,7 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -35,7 +34,6 @@ export function ReminderSystem({
   reminders: preFetchedReminders,
 }: ReminderSystemProps & { hideOverdueSection?: boolean }) {
   const { t, i18n } = useTranslation(["reminders", "common"]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(
     preFetchedReminders || []
@@ -99,12 +97,6 @@ export function ReminderSystem({
       invalidateRemindersCache(currentUser.uid);
       invalidateDashboardCache(currentUser.uid);
 
-      toast({
-        title: t("updated", { ns: "reminders" }),
-        description: isActive
-          ? t("activated", { ns: "reminders" })
-          : t("deactivated", { ns: "reminders" }),
-      });
     } catch (error: any) {
       handleFirebaseError(error, "updating reminder");
     }
@@ -143,10 +135,6 @@ export function ReminderSystem({
       invalidateRemindersCache(currentUser.uid);
       invalidateDashboardCache(currentUser.uid);
 
-      toast({
-        title: t("deleted", { ns: "reminders" }),
-        description: t("deletedMessage", { ns: "reminders" }),
-      });
     } catch (error: any) {
       handleFirebaseError(error, "deleting reminder");
     }
@@ -223,19 +211,6 @@ export function ReminderSystem({
     return days;
   };
 
-  const [overdueToastShown, setOverdueToastShown] = useState(false);
-  useEffect(() => {
-    if (showOnlyOverdue) return; // avoid toast on dashboard
-    if (!overdueToastShown && overdueReminders.length > 0) {
-      toast({
-        title: t("overdue", { ns: "reminders" }),
-        description: `${overdueReminders.length} ${t("overdue", {
-          ns: "reminders",
-        })}`,
-      });
-      setOverdueToastShown(true);
-    }
-  }, [overdueReminders.length, overdueToastShown, t, toast, showOnlyOverdue]);
 
   if (isLoading) {
     return <ReminderSystemSkeleton showOnlyOverdue={showOnlyOverdue} />;

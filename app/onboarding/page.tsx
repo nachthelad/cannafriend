@@ -16,7 +16,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { setDoc, getDoc } from "firebase/firestore";
@@ -31,7 +30,6 @@ import type { UserProfile } from "@/types";
 export default function OnboardingPage() {
   const { t } = useTranslation("onboarding");
   const router = useRouter();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   type OnboardingForm = {
     timezone: string;
@@ -77,19 +75,10 @@ export default function OnboardingPage() {
 
       invalidateDashboardCache(userId);
 
-      toast({
-        title: t("success", { ns: "onboarding" }),
-        description: t("successMessage", { ns: "onboarding" }),
-      });
-
       // Redirect to dashboard
       router.push(ROUTE_DASHBOARD);
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "onboarding" }),
-        description: error.message,
-      });
+      console.error("Onboarding error:", error);
     } finally {
       setIsLoading(false);
     }

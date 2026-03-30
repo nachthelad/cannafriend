@@ -8,7 +8,6 @@ import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { auth } from "@/lib/firebase";
 import { addDoc } from "firebase/firestore";
@@ -99,7 +98,6 @@ function TimeField({
 
 export default function NewSessionPage() {
   const { t } = useTranslation(["common", "strains"]);
-  const { toast } = useToast();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
@@ -153,11 +151,6 @@ export default function NewSessionPage() {
 
   const onSave = async (data: SessionForm) => {
     if (!userId || !data.strain.trim()) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: t("required", { ns: "sessions" }),
-      });
       return;
     }
     setIsSaving(true);
@@ -194,14 +187,9 @@ export default function NewSessionPage() {
         photos: photos.length > 0 ? photos : null,
         date: dateISO,
       });
-      toast({ title: t("saved", { ns: "sessions" }) });
       router.push(`${ROUTE_SESSIONS}?refresh=true`);
     } catch (e: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: e?.message || String(e),
-      });
+      console.error("Error saving session:", e);
     } finally {
       setIsSaving(false);
     }

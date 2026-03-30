@@ -55,7 +55,6 @@ import {
   invalidateDashboardCache,
   invalidatePlantDetails,
 } from "@/lib/suspense-cache";
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import type { LogEntry } from "@/types";
 import {
@@ -118,7 +117,6 @@ function MobileJournalContent({
   );
   const { logs: initialLogs, plants } = resource.read();
   const { t } = useTranslation(["journal", "common"]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
 
   // Local state for logs to support optimistic updates
@@ -193,10 +191,6 @@ function MobileJournalContent({
       invalidatePlantDetails(userId, log.plantId);
       invalidateDashboardCache(userId);
 
-      toast({
-        title: t("deleted", { ns: "journal" }),
-        description: t("deletedDesc", { ns: "journal" }),
-      });
     } catch (error: any) {
       setLogs(previousLogs);
       handleFirebaseError(error, "delete log");

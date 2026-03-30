@@ -4,6 +4,7 @@
   "recentLogs": "Reg. Recientes",
   "viewLogs": "Ver Registros",
   "addLog": "Agregar",
+  "addRecord": "Agregar Registro",
   "logsFound": "registros encontrados",
   "error": "Error cargando diario",
   "deleteLogTitle": "Eliminar Registro",
@@ -103,5 +104,8 @@
     "lst": "Entrenamiento LST",
     "defoliation": "Defoliación",
     "supercropping": "Supercropping"
+  },
+  "toast": {
+    "saveError": "Error al guardar el registro, volvé a probar"
   }
 }

@@ -5,6 +5,12 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: add tab layout regression tests — 2026-03-30
+- [MID]: rewrite with compact hero and tab layout — 2026-03-29
+- [MID]: add recentLogs prop and wire from container — 2026-03-29
+- [MINOR]: add tab and field labels to plants locale — 2026-03-29
+- [MINOR]: mobile plant page tab layout redesign spec — 2026-03-29
+- [MINOR]: simplify save button label to always show "Guardar" — 2026-03-29
 - [MINOR]: expand coverage to hooks, plant-card component, and AI route — 2026-03-29
 - [MINOR]: apply Title Case to EN locale button and heading strings — 2026-03-29
 - [MINOR]: clean up root files and consolidate backlog — 2026-03-28

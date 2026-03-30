@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import {
   sendPasswordResetEmail,
@@ -29,7 +28,6 @@ import { ROUTE_LOGIN } from "@/lib/routes";
 
 export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
   const { t } = useTranslation(["auth", "common"]);
-  const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>("");
@@ -71,10 +69,6 @@ export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
         url: `${window.location.origin}/reset-password`,
         handleCodeInApp: true,
       });
-      toast({
-        title: t("forgotPassword.emailSentTitle", { ns: "auth" }),
-        description: t("forgotPassword.emailSentDescription", { ns: "auth" }),
-      });
       setTimeout(() => {
         router.push(ROUTE_LOGIN);
       }, 2000);
@@ -99,11 +93,7 @@ export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
         }
       }
 
-      toast({
-        variant: "destructive",
-        title: t("common.error"),
-        description: errorMessage,
-      });
+      console.error("Forgot password error:", errorMessage);
     } finally {
       setIsLoading(false);
     }
