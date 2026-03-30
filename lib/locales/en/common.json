@@ -335,7 +335,9 @@
     "reauthRequired": "Please reauthenticate and try again.",
     "accountDeleted": "Account deleted",
     "accountDeletedDesc": "Your account and data were removed",
-    "appVersion": "App version"
+    "appVersion": "App version",
+    "deleteAccountError": "Error deleting account, please try again",
+    "reauthError": "You need to sign in again to delete your account"
   },
   "pushNotifications": {
     "title": "Push Notifications",

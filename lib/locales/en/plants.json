@@ -76,8 +76,8 @@
     "plantStatus": "PLANT STATUS",
     "watered": "WATERED",
     "dayAgo": "day(s) ago",
-    "lighting": "LIGHTING",
-    "nutrients": "NUTRIENTS",
+    "lighting": "Lighting",
+    "nutrients": "Nutrients",
     "npk": "N-P-K",
     "ph": "pH",
     "schedule": "Schedule",
@@ -85,7 +85,15 @@
     "growType": "Grow type",
     "seedBank": "Seed bank",
     "currentEnvironment": "Current Environment",
-    "lastActivities": "Last Activities"
+    "lastActivities": "Last Activities",
+    "tabEstado": "Status",
+    "tabDiario": "Journal",
+    "tabInfo": "Info",
+    "tabFotos": "Photos",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "name": "Name",
+    "dangerZone": "Danger zone"
   },
   "plantCard": {
     "lastWatering": "Last Watering",
@@ -187,5 +195,8 @@
     "addPlant": "Add Plant",
     "noResults": "No Plants Found",
     "noResultsDesc": "Try adjusting your filters or search term"
+  },
+  "toast": {
+    "saveError": "Error saving plant, please try again"
   }
 }

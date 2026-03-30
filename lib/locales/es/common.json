@@ -334,7 +334,9 @@
     "reauthRequired": "Vuelve a autenticarte e inténtalo de nuevo.",
     "accountDeleted": "Cuenta eliminada",
     "accountDeletedDesc": "Tu cuenta y datos han sido eliminados",
-    "appVersion": "Versión de la app"
+    "appVersion": "Versión de la app",
+    "deleteAccountError": "Error al eliminar la cuenta, volvé a probar",
+    "reauthError": "Necesitás volver a iniciar sesión para eliminar tu cuenta"
   },
   "pushNotifications": {
     "title": "Notificaciones Push",

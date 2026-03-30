@@ -4,10 +4,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemeSynchronizer } from "@/components/providers/theme-synchronizer";
-import { Toaster } from "@/components/ui/toaster";
 import { I18nProvider } from "@/components/providers/i18n-provider";
 import { UpdateProvider } from "@/components/providers/update-provider";
 import { DeferredAnalytics } from "@/components/common/deferred-analytics";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
 
@@ -166,8 +166,8 @@ export default function RootLayout({
             <ThemeSynchronizer />
             <UpdateProvider>
               {children}
-              <Toaster />
               <DeferredAnalytics />
+              <Toaster position="bottom-center" />
             </UpdateProvider>
           </ThemeProvider>
         </I18nProvider>

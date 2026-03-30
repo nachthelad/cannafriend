@@ -34,6 +34,12 @@ public/app_inspiration.png
 # Claude Code
 .agents/
 skills-lock.json
+.claude/settings.local.json
+.claude/skills/
+
+# Superpowers plugin
+.superpowers/
+docs/superpowers/
 
 # Playwright MCP (logs and screenshots)
 .playwright-mcp/

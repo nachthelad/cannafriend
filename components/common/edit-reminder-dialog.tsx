@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
@@ -131,7 +130,6 @@ export function EditReminderDialog({
     "journal",
     "validation",
   ]);
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -219,11 +217,6 @@ export function EditReminderDialog({
 
       invalidateRemindersCache(auth.currentUser.uid);
       invalidateDashboardCache(auth.currentUser.uid);
-
-      toast({
-        title: t("updated", { ns: "reminders" }),
-        description: t("updatedMessage", { ns: "reminders" }),
-      });
 
       onOpenChange(false);
       onReminderUpdated();

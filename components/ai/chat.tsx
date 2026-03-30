@@ -4,7 +4,6 @@ import type { AIChatProps, AIImageAttachment, AIMessage } from "@/types/ai";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { ThinkingAnimation } from "@/components/ai/thinking-animation";
@@ -38,7 +37,6 @@ export function AIChat({
   onToggleSidebar,
 }: AIChatProps) {
   const { t } = useTranslation(["aiAssistant", "common"]);
-  const { toast } = useToast();
   const { user } = useAuthUser();
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
@@ -82,11 +80,6 @@ export function AIChat({
     if (isLoading) return;
 
     if (!user) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "aiAssistant" }),
-        description: t("signInRequired", { ns: "aiAssistant" }),
-      });
       return;
     }
 
@@ -151,22 +144,11 @@ export function AIChat({
 
       if (data.provider) setActiveProvider(data.provider);
 
-      if (data.providerSwitched) {
-        toast({
-          title: "Cambiando a OpenAI",
-          description: "Alcanzaste el límite diario de Gemini. Continuando con OpenAI.",
-        });
-      }
     } catch (error: any) {
       setMessages(messages);
       setInput(userMessage.content);
       setImages(userMessage.images || []);
-
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "aiAssistant" }),
-        description: error.message,
-      });
+      console.error("AI chat error:", error.message);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -222,11 +204,6 @@ export function AIChat({
       }
     } catch (error) {
       console.error("Error loading chat session:", error);
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "aiAssistant" }),
-        description: t("loadError", { ns: "aiAssistant" }),
-      });
     }
   };
 

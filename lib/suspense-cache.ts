@@ -1,5 +1,8 @@
 // Cache invalidation utilities for Suspense data
-import { clearSuspenseCache, clearSuspenseCacheByPrefix } from "./suspense-utils";
+import { clearSuspenseCache, clearSuspenseCacheByPrefix, updateSuspenseResource } from "./suspense-utils";
+import type { LogEntry, Plant } from "@/types";
+import type { JournalData } from "@/types";
+import type { PlantGridData } from "@/types/plants";
 
 // Clear cache when plants are added/updated/deleted
 export function invalidatePlantsCache(userId: string) {
@@ -46,4 +49,24 @@ export function invalidateUserCaches(userId: string) {
   invalidateDashboardCache(userId);
   invalidateRemindersCache(userId);
   invalidateSettingsCache(userId);
+}
+
+// Optimistically prepend a new log to journal caches so the list updates
+// immediately without re-fetching from Firestore.
+export function optimisticAddLog(userId: string, log: LogEntry) {
+  const prepend = (data: JournalData): JournalData => ({
+    ...data,
+    logs: [log, ...data.logs],
+  });
+  updateSuspenseResource<JournalData>(`journal-${userId}`, prepend);
+  updateSuspenseResource<JournalData>(`mobile-journal-${userId}`, prepend);
+}
+
+// Optimistically prepend a new plant to plant-grid cache so the list updates
+// immediately without re-fetching from Firestore.
+export function optimisticAddPlant(userId: string, plant: Plant) {
+  updateSuspenseResource<PlantGridData>(`plants-grid-${userId}`, (data) => ({
+    ...data,
+    plants: [plant, ...data.plants],
+  }));
 }

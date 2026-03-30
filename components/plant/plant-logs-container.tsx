@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { db } from "@/lib/firebase";
@@ -51,7 +50,6 @@ async function fetchPlantData(
 function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
   const { t } = useTranslation(["plants", "common", "journal"]);
   const router = useRouter();
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
@@ -97,10 +95,6 @@ function PlantLogsContent({ userId, plantId }: PlantLogsContainerProps) {
       invalidateDashboardCache(userId);
 
       setLogs((prev) => prev.filter((l) => l.id !== log.id));
-      toast({
-        title: t("deleted", { ns: "journal" }),
-        description: t("deletedDesc", { ns: "journal" }),
-      });
     } catch (error: any) {
       handleFirebaseError(error, "delete log");
     }
