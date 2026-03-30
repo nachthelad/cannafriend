@@ -76,8 +76,8 @@
     "plantStatus": "ESTADO DE LA PLANTA",
     "watered": "Último riego",
     "dayAgo": "día(s)",
-    "lighting": "ILUMINACIÓN",
-    "nutrients": "NUTRIENTES",
+    "lighting": "Iluminación",
+    "nutrients": "Nutrientes",
     "npk": "N-P-K",
     "ph": "pH",
     "schedule": "Horario",
@@ -195,5 +195,8 @@
     "addPlant": "Agregar Planta",
     "noResults": "No se encontraron plantas",
     "noResultsDesc": "Intenta ajustar tus filtros o término de búsqueda"
+  },
+  "toast": {
+    "saveError": "Error al guardar la planta, volvé a probar"
   }
 }

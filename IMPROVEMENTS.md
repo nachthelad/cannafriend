@@ -41,6 +41,18 @@ Tareas pendientes para abordar cuando haya más contexto disponible.
 
 ## UX / Copy
 
+### [x] 6. Optimistic updates en add-plant y add-log
+
+**Priority: High**
+**Files**: `lib/suspense-utils.ts`, `lib/suspense-cache.ts`, `app/plants/new/page.tsx`, `app/journal/new/page.tsx`
+**Problem**: Al agregar una planta o un registro, el cache de Suspense se invalida y la lista vuelve a mostrar el skeleton mientras se re-fetcha de Firestore.
+**Fix**: Se agregó `updateSuspenseResource<T>(key, updater)` a `suspense-utils.ts`: reemplaza el valor resuelto en la entrada del cache sin romper la promesa de Suspense (no causa re-suspensión). Se agregó `createFulfilledResource<T>(value)` como primitiva de recurso ya resuelto.
+En `suspense-cache.ts` se exportan dos helpers:
+- `optimisticAddPlant(userId, plant)` — prepend al cache `plants-grid-${userId}`.
+- `optimisticAddLog(userId, log)` — prepend a los caches `journal-${userId}` y `mobile-journal-${userId}`.
+Ambos son llamados justo después del `batch.commit()` / `addDoc()` y antes del `router.push()`, por lo que cuando el usuario llega a la lista, ya ve el ítem nuevo sin esperar re-fetch.
+**Próximos candidatos**: edición de planta (nombre, fotos, status), eliminación de registro (ya tiene optimistic en mobile-journal), estadísticas del dashboard.
+
 ### [ ] 4. Evaluar virtualización en listas grandes
 
 **Priority: Low**

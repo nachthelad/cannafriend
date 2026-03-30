@@ -23,20 +23,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
-  Camera,
   Droplet,
   FileText,
   Leaf,
   Loader2,
-  Menu,
   Plus,
   Star,
   Thermometer,
@@ -44,12 +45,15 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
-import { differenceInDays, parseISO } from "date-fns";
-import { updateDoc } from "firebase/firestore";
+import { differenceInDays, format, parseISO } from "date-fns";
+import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { buildEnvironmentPath } from "@/lib/firebase-config";
 import { InlineEdit } from "@/components/common/inline-edit";
-import { plantDoc } from "@/lib/paths";
+import { logsCol, plantDoc } from "@/lib/paths";
 import { ROUTE_PLANTS } from "@/lib/routes";
 import {
+  invalidateJournalCache,
   invalidatePlantDetails,
   invalidatePlantsCache,
 } from "@/lib/suspense-cache";
@@ -65,11 +69,196 @@ type TabId = "estado" | "diario" | "info" | "fotos";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function relativeDate(dateStr: string): string {
-  const days = Math.abs(differenceInDays(new Date(), parseISO(dateStr)));
-  if (days === 0) return "hoy";
-  if (days === 1) return "ayer";
-  return `hace ${days}d`;
+function logDate(dateStr: string): string {
+  return format(parseISO(dateStr), "d MMM");
+}
+
+// ─── EnvironmentLogDialog ────────────────────────────────────────────────────
+
+function EnvironmentLogDialog({
+  open,
+  onOpenChange,
+  userId,
+  plantId,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  userId: string;
+  plantId: string;
+  onSaved: (data: { temperature?: number; humidity?: number; ph?: number }) => void;
+}) {
+  const [temp, setTemp] = useState("");
+  const [humidity, setHumidity] = useState("");
+  const [ph, setPh] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const hasAny = temp !== "" || humidity !== "" || ph !== "";
+
+  async function handleSave() {
+    if (!hasAny || saving) return;
+    setSaving(true);
+    try {
+      const data: { temperature?: number; humidity?: number; ph?: number } = {};
+      if (temp !== "") data.temperature = parseFloat(temp);
+      if (humidity !== "") data.humidity = parseFloat(humidity);
+      if (ph !== "") data.ph = parseFloat(ph);
+
+      const now = new Date().toISOString();
+      await addDoc(logsCol(userId, plantId), {
+        type: LOG_TYPES.ENVIRONMENT,
+        date: now,
+        createdAt: now,
+        ...data,
+      });
+      await addDoc(collection(db, buildEnvironmentPath(userId, plantId)), {
+        date: now,
+        createdAt: now,
+        ...data,
+      });
+      invalidatePlantDetails(userId, plantId);
+      invalidateJournalCache(userId);
+      onSaved(data);
+      onOpenChange(false);
+      setTemp("");
+      setHumidity("");
+      setPh("");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>Registrar Ambiente</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 py-1">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Temperatura (°C)</Label>
+            <Input
+              type="number"
+              placeholder="ej: 24"
+              value={temp}
+              onChange={(e) => setTemp(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Humedad (%)</Label>
+            <Input
+              type="number"
+              placeholder="ej: 60"
+              value={humidity}
+              onChange={(e) => setHumidity(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">pH</Label>
+            <Input
+              type="number"
+              step="0.1"
+              placeholder="ej: 6.5"
+              value={ph}
+              onChange={(e) => setPh(e.target.value)}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            onClick={handleSave}
+            disabled={!hasAny || saving}
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── LightingLogDialog ───────────────────────────────────────────────────────
+
+function LightingLogDialog({
+  open,
+  onOpenChange,
+  userId,
+  plantId,
+  currentSchedule,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  userId: string;
+  plantId: string;
+  currentSchedule?: string;
+  onSaved: (schedule: string) => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  async function handleSelect(schedule: string) {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const now = new Date().toISOString();
+      await addDoc(logsCol(userId, plantId), {
+        type: LOG_TYPES.FLOWERING,
+        date: now,
+        createdAt: now,
+        lightSchedule: schedule,
+      });
+      invalidatePlantDetails(userId, plantId);
+      invalidateJournalCache(userId);
+      onSaved(schedule);
+      onOpenChange(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xs">
+        <DialogHeader>
+          <DialogTitle>Ciclo de Luz</DialogTitle>
+        </DialogHeader>
+        <div className="py-2 space-y-3">
+          {currentSchedule && (
+            <p className="text-xs text-muted-foreground text-center">
+              Actual:{" "}
+              <span className="font-bold text-foreground">{currentSchedule}</span>
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-3">
+            {(["18/6", "12/12"] as const).map((schedule) => {
+              const isCurrent = schedule === currentSchedule;
+              return (
+                <button
+                  key={schedule}
+                  type="button"
+                  disabled={saving || isCurrent}
+                  onClick={() => handleSelect(schedule)}
+                  className={cn(
+                    "rounded-xl p-4 text-center font-bold text-xl transition-all border active:scale-95",
+                    isCurrent
+                      ? "border-green-500/40 bg-green-500/10 text-green-400 cursor-default"
+                      : "border-border bg-card hover:border-green-500/60 hover:bg-green-500/10 text-foreground"
+                  )}
+                >
+                  {schedule}
+                  <p className="text-[11px] font-normal text-muted-foreground mt-1">
+                    {schedule === "18/6" ? "Vegetación" : "Floración"}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 // ─── StatCard ─────────────────────────────────────────────────────────────────
@@ -86,18 +275,20 @@ function StatCard({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl bg-card p-3">
+    <div className="flex items-center gap-3 rounded-xl bg-card p-4">
       <div
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-          iconBg
+          "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+          iconBg,
         )}
       >
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
-        <p className="text-[11px] text-muted-foreground">{label}</p>
+        <p className="text-base font-bold text-foreground leading-tight">
+          {value}
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
       </div>
     </div>
   );
@@ -110,13 +301,30 @@ function EstadoTab({
   lastEnvironment,
   lightingSchedule,
   plantId,
+  userId,
 }: {
   lastWatering?: LogEntry;
   lastEnvironment?: LogEntry;
   lightingSchedule?: string;
   plantId: string;
+  userId: string;
 }) {
   const { t } = useTranslation(["plants", "journal"]);
+  const [envDialogOpen, setEnvDialogOpen] = useState(false);
+  const [lightDialogOpen, setLightDialogOpen] = useState(false);
+
+  // Optimistic local state — updated immediately after saving a log
+  const [localEnv, setLocalEnv] = useState<{
+    temperature?: number;
+    humidity?: number;
+    ph?: number;
+  }>({});
+  const [localLighting, setLocalLighting] = useState<string | undefined>(undefined);
+
+  const displayTemp = localEnv.temperature ?? lastEnvironment?.temperature;
+  const displayHumidity = localEnv.humidity ?? lastEnvironment?.humidity;
+  const displayPh = localEnv.ph ?? lastEnvironment?.ph;
+  const displayLighting = localLighting ?? lightingSchedule;
 
   const lastWateringDays =
     lastWatering != null
@@ -125,66 +333,94 @@ function EstadoTab({
 
   return (
     <div className="space-y-4">
+      <EnvironmentLogDialog
+        open={envDialogOpen}
+        onOpenChange={setEnvDialogOpen}
+        userId={userId}
+        plantId={plantId}
+        onSaved={(data) => setLocalEnv((prev) => ({ ...prev, ...data }))}
+      />
+      <LightingLogDialog
+        open={lightDialogOpen}
+        onOpenChange={setLightDialogOpen}
+        userId={userId}
+        plantId={plantId}
+        currentSchedule={displayLighting}
+        onSaved={(s) => setLocalLighting(s)}
+      />
+
       {lastWatering != null && (
         <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
           <Droplet className="h-3.5 w-3.5" />
-          {t("plantPage.watered", { ns: "plants" })}:{" "}
-          {lastWateringDays} {t("plantPage.dayAgo", { ns: "plants" })}
+          {t("plantPage.watered", { ns: "plants" })}: {lastWateringDays}{" "}
+          {t("plantPage.dayAgo", { ns: "plants" })}
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          iconBg="bg-blue-500/15"
-          icon={<Thermometer className="h-4 w-4 text-blue-400" />}
-          value={
-            lastEnvironment?.temperature != null
-              ? `${lastEnvironment.temperature}°C`
-              : "—"
-          }
-          label={t("plantPage.temperature", { ns: "plants" })}
-        />
-        <StatCard
-          iconBg="bg-blue-500/15"
-          icon={<Droplet className="h-4 w-4 text-blue-400" />}
-          value={
-            lastEnvironment?.humidity != null
-              ? `${lastEnvironment.humidity}%`
-              : "—"
-          }
-          label={t("plantPage.humidity", { ns: "plants" })}
-        />
-        <StatCard
-          iconBg="bg-yellow-500/15"
-          icon={<Sun className="h-4 w-4 text-yellow-400" />}
-          value={lightingSchedule ?? "—"}
-          label={t("plantPage.lighting", { ns: "plants" })}
-        />
-        <StatCard
-          iconBg="bg-purple-500/15"
-          icon={<Zap className="h-4 w-4 text-purple-400" />}
-          value={
-            lastEnvironment?.ph != null ? String(lastEnvironment.ph) : "—"
-          }
-          label={t("plantPage.ph", { ns: "plants" })}
-        />
+        <button
+          type="button"
+          onClick={() => setEnvDialogOpen(true)}
+          className="text-left active:scale-[0.97] transition-transform"
+        >
+          <StatCard
+            iconBg="bg-blue-500/15"
+            icon={<Thermometer className="h-4 w-4 text-blue-400" />}
+            value={displayTemp != null ? `${displayTemp}°C` : "—"}
+            label={t("plantPage.temperature", { ns: "plants" })}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={() => setEnvDialogOpen(true)}
+          className="text-left active:scale-[0.97] transition-transform"
+        >
+          <StatCard
+            iconBg="bg-blue-500/15"
+            icon={<Droplet className="h-4 w-4 text-blue-400" />}
+            value={displayHumidity != null ? `${displayHumidity}%` : "—"}
+            label={t("plantPage.humidity", { ns: "plants" })}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={() => setLightDialogOpen(true)}
+          className="text-left active:scale-[0.97] transition-transform"
+        >
+          <StatCard
+            iconBg="bg-yellow-500/15"
+            icon={<Sun className="h-4 w-4 text-yellow-400" />}
+            value={displayLighting ?? "—"}
+            label={t("plantPage.lighting", { ns: "plants" })}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={() => setEnvDialogOpen(true)}
+          className="text-left active:scale-[0.97] transition-transform"
+        >
+          <StatCard
+            iconBg="bg-purple-500/15"
+            icon={<Zap className="h-4 w-4 text-purple-400" />}
+            value={displayPh != null ? String(displayPh) : "—"}
+            label={t("plantPage.ph", { ns: "plants" })}
+          />
+        </button>
       </div>
 
       <div className="flex gap-3 pt-1">
         <Button variant="outline" size="sm" className="flex-1 h-11" asChild>
           <Link href={`/plants/${plantId}/logs`}>
-            <FileText className="h-4 w-4 mr-2" />
             {t("viewLogs", { ns: "journal" })}
           </Link>
         </Button>
         <Button
           size="sm"
-          className="flex-[1.4] h-11 bg-green-600 hover:bg-green-700 text-white"
+          className="flex-1 h-11 bg-green-600 hover:bg-green-700 text-white"
           asChild
         >
           <Link href={`/plants/${plantId}/add-log`}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("addLog", { ns: "journal" })}
+            {t("addRecord", { ns: "journal" })}
           </Link>
         </Button>
       </div>
@@ -194,10 +430,7 @@ function EstadoTab({
 
 // ─── DiarioTab ────────────────────────────────────────────────────────────────
 
-const LOG_TYPE_STYLE: Record<
-  string,
-  { icon: React.ReactNode; bg: string }
-> = {
+const LOG_TYPE_STYLE: Record<string, { icon: React.ReactNode; bg: string }> = {
   [LOG_TYPES.WATERING]: {
     icon: <Droplet className="h-3.5 w-3.5 text-blue-400" />,
     bg: "bg-blue-500/15",
@@ -261,7 +494,7 @@ function DiarioTab({
               <div
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                  style.bg
+                  style.bg,
                 )}
               >
                 {style.icon}
@@ -279,7 +512,7 @@ function DiarioTab({
                 )}
               </div>
               <span className="text-[11px] text-muted-foreground shrink-0">
-                {relativeDate(log.date)}
+                {logDate(log.date)}
               </span>
             </div>
           );
@@ -377,7 +610,7 @@ function InfoTab({
             <Select
               value={plant.seedType}
               onValueChange={async (
-                value: "autoflowering" | "photoperiodic"
+                value: "autoflowering" | "photoperiodic",
               ) => {
                 await updateDoc(plantDoc(userId, plant.id), {
                   seedType: value,
@@ -518,6 +751,8 @@ function FotosTab({
   onSelectImage,
   onOpenFullscreen,
   onAddPhoto,
+  onSetCoverPhoto,
+  onRemovePhoto,
   photoUploadState,
   plantName,
 }: {
@@ -526,10 +761,12 @@ function FotosTab({
   onSelectImage: (index: number) => void;
   onOpenFullscreen: (open: boolean) => void;
   onAddPhoto?: () => void;
+  onSetCoverPhoto?: (photoUrl: string) => void;
+  onRemovePhoto?: (index: number) => void;
   photoUploadState: UploadingState;
   plantName: string;
 }) {
-  const { t } = useTranslation(["plants"]);
+  const { t } = useTranslation(["plants", "common"]);
 
   if (allImages.length === 0 && !onAddPhoto) {
     return (
@@ -544,28 +781,87 @@ function FotosTab({
 
   return (
     <div className="grid grid-cols-3 gap-2">
-      {allImages.map((url, idx) => (
-        <button
-          key={url}
-          type="button"
-          className="relative aspect-square overflow-hidden rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 active:scale-95 transition-transform"
-          onClick={() => {
-            onSelectImage(idx);
-            onOpenFullscreen(true);
-          }}
-          aria-label={`${plantName} photo ${idx + 1}`}
-        >
-          <Image src={url} alt="" fill className="object-cover" />
-          {url === coverPhoto && (
-            <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded bg-yellow-500/90 px-1 py-0.5">
-              <Star className="h-2.5 w-2.5 text-black fill-black" />
-              <span className="text-[8px] font-bold text-black leading-none">
-                Portada
-              </span>
-            </div>
-          )}
-        </button>
-      ))}
+      {allImages.map((url, idx) => {
+        const isCover = url === coverPhoto;
+        return (
+          <div key={url} className="relative aspect-square">
+            {/* Tap to fullscreen */}
+            <button
+              type="button"
+              className="absolute inset-0 overflow-hidden rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 active:scale-95 transition-transform"
+              onClick={() => {
+                onSelectImage(idx);
+                onOpenFullscreen(true);
+              }}
+              aria-label={`${plantName} photo ${idx + 1}`}
+            >
+              <Image src={url} alt="" fill className="object-cover" />
+            </button>
+
+            {/* Cover badge */}
+            {isCover && (
+              <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded bg-yellow-500/90 px-1 py-0.5 pointer-events-none z-10">
+                <Star className="h-2.5 w-2.5 text-black fill-black" />
+                <span className="text-[8px] font-bold text-black leading-none">
+                  Portada
+                </span>
+              </div>
+            )}
+
+            {/* Star — set as cover (only non-cover photos, no confirmation) */}
+            {!isCover && onSetCoverPhoto && (
+              <button
+                type="button"
+                className="absolute top-1 left-1 z-10 h-6 w-6 rounded bg-black/55 backdrop-blur-sm flex items-center justify-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSetCoverPhoto(url);
+                }}
+                aria-label={t("photos.setAsCover", { ns: "plants" })}
+              >
+                <Star className="h-3 w-3 text-yellow-400" />
+              </button>
+            )}
+
+            {/* Trash — delete photo */}
+            {onRemovePhoto && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="absolute top-1 right-1 z-10 h-6 w-6 rounded bg-black/55 backdrop-blur-sm flex items-center justify-center"
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={t("photos.deletePhoto", { ns: "plants" })}
+                  >
+                    <Trash2 className="h-3 w-3 text-red-400" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t("photos.removeConfirmTitle", { ns: "plants" })}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t("photos.removeConfirmDesc", { ns: "plants" })}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>
+                      {t("cancel", { ns: "common" })}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onRemovePhoto(idx)}
+                      className="bg-red-600 text-white"
+                    >
+                      {t("delete", { ns: "common" })}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
+        );
+      })}
 
       {onAddPhoto && (
         <button
@@ -612,7 +908,6 @@ export function MobilePlantPage({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const allImages = [
     ...(plant.coverPhoto ? [plant.coverPhoto] : []),
@@ -625,8 +920,7 @@ export function MobilePlantPage({
     ? differenceInDays(new Date(), parseISO(plant.plantingDate))
     : 0;
 
-  const lightingSchedule =
-    lastLighting?.lightSchedule || plant.lightSchedule;
+  const lightingSchedule = lastLighting?.lightSchedule || plant.lightSchedule;
 
   // Swipe handlers — only used for fullscreen modal navigation
   const minSwipeDistance = 50;
@@ -643,21 +937,21 @@ export function MobilePlantPage({
       setCurrentImageIndex((p) => (p + 1) % allImages.length);
     if (distance < -minSwipeDistance)
       setCurrentImageIndex(
-        (p) => (p - 1 + allImages.length) % allImages.length
+        (p) => (p - 1 + allImages.length) % allImages.length,
       );
   };
 
   const TABS: { id: TabId; label: string }[] = [
     { id: "estado", label: t("plantPage.tabEstado", { ns: "plants" }) },
     { id: "diario", label: t("plantPage.tabDiario", { ns: "plants" }) },
-    { id: "info",   label: t("plantPage.tabInfo",   { ns: "plants" }) },
-    { id: "fotos",  label: t("plantPage.tabFotos",  { ns: "plants" }) },
+    { id: "info", label: t("plantPage.tabInfo", { ns: "plants" }) },
+    { id: "fotos", label: t("plantPage.tabFotos", { ns: "plants" }) },
   ];
 
   return (
-    <div className="min-h-screen" lang={language}>
-      {/* ── Hero (compact) ── */}
-      <div className="relative h-28 w-full overflow-hidden rounded-xl">
+    <div className="flex flex-col h-[calc(100dvh-9rem)]" lang={language}>
+      {/* ── Hero ── */}
+      <div className="relative h-60 w-full shrink-0 overflow-hidden rounded-xl">
         {allImages.length > 0 ? (
           <Image
             src={allImages[currentImageIndex]}
@@ -683,7 +977,7 @@ export function MobilePlantPage({
         )}
 
         {/* Top navigation row */}
-        <div className="absolute top-0 left-0 right-0 p-3 flex items-center justify-between z-10">
+        <div className="absolute top-0 left-0 right-0 p-3 z-10">
           <Link
             href={ROUTE_PLANTS}
             className="h-9 w-9 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 flex items-center justify-center"
@@ -691,120 +985,13 @@ export function MobilePlantPage({
           >
             <ArrowLeft className="h-4 w-4 text-white" />
           </Link>
-
-          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="h-9 w-9 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 flex items-center justify-center"
-                aria-label="Menu"
-              >
-                <Menu className="h-4 w-4 text-white" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {onAddPhoto && (
-                <DropdownMenuItem onClick={() => onAddPhoto(plant)}>
-                  <Camera className="h-4 w-4 mr-2" />
-                  {t("photos.addPhotos", { ns: "plants" })}
-                </DropdownMenuItem>
-              )}
-              {onSetCoverPhoto &&
-                allImages.length > 0 &&
-                allImages[currentImageIndex] !== plant.coverPhoto && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem
-                        onSelect={(e) => e.preventDefault()}
-                        className="text-yellow-400"
-                      >
-                        <Star className="h-4 w-4 mr-2" />
-                        {t("photos.setAsCover", { ns: "plants" })}
-                      </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          {t("photos.setCoverConfirmTitle", { ns: "plants" })}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {t("photos.setCoverConfirmDesc", { ns: "plants" })}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>
-                          {t("cancel", { ns: "common" })}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => {
-                            onSetCoverPhoto(allImages[currentImageIndex]);
-                            setMenuOpen(false);
-                          }}
-                          className="bg-yellow-600 text-white"
-                        >
-                          {t("photos.setAsCover", { ns: "plants" })}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              {onRemovePhoto && allImages.length > 0 && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()}
-                      className="text-red-400"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      {t("photos.deletePhoto", { ns: "plants" })}
-                    </DropdownMenuItem>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        {t("photos.removeConfirmTitle", { ns: "plants" })}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("photos.removeConfirmDesc", { ns: "plants" })}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>
-                        {t("cancel", { ns: "common" })}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          onRemovePhoto(currentImageIndex);
-                          setMenuOpen(false);
-                        }}
-                        className="bg-red-600 text-white"
-                      >
-                        {t("delete", { ns: "common" })}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
 
         {/* Plant name + meta line */}
         <div className="absolute bottom-0 left-0 right-0 px-3 pb-2 z-10">
-          <div className="max-w-[calc(100vw-5rem)]">
-            <InlineEdit
-              value={plant.name}
-              onSave={async (newName) => {
-                await updateDoc(plantDoc(userId, plant.id), { name: newName });
-                invalidatePlantDetails(userId, plant.id);
-                invalidatePlantsCache(userId);
-                onUpdate?.({ name: newName });
-              }}
-              placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
-              className="text-lg font-bold text-white drop-shadow-lg uppercase truncate block w-full"
-              inputClassName="text-base font-bold text-white bg-black/50 border-white/30 rounded-lg py-1.5 backdrop-blur-sm placeholder-white/60 w-full"
-            />
-          </div>
+          <p className="text-lg font-bold text-white drop-shadow-lg uppercase truncate">
+            {plant.name}
+          </p>
           <p className="text-xs text-green-400 font-semibold mt-0.5">
             {t("plantPage.day", { ns: "plants" })} {daysSincePlanting}
             {" · "}
@@ -820,7 +1007,7 @@ export function MobilePlantPage({
       </div>
 
       {/* ── Tab Strip ── */}
-      <div className="sticky top-0 z-10 bg-card border-b border-border flex">
+      <div className="shrink-0 bg-card border-b border-border flex">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -830,7 +1017,7 @@ export function MobilePlantPage({
               "flex-1 py-2.5 text-xs font-medium transition-colors",
               activeTab === tab.id
                 ? "text-green-400 border-b-2 border-green-400"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {tab.label}
@@ -839,13 +1026,14 @@ export function MobilePlantPage({
       </div>
 
       {/* ── Tab Content ── */}
-      <div className="px-3 py-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
         {activeTab === "estado" && (
           <EstadoTab
             lastWatering={lastWatering}
             lastEnvironment={lastEnvironment}
             lightingSchedule={lightingSchedule}
             plantId={plant.id}
+            userId={userId}
           />
         )}
         {activeTab === "diario" && (
@@ -868,6 +1056,8 @@ export function MobilePlantPage({
             onSelectImage={setCurrentImageIndex}
             onOpenFullscreen={setShowFullImage}
             onAddPhoto={onAddPhoto ? () => onAddPhoto(plant) : undefined}
+            onSetCoverPhoto={onSetCoverPhoto}
+            onRemovePhoto={onRemovePhoto}
             photoUploadState={photoUploadState}
             plantName={plant.name}
           />
@@ -892,6 +1082,23 @@ export function MobilePlantPage({
               className="max-w-full max-h-full object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
+            {/* Star — set as cover in fullscreen (only non-cover, no confirmation) */}
+            {onSetCoverPhoto &&
+              allImages[currentImageIndex] !== plant.coverPhoto && (
+                <button
+                  type="button"
+                  className="absolute top-4 left-4 h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSetCoverPhoto(allImages[currentImageIndex]);
+                    setShowFullImage(false);
+                  }}
+                  aria-label={t("photos.setAsCover", { ns: "plants" })}
+                >
+                  <Star className="h-5 w-5 text-yellow-400" />
+                </button>
+              )}
+
             {onRemovePhoto && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

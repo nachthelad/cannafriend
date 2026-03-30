@@ -4,6 +4,7 @@
   "recentLogs": "Recent Logs",
   "viewLogs": "View Logs",
   "addLog": "Add",
+  "addRecord": "Add Log",
   "logsFound": "Logs Found",
   "error": "Error loading journal",
   "deleteLogTitle": "Delete Log",
@@ -103,5 +104,8 @@
     "lst": "LST Training",
     "defoliation": "Defoliation",
     "supercropping": "Supercropping"
+  },
+  "toast": {
+    "saveError": "Error saving entry, please try again"
   }
 }

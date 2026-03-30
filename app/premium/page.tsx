@@ -14,14 +14,12 @@ import { useRouter } from "next/navigation";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Crown, CreditCard, Banknote } from "lucide-react";
 
 export default function PremiumPage() {
   const { t } = useTranslation(["premium", "common"]);
   const router = useRouter();
   const { user } = useAuthUser();
-  const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
 
   // After returning from MercadoPago, force-sync custom claims and refresh token
@@ -69,21 +67,13 @@ export default function PremiumPage() {
       if (data.success && data.checkout_url) {
         window.location.href = data.checkout_url;
       } else if (data.error === "already_premium") {
-        toast({
-          variant: "destructive",
-          title: t("error", { ns: "common" }),
-          description: "You already have an active premium subscription.",
-        });
+        console.error("Already premium");
         return;
       } else {
         throw new Error(data.error || "Failed to create checkout session");
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: error.message || "Failed to initialize payment",
-      });
+      console.error("Stripe payment error:", error);
     } finally {
       setLoading(null);
     }
@@ -108,11 +98,7 @@ export default function PremiumPage() {
       if (data.success && (data.checkout_url || data.init_point)) {
         window.location.href = data.checkout_url || data.init_point;
       } else if (data.error === "already_premium") {
-        toast({
-          variant: "destructive",
-          title: t("error", { ns: "common" }),
-          description: "You already have an active premium subscription.",
-        });
+        console.error("Already premium");
         return;
       } else {
         const detail =
@@ -124,11 +110,7 @@ export default function PremiumPage() {
         );
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: t("error", { ns: "common" }),
-        description: error.message || "Failed to initialize payment",
-      });
+      console.error("MercadoPago payment error:", error);
     } finally {
       setLoading(null);
     }

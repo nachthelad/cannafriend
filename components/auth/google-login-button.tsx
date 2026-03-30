@@ -12,7 +12,6 @@ import { userDoc } from "@/lib/paths";
 
 import { useRouter } from "next/navigation";
 import { ROUTE_ONBOARDING } from "@/lib/routes";
-import { useToast } from "@/hooks/use-toast";
 
 export function GoogleLoginButton({
   variant = "outline",
@@ -23,7 +22,6 @@ export function GoogleLoginButton({
 }: GoogleLoginButtonProps) {
   const { t } = useTranslation("auth");
   const router = useRouter();
-  const { toast } = useToast();
   const { handleFirebaseError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,14 +43,6 @@ export function GoogleLoginButton({
     } catch (error: any) {
       // Handle specific internal-error case
       if (error.code === "auth/internal-error") {
-        toast({
-          variant: "destructive",
-          title: t("login.error"),
-          description:
-            t("login.internalError") ||
-            "Error interno. Por favor recarga la página e intenta de nuevo.",
-        });
-
         // Force a page reload to clear all auth state
         if (typeof window !== "undefined") {
           window.location.reload();

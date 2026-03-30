@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/layout";
 import { AlertCircle } from "lucide-react";
 import { ROUTE_STASH, ROUTE_LOGIN } from "@/lib/routes";
@@ -50,7 +49,6 @@ function NewStashPageContent() {
   const { t } = useTranslation(["stash", "common", "validation"]);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuthUser();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -123,20 +121,10 @@ function NewStashPageContent() {
       const stashRef = stashCol(user.uid);
       await addDoc(stashRef, stashData);
 
-      toast({
-        title: t("addSuccess", { ns: "stash" }),
-        description: t("addSuccessDesc", { ns: "stash" }),
-      });
-
       clearSuspenseCache(`stash-${user.uid}`);
       router.push(ROUTE_STASH);
     } catch (error: any) {
       console.error("Error adding stash item:", error);
-      toast({
-        variant: "destructive",
-        title: t("addError", { ns: "stash" }),
-        description: error?.message || t("addErrorDesc", { ns: "stash" }),
-      });
     } finally {
       setIsLoading(false);
     }

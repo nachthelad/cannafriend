@@ -17,7 +17,6 @@ import type {
 } from "@/types/admin";
 import { useAuthUser } from "@/hooks/use-auth-user";
 
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { authorizedFetch, copyToClipboard } from "@/lib/admin/utils";
 import { ADMIN_EMAIL } from "@/lib/constants";
@@ -45,7 +44,6 @@ function AdminSkeleton() {
 }
 
 function AdminContent() {
-  const { toast } = useToast();
   const { handleError } = useErrorHandler();
 
   const usersResource = getSuspenseResource(USERS_CACHE_KEY, fetchAdminUsers);
@@ -115,16 +113,9 @@ function AdminContent() {
 
   const handleCopy = useCallback(
     async (value: string, label: string = "Valor") => {
-      const copied = await copyToClipboard(value);
-      if (!copied) {
-        toast({
-          variant: "destructive",
-          title: "No se pudo copiar",
-          description: `${label} no se pudo copiar. Intenta nuevamente desde un navegador compatible`,
-        });
-      }
+      await copyToClipboard(value);
     },
-    [toast]
+    []
   );
 
   const handleMpSearch = useCallback(async () => {
@@ -163,10 +154,6 @@ function AdminContent() {
         if (!response.ok || data?.error) {
           throw new Error(data?.error || "reprocess_failed");
         }
-        toast({
-          title: "Reprocesado",
-          description: `premium: ${data?.premium ? "true" : "false"}`,
-        });
         await refreshUsers();
       } catch (error) {
         handleError(error);
@@ -174,7 +161,7 @@ function AdminContent() {
         setMpLoading(false);
       }
     },
-    [toast, handleError, refreshUsers]
+    [handleError, refreshUsers]
   );
 
   const handleStripeSearch = useCallback(async () => {
@@ -214,10 +201,6 @@ function AdminContent() {
         if (!response.ok || data?.error) {
           throw new Error(data?.error || "reprocess_failed");
         }
-        toast({
-          title: "Reprocesado",
-          description: `premium: ${data?.premium ? "true" : "false"}`,
-        });
         await refreshUsers();
       } catch (error) {
         handleError(error);
@@ -225,7 +208,7 @@ function AdminContent() {
         setStripeLoading(false);
       }
     },
-    [toast, handleError, refreshUsers]
+    [handleError, refreshUsers]
   );
 
   return (

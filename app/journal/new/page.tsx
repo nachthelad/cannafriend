@@ -20,7 +20,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useToast } from "@/hooks/use-toast";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
 import {
@@ -48,6 +47,7 @@ import {
   invalidateJournalCache,
   invalidatePlantsCache,
   invalidatePlantDetails,
+  optimisticAddLog,
 } from "@/lib/suspense-cache";
 import {
   LOG_TYPES,
@@ -75,6 +75,7 @@ import { PLANT_STATUS } from "@/lib/plant-config";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { MultiPlantSelector } from "@/components/plant/multi-plant-selector";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import { toast } from "sonner";
 
 function JournalFormSkeleton() {
   return (
@@ -238,7 +239,6 @@ function NewJournalPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuthUser();
-  const { toast } = useToast();
   const userId = user?.uid ?? null;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -352,9 +352,12 @@ function NewJournalPageContent() {
           userId: auth.currentUser!.uid,
           plantId: plantId,
           // Notes logic: usage global unless customized
-          // Notes logic: usage global unless customized
           notes: data.customizeNotes ? plantSpecific.note : data.globalNote,
         };
+
+        // Attach plant name for optimistic display
+        const plant = plants.find((p) => p.id === plantId);
+        if (plant) logData.plantName = plant.name;
 
         switch (data.logType) {
           case LOG_TYPES.WATERING:
@@ -411,19 +414,21 @@ function NewJournalPageContent() {
 
         // Invalidations
         invalidatePlantDetails(auth.currentUser!.uid, plantId);
+
+        return { id: newLogRef.id, ...logData } as any;
       });
 
-      await Promise.all(promises);
+      const builtLogs = await Promise.all(promises);
       await batch.commit();
+
+      // Optimistically prepend each new log to journal caches
+      for (const log of builtLogs) {
+        optimisticAddLog(auth.currentUser!.uid, log);
+      }
 
       invalidateJournalCache(auth.currentUser!.uid);
       invalidatePlantsCache(auth.currentUser!.uid);
       invalidateDashboardCache(auth.currentUser!.uid);
-
-      toast({
-        title: t("logForm.success", { ns: "journal" }),
-        description: t("logForm.successDesc", { ns: "journal" }),
-      });
 
       if (returnTo === "plant" && urlPlantId) {
         router.push(`/plants/${urlPlantId}`);
@@ -434,12 +439,7 @@ function NewJournalPageContent() {
       }
     } catch (error: any) {
       console.error("Error adding logs:", error);
-      toast({
-        variant: "destructive",
-        title: t("logForm.error", { ns: "journal" }),
-        description:
-          error?.message || t("logForm.errorDesc", { ns: "journal" }),
-      });
+      toast.error(t("toast.saveError", { ns: "journal" }));
     } finally {
       setIsLoading(false);
     }

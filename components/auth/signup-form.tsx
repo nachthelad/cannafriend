@@ -17,10 +17,9 @@ import { useRouter } from "next/navigation";
 
 export function SignupForm({ onSuccess }: SignupFormProps) {
   const router = useRouter();
-  const { 
+  const {
     form,
     t,
-    toast,
     handleFirebaseError
   } = useFormAuth<SignupFormData>({
     defaultValues: {
