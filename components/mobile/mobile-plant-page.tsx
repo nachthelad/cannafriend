@@ -288,7 +288,7 @@ function StatCard({
         <p className="text-base font-bold text-foreground leading-tight">
           {value}
         </p>
-        <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+        <p className="text-sm text-muted-foreground mt-0.5">{label}</p>
       </div>
     </div>
   );
@@ -350,7 +350,7 @@ function EstadoTab({
       />
 
       {lastWatering != null && (
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-xs font-medium text-blue-400">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-sm font-medium text-blue-400">
           <Droplet className="h-3.5 w-3.5" />
           {t("plantPage.watered", { ns: "plants" })}: {lastWateringDays}{" "}
           {t("plantPage.dayAgo", { ns: "plants" })}
@@ -506,12 +506,12 @@ function DiarioTab({
                   })}
                 </p>
                 {log.notes && (
-                  <p className="text-[11px] text-muted-foreground truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {log.notes}
                   </p>
                 )}
               </div>
-              <span className="text-[11px] text-muted-foreground shrink-0">
+              <span className="text-xs text-muted-foreground shrink-0">
                 {logDate(log.date)}
               </span>
             </div>
@@ -922,6 +922,10 @@ export function MobilePlantPage({
 
   const lightingSchedule = lastLighting?.lightSchedule || plant.lightSchedule;
 
+  const [tabTouchStart, setTabTouchStart] = useState<number | null>(null);
+  const [tabTouchEnd, setTabTouchEnd] = useState<number | null>(null);
+  const TAB_ORDER: TabId[] = ["estado", "diario", "info", "fotos"];
+
   // Swipe handlers — only used for fullscreen modal navigation
   const minSwipeDistance = 50;
   const onTouchStart = (e: React.TouchEvent) => {
@@ -941,6 +945,23 @@ export function MobilePlantPage({
       );
   };
 
+  // Swipe handlers — for tab navigation
+  const onTabTouchStart = (e: React.TouchEvent) => {
+    setTabTouchEnd(null);
+    setTabTouchStart(e.targetTouches[0].clientX);
+  };
+  const onTabTouchMove = (e: React.TouchEvent) =>
+    setTabTouchEnd(e.targetTouches[0].clientX);
+  const onTabTouchEnd = () => {
+    if (!tabTouchStart || !tabTouchEnd) return;
+    const distance = tabTouchStart - tabTouchEnd;
+    const currentIndex = TAB_ORDER.indexOf(activeTab);
+    if (distance > minSwipeDistance && currentIndex < TAB_ORDER.length - 1)
+      setActiveTab(TAB_ORDER[currentIndex + 1]);
+    if (distance < -minSwipeDistance && currentIndex > 0)
+      setActiveTab(TAB_ORDER[currentIndex - 1]);
+  };
+
   const TABS: { id: TabId; label: string }[] = [
     { id: "estado", label: t("plantPage.tabEstado", { ns: "plants" }) },
     { id: "diario", label: t("plantPage.tabDiario", { ns: "plants" }) },
@@ -951,7 +972,7 @@ export function MobilePlantPage({
   return (
     <div className="flex flex-col h-[calc(100dvh-9rem)]" lang={language}>
       {/* ── Hero ── */}
-      <div className="relative h-60 w-full shrink-0 overflow-hidden rounded-xl">
+      <div className="relative h-72 w-full shrink-0 overflow-hidden rounded-xl">
         {allImages.length > 0 ? (
           <Image
             src={allImages[currentImageIndex]}
@@ -989,10 +1010,10 @@ export function MobilePlantPage({
 
         {/* Plant name + meta line */}
         <div className="absolute bottom-0 left-0 right-0 px-3 pb-2 z-10">
-          <p className="text-lg font-bold text-white drop-shadow-lg uppercase truncate">
+          <p className="text-xl font-bold text-white drop-shadow-lg uppercase truncate">
             {plant.name}
           </p>
-          <p className="text-xs text-green-400 font-semibold mt-0.5">
+          <p className="text-sm text-green-400 font-semibold mt-0.5">
             {t("plantPage.day", { ns: "plants" })} {daysSincePlanting}
             {" · "}
             {plant.seedType === "autoflowering"
@@ -1014,7 +1035,7 @@ export function MobilePlantPage({
             type="button"
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              "flex-1 py-2.5 text-xs font-medium transition-colors",
+              "flex-1 py-3 text-sm font-medium transition-colors",
               activeTab === tab.id
                 ? "text-green-400 border-b-2 border-green-400"
                 : "text-muted-foreground hover:text-foreground",
@@ -1026,7 +1047,12 @@ export function MobilePlantPage({
       </div>
 
       {/* ── Tab Content ── */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
+      <div
+        className="flex-1 min-h-0 overflow-y-auto px-3 py-3"
+        onTouchStart={onTabTouchStart}
+        onTouchMove={onTabTouchMove}
+        onTouchEnd={onTabTouchEnd}
+      >
         {activeTab === "estado" && (
           <EstadoTab
             lastWatering={lastWatering}
