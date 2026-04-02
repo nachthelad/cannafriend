@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: optimize bundle size and hydration via dynamic imports and conditional rendering — 2026-04-02
 - [MINOR]: ignore local Claude Code and Superpowers tooling files — 2026-03-30
 
 - [MINOR]: add tab layout regression tests — 2026-03-30
