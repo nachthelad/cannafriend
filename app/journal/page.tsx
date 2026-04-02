@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -12,11 +13,19 @@ import {
   ROUTE_DASHBOARD,
 } from "@/lib/routes";
 import { Layout } from "@/components/layout";
-import { MobileJournal } from "@/components/mobile/mobile-journal";
 import { Plus } from "lucide-react";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
-import { useHasPlants } from "@/hooks";
-import { JournalDesktop } from "@/components/journal/journal-desktop";
+import { useHasPlants } from "@/hooks/use-has-plants";
+
+// Dynamic imports for view components
+const MobileJournal = dynamic(
+  () => import("@/components/mobile/mobile-journal").then((mod) => mod.MobileJournal),
+  { ssr: false }
+);
+const JournalDesktop = dynamic(
+  () => import("@/components/journal/journal-desktop").then((mod) => mod.JournalDesktop),
+  { ssr: false }
+);
 
 export default function JournalPage() {
   const { t, i18n } = useTranslation(["journal", "common", "plants"]);
@@ -71,21 +80,23 @@ export default function JournalPage() {
         />
       </div>
 
-      {/* Mobile Journal — renders its own mobile header internally */}
-      <div className="md:hidden">
-        {userId && (
-          <MobileJournal
-            userId={userId}
-            language={i18n.language}
-            mobileActions={mobileAddAction}
-          />
-        )}
-      </div>
+      <Suspense fallback={null}>
+        {/* Mobile Journal — renders its own mobile header internally */}
+        <div className="md:hidden">
+          {userId && (
+            <MobileJournal
+              userId={userId}
+              language={i18n.language}
+              mobileActions={mobileAddAction}
+            />
+          )}
+        </div>
 
-      {/* Desktop Journal */}
-      <div className="hidden md:block">
-        {userId && <JournalDesktop userId={userId} language={i18n.language} />}
-      </div>
+        {/* Desktop Journal */}
+        <div className="hidden md:block">
+          {userId && <JournalDesktop userId={userId} language={i18n.language} />}
+        </div>
+      </Suspense>
     </Layout>
   );
 }
