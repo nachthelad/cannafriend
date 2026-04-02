@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import dynamic from "next/dynamic";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { ROUTE_ONBOARDING, ROUTE_DASHBOARD } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
-import { MobileLandingView } from "@/components/marketing/mobile-landing-view";
-import { DesktopLandingView } from "@/components/marketing/desktop-landing-view";
 import { useTranslation } from "react-i18next";
 import type { BeforeInstallPromptEvent, UserProfile } from "@/types";
+
+// Dynamic imports for view components
+const MobileLandingView = dynamic(
+  () =>
+    import("@/components/marketing/mobile-landing-view").then(
+      (mod) => mod.MobileLandingView
+    ),
+  { ssr: false }
+);
+const DesktopLandingView = dynamic(
+  () =>
+    import("@/components/marketing/desktop-landing-view").then(
+      (mod) => mod.DesktopLandingView
+    ),
+  { ssr: false }
+);
 
 export default function Home() {
   const router = useRouter();
@@ -160,32 +175,34 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {/* Load AdSense only on desktop public marketing view */}
-      {shouldLoadAds && (
+      {shouldLoadAds ? (
         <Script
           id="adsbygoogle-init"
           strategy="afterInteractive"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1027418154196814"
           crossOrigin="anonymous"
         />
-      )}
+      ) : null}
 
-      {/* Mobile Layout - Direct Login Screen */}
-      <div className="block lg:hidden">
-        <MobileLandingView />
-      </div>
+      <Suspense fallback={null}>
+        {/* Mobile Layout - Direct Login Screen */}
+        <div className="block lg:hidden">
+          <MobileLandingView />
+        </div>
 
-      {/* Desktop Layout - Marketing Page */}
-      <div className="hidden lg:block">
-        <DesktopLandingView
-          isLoggedIn={isLoggedIn}
-          loginOpen={loginOpen}
-          onLoginOpenChange={setLoginOpen}
-          onLoginClick={handleDesktopLoginClick}
-          onAuthStart={() => {}}
-          deferredPrompt={deferredPrompt}
-          onInstallPWA={handleInstallPWA}
-        />
-      </div>
+        {/* Desktop Layout - Marketing Page */}
+        <div className="hidden lg:block">
+          <DesktopLandingView
+            isLoggedIn={isLoggedIn}
+            loginOpen={loginOpen}
+            onLoginOpenChange={setLoginOpen}
+            onLoginClick={handleDesktopLoginClick}
+            onAuthStart={() => {}}
+            deferredPrompt={deferredPrompt}
+            onInstallPWA={handleInstallPWA}
+          />
+        </div>
+      </Suspense>
 
       {/* Cookie consent banner */}
       <CookieConsent />

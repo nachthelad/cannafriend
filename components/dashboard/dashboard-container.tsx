@@ -48,7 +48,8 @@ import {
   X,
 } from "lucide-react";
 
-import { Skeleton, DashboardSkeleton } from "@/components/skeletons";
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { DataCard } from "@/components/common/data-card";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
