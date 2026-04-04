@@ -95,6 +95,7 @@ const nextConfig = {
         "https://va.vercel-insights.com",
         "https://pagead2.googlesyndication.com",
         "https://firebaseinstallations.googleapis.com",
+        "https://firebase.googleapis.com",
         "https://www.googletagmanager.com",
         // Allow webpack HMR websocket in dev
         ...(isDev ? ["ws://localhost:3000"] : []),
@@ -121,6 +122,15 @@ const nextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+        ],
+      },
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

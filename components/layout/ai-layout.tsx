@@ -29,7 +29,7 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
     <div className="h-screen flex flex-col bg-background">
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center p-4 border-b bg-background/95 backdrop-blur">
-        <Button variant="ghost" size="icon" asChild className="mr-3">
+        <Button variant="ghost" size="icon" asChild className="mr-3" aria-label={t("back", { ns: "common" })}>
           <Link href={ROUTE_DASHBOARD}>
             <ArrowLeft className="h-5 w-5" />
           </Link>
