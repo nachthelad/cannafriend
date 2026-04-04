@@ -164,13 +164,14 @@ workbox.routing.setCatchHandler(async ({ event }) => {
 });
 
 // Background Sync for failed POSTs to /api/*
+// POST requests cannot be cached (Cache API doesn't support it), so use NetworkOnly
 const apiQueue = new BackgroundSyncPlugin("api-post-queue", {
   maxRetentionTime: 24 * 60,
 });
 registerRoute(
   ({ url, request }) =>
     url.pathname.startsWith("/api/") && request.method === "POST",
-  new StaleWhileRevalidate({ cacheName: "api-posts", plugins: [apiQueue] }),
+  new NetworkOnly({ plugins: [apiQueue] }),
   "POST"
 );
 

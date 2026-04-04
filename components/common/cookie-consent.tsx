@@ -53,13 +53,14 @@ export function CookieConsent() {
               size="icon"
               className="h-6 w-6 -mt-1 -mr-1"
               onClick={handleDecline}
+              aria-label={t("close", { ns: "common" })}
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
             {t("cookies.description", { ns: "common" })}{"; "}
-            <Link href={ROUTE_PRIVACY} className="text-primary hover:underline">
+            <Link href={ROUTE_PRIVACY} className="text-primary underline hover:no-underline">
               {t("cookies.learnMore", { ns: "common" })}
             </Link>
           </p>

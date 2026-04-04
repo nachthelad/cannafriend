@@ -22,12 +22,25 @@ import {
   collectionGroup,
   where,
 } from "firebase/firestore";
-import { PlantCard } from "@/components/plant/plant-card";
-import { JournalEntries } from "@/components/journal/journal-entries";
-import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
+import dynamic from "next/dynamic";
 import { AlertTriangle, Plus, X } from "lucide-react";
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+
+const MobileDashboard = dynamic(
+  () => import("@/components/mobile/mobile-dashboard").then((m) => m.MobileDashboard),
+  { ssr: false, loading: () => <DashboardSkeleton /> }
+);
+
+const PlantCard = dynamic(
+  () => import("@/components/plant/plant-card").then((m) => m.PlantCard),
+  { ssr: false }
+);
+
+const JournalEntries = dynamic(
+  () => import("@/components/journal/journal-entries").then((m) => m.JournalEntries),
+  { ssr: false }
+);
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import type {
   DashboardContainerProps,
