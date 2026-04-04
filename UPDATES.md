@@ -5,6 +5,10 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: fix image mime types and include images in gemini chat history — 2026-04-04
+
+- [MINOR]: Remove quick action buttons from header — 2026-04-04
+
 - [MID]: optimize bundle size and hydration via dynamic imports and conditional rendering — 2026-04-02
 - [MINOR]: ignore local Claude Code and Superpowers tooling files — 2026-03-30
 

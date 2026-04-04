@@ -127,6 +127,23 @@ CONSUMPTION: Effects, strains, dosing, methods, storage, harm reduction, legalit
 
 IMPORTANT: Keep responses SHORT (2-4 sentences max). Use bullet points for lists. Skip preamble. If unrelated to cannabis, refuse in one sentence. Prioritize safety. Respond in the user's language (Spanish or English).`;
 
+async function fetchInlineImageParts(
+  images: { url: string; type: string }[],
+): Promise<any[]> {
+  return Promise.all(
+    images.map(async (img) => {
+      const response = await fetch(img.url);
+      const arrayBuffer = await response.arrayBuffer();
+      return {
+        inlineData: {
+          data: Buffer.from(arrayBuffer).toString("base64"),
+          mimeType: img.type || "image/jpeg",
+        },
+      };
+    }),
+  );
+}
+
 async function callGemini(
   messages: ClientMessage[],
   apiKey: string,
@@ -137,10 +154,19 @@ async function callGemini(
     generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS },
   });
 
-  const chatHistory = messages.slice(0, -1).map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  const chatHistory = await Promise.all(
+    messages.slice(0, -1).map(async (m) => {
+      const parts: any[] = [{ text: m.content }];
+      if (m.role === "user" && m.images && m.images.length > 0) {
+        const imageParts = await fetchInlineImageParts(m.images);
+        parts.push(...imageParts);
+      }
+      return {
+        role: m.role === "assistant" ? "model" : "user",
+        parts,
+      };
+    }),
+  );
 
   const chat = model.startChat({
     history: [
@@ -161,27 +187,14 @@ async function callGemini(
   });
 
   const latestMessage = messages[messages.length - 1];
-  let parts: any[] = [{ text: latestMessage.content }];
-
+  const latestParts: any[] = [{ text: latestMessage.content }];
   if (latestMessage.images && latestMessage.images.length > 0) {
-    const imageParts = await Promise.all(
-      latestMessage.images.map(async (img) => {
-        const response = await fetch(img.url);
-        const arrayBuffer = await response.arrayBuffer();
-        return {
-          inlineData: {
-            data: Buffer.from(arrayBuffer).toString("base64"),
-            mimeType: img.type || "image/jpeg",
-          },
-        };
-      }),
-    );
-    parts = [...parts, ...imageParts];
+    const imageParts = await fetchInlineImageParts(latestMessage.images);
+    latestParts.push(...imageParts);
   }
 
-  const result = await chat.sendMessage(parts);
-  const response = result.response;
-  return { content: response.text(), model: PRIMARY_MODEL_GEMINI };
+  const result = await chat.sendMessage(latestParts);
+  return { content: result.response.text(), model: PRIMARY_MODEL_GEMINI };
 }
 
 async function checkAndIncrementGeminiUsage(uid: string): Promise<boolean> {
