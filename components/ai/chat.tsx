@@ -30,6 +30,27 @@ import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
 
+function getMimeTypeFromUrl(url: string): string {
+  try {
+    const decoded = decodeURIComponent(url);
+    const match = decoded.match(/\.(webp|jpg|jpeg|png|gif|heic|avif)(\?|$)/i);
+    if (match) {
+      const ext = match[1].toLowerCase();
+      const mimeMap: Record<string, string> = {
+        webp: "image/webp",
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif",
+        heic: "image/heic",
+        avif: "image/avif",
+      };
+      return mimeMap[ext] || "image/jpeg";
+    }
+  } catch {}
+  return "image/jpeg";
+}
+
 export function AIChat({
   sessionId,
   className,
@@ -158,7 +179,7 @@ export function AIChat({
   const handleImageUpload = (urls: string[]) => {
     const newImages: AIImageAttachment[] = urls.map((url) => ({
       url,
-      type: "image/jpeg",
+      type: getMimeTypeFromUrl(url),
     }));
     setImages((prev) => [...prev, ...newImages]);
   };
@@ -168,7 +189,7 @@ export function AIChat({
   };
 
   const handlePlantPhotoSelect = (photoUrl: string, promptText: string) => {
-    setImages([{ url: photoUrl, type: "image/jpeg" }]);
+    setImages([{ url: photoUrl, type: getMimeTypeFromUrl(photoUrl) }]);
     setInput(promptText);
     setIsPhotoModalOpen(false);
     // Focus the input to let user review before sending
