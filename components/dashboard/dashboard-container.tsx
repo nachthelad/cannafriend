@@ -3,16 +3,7 @@
 import { Suspense, useMemo, useState, useEffect } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  ROUTE_REMINDERS,
-  ROUTE_AI_ASSISTANT,
-  ROUTE_PLANTS,
-  ROUTE_JOURNAL,
-  ROUTE_ADMIN,
-  ROUTE_STASH,
-  ROUTE_PLANTS_NEW,
-} from "@/lib/routes";
+import { ROUTE_REMINDERS, ROUTE_PLANTS, ROUTE_JOURNAL } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import { plantsCol, logsCol, remindersCol } from "@/lib/paths";
+import { plantsCol, remindersCol } from "@/lib/paths";
 import {
   query,
   getDocs,
@@ -31,27 +22,12 @@ import {
   collectionGroup,
   where,
 } from "firebase/firestore";
-import { ReminderSystem } from "@/components/plant/reminder-system";
 import { PlantCard } from "@/components/plant/plant-card";
 import { JournalEntries } from "@/components/journal/journal-entries";
 import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
-import {
-  AlertTriangle,
-  Plus,
-  Brain,
-  Shield,
-  Bell,
-  Package,
-  NotebookPen,
-  Leaf,
-  Calendar,
-  X,
-} from "lucide-react";
+import { AlertTriangle, Plus, X } from "lucide-react";
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
-import { Skeleton } from "@/components/ui/skeleton";
-
-import { DataCard } from "@/components/common/data-card";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import type {
   DashboardContainerProps,
@@ -63,7 +39,6 @@ import { auth, db } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
-import { FastLogAction } from "@/components/dashboard/fast-log-action";
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
   // 1. Start all network requests concurrently to eliminate waterfall
@@ -282,7 +257,10 @@ function DashboardContent({
         {hasOverdue && !isDismissed && (
           <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600" aria-hidden="true" />
+              <AlertTriangle
+                className="h-5 w-5 text-orange-600"
+                aria-hidden="true"
+              />
               <span className="font-semibold text-orange-800 dark:text-orange-200">
                 {t("overdue", { ns: "reminders" })}:{" "}
                 {t("overdueRemindersDesc", { ns: "dashboard" })}
@@ -393,42 +371,6 @@ export function DashboardContainer({
           <h1 className="text-3xl font-bold">
             {t("title", { ns: "dashboard" })}
           </h1>
-        </div>
-        <div className="flex flex-wrap gap-2 p-4 bg-card rounded-lg border shadow-sm shrink-0 mb-6">
-          <Button
-            asChild
-            className="text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-500"
-          >
-            <Link href={ROUTE_AI_ASSISTANT}>
-              <Brain className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
-              {t("title", { ns: "aiAssistant" })}
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href={ROUTE_REMINDERS}>
-              <Bell className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
-              {t("reminders", { ns: "dashboard" })}
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href={ROUTE_PLANTS_NEW}>
-              <Plus className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
-              {t("addPlant", { ns: "dashboard" })}
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href={ROUTE_STASH}>
-              <Package className="h-5 w-5 mr-1" aria-hidden="true" />{" "}
-              {t("stash.title", { ns: "common" })}
-            </Link>
-          </Button>
-          {isAdmin && (
-            <Button asChild variant="outline">
-              <Link href={ROUTE_ADMIN}>
-                <Shield className="h-5 w-5 mr-1" aria-hidden="true" /> Admin
-              </Link>
-            </Button>
-          )}
         </div>
       </div>
       <DataErrorBoundary>
