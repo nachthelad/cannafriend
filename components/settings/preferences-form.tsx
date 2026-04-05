@@ -29,7 +29,7 @@ export function PreferencesForm({
           <Label htmlFor="language" className="text-sm font-medium">
             {languageLabel}
           </Label>
-          <LanguageSelect />
+          <LanguageSelect ariaLabel={languageLabel} />
         </div>
 
         <div className="space-y-2">
@@ -40,6 +40,7 @@ export function PreferencesForm({
             placeholder={timezonePlaceholder}
             value={timezoneValue}
             onChange={onTimezoneChange}
+            ariaLabel={timezoneLabel}
           />
         </div>
 

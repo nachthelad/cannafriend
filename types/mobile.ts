@@ -49,6 +49,7 @@ export interface SimplePlantCardProps {
   hideSeedType?: boolean;
   aspectRatio?: "square" | "video" | "auto";
   className?: string;
+  priority?: boolean;
 }
 
 export interface MobileJournalProps {

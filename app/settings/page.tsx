@@ -37,9 +37,15 @@ export default function SettingsPage() {
     </div>
   );
 
-  // Show nothing while auth is loading - let Suspense handle all loading
+  // Show skeleton immediately while auth loads so the skeleton becomes the LCP element
   if (isLoading) {
-    return <Layout><div /></Layout>;
+    return (
+      <Layout>
+        <div className="p-4 md:px-0 md:py-6">
+          <SettingsSkeleton />
+        </div>
+      </Layout>
+    );
   }
 
   // If not authenticated, redirect happens via useEffect

@@ -126,4 +126,5 @@ export interface TimezoneSelectProps {
   placeholder?: string;
   id?: string;
   triggerClassName?: string;
+  ariaLabel?: string;
 }

@@ -100,7 +100,7 @@ export function ChatSidebar({
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <DarkModeLogo size={24} className="ml-1.5" />
-          <Button variant="ghost" size="icon" onClick={onToggle}>
+          <Button variant="ghost" size="icon" onClick={onToggle} aria-label={t("close", { ns: "common" })}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -211,6 +211,7 @@ export function ChatSidebar({
                   size="icon"
                   onClick={onToggle}
                   className="h-8 w-8"
+                  aria-label={t("close", { ns: "common" })}
                 >
                   <X className="h-4 w-4" />
                 </Button>

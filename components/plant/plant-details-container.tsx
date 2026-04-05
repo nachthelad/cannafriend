@@ -19,16 +19,36 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import dynamic from "next/dynamic";
 import { PlantDetailSkeleton } from "@/components/skeletons/plant-list-skeleton";
-import { PlantDetailsHeader } from "@/components/plant/plant-details-header";
-import { PlantPhotoGallery } from "@/components/plant/plant-photo-gallery";
-import { PlantEnvironmentCard } from "@/components/plant/plant-environment-card";
-import {
-  PlantLogsSummary,
-  LastActivitiesSummary,
-} from "@/components/plant/plant-logs-summary";
-import { PlantDetails } from "@/components/plant/plant-details";
-import { MobilePlantPage } from "@/components/mobile/mobile-plant-page";
+
+// Mobile-only — don't bundle for desktop
+const MobilePlantPage = dynamic(
+  () => import("@/components/mobile/mobile-plant-page").then((m) => m.MobilePlantPage),
+  { ssr: false, loading: () => <PlantDetailSkeleton /> }
+);
+
+// Desktop-only — don't bundle for mobile
+const PlantDetailsHeader = dynamic(
+  () => import("@/components/plant/plant-details-header").then((m) => m.PlantDetailsHeader),
+  { ssr: false }
+);
+const PlantPhotoGallery = dynamic(
+  () => import("@/components/plant/plant-photo-gallery").then((m) => m.PlantPhotoGallery),
+  { ssr: false }
+);
+const PlantEnvironmentCard = dynamic(
+  () => import("@/components/plant/plant-environment-card").then((m) => m.PlantEnvironmentCard),
+  { ssr: false }
+);
+const PlantLogsSummary = dynamic(
+  () => import("@/components/plant/plant-logs-summary").then((m) => m.PlantLogsSummary),
+  { ssr: false }
+);
+const PlantDetails = dynamic(
+  () => import("@/components/plant/plant-details").then((m) => m.PlantDetails),
+  { ssr: false }
+);
 import {
   Card,
   CardContent,

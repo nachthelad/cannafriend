@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function LanguageSelect() {
+export function LanguageSelect({ ariaLabel }: { ariaLabel?: string }) {
   const { i18n } = useTranslation(["common"]);
   const language = i18n.language;
   const setLanguage = (lang: string) => i18n.changeLanguage(lang);
@@ -27,7 +27,7 @@ export function LanguageSelect() {
 
   return (
     <Select value={language} onValueChange={setLanguage}>
-      <SelectTrigger className="w-auto min-w-[120px]">
+      <SelectTrigger className="w-auto min-w-[120px]" aria-label={ariaLabel}>
         <SelectValue placeholder="Español" />
       </SelectTrigger>
       <SelectContent>

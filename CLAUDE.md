@@ -193,7 +193,7 @@ Consistent pattern for pages with back navigation:
       <h1 className="text-xl font-bold">{title}</h1>
       <p className="text-sm text-muted-foreground">{subtitle}</p>
     </div>
-    <Button size="icon" onClick={actionHandler}><Icon className="h-5 w-5" /></Button>
+    <Button size="icon" onClick={actionHandler} aria-label={t("actionLabel", { ns: "common" })}><Icon className="h-5 w-5" /></Button>
   </div>
 </div>
 
@@ -207,10 +207,12 @@ Consistent pattern for pages with back navigation:
       <h1 className="text-3xl font-bold">{title}</h1>
       <p className="text-muted-foreground">{subtitle}</p>
     </div>
-    <Button size="icon" onClick={actionHandler}><Icon className="h-5 w-5" /></Button>
+    <Button size="icon" onClick={actionHandler} aria-label={t("actionLabel", { ns: "common" })}><Icon className="h-5 w-5" /></Button>
   </div>
 </div>
 ```
+
+**Rule**: Icon-only buttons (`size="icon"`) must always have `aria-label`. Use `t("key", { ns: "common" })` or a descriptive string. Never leave an icon button without an accessible name.
 
 ## Commit Conventions
 
@@ -220,7 +222,7 @@ Think about **user experience impact**, not technical implementation.
 |------|----------|
 | `fix(scope)` | Solves a user-facing bug or broken experience |
 | `feat(scope)` | Adds completely new functionality |
-| `enhance(scope)` | Improves existing working feature |
+| `enhance(scope)` | Improves existing working feature (including performance improvements) |
 | `chore(scope)` | Internal changes, no user-facing impact |
 
 Examples:
@@ -228,6 +230,28 @@ Examples:
 - `fix(forms): consolidate journal entry creation to single form`
 - `feat(admin): add unified MercadoPago search functionality`
 - `chore(ci): simplify GitHub Actions workflow`
+
+### Code Splitting for Mobile/Desktop Components
+
+**Rule**: When a component is only visible on mobile (`md:hidden`) or only on desktop (`hidden md:`), use `next/dynamic` so each viewport only downloads its own chunk.
+
+```typescript
+import dynamic from "next/dynamic";
+
+// Only rendered on mobile — don't bundle for desktop
+const MobileView = dynamic(
+  () => import("@/components/mobile/mobile-view").then((m) => m.MobileView),
+  { ssr: false, loading: () => <Skeleton /> }
+);
+
+// Only rendered on desktop — don't bundle for mobile
+const DesktopTable = dynamic(
+  () => import("@/components/desktop-table").then((m) => m.DesktopTable),
+  { ssr: false }
+);
+```
+
+Use `ssr: false` since these components depend on client state (auth, Firebase). Provide a `loading` fallback on the primary viewport component to avoid layout shift.
 
 ## Common Issues
 
