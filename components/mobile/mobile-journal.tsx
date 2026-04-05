@@ -499,6 +499,7 @@ export function MobileJournal({ userId, language, mobileActions }: MobileJournal
         variant={selectedDate ? "default" : "outline"}
         onClick={() => setShowCalendar(true)}
         className="h-11 px-3"
+        aria-label={t("calendar", { ns: "common" })}
       >
         <Calendar className="h-4 w-4" aria-hidden="true" />
       </Button>
@@ -506,7 +507,7 @@ export function MobileJournal({ userId, language, mobileActions }: MobileJournal
       {/* Sort Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="h-11 px-3">
+          <Button variant="outline" className="h-11 px-3" aria-label={t("sort", { ns: "common" })}>
             {sortOrder === "asc" ? (
               <SortAsc className="h-4 w-4" aria-hidden="true" />
             ) : (

@@ -208,7 +208,7 @@ function PlantGridContent({
   if (viewMode === "list") {
     return (
       <div className="space-y-3">
-        {filtered.map((plant) => (
+        {filtered.map((plant, index) => (
           <SimplePlantCard
             key={plant.id}
             plant={plant}
@@ -216,6 +216,7 @@ function PlantGridContent({
             viewMode="list"
             variant="overlay"
             showGrowType
+            priority={index === 0}
           />
         ))}
       </div>
@@ -227,7 +228,7 @@ function PlantGridContent({
     <>
       {/* Mobile grid - 2 columns */}
       <div className="md:hidden grid grid-cols-2 gap-4">
-        {filtered.map((plant) => (
+        {filtered.map((plant, index) => (
           <SimplePlantCard
             key={plant.id}
             plant={plant}
@@ -235,6 +236,7 @@ function PlantGridContent({
             viewMode="grid"
             variant="overlay"
             showGrowType
+            priority={index === 0}
           />
         ))}
       </div>

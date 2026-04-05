@@ -22,10 +22,11 @@ export function TimezoneSelect({
   placeholder = "Select timezone",
   id,
   triggerClassName,
+  ariaLabel,
 }: TimezoneSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger id={id} className={triggerClassName}>
+      <SelectTrigger id={id} className={triggerClassName} aria-label={ariaLabel}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>

@@ -39,12 +39,13 @@ export function ResponsivePageHeader({
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Go back"
                 className="mt-0 flex-shrink-0 sm:hidden"
                 onClick={onBackClick}
                 asChild={Boolean(backHref)}
               >
                 {backHref ? (
-                  <Link href={backHref} aria-label="Go back">
+                  <Link href={backHref}>
                     <ArrowLeft className="h-5 w-5" />
                   </Link>
                 ) : (
@@ -56,12 +57,13 @@ export function ResponsivePageHeader({
               <Button
                 variant="ghost"
                 size="sm"
+                aria-label="Go back"
                 className="hidden gap-2 px-3 py-2 sm:inline-flex sm:flex-shrink-0"
                 onClick={onBackClick}
                 asChild={Boolean(backHref)}
               >
                 {backHref ? (
-                  <Link href={backHref} aria-label="Go back">
+                  <Link href={backHref}>
                     <ArrowLeft className="h-4 w-4" />
                     {desktopBackLabel ? <span>{desktopBackLabel}</span> : null}
                   </Link>

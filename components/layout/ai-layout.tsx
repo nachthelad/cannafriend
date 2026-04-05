@@ -83,7 +83,7 @@ export function AILayout({ children, onToggleSidebar }: AILayoutProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">{children}</div>
+      <main id="main-content" className="flex-1 overflow-hidden">{children}</main>
 
       {/* Mobile Bottom Navigation - Hidden on AI view to avoid clutter */}
       <div className="hidden md:block">

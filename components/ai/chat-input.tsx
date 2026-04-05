@@ -20,7 +20,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
     },
     ref,
   ) => {
-    const { t } = useTranslation(["aiAssistant"]);
+    const { t } = useTranslation(["aiAssistant", "common"]);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     // Auto-resize textarea
@@ -109,6 +109,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
               variant={value.trim() ? "default" : "secondary"}
               disabled={isLoading || !value.trim()}
               size="icon"
+              aria-label={t("send", { ns: "common" })}
               className={cn(
                 "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-[background-color,box-shadow,transform,opacity] duration-200",
                 value.trim()

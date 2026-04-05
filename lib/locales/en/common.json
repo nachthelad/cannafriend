@@ -55,6 +55,8 @@
   "all": "All",
   "none": "None",
   "filters": "Filters",
+  "gridView": "Grid view",
+  "listView": "List view",
   "activeFilters": "Active filters",
   "clearAll": "Clear All",
   "ascending": "Ascending",

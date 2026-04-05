@@ -978,6 +978,7 @@ export function MobilePlantPage({
             src={allImages[currentImageIndex]}
             alt={plant.name}
             fill
+            priority
             className="object-cover cursor-pointer"
             onClick={() => setShowFullImage(true)}
           />
@@ -1132,6 +1133,7 @@ export function MobilePlantPage({
                     type="button"
                     className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center"
                     onClick={(e) => e.stopPropagation()}
+                    aria-label={t("photos.deletePhoto", { ns: "plants" })}
                   >
                     <Trash2 className="h-5 w-5 text-white" />
                   </button>

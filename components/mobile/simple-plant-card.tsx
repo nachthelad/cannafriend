@@ -20,6 +20,7 @@ export function SimplePlantCard({
   hideSeedType = false,
   aspectRatio,
   className,
+  priority = false,
 }: SimplePlantCardProps) {
   const { t } = useTranslation(["plants", "common"]);
   const isOverlay = variant === "overlay";
@@ -42,6 +43,7 @@ export function SimplePlantCard({
               src={plant.coverPhoto}
               alt={plant.name}
               fill
+              priority={priority}
               className="object-cover rounded-l-lg"
             />
           ) : plant.photos && plant.photos.length > 0 ? (
@@ -49,6 +51,7 @@ export function SimplePlantCard({
               src={plant.photos[0]}
               alt={plant.name}
               fill
+              priority={priority}
               className="object-cover rounded-l-lg"
             />
           ) : (
@@ -60,9 +63,9 @@ export function SimplePlantCard({
 
         {/* Plant Info */}
         <div className="flex-1 p-4 flex flex-col justify-center">
-          <h3 className="font-semibold text-base truncate mb-1">
+          <p className="font-semibold text-base truncate mb-1">
             {plant.name}
-          </h3>
+          </p>
           <div className="flex flex-wrap items-center gap-2">
             <Badge
               variant="secondary"
@@ -121,6 +124,7 @@ export function SimplePlantCard({
             src={plant.coverPhoto}
             alt={plant.name}
             fill
+            priority={priority}
             className="object-cover"
           />
         ) : plant.photos && plant.photos.length > 0 ? (
@@ -128,6 +132,7 @@ export function SimplePlantCard({
             src={plant.photos[0]}
             alt={plant.name}
             fill
+            priority={priority}
             className="object-cover"
           />
         ) : (
@@ -144,9 +149,9 @@ export function SimplePlantCard({
           isOverlay && "p-2 backdrop-blur-[1px]"
         )}
       >
-        <h3 className="text-white font-semibold text-sm mb-1 leading-tight">
+        <p className="text-white font-semibold text-sm mb-1 leading-tight">
           {plant.name}
-        </h3>
+        </p>
         <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-2">
           {!hideSeedType && (
             <Badge

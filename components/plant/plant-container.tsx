@@ -106,6 +106,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
           size="sm"
           onClick={() => setShowFilters(true)}
           className="relative h-11 px-3"
+          aria-label={t("filters", { ns: "common" })}
         >
           <Filter className="h-4 w-4" />
           {activeFiltersCount > 0 && (
@@ -124,6 +125,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
           size="sm"
           onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
           className="h-11 px-3"
+          aria-label={viewMode === "grid" ? t("listView", { ns: "common" }) : t("gridView", { ns: "common" })}
         >
           {viewMode === "grid" ? (
             <List className="h-4 w-4" />
@@ -323,6 +325,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
             size="sm"
             onClick={() => setViewMode("grid")}
             className="h-8 w-8 p-0"
+            aria-label={t("gridView", { ns: "common" })}
           >
             <Grid3X3 className="h-4 w-4" />
           </Button>
@@ -331,6 +334,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
             size="sm"
             onClick={() => setViewMode("list")}
             className="h-8 w-8 p-0"
+            aria-label={t("listView", { ns: "common" })}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -402,7 +406,7 @@ function PlantContainerContent({ userId }: PlantContainerProps) {
           </Button>
         }
         mobileActions={
-          <Button size="icon" asChild>
+          <Button size="icon" asChild aria-label={t("addPlant", { ns: "dashboard" })}>
             <Link href={ROUTE_PLANTS_NEW}>
               <Plus className="h-5 w-5" />
             </Link>
