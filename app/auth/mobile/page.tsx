@@ -14,6 +14,14 @@ export default function MobileAuthPage() {
     setStatus("loading");
     setErrorMsg("");
     try {
+      // The native app passes its own redirect URI as a query param so we
+      // send it back to the right scheme:
+      //   Expo Go build  → exp://192.168.x.x:8081/--/auth
+      //   Production app → cannafriend://auth
+      const params = new URLSearchParams(window.location.search);
+      const redirectBase =
+        params.get("redirect") ?? "cannafriend://auth";
+
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
@@ -31,11 +39,10 @@ export default function MobileAuthPage() {
       const { customToken } = await res.json();
 
       setStatus("success");
-      // Hand off to the native app via deep link.
-      // openAuthSessionAsync on iOS intercepts this redirect; on Android the
-      // system fires it as an intent and the Linking listener in _layout.tsx
-      // handles it.
-      window.location.href = `cannafriend://auth?ct=${encodeURIComponent(customToken)}`;
+      // Redirect back to the app. openAuthSessionAsync intercepts this on
+      // iOS; on Android the Linking listener in _layout.tsx handles it.
+      const sep = redirectBase.includes("?") ? "&" : "?";
+      window.location.href = `${redirectBase}${sep}ct=${encodeURIComponent(customToken)}`;
     } catch (err: any) {
       console.error("[mobile-auth]", err);
       setErrorMsg(err.message ?? "Error al iniciar sesión");
