@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: block meta-questions about rules and strengthen system prompt — 2026-04-25
+
 - [MINOR]: merge remote dev — 2026-04-04
 - [MID]: fix image mime types and include images in gemini chat history — 2026-04-04
 

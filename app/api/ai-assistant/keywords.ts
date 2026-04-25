@@ -256,3 +256,33 @@ export function isContextuallyOnTopic(messages: Array<{ content: string }>): boo
 
   return CONTEXT_KEYWORDS.some((keyword) => conversationText.includes(keyword));
 }
+
+/**
+ * Detect questions about the assistant's own rules, instructions, or capabilities.
+ * These are always refused regardless of conversation context.
+ */
+export function isMetaQuestion(text: string): boolean {
+  const t = (text || "").toLowerCase();
+  const patterns = [
+    // Spanish — asking about rules/instructions
+    /tus\s+(reglas?|instrucciones?|limitaciones?|restricciones?|normas?|directrices?)/,
+    // Spanish — asking what the bot can/cannot do
+    /qu[eé]\s+(pod[eé]s|pued[ae]s|est[áa]s?\s+autorizado|ten[eé]s?\s+permitido)/,
+    /qu[eé]\s+cosas?\s+(pod[eé]s?|pued[ae]s?)\s+(hacer|responder|contestar|decir)/,
+    /qu[eé]\s+(te\s+)?(permite|dejan|está\s+permitido|podés\s+hacer)/,
+    /cu[aá]les?\s+son\s+tus\s+(reglas?|instrucciones?|l[ií]mites?)/,
+    /para\s+qu[eé]\s+(est[áa]s|sirv[eé]s|fuiste\s+programado)/,
+    /c[oó]mo\s+(te\s+)?(programaron|configuraron|entrenaron)/,
+    // English — asking about rules/instructions
+    /your\s+(rules?|instructions?|limitations?|restrictions?|guidelines?|prompt|configuration|training)/,
+    /what\s+(can|are|were)\s+you\s+(do|doing|allowed|permitted|trained|programmed|designed)/,
+    /what\s+are\s+your\s+(rules?|instructions?|limits?|restrictions?|guidelines?)/,
+    /what\s+(things?\s+)?(can|do)\s+you\s+(do|answer|respond|say)/,
+    /what\s+are\s+you\s+(allowed|supposed|designed|built|made)\s+to/,
+    /how\s+were\s+you\s+(trained|programmed|configured|built)/,
+    // Universal — system prompt
+    /system\s*prompt/,
+    /prompt\s+del?\s+sistema/,
+  ];
+  return patterns.some((p) => p.test(t));
+}
