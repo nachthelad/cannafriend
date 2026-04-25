@@ -24,7 +24,7 @@ import {
 import { usePremium } from "@/hooks";
 import { Brain } from "lucide-react";
 import Logo from "@/components/common/logo";
-import DarkModeLogo from "@/components/common/darkmode-logo";
+import ThemeLogo from "@/components/common/theme-logo";
 import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -138,7 +138,7 @@ export function Layout({ children }: LayoutProps) {
             href={ROUTE_DASHBOARD}
             className="flex items-center gap-2 font-semibold"
           >
-            <DarkModeLogo size={20} />
+            <ThemeLogo size={28} />
             <span className="text-xl">{t("app.name", { ns: "common" })}</span>
             {isPremium && (
               <span className="px-2 py-0.5 text-xs font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
