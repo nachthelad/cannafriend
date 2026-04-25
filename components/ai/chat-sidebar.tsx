@@ -13,7 +13,7 @@ import {
   SquarePen,
   Search as SearchIcon,
 } from "lucide-react";
-import DarkModeLogo from "@/components/common/darkmode-logo";
+import ThemeLogo from "@/components/common/theme-logo";
 import ChatListItem from "@/components/ai/chat-list-item";
 import { cn } from "@/lib/utils";
 import {
@@ -99,7 +99,7 @@ export function ChatSidebar({
       {/* Header */}
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
-          <DarkModeLogo size={24} className="ml-1.5" />
+          <ThemeLogo size={24} className="ml-1.5" />
           <Button variant="ghost" size="icon" onClick={onToggle} aria-label={t("close", { ns: "common" })}>
             <X className="h-4 w-4" />
           </Button>
@@ -205,7 +205,7 @@ export function ChatSidebar({
           <div className="flex items-center justify-between">
             {isOpen ? (
               <>
-                <DarkModeLogo size={22} className="flex-shrink-0 ml-1.5" />
+                <ThemeLogo size={22} className="flex-shrink-0 ml-1.5" />
                 <Button
                   variant="ghost"
                   size="icon"

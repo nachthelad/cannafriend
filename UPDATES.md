@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: add white logo PNG for use on green backgrounds — 2026-04-25
 - [MID]: replace old logo with new logo across all webapp assets — 2026-04-25
 - [MINOR]: block meta-questions about rules and strengthen system prompt — 2026-04-25
 

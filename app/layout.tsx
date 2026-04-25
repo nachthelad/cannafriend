@@ -56,8 +56,7 @@ export const metadata: Metadata = {
       },
       {
         media: "(prefers-color-scheme: dark)",
-        url: "/favicon-96x96.png",
-        sizes: "96x96",
+        url: "/logo-white.png",
         type: "image/png",
       },
     ],
@@ -129,6 +128,12 @@ export default function RootLayout({
           type="image/svg+xml"
           href="/favicon.svg"
           media="(prefers-color-scheme: light)"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/logo-white.png"
+          media="(prefers-color-scheme: dark)"
         />
         <script
           dangerouslySetInnerHTML={{

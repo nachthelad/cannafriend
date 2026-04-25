@@ -3,7 +3,7 @@
 import type { LogoProps } from "@/types/common";
 import { cn } from "@/lib/utils";
 
-const DARK_MODE_LOGO_SRC = "/favicon-96x96.png";
+const DARK_MODE_LOGO_SRC = "/logo-white.png";
 
 function getSizeStyle(size?: number | string) {
   if (size === undefined) return undefined;
