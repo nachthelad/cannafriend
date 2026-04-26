@@ -296,8 +296,11 @@ export async function POST(req: NextRequest) {
     const onTopic = !metaQuestion && (latestHasImages || directMatch || contextMatch);
 
     if (!onTopic) {
-      const refusal =
-        "Solo puedo responder preguntas sobre cannabis (cultivo o consumo). Por favor, reformulá tu consulta relacionada al tema.";
+      const spanishPattern = /\b(como|cómo|qué|que|cuándo|cuando|por|para|de|la|el|en|un|una|con|del|al|se|lo|le|es|son|fue|hay|tiene|tengo|quiero|saber|ayuda|hola)\b/i;
+      const isSpanish = spanishPattern.test(latestMessage.content || "");
+      const refusal = isSpanish
+        ? "Solo puedo responder preguntas sobre cannabis (cultivo o consumo). Por favor, reformulá tu consulta relacionada al tema."
+        : "I can only answer questions about cannabis (cultivation or consumption). Please rephrase your question to be cannabis-related.";
       const currentSessionId =
         sessionId ||
         `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
