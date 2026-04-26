@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: regenerate logo-white.png with tight crop to match light mode logo size — 2026-04-26
 - [MINOR]: use logo-mark.svg (no background) for inline Logo component, keeping favicon.svg for browser tabs — 2026-04-26
 - [MINOR]: increase favicon logo size by cropping tight to content bounds — 2026-04-26
 - [MID]: favicon with white rounded background for better tab visibility — 2026-04-26
