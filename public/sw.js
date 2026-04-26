@@ -1,6 +1,9 @@
 /* global workbox */
 /* eslint-disable no-undef */
 
+// Cache version — increment this on each production deploy to force SW refresh
+const CACHE_VERSION = "v10";
+
 // Workbox from CDN
 importScripts(
   "https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js"
@@ -92,13 +95,11 @@ const { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } =
 const { ExpirationPlugin } = workbox.expiration;
 const { BackgroundSyncPlugin } = workbox.backgroundSync;
 
-// Images (same-origin and Firebase Storage)
+// Firebase Storage images → CacheFirst (URLs are unique per upload, safe to cache long)
 registerRoute(
-  ({ request, url }) =>
-    request.destination === "image" ||
-    url.hostname === "firebasestorage.googleapis.com",
+  ({ url }) => url.hostname === "firebasestorage.googleapis.com",
   new CacheFirst({
-    cacheName: "images-cache",
+    cacheName: `firebase-images-${CACHE_VERSION}`,
     plugins: [
       new ExpirationPlugin({
         maxEntries: 200,
@@ -108,11 +109,28 @@ registerRoute(
   })
 );
 
-// Next static assets
+// Same-origin images (favicon, logos, public assets) → StaleWhileRevalidate
+// so updates are picked up on the next visit after a deploy
+registerRoute(
+  ({ request, url }) =>
+    request.destination === "image" &&
+    url.hostname === self.location.hostname,
+  new StaleWhileRevalidate({
+    cacheName: `images-${CACHE_VERSION}`,
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 100,
+        maxAgeSeconds: 7 * 24 * 60 * 60,
+      }),
+    ],
+  })
+);
+
+// Next static assets (content-hashed URLs → safe to cache forever)
 registerRoute(
   ({ url }) => url.pathname.startsWith("/_next/static/"),
   new CacheFirst({
-    cacheName: "next-static-cache",
+    cacheName: `next-static-${CACHE_VERSION}`,
     plugins: [
       new ExpirationPlugin({
         maxEntries: 200,
@@ -130,7 +148,7 @@ registerRoute(
   ({ url, request }) =>
     (url.pathname.startsWith("/api/") && url.pathname !== "/api/version") ||
     (request.destination === "document" && url.pathname.endsWith(".json")),
-  new StaleWhileRevalidate({ cacheName: "api-json-cache" })
+  new StaleWhileRevalidate({ cacheName: `api-json-${CACHE_VERSION}` })
 );
 
 // Translations JSON (any JSON under /locales or /lib/locales)
@@ -139,7 +157,7 @@ registerRoute(
     url.pathname.includes("/locales/") ||
     url.pathname.includes("/lib/locales/"),
   new StaleWhileRevalidate({
-    cacheName: "i18n-cache",
+    cacheName: `i18n-${CACHE_VERSION}`,
     plugins: [
       new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 24 * 60 * 60 }),
     ],
@@ -149,7 +167,7 @@ registerRoute(
 // HTML navigations: Network-first with offline fallback
 registerRoute(
   ({ request }) => request.mode === "navigate",
-  new NetworkFirst({ cacheName: "pages-cache" })
+  new NetworkFirst({ cacheName: `pages-${CACHE_VERSION}` })
 );
 
 // Catch handler for failed navigations -> offline

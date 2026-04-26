@@ -3,7 +3,7 @@
 import type { LogoProps, LogoVariant } from "@/types/common";
 import { cn } from "@/lib/utils";
 
-const LOGO_SRC = "/favicon.svg";
+const LOGO_SRC = "/logo-mark.svg";
 
 function getSizeStyle(size?: number | string) {
   if (size === undefined) return undefined;
