@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: use logo-mark.svg (no background) for inline Logo component, keeping favicon.svg for browser tabs — 2026-04-26
 - [MINOR]: increase favicon logo size by cropping tight to content bounds — 2026-04-26
 - [MID]: favicon with white rounded background for better tab visibility — 2026-04-26
 - [MID]: replace emoji logo with new SVG logo on mobile auth page — 2026-04-26
