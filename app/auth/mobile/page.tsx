@@ -81,19 +81,11 @@ export default function MobileAuthPage() {
       >
         {/* Logo */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-          <div
-            style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "14px",
-              backgroundColor: "#2E7D32",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ fontSize: "28px" }}>🌿</span>
-          </div>
+          <img
+            src="/favicon.svg"
+            alt="Cannafriend"
+            style={{ width: "72px", height: "72px", objectFit: "contain" }}
+          />
           <span
             style={{
               fontWeight: 700,
