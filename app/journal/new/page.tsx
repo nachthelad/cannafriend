@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,19 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { useErrorHandler } from "@/hooks/use-error-handler";
 import { Layout } from "@/components/layout";
-import {
-  Calendar,
-  AlertCircle,
-  AlertTriangle,
-  ArrowRight,
-  Copy,
-} from "lucide-react";
+import { Calendar } from "lucide-react";
 import { ROUTE_DASHBOARD, ROUTE_JOURNAL } from "@/lib/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -38,7 +30,6 @@ import {
   addDoc,
   getDocs,
   query,
-  updateDoc,
   writeBatch,
   doc,
 } from "firebase/firestore";
@@ -52,11 +43,11 @@ import {
 import {
   LOG_TYPES,
   LOG_TYPE_OPTIONS,
+  WATERING_METHODS,
   WATERING_METHOD_OPTIONS,
+  TRAINING_METHODS,
   TRAINING_METHOD_OPTIONS,
   type LogType,
-  type WateringMethod,
-  type TrainingMethod,
 } from "@/lib/log-config";
 import { buildLogsPath, buildEnvironmentPath } from "@/lib/firebase-config";
 import { plantDoc, plantsCol } from "@/lib/paths";
@@ -69,12 +60,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
-import { AmountWithUnit } from "@/components/common/amount-with-unit";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { PLANT_STATUS } from "@/lib/plant-config";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { MultiPlantSelector } from "@/components/plant/multi-plant-selector";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import { WorkbenchSurface } from "@/components/common/desktop-form-workbench";
 import { toast } from "sonner";
 
 function JournalFormSkeleton() {
@@ -89,6 +80,44 @@ function JournalFormSkeleton() {
         <Skeleton className="h-11 w-full rounded-lg" />
         <Skeleton className="h-11 w-full rounded-lg" />
       </div>
+    </div>
+  );
+}
+
+type MethodOption = {
+  value: string;
+  label: string;
+};
+
+function SelectionChips({
+  options,
+  value,
+  onChange,
+  getLabel,
+}: {
+  options: readonly MethodOption[];
+  value?: string;
+  onChange: (value: string) => void;
+  getLabel: (label: string) => string;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((option) => {
+        const isSelected = value === option.value;
+
+        return (
+          <Button
+            key={option.value}
+            type="button"
+            variant={isSelected ? "default" : "outline"}
+            size="sm"
+            className="h-9 rounded-full px-4"
+            onClick={() => onChange(option.value)}
+          >
+            {getLabel(option.label)}
+          </Button>
+        );
+      })}
     </div>
   );
 }
@@ -260,7 +289,6 @@ function NewJournalPageContent() {
     setValue,
     getValues,
     formState: { errors },
-    reset,
   } = useForm<LogFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -319,14 +347,21 @@ function NewJournalPageContent() {
           amount: "",
           unit: "ml",
           note: "",
-          method: "",
-          trainingMethod: "",
+          method: WATERING_METHODS.TOP_WATERING,
+          trainingMethod: TRAINING_METHODS.TOPPING,
           npk: "",
           temperature: "",
           humidity: "",
           ph: "",
           light: "",
           lightSchedule: "",
+        };
+      } else {
+        newLogs[id] = {
+          ...newLogs[id],
+          method: newLogs[id].method || WATERING_METHODS.TOP_WATERING,
+          trainingMethod:
+            newLogs[id].trainingMethod || TRAINING_METHODS.TOPPING,
         };
       }
     });
@@ -465,29 +500,51 @@ function NewJournalPageContent() {
         onSubmit={handleSubmit(onSubmit as any, (errors) => {
           console.error("Form validation errors:", errors);
         })}
-        className="max-w-4xl px-4 md:px-6 pb-20 mx-auto"
+        className="mx-auto max-w-5xl px-4 pb-8 md:px-6"
       >
-        <div className="space-y-6">
-          {/* 1. Plant Selection */}
-          <div className="space-y-3">
-            <Label className="text-base font-semibold">
-              {t("logForm.plant", { ns: "journal" })}
-            </Label>
-            <Controller
-              control={control}
-              name="selectedPlantIds"
-              render={({ field }) => (
-                <MultiPlantSelector
-                  plants={plants}
-                  selectedPlantIds={field.value || []}
-                  onSelectionChange={(ids) =>
-                    setValue("selectedPlantIds", ids, {
-                      shouldValidate: !!errors.selectedPlantIds,
-                    })
-                  }
-                />
-              )}
-            />
+        <WorkbenchSurface className="space-y-6 xl:bg-card/80">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label>{t("logForm.plant", { ns: "journal" })}</Label>
+            </div>
+
+            <div className="xl:hidden">
+              <Controller
+                control={control}
+                name="selectedPlantIds"
+                render={({ field }) => (
+                  <MultiPlantSelector
+                    plants={plants}
+                    selectedPlantIds={field.value || []}
+                    onSelectionChange={(ids) =>
+                      setValue("selectedPlantIds", ids, {
+                        shouldValidate: !!errors.selectedPlantIds,
+                      })
+                    }
+                  />
+                )}
+              />
+            </div>
+
+            <div className="hidden xl:block">
+              <Controller
+                control={control}
+                name="selectedPlantIds"
+                render={({ field }) => (
+                  <MultiPlantSelector
+                    plants={plants}
+                    selectedPlantIds={field.value || []}
+                    onSelectionChange={(ids) =>
+                      setValue("selectedPlantIds", ids, {
+                        shouldValidate: !!errors.selectedPlantIds,
+                      })
+                    }
+                    variant="desktop-grid"
+                  />
+                )}
+              />
+            </div>
+
             {errors.selectedPlantIds && (
               <p className="text-sm text-destructive">
                 {errors.selectedPlantIds.message}
@@ -495,18 +552,19 @@ function NewJournalPageContent() {
             )}
           </div>
 
-          {/* 2. Common Details: Type & Date */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 border-t border-border/60 pt-6 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>{t("logForm.type", { ns: "journal" })}</Label>
               <Select
                 onValueChange={(val) =>
-                  setValue("logType", val as LogType, { shouldValidate: true })
+                  setValue("logType", val as LogType, {
+                    shouldValidate: true,
+                  })
                 }
                 value={logType}
                 disabled={selectedPlantIds.length === 0}
               >
-                <SelectTrigger>
+                <SelectTrigger className="min-h-[52px] rounded-2xl xl:bg-background/70">
                   <SelectValue
                     placeholder={t("logForm.selectType", { ns: "journal" })}
                   />
@@ -533,13 +591,15 @@ function NewJournalPageContent() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "min-h-[52px] w-full justify-start rounded-2xl text-left font-normal xl:bg-background/70",
                       !date && "text-muted-foreground"
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4 shrink-0" />
                     <span className="truncate">
-                      {date ? formatDateObjectWithLocale(date) : "Select date"}
+                      {date
+                        ? formatDateObjectWithLocale(date)
+                        : t("logForm.selectDate", { ns: "journal" })}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -555,9 +615,8 @@ function NewJournalPageContent() {
             </div>
           </div>
 
-          {/* 3. Dynamic Inputs */}
           {logType && selectedPlantIds.length > 0 && (
-            <div className="space-y-6 border-t pt-6">
+            <div className="space-y-6 border-t border-border/60 pt-6">
               {/* Per-Plant Inputs Section */}
               {(logType === LOG_TYPES.WATERING ||
                 logType === LOG_TYPES.FEEDING) && (
@@ -569,7 +628,7 @@ function NewJournalPageContent() {
                       return (
                         <div
                           key={plantId}
-                          className="flex flex-col gap-3 p-3 border rounded-lg bg-card"
+                          className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
                         >
                           <div className="flex items-end gap-3">
                             <div className="flex-1 space-y-2">
@@ -588,7 +647,7 @@ function NewJournalPageContent() {
                                         `plantLogs.${plantId}.amount`
                                       )}
                                       className={cn(
-                                        "pr-8",
+                                        "min-h-[48px] rounded-2xl pr-8 xl:bg-background/70",
                                         errors.plantLogs?.[plantId]?.amount &&
                                           "border-destructive"
                                       )}
@@ -609,65 +668,6 @@ function NewJournalPageContent() {
                                   )}
                                 </div>
 
-                                {/* Method Selector for Watering */}
-                                {logType === LOG_TYPES.WATERING && (
-                                  <div className="w-full sm:w-[180px]">
-                                    <Controller
-                                      control={control}
-                                      name={`plantLogs.${plantId}.method`}
-                                      render={({ field }) => (
-                                        <Select
-                                          onValueChange={(value) => {
-                                            field.onChange(value);
-                                            // Trigger validation to clear errors
-                                            setValue(
-                                              `plantLogs.${plantId}.method`,
-                                              value,
-                                              {
-                                                shouldValidate: true,
-                                              }
-                                            );
-                                          }}
-                                          value={field.value || ""}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue
-                                              placeholder={t(
-                                                "logForm.selectMethod",
-                                                {
-                                                  ns: "journal",
-                                                }
-                                              )}
-                                            />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            {WATERING_METHOD_OPTIONS.map(
-                                              (opt) => (
-                                                <SelectItem
-                                                  key={opt.value}
-                                                  value={opt.value}
-                                                >
-                                                  {t(opt.label, {
-                                                    ns: "journal",
-                                                  })}
-                                                </SelectItem>
-                                              )
-                                            )}
-                                          </SelectContent>
-                                        </Select>
-                                      )}
-                                    />
-                                    {errors.plantLogs?.[plantId]?.method && (
-                                      <p className="text-xs text-destructive mt-1">
-                                        {
-                                          errors.plantLogs[plantId]?.method
-                                            ?.message
-                                        }
-                                      </p>
-                                    )}
-                                  </div>
-                                )}
-
                                 {/* NPK for Feeding */}
                                 {logType === LOG_TYPES.FEEDING && (
                                   <div className="w-full sm:w-[180px]">
@@ -675,11 +675,54 @@ function NewJournalPageContent() {
                                       placeholder={t("logForm.npkPlaceholder", {
                                         ns: "journal",
                                       })}
+                                      className="min-h-[48px] rounded-2xl xl:bg-background/70"
                                       {...register(`plantLogs.${plantId}.npk`)}
                                     />
                                   </div>
                                 )}
                               </div>
+
+                              {logType === LOG_TYPES.WATERING && (
+                                <div className="space-y-2">
+                                  <Label className="text-xs text-muted-foreground">
+                                    {t("logForm.method", { ns: "journal" })}
+                                  </Label>
+                                  <Controller
+                                    control={control}
+                                    name={`plantLogs.${plantId}.method`}
+                                    render={({ field }) => (
+                                      <SelectionChips
+                                        options={WATERING_METHOD_OPTIONS}
+                                        value={
+                                          field.value ||
+                                          WATERING_METHODS.TOP_WATERING
+                                        }
+                                        onChange={(value) => {
+                                          field.onChange(value);
+                                          setValue(
+                                            `plantLogs.${plantId}.method`,
+                                            value,
+                                            {
+                                              shouldValidate: true,
+                                            }
+                                          );
+                                        }}
+                                        getLabel={(label) =>
+                                          t(label, { ns: "journal" })
+                                        }
+                                      />
+                                    )}
+                                  />
+                                  {errors.plantLogs?.[plantId]?.method && (
+                                    <p className="text-xs text-destructive">
+                                      {
+                                        errors.plantLogs[plantId]?.method
+                                          ?.message
+                                      }
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -689,7 +732,7 @@ function NewJournalPageContent() {
                 </div>
               )}
 
-              {/* Training Section - Changed to Select */}
+              {/* Training Section */}
               {logType === LOG_TYPES.TRAINING && (
                 <div className="space-y-4">
                   <div className="grid gap-4">
@@ -699,7 +742,7 @@ function NewJournalPageContent() {
                       return (
                         <div
                           key={plantId}
-                          className="space-y-2 p-3 border rounded-lg bg-card"
+                          className="space-y-3 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
                         >
                           <Label className="text-sm font-medium">
                             {plant.name}
@@ -708,10 +751,13 @@ function NewJournalPageContent() {
                             control={control}
                             name={`plantLogs.${plantId}.trainingMethod`}
                             render={({ field }) => (
-                              <Select
-                                onValueChange={(value) => {
+                              <SelectionChips
+                                options={TRAINING_METHOD_OPTIONS}
+                                value={
+                                  field.value || TRAINING_METHODS.TOPPING
+                                }
+                                onChange={(value) => {
                                   field.onChange(value);
-                                  // Trigger validation to clear errors
                                   setValue(
                                     `plantLogs.${plantId}.trainingMethod`,
                                     value,
@@ -720,26 +766,10 @@ function NewJournalPageContent() {
                                     }
                                   );
                                 }}
-                                value={field.value || ""}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue
-                                    placeholder={t("logForm.selectMethod", {
-                                      ns: "journal",
-                                    })}
-                                  />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {TRAINING_METHOD_OPTIONS.map((option) => (
-                                    <SelectItem
-                                      key={option.value}
-                                      value={option.value}
-                                    >
-                                      {t(option.label, { ns: "journal" })}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                getLabel={(label) =>
+                                  t(label, { ns: "journal" })
+                                }
+                              />
                             )}
                           />
                           {errors.plantLogs?.[plantId]?.trainingMethod && (
@@ -772,6 +802,7 @@ function NewJournalPageContent() {
                         type="number"
                         step="0.1"
                         placeholder="24.0"
+                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
@@ -786,6 +817,7 @@ function NewJournalPageContent() {
                         type="number"
                         step="1"
                         placeholder="60"
+                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
@@ -800,6 +832,7 @@ function NewJournalPageContent() {
                         type="number"
                         step="0.1"
                         placeholder="6.2"
+                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
@@ -814,6 +847,7 @@ function NewJournalPageContent() {
                         type="number"
                         step="1"
                         placeholder="400"
+                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
@@ -847,6 +881,7 @@ function NewJournalPageContent() {
                     </Label>
                     <Input
                       placeholder="12/12"
+                      className="min-h-[48px] rounded-2xl xl:bg-background/70"
                       onChange={(e) => {
                         const val = e.target.value;
                         selectedPlantIds.forEach((id) =>
@@ -876,15 +911,15 @@ function NewJournalPageContent() {
                   If we want per-plant notes for them, we need to render the loop.
               */}
               {/* Unified Notes Section (Bottom) */}
-              <div
-                className={cn(
-                  "space-y-4",
-                  logType !== LOG_TYPES.TRANSPLANT &&
-                    logType !== LOG_TYPES.END_CYCLE &&
-                    logType !== LOG_TYPES.NOTE &&
-                    "pt-4 border-t mt-4"
-                )}
-              >
+                <div
+                  className={cn(
+                    "space-y-4",
+                    logType !== LOG_TYPES.TRANSPLANT &&
+                      logType !== LOG_TYPES.END_CYCLE &&
+                      logType !== LOG_TYPES.NOTE &&
+                      "mt-4 border-t pt-4 xl:mt-2"
+                  )}
+                >
                 <div className="flex items-center justify-between">
                   <Label>{t("logForm.notes", { ns: "journal" })}</Label>
                   <div className="flex items-center gap-2">
@@ -910,6 +945,7 @@ function NewJournalPageContent() {
                       placeholder={t("logForm.notesPlaceholder", {
                         ns: "journal",
                       })}
+                      className="min-h-[120px] rounded-2xl xl:bg-background/70"
                       {...register("globalNote")}
                     />
                     {errors.globalNote && (
@@ -926,7 +962,7 @@ function NewJournalPageContent() {
                       return (
                         <div
                           key={plantId}
-                          className="space-y-2 p-3 border rounded-lg bg-card"
+                          className="space-y-2 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
                         >
                           <Label className="text-sm font-medium">
                             {plant.name}
@@ -936,7 +972,7 @@ function NewJournalPageContent() {
                               ns: "journal",
                             })}
                             {...register(`plantLogs.${plantId}.note`)}
-                            className="resize-none h-20"
+                            className="h-24 resize-none rounded-2xl xl:bg-background/70"
                           />
                         </div>
                       );
@@ -946,10 +982,20 @@ function NewJournalPageContent() {
               </div>
             </div>
           )}
+        </WorkbenchSurface>
 
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-[48px] rounded-2xl sm:min-w-[160px]"
+            onClick={() => router.back()}
+          >
+            {t("cancel", { ns: "common" })}
+          </Button>
           <Button
             type="submit"
-            className="w-full"
+            className="min-h-[48px] rounded-2xl px-8 sm:min-w-[220px]"
             size="lg"
             disabled={isLoading}
           >
