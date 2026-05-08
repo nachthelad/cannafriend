@@ -47,7 +47,44 @@ import {
   type LightSchedule,
 } from "@/lib/plant-config";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
+import {
+  WorkbenchSurface,
+} from "@/components/common/desktop-form-workbench";
 import { toast } from "sonner";
+
+function DesktopChoiceTile({
+  label,
+  selected,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  selected: boolean;
+  htmlFor: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Label
+      htmlFor={htmlFor}
+      className={cn(
+        "flex min-h-[72px] cursor-pointer flex-col items-start justify-center gap-2 rounded-2xl border px-4 py-4 transition-[border-color,background-color,box-shadow,transform]",
+        selected
+          ? "border-primary/60 bg-primary/10 shadow-[0_18px_40px_-28px_rgba(74,222,128,0.8)]"
+          : "border-border/70 bg-card/50 hover:border-primary/30 hover:bg-card"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        {selected ? <Check className="h-4 w-4 text-primary" /> : null}
+        <span className="text-sm font-semibold text-foreground">{label}</span>
+      </div>
+      {children ? (
+        <span className="text-xs leading-relaxed text-muted-foreground">
+          {children}
+        </span>
+      ) : null}
+    </Label>
+  );
+}
 
 export default function NewPlantPage() {
   const { t, i18n } = useTranslation(["plants", "common", "validation"]);
@@ -79,7 +116,6 @@ export default function NewPlantPage() {
       seedBank: "",
     },
   });
-  const name = watch("name");
   const seedType = watch("seedType");
   const growType = watch("growType");
   const lightSchedule = watch("lightSchedule");
@@ -155,308 +191,288 @@ export default function NewPlantPage() {
         onBackClick={() => router.push(ROUTE_PLANTS)}
       />
 
-      {/* Form */}
       <form
         onSubmit={rhfHandleSubmit(onSubmit)}
-        className="max-w-2xl px-4 md:px-6"
+        className="mx-auto max-w-5xl px-4 pb-8 md:px-6"
       >
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label htmlFor="name" className="text-base font-medium">
-              {t("newPlant.name", { ns: "plants" })}
-            </label>
-            <Input
-              id="name"
-              autoComplete="off"
-              placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
-              className="min-h-[48px] text-base"
-              {...register("name", {
-                validate: (v) =>
-                  (v && v.trim().length > 0) ||
-                  (t("required", { ns: "validation" }) as string),
-              })}
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive">
-                {String(errors.name.message)}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label>{t("newPlant.seedType", { ns: "plants" })}</Label>
-            {/* Hidden field to register for validation */}
-            <input
-              type="hidden"
-              {...register("seedType", {
-                required: t("required", { ns: "validation" }) as string,
-              })}
-              value={seedType || ""}
-            />
-            <RadioGroup
-              value={seedType}
-              onValueChange={(value) => setValue("seedType", value as SeedType)}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div>
-                <RadioGroupItem
-                  value={SEED_TYPES.AUTOFLOWERING}
-                  id="autoflowering"
-                  className="sr-only"
-                />
-                <Label
-                  htmlFor="autoflowering"
-                  className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
-                    seedType === SEED_TYPES.AUTOFLOWERING &&
-                      "border-primary bg-primary/5"
-                  )}
-                >
-                  {seedType === SEED_TYPES.AUTOFLOWERING && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-center">
-                    {t("newPlant.autoflowering", { ns: "plants" })}
-                  </span>
-                </Label>
-              </div>
-              <div>
-                <RadioGroupItem
-                  value={SEED_TYPES.PHOTOPERIODIC}
-                  id="photoperiodic"
-                  className="sr-only"
-                />
-                <Label
-                  htmlFor="photoperiodic"
-                  className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
-                    seedType === SEED_TYPES.PHOTOPERIODIC &&
-                      "border-primary bg-primary/5"
-                  )}
-                >
-                  {seedType === SEED_TYPES.PHOTOPERIODIC && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-center">
-                    {t("newPlant.photoperiodic", { ns: "plants" })}
-                  </span>
-                </Label>
-              </div>
-            </RadioGroup>
-            {errors.seedType && (
-              <p className="text-xs text-destructive">
-                {String(errors.seedType.message)}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label>{t("newPlant.growType", { ns: "plants" })}</Label>
-            <input
-              type="hidden"
-              {...register("growType", {
-                required: t("required", { ns: "validation" }) as string,
-              })}
-              value={growType || ""}
-            />
-            <RadioGroup
-              value={growType}
-              onValueChange={(value) => setValue("growType", value as GrowType)}
-              className="grid grid-cols-2 gap-4"
-            >
-              <div>
-                <RadioGroupItem
-                  value={GROW_TYPES.INDOOR}
-                  id="indoor"
-                  className="sr-only"
-                />
-                <Label
-                  htmlFor="indoor"
-                  className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
-                    growType === GROW_TYPES.INDOOR &&
-                      "border-primary bg-primary/5"
-                  )}
-                >
-                  {growType === GROW_TYPES.INDOOR && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-center">
-                    {t("newPlant.indoor", { ns: "plants" })}
-                  </span>
-                </Label>
-              </div>
-              <div>
-                <RadioGroupItem
-                  value={GROW_TYPES.OUTDOOR}
-                  id="outdoor"
-                  className="sr-only"
-                />
-                <Label
-                  htmlFor="outdoor"
-                  className={cn(
-                    "flex flex-row items-center justify-center gap-2 rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer transition-[border-color,background-color,color] h-full",
-                    growType === GROW_TYPES.OUTDOOR &&
-                      "border-primary bg-primary/5"
-                  )}
-                >
-                  {growType === GROW_TYPES.OUTDOOR && (
-                    <Check className="h-4 w-4 text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-center">
-                    {t("newPlant.outdoor", { ns: "plants" })}
-                  </span>
-                </Label>
-              </div>
-            </RadioGroup>
-            {errors.growType && (
-              <p className="text-xs text-destructive">
-                {String(errors.growType.message)}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-base font-medium">
-              {t("newPlant.plantingDate", { ns: "plants" })}
-            </label>
-            <div className="md:hidden">
-              <MobileDatePicker
-                selected={plantingDate}
-                onSelect={(d) => d && setPlantingDate(d)}
-                locale={t("language", { ns: "common" }) === "es" ? es : enUS}
+        <WorkbenchSurface className="space-y-6 xl:bg-card/80">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-base font-medium">
+                {t("newPlant.name", { ns: "plants" })}
+              </label>
+              <Input
+                id="name"
+                autoComplete="off"
+                placeholder={t("newPlant.namePlaceholder", { ns: "plants" })}
+                className="min-h-[52px] rounded-2xl text-base xl:bg-background/70"
+                {...register("name", {
+                  validate: (v) =>
+                    (v && v.trim().length > 0) ||
+                    (t("required", { ns: "validation" }) as string),
+                })}
               />
-            </div>
-            <div className="hidden md:block">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal min-h-[48px] text-base",
-                      !plantingDate && "text-muted-foreground"
-                    )}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {plantingDate
-                      ? formatDateObjectWithLocale(
-                          plantingDate,
-                          "PPP",
-                          i18n.language
-                        )
-                      : t("newPlant.pickDate", { ns: "plants" })}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <CalendarComponent
-                    mode="single"
-                    selected={plantingDate}
-                    onSelect={setPlantingDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {growType &&
-            seedType &&
-            requiresLightSchedule(seedType, growType) && (
-              <div className="space-y-2">
-                <Label htmlFor="lightSchedule">
-                  {t("newPlant.lightSchedule", { ns: "plants" })}
-                </Label>
-                <Input
-                  id="lightSchedule"
-                  autoComplete="off"
-                  placeholder={t("newPlant.lightSchedulePlaceholder", {
-                    ns: "plants",
-                  })}
-                  {...register("lightSchedule", {
-                    validate: (v) => {
-                      if (!v || !v.trim())
-                        return t("required", { ns: "validation" }) as string;
-                      const ok = isValidLightSchedule(v.trim());
-                      return (
-                        ok ||
-                        (t("invalidLightSchedule", {
-                          ns: "validation",
-                        }) as string)
-                      );
-                    },
-                  })}
-                />
-                {errors.lightSchedule && (
+                {errors.name && (
                   <p className="text-xs text-destructive">
-                    {String(errors.lightSchedule.message)}
+                    {String(errors.name.message)}
+                  </p>
+                )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label>{t("newPlant.photos", { ns: "plants" })}</Label>
+                <span className="text-xs text-muted-foreground">
+                  {photos.length > 0
+                    ? `${photos.length} ${t("photos.photos", { ns: "plants" })}`
+                    : t("photos.noPhotos", { ns: "plants" })}
+                </span>
+              </div>
+
+              <ImageUpload
+                onImagesChange={setPhotos}
+                maxImages={DEFAULT_MAX_IMAGES}
+                maxSizeMB={DEFAULT_MAX_SIZE_MB}
+                userId={userId ?? undefined}
+                enableDropzone
+                buttonSize="default"
+                className="xl:[&_button]:rounded-2xl xl:[&_button]:px-4"
+              />
+
+              {photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {photos.map((url, idx) => (
+                    <div
+                      key={idx}
+                      className="relative aspect-square overflow-hidden rounded-xl border border-white/8 bg-muted/40"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt={`photo ${idx + 1}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-6 xl:grid-cols-2">
+              <div className="space-y-3">
+                <Label>{t("newPlant.seedType", { ns: "plants" })}</Label>
+                <input
+                  type="hidden"
+                  {...register("seedType", {
+                    required: t("required", { ns: "validation" }) as string,
+                  })}
+                  value={seedType || ""}
+                />
+                <RadioGroup
+                  value={seedType}
+                  onValueChange={(value) =>
+                    setValue("seedType", value as SeedType)
+                  }
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                >
+                  <div>
+                    <RadioGroupItem
+                      value={SEED_TYPES.AUTOFLOWERING}
+                      id="autoflowering"
+                      className="sr-only"
+                    />
+                    <DesktopChoiceTile
+                      htmlFor="autoflowering"
+                      label={t("newPlant.autoflowering", { ns: "plants" })}
+                      selected={seedType === SEED_TYPES.AUTOFLOWERING}
+                    />
+                  </div>
+                  <div>
+                    <RadioGroupItem
+                      value={SEED_TYPES.PHOTOPERIODIC}
+                      id="photoperiodic"
+                      className="sr-only"
+                    />
+                    <DesktopChoiceTile
+                      htmlFor="photoperiodic"
+                      label={t("newPlant.photoperiodic", { ns: "plants" })}
+                      selected={seedType === SEED_TYPES.PHOTOPERIODIC}
+                    />
+                  </div>
+                </RadioGroup>
+                {errors.seedType && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.seedType.message)}
                   </p>
                 )}
               </div>
-            )}
 
-          <div className="space-y-2">
-            <label htmlFor="seedBank" className="text-base font-medium">
-              {t("newPlant.seedBank", { ns: "plants" })}
-            </label>
-            <Input
-              id="seedBank"
-              autoComplete="organization"
-              placeholder={t("newPlant.seedBankPlaceholder", { ns: "plants" })}
-              className="min-h-[48px] text-base"
-              {...register("seedBank")}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-base font-medium">
-              {t("newPlant.photos", { ns: "plants" })}
-            </label>
-            <ImageUpload
-              onImagesChange={setPhotos}
-              maxImages={DEFAULT_MAX_IMAGES}
-              maxSizeMB={DEFAULT_MAX_SIZE_MB}
-              userId={userId ?? undefined}
-            />
-            {photos.length > 0 && (
-              <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {photos.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="relative w-full aspect-square overflow-hidden rounded-md border"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={url}
-                      alt={`photo ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
+              <div className="space-y-3">
+                <Label>{t("newPlant.growType", { ns: "plants" })}</Label>
+                <input
+                  type="hidden"
+                  {...register("growType", {
+                    required: t("required", { ns: "validation" }) as string,
+                  })}
+                  value={growType || ""}
+                />
+                <RadioGroup
+                  value={growType}
+                  onValueChange={(value) =>
+                    setValue("growType", value as GrowType)
+                  }
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                >
+                  <div>
+                    <RadioGroupItem
+                      value={GROW_TYPES.INDOOR}
+                      id="indoor"
+                      className="sr-only"
+                    />
+                    <DesktopChoiceTile
+                      htmlFor="indoor"
+                      label={t("newPlant.indoor", { ns: "plants" })}
+                      selected={growType === GROW_TYPES.INDOOR}
                     />
                   </div>
-                ))}
+                  <div>
+                    <RadioGroupItem
+                      value={GROW_TYPES.OUTDOOR}
+                      id="outdoor"
+                      className="sr-only"
+                    />
+                    <DesktopChoiceTile
+                      htmlFor="outdoor"
+                      label={t("newPlant.outdoor", { ns: "plants" })}
+                      selected={growType === GROW_TYPES.OUTDOOR}
+                    />
+                  </div>
+                </RadioGroup>
+                {errors.growType && (
+                  <p className="text-xs text-destructive">
+                    {String(errors.growType.message)}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Submit Buttons */}
-          <div className="flex gap-3 pt-4 pb-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push(ROUTE_PLANTS)}
-              className="flex-1 min-h-[48px] text-base"
-            >
-              {t("cancel", { ns: "common" })}
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 min-h-[48px] text-base"
-            >
-              {isLoading
-                ? t("newPlant.loading", { ns: "plants" })
-                : t("newPlant.submit", { ns: "plants" })}
-            </Button>
-          </div>
+            <div className="grid gap-6 xl:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-base font-medium">
+                  {t("newPlant.plantingDate", { ns: "plants" })}
+                </label>
+                <div className="md:hidden">
+                  <MobileDatePicker
+                    selected={plantingDate}
+                    onSelect={(d) => d && setPlantingDate(d)}
+                    locale={
+                      t("language", { ns: "common" }) === "es" ? es : enUS
+                    }
+                  />
+                </div>
+                <div className="hidden md:block">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "min-h-[52px] w-full justify-start rounded-2xl text-left text-base font-normal xl:bg-background/70",
+                          !plantingDate && "text-muted-foreground"
+                        )}
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {plantingDate
+                          ? formatDateObjectWithLocale(
+                              plantingDate,
+                              "PPP",
+                              i18n.language
+                            )
+                          : t("newPlant.pickDate", { ns: "plants" })}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent
+                        mode="single"
+                        selected={plantingDate}
+                        onSelect={setPlantingDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="seedBank" className="text-base font-medium">
+                  {t("newPlant.seedBank", { ns: "plants" })}
+                </label>
+                <Input
+                  id="seedBank"
+                  autoComplete="organization"
+                  placeholder={t("newPlant.seedBankPlaceholder", {
+                    ns: "plants",
+                  })}
+                  className="min-h-[52px] rounded-2xl text-base xl:bg-background/70"
+                  {...register("seedBank")}
+                />
+              </div>
+            </div>
+
+            {growType &&
+              seedType &&
+              requiresLightSchedule(seedType, growType) && (
+                <div className="space-y-2">
+                  <Label htmlFor="lightSchedule">
+                    {t("newPlant.lightSchedule", { ns: "plants" })}
+                  </Label>
+                  <Input
+                    id="lightSchedule"
+                    autoComplete="off"
+                    placeholder={t("newPlant.lightSchedulePlaceholder", {
+                      ns: "plants",
+                    })}
+                    className="min-h-[52px] rounded-2xl xl:bg-background/70"
+                    {...register("lightSchedule", {
+                      validate: (v) => {
+                        if (!v || !v.trim())
+                          return t("required", { ns: "validation" }) as string;
+                        const ok = isValidLightSchedule(v.trim());
+                        return (
+                          ok ||
+                          (t("invalidLightSchedule", {
+                            ns: "validation",
+                          }) as string)
+                        );
+                      },
+                    })}
+                  />
+                  {errors.lightSchedule && (
+                    <p className="text-xs text-destructive">
+                      {String(errors.lightSchedule.message)}
+                    </p>
+                  )}
+                </div>
+                )}
+          </WorkbenchSurface>
+
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(ROUTE_PLANTS)}
+            className="min-h-[48px] rounded-2xl sm:min-w-[160px]"
+          >
+            {t("cancel", { ns: "common" })}
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="min-h-[48px] rounded-2xl px-8 sm:min-w-[220px]"
+          >
+            {isLoading
+              ? t("newPlant.loading", { ns: "plants" })
+              : t("newPlant.submit", { ns: "plants" })}
+          </Button>
         </div>
       </form>
     </Layout>
