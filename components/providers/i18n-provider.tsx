@@ -35,6 +35,7 @@ import enLanding from "@/lib/locales/en/landing.json";
 import esLanding from "@/lib/locales/es/landing.json";
 import enPremium from "@/lib/locales/en/premium.json";
 import esPremium from "@/lib/locales/es/premium.json";
+import { normalizeSupportedLocale, persistLanguagePreference } from "@/lib/language-preference";
 
 // Initialize i18n synchronously to ensure consistency
 if (typeof window === "undefined" || !i18n.isInitialized) {
@@ -105,8 +106,9 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
     // Only use browser detection on client side
     ...(typeof window !== "undefined" && {
       detection: {
-        order: ["localStorage", "htmlTag", "navigator"],
-        caches: ["localStorage"],
+        order: ["cookie", "localStorage", "htmlTag", "navigator"],
+        caches: ["localStorage", "cookie"],
+        lookupCookie: "cannafriend_lang",
       },
     }),
 
@@ -115,5 +117,18 @@ if (typeof window === "undefined" || !i18n.isInitialized) {
 }
 
 export function I18nProvider({ children }: I18nProviderProps) {
+  useEffect(() => {
+    const syncLanguagePreference = (lng: string) => {
+      persistLanguagePreference(normalizeSupportedLocale(lng));
+    };
+
+    syncLanguagePreference(i18n.language);
+    i18n.on("languageChanged", syncLanguagePreference);
+
+    return () => {
+      i18n.off("languageChanged", syncLanguagePreference);
+    };
+  }, []);
+
   return <>{children}</>;
 }

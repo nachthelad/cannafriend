@@ -8,21 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { persistLanguagePreference, type SupportedLocale } from "@/lib/language-preference";
 
 export function LanguageSelect({ ariaLabel }: { ariaLabel?: string }) {
   const { i18n } = useTranslation(["common"]);
   const language = i18n.language;
-  const setLanguage = (lang: string) => i18n.changeLanguage(lang);
-
-  const getLanguageDisplay = (lang: string) => {
-    switch (lang) {
-      case "es":
-        return "Español";
-      case "en":
-        return "English";
-      default:
-        return "Español"; // Default to Spanish
-    }
+  const setLanguage = (lang: SupportedLocale) => {
+    persistLanguagePreference(lang);
+    void i18n.changeLanguage(lang);
   };
 
   return (

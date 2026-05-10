@@ -37,7 +37,7 @@ import {
 
 import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
-import { FastLogAction } from "@/components/dashboard/fast-log-action";
+import { FastLogAction } from "@/features/product/dashboard/components/fast-log-action";
 
 export function MobileDashboard({
   plants,

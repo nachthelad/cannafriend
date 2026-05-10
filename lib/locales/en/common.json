@@ -117,17 +117,23 @@
     "title": "Privacy",
     "lastUpdated": "Last updated",
     "intro": "Introduction",
-    "introDesc": "Cannafriend helps you track cannabis growing and consumption. This policy describes what we collect, how we use it, and your choices.",
+    "introDesc": "Cannafriend is an app for tracking cannabis cultivation, consumption, and related routines. This policy is drafted primarily with reference to Argentine law and explains what data we process, why we use it, and what rights you have.",
     "collection": "Information we collect",
-    "collectionDesc": "We only collect what is necessary to provide the app. This may include:",
+    "collectionDesc": "We collect the data we need to provide the app and the information you choose to add voluntarily. This may include:",
     "data": {
       "account": "Account data: email, authentication identifiers (via Firebase Authentication).",
-      "profile": "Profile and roles (grower/consumer), preferences (language, timezone).",
+      "profile": "Profile preferences such as language and timezone, together with configuration options you choose inside the app.",
       "content": "Content you add: plants, journals, nutrients, reminders, stash items and related notes.",
       "images": "Images you upload (stored in Firebase Storage).",
       "device": "Technical data: device/browser type and usage needed to operate and secure the app.",
+      "notifications": "Push notification tokens and preferences if you choose to enable them.",
+      "analytics": "Technical events and aggregated or pseudonymized usage data used to measure performance, errors, and app or website usage.",
       "payments": "Subscription metadata handled by payment processors (Stripe/MercadoPago). We do not store full payment details.",
       "storage": "Local storage/PWA caches on your device for offline functionality."
+    },
+    "sensitive": {
+      "title": "Sensitive data and use caution",
+      "desc": "We do not request sensitive data as a condition of using the service. However, some information you choose to upload, such as consumption habits, personal notes, images, or references to health or treatments, may be considered sensitive or especially private. We recommend sharing only what is strictly necessary."
     },
     "usage": "How we use information",
     "usageDesc": "We use your information to:",
@@ -137,96 +143,119 @@
       "support": "Provide support and respond to requests.",
       "security": "Protect against fraud, abuse, and technical issues.",
       "comms": "Send service-related communications (e.g., subscription or critical notices).",
+      "billing": "Manage sign-ups, renewals, cancellations, and premium status verification.",
+      "ads": "Record consent and, if you allow it, load advertising or ad measurement on the public website.",
       "compliance": "Comply with legal obligations."
     },
     "legalBases": {
-      "title": "Legal bases (EEA/UK)",
-      "desc": "Where applicable, we process data under these legal bases:",
-      "contract": "Performance of a contract (providing the app you requested).",
-      "consent": "Your consent (e.g., push notifications).",
-      "legitInterest": "Legitimate interests (app security and improvement).",
-      "legalObligation": "Compliance with legal obligations."
+      "title": "Basis for processing and consent",
+      "desc": "We process your data mainly to deliver the service you request, with your consent where appropriate, for legitimate interests related to security and product improvement, and to comply with legal obligations. If GDPR, UK GDPR, or similar rules also apply to you, these categories may function as legal bases under those regimes as well.",
+      "contract": "Providing the service, managing your account, and syncing the information you choose to store.",
+      "consent": "Consent for push notifications, non-essential cookies or technologies, and optional features.",
+      "legitInterest": "Security, fraud prevention, technical diagnostics, stability improvements, and complaint handling.",
+      "legalObligation": "Limited retention or disclosure when required by law or a valid legal request."
     },
     "sharing": "Sharing of information",
-    "sharingDesc": "We do not sell your data. We share limited data with providers that help us deliver the service:",
+    "sharingDesc": "We do not sell your personal data. We share limited information with providers that help us operate the app or website:",
     "thirdParties": {
       "firebase": "Firebase (Authentication, Firestore, Storage) to sign in, store your data, and host content.",
-      "payments": "Payment processors (Stripe, MercadoPago) for subscriptions. Their privacy policies apply.",
-      "auth": "OAuth providers (e.g., Google) when you choose social sign-in."
+      "google": "Google, including Google Sign-In and other Google services integrated into the app or website.",
+      "payments": "Payment processors (Stripe, MercadoPago) for subscriptions, charges, validation, and payment status management. Their own policies apply.",
+      "ai": "AI providers (currently Google Gemini and OpenAI) when you use assistant features.",
+      "analytics": "Measurement and analytics services, such as @vercel/analytics and Firebase Analytics, to understand performance and usage.",
+      "ads": "Google AdSense and related technologies on the public site, only if you provide the applicable consent."
     },
-    "internationalTransfers": "Data may be processed and stored in countries outside your own (e.g., the United States) depending on our providers' infrastructure.",
+    "internationalTransfers": {
+      "title": "International transfers",
+      "desc": "Some of the infrastructure we use may process or store data outside Argentina, including in countries with different data protection standards. When that happens, we rely on the contractual, technical, and organizational measures offered by those providers and limit the scope of shared information to what is necessary for the relevant purpose."
+    },
     "security": "Data security",
-    "securityDesc": "We use industry-standard safeguards and Firebase security rules. No method of transmission or storage is completely secure.",
+    "securityDesc": "We apply reasonable technical and organizational security measures, including access controls, authentication, Firebase infrastructure rules, and error review practices. Even so, no system is completely invulnerable and we cannot guarantee absolute security.",
     "cookies": "Cookies and storage",
-    "cookiesDesc": "We use localStorage/sessionStorage and PWA caches to keep you signed in, store preferences, and enable offline use.",
+    "cookiesDesc": "We use cookies, browser local storage, and PWA caches to keep you signed in, remember preferences, record consent choices, and enable technical app and site functionality.",
     "cookiesItems": {
       "auth": "Authentication tokens to maintain your session.",
-      "prefs": "Preferences such as language, theme, and roles.",
+      "prefs": "Preferences such as language, theme, and other in-app configuration choices.",
+      "consent": "Local record of your choice about cookies, measurement, or advertising on the public site.",
+      "analytics": "Measurement or advertising tools that are activated only when appropriate based on your consent.",
       "pwa": "Offline caches for faster loading and limited offline functionality."
     },
     "push": {
       "title": "Push notifications",
-      "desc": "If enabled, we may send reminders or service updates. You can disable notifications in your device settings."
+      "desc": "If you enable them, we may send reminders, alerts, or service notices. You can disable them in your device or browser settings."
     },
     "ai": {
       "title": "AI features",
-      "desc": "When you use AI assistant features, your prompts and context may be processed to generate responses. Avoid sharing sensitive personal data."
+      "desc": "When you use the assistant, your prompts, messages, and some context needed to answer may be sent to AI providers such as Google Gemini or OpenAI. Those responses may be inaccurate or outdated. Avoid sharing sensitive personal, medical, legal, or financial data."
     },
     "retention": {
       "title": "Data retention",
-      "desc": "We retain your data while your account is active. You can delete content or your account at any time; residual backups may persist for a limited period."
+      "desc": "We retain your data while your account remains active or while it is needed for the purpose for which it was collected. Some technical logs, backups, security events, or records linked to payments may be retained for additional periods when required for audit, fraud prevention, or legal compliance."
     },
     "advertising": "Advertising",
-    "advertisingDesc": "We do not currently serve third-party ads. If we add advertising (e.g., AdSense), we will update this policy and request any required consent.",
+    "advertisingDesc": "The public website may load Google AdSense and related technologies only after you accept the relevant consent choice. If you do not accept it, that advertising script should not be activated from the landing page.",
     "rights": "Your rights",
-    "rightsDesc": "Depending on your location, you may have the right to:",
+    "rightsDesc": "If you are in Argentina, Law 25,326 and the competent supervisory authority recognize, among others, the following rights. If other privacy laws also apply to you, you may have additional rights:",
     "rightsList": {
+      "info": "Be informed about what data we process, for what purpose, and who is responsible for that processing.",
       "access": "Access the data we hold about you.",
-      "rectify": "Correct inaccurate information.",
-      "delete": "Request deletion of your data.",
-      "portability": "Receive a portable copy of your data.",
-      "restrict": "Restrict or limit processing.",
-      "object": "Object to certain processing."
+      "rectify": "Rectify inaccurate or incomplete data.",
+      "update": "Request updates or deletion where appropriate.",
+      "delete": "Ask for deletion when there is no legal duty to keep the data.",
+      "withdrawConsent": "Withdraw consent given for optional processing, without retroactive effect.",
+      "complaint": "File a complaint with the Agencia de Acceso a la Información Pública (AAIP) or bring a habeas data action if you believe your rights were infringed."
+    },
+    "argentina": {
+      "title": "Argentine legal framework",
+      "desc": "This policy primarily relies on Argentine Personal Data Protection Law 25,326, its implementing rules, and guidance from the Agencia de Acceso a la Información Pública (AAIP). As a general rule, an access request should be answered within 10 calendar days, and a rectification, update, or deletion request within 5 business days. If our response is insufficient or absent, you may file a complaint with the AAIP or pursue a judicial habeas data action."
     },
     "children": {
       "title": "Children and age limits",
-      "desc": "This app is intended only for individuals of legal age to consume or cultivate cannabis in their jurisdiction. Do not use the app if it is illegal for you to do so."
+      "desc": "This app is intended only for individuals who are legally old enough to consume or cultivate cannabis under their jurisdiction. We do not knowingly seek to collect data from children."
     },
     "changes": "Changes to this policy",
-    "changesDesc": "We may update this policy. Material changes will be highlighted with an updated date.",
+    "changesDesc": "We may update this policy to reflect legal, operational, or product changes. If the change is material, we will publish the new effective date and, where appropriate, notify you through reasonable in-app or site methods.",
     "contact": "Contact",
-    "contactDesc": "Questions or requests? Email"
+    "contactDesc": "For questions or to request access, rectification, deletion, or withdrawal of consent, email"
   },
   "terms": {
     "title": "Terms",
     "lastUpdated": "Last updated",
     "acceptance": "Acceptance of terms",
-    "acceptanceDesc": "By using Cannafriend you agree to these Terms and our Privacy Policy.",
+    "acceptanceDesc": "By using Cannafriend, you agree to these Terms and the Privacy Policy. If you do not agree, do not use the service.",
     "use": "Acceptable use",
-    "useDesc": "You agree not to misuse the app, interfere with others' use, attempt to access non-public areas, or violate applicable laws.",
+    "useDesc": "You must use the app lawfully, responsibly, and consistently with its purpose. You may not interfere with other users, attempt to access non-public areas, bypass technical controls, or violate applicable laws.",
     "prohibited": {
-      "illegal": "No illegal activity or content. Respect cannabis laws applicable to you.",
+      "illegal": "Do not use the app for prohibited activities, to evade regulatory controls, or for unlawful content. You must comply with the cannabis laws that apply to you.",
       "abuse": "No harassment, spam, or abusive behavior.",
       "security": "No attempts to breach, probe, or scan the service or related systems.",
       "scraping": "No automated scraping without prior written consent."
     },
     "eligibility": {
       "title": "Eligibility and legal compliance",
-      "desc": "You must be of legal age and permitted by local law to cultivate or consume cannabis. You are solely responsible for complying with your jurisdiction's laws."
+      "desc": "You must meet the legal age required by your jurisdiction and be permitted by applicable law to cultivate, possess, or consume cannabis, where relevant. You are solely responsible for verifying and complying with the laws of the place where you live or use the app."
     },
     "medical": {
       "title": "No medical or legal advice",
-      "desc": "Information in the app (including AI outputs) is for informational purposes only and is not medical or legal advice. Consult licensed professionals for guidance."
+      "desc": "Information available in the app, including AI-generated responses, is for informational purposes only. It is not medical, legal, pharmaceutical, therapeutic, tax, or any other professional advice. Always consult licensed professionals."
+    },
+    "emergency": {
+      "title": "Not for emergencies",
+      "desc": "Cannafriend is not an emergency, clinical monitoring, or crisis-response service. You must not rely on it as a substitute for immediate medical, toxicological, psychological, legal, or safety assistance."
+    },
+    "ai": {
+      "title": "AI-generated outputs",
+      "desc": "Assistant responses may be inaccurate, incomplete, biased, or outdated. You must critically review any suggestion before acting on it. We do not guarantee that AI outputs are correct, safe, or suitable for your circumstances."
     },
     "account": "Accounts",
-    "accountDesc": "You are responsible for maintaining the confidentiality of your login and for all activities under your account. Notify us of any unauthorized use.",
+    "accountDesc": "You are responsible for keeping your access credentials confidential, providing reasonably accurate information, and all activity carried out through your account. You must notify us if you detect unauthorized use.",
     "userContent": {
       "title": "Your content",
-      "desc": "You retain ownership of content you submit (plants, logs, images, stash). You grant us a limited license to host, store, process, and display your content solely to operate and improve the service."
+      "desc": "You retain ownership of the content you upload, such as plants, logs, images, stash items, or notes. You represent that you have the right to upload it and that it does not violate third-party rights or the law. You grant us a limited license to host, store, process, and display it only to the extent necessary to operate, protect, and improve the service."
     },
     "subscriptions": {
       "title": "Premium subscriptions and payments",
-      "desc": "Premium features may be offered via recurring subscriptions handled by payment processors (e.g., Stripe, MercadoPago). You can cancel at any time as described by the processor. Refunds are handled per the processor's terms and applicable law."
+      "desc": "Premium features may be offered through payments or recurring subscriptions processed by third parties, currently Stripe and MercadoPago. Amounts, renewals, cancellations, taxes, additional charges, and any refunds are governed by the information shown at checkout, the processor's terms, and applicable law. We may suspend premium features in cases of non-payment, fraud, or abusive use."
     },
     "privacy": "Privacy",
     "privacyDesc": "See our Privacy Policy for details about how we collect and use data.",
@@ -236,16 +265,20 @@
     },
     "disclaimers": {
       "title": "Disclaimers",
-      "desc": "The service is provided “as is” without warranties of any kind. Use at your own risk."
+      "desc": "The service is provided “as is” and “as available”, without warranties of continuous availability, error-free operation, result accuracy, or fitness for a particular purpose. You use the app at your own risk."
     },
     "liability": {
       "title": "Limitation of liability",
-      "desc": "To the maximum extent permitted by law, we are not liable for indirect, incidental, special, or consequential damages arising from your use of the app."
+      "desc": "To the maximum extent permitted by law, we are not liable for indirect, incidental, special, punitive, or consequential damages arising from the use of, or inability to use, the app. This limitation is not intended to exclude liability where mandatory law does not allow it."
+    },
+    "localLaw": {
+      "title": "Applicable law and non-waivable rights",
+      "desc": "These Terms are drafted primarily with Argentine law in mind. If mandatory law in your place of residence, or consumer protection law, grants you rights that cannot be waived or limited, those rights will prevail to the extent required by that law."
     },
     "termination": "Termination",
     "terminationDesc": "We may suspend or terminate access if you violate these Terms or misuse the service.",
     "changes": "Changes to terms",
-    "changesDesc": "We may update these Terms. Continued use after changes means you accept the updated Terms.",
+    "changesDesc": "We may update these Terms due to legal, operational, or product changes. If you continue using the service after the updated version becomes effective, you will be deemed to accept the new Terms to the extent permitted by law.",
     "contact": "Contact",
     "contactDesc": "Questions about these Terms? Email"
   },

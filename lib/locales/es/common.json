@@ -116,17 +116,23 @@
     "title": "Privacidad",
     "lastUpdated": "Última actualización",
     "intro": "Introducción",
-    "introDesc": "Cannafriend te ayuda a llevar un registro de cultivos y consumo de cannabis. Esta política explica qué recopilamos, cómo lo usamos y tus opciones.",
+    "introDesc": "Cannafriend es una app para registrar cultivo, consumo y rutinas relacionadas con cannabis. Esta política fue redactada con referencia principal al derecho argentino y explica qué datos tratamos, para qué los usamos y qué derechos tienes.",
     "collection": "Información que recopilamos",
-    "collectionDesc": "Solo recopilamos lo necesario para brindar la app. Esto puede incluir:",
+    "collectionDesc": "Recopilamos los datos que necesitamos para prestar la app y los que decides cargar de manera voluntaria. Esto puede incluir:",
     "data": {
       "account": "Datos de cuenta: correo electrónico e identificadores de autenticación (Firebase Authentication).",
-      "profile": "Perfil y roles (cultivador/consumidor), preferencias (idioma, zona horaria).",
+      "profile": "Preferencias de perfil como idioma y zona horaria, junto con opciones de configuración que elijas dentro de la app.",
       "content": "Contenido que agregas: plantas, diarios, nutrientes, recordatorios, inventario y notas relacionadas.",
       "images": "Imágenes que subes (almacenadas en Firebase Storage).",
       "device": "Datos técnicos mínimos: tipo de dispositivo/navegador y uso necesarios para operar y asegurar la app.",
+      "notifications": "Tokens y preferencias de notificaciones push si eliges activarlas.",
+      "analytics": "Eventos técnicos y datos de uso agregados o seudonimizados para medir rendimiento, errores y uso del sitio o la app.",
       "payments": "Metadatos de suscripción gestionados por procesadores de pago (Stripe, MercadoPago). No almacenamos datos completos de pago.",
       "storage": "Almacenamiento local/cachés PWA en tu dispositivo para usar la app sin conexión."
+    },
+    "sensitive": {
+      "title": "Datos sensibles y precaución de uso",
+      "desc": "No pedimos datos sensibles como condición de uso. Sin embargo, cierta información que decidas cargar, como hábitos de consumo, notas personales, imágenes o referencias a salud y tratamientos, podría considerarse sensible o especialmente privada. Te recomendamos compartir solo lo estrictamente necesario."
     },
     "usage": "Cómo usamos la información",
     "usageDesc": "Usamos tu información para:",
@@ -136,96 +142,119 @@
       "support": "Brindar soporte y responder solicitudes.",
       "security": "Proteger contra fraude, abuso y problemas técnicos.",
       "comms": "Enviar comunicaciones relacionadas al servicio (por ejemplo, suscripción o avisos críticos).",
+      "billing": "Gestionar altas, renovaciones, cancelaciones y verificación del estado premium.",
+      "ads": "Medir consentimiento y, si lo aceptas, cargar publicidad o medición publicitaria en el sitio público.",
       "compliance": "Cumplir obligaciones legales."
     },
     "legalBases": {
-      "title": "Bases legales (EEE/UK)",
-      "desc": "Cuando aplica, tratamos datos bajo estas bases legales:",
-      "contract": "Ejecución de un contrato (brindar la app que solicitaste).",
-      "consent": "Tu consentimiento (por ejemplo, notificaciones push).",
-      "legitInterest": "Intereses legítimos (seguridad y mejora de la app).",
-      "legalObligation": "Cumplimiento de obligaciones legales."
+      "title": "Base de tratamiento y consentimiento",
+      "desc": "Tratamos tus datos principalmente para ejecutar el servicio que nos solicitas, con tu consentimiento cuando corresponde, por intereses legítimos vinculados a seguridad y mejora del producto, y para cumplir obligaciones legales. Si además te resultan aplicables normas como GDPR o UK GDPR, estas categorías también pueden operar como base legal bajo esos regímenes.",
+      "contract": "Prestación del servicio, gestión de tu cuenta y sincronización de la información que decides guardar.",
+      "consent": "Consentimiento para notificaciones push, cookies o tecnologías no esenciales y funciones opcionales.",
+      "legitInterest": "Seguridad, prevención de fraude, diagnóstico técnico, mejora de estabilidad y atención de reclamos.",
+      "legalObligation": "Conservación o divulgación limitada cuando una obligación legal o requerimiento válido así lo exija."
     },
     "sharing": "Compartir información",
-    "sharingDesc": "No vendemos tus datos. Compartimos información limitada con proveedores que nos ayudan a prestar el servicio:",
+    "sharingDesc": "No vendemos tus datos personales. Compartimos información limitada con proveedores que nos ayudan a operar la app o el sitio:",
     "thirdParties": {
       "firebase": "Firebase (Authentication, Firestore, Storage) para iniciar sesión, almacenar tus datos y alojar contenido.",
-      "payments": "Procesadores de pago (Stripe, MercadoPago) para suscripciones. Se aplican sus políticas de privacidad.",
-      "auth": "Proveedores OAuth (por ejemplo, Google) cuando eliges iniciar sesión con redes sociales."
+      "google": "Google, incluyendo Google Sign-In y otros servicios de Google integrados en la app o en el sitio.",
+      "payments": "Procesadores de pago (Stripe, MercadoPago) para suscripciones, cobros, validación y gestión de estados de pago. Se aplican sus propias políticas.",
+      "ai": "Proveedores de IA (actualmente Google Gemini y OpenAI) cuando usas funciones del asistente.",
+      "analytics": "Servicios de medición y analítica, como @vercel/analytics y Firebase Analytics, para entender rendimiento y uso.",
+      "ads": "Google AdSense y tecnologías relacionadas en el sitio público, solo si otorgas el consentimiento aplicable."
     },
-    "internationalTransfers": "Los datos pueden procesarse y almacenarse en países distintos al tuyo (por ejemplo, Estados Unidos) según la infraestructura de nuestros proveedores.",
+    "internationalTransfers": {
+      "title": "Transferencias internacionales",
+      "desc": "Parte de la infraestructura que utilizamos puede procesar o almacenar datos fuera de Argentina, incluso en países con estándares de protección distintos. Cuando eso ocurre, dependemos de las medidas contractuales, técnicas y organizativas ofrecidas por esos proveedores y limitamos el alcance de la información compartida a lo necesario para la finalidad correspondiente."
+    },
     "security": "Seguridad de los datos",
-    "securityDesc": "Aplicamos salvaguardas estándar de la industria y reglas de seguridad de Firebase. Ningún método de transmisión o almacenamiento es totalmente seguro.",
+    "securityDesc": "Aplicamos medidas razonables de seguridad técnicas y organizativas, incluidas reglas de acceso, autenticación, controles sobre la infraestructura de Firebase y revisión de errores. Aun así, ningún sistema es completamente invulnerable y no podemos garantizar seguridad absoluta.",
     "cookies": "Cookies y almacenamiento",
-    "cookiesDesc": "Usamos localStorage/sessionStorage y cachés PWA para mantener tu sesión, guardar preferencias y permitir el uso sin conexión.",
+    "cookiesDesc": "Usamos cookies, almacenamiento local del navegador y cachés PWA para mantener tu sesión, recordar preferencias, gestionar consentimientos y permitir funciones técnicas del sitio y de la app.",
     "cookiesItems": {
       "auth": "Tokens de autenticación para mantener tu sesión.",
-      "prefs": "Preferencias como idioma, tema y roles.",
+      "prefs": "Preferencias como idioma, tema y otras opciones de configuración de la app.",
+      "consent": "Registro local de tu elección sobre cookies, medición o publicidad en el sitio público.",
+      "analytics": "Herramientas de medición o publicidad activadas solo cuando corresponda según tu consentimiento.",
       "pwa": "Cachés offline para cargas rápidas y funcionalidad sin conexión."
     },
     "push": {
       "title": "Notificaciones push",
-      "desc": "Si las habilitas, podemos enviar recordatorios o avisos del servicio. Puedes desactivarlas en la configuración de tu dispositivo."
+      "desc": "Si las habilitas, podemos enviar recordatorios, alertas o avisos del servicio. Puedes desactivarlas desde la configuración de tu dispositivo o navegador."
     },
     "ai": {
       "title": "Funciones de IA",
-      "desc": "Al usar funciones del asistente de IA, tus consultas y contexto pueden procesarse para generar respuestas. Evita compartir datos personales sensibles."
+      "desc": "Cuando usas el asistente, tus prompts, mensajes y parte del contexto necesario para responder pueden enviarse a proveedores de IA como Google Gemini u OpenAI. Esas respuestas pueden ser inexactas o estar desactualizadas. Evita compartir datos personales sensibles, médicos, judiciales o financieros."
     },
     "retention": {
       "title": "Retención de datos",
-      "desc": "Conservamos tus datos mientras tu cuenta esté activa. Puedes eliminar contenido o tu cuenta en cualquier momento; las copias de seguridad residuales pueden persistir por un período limitado."
+      "desc": "Conservamos tus datos mientras tu cuenta permanezca activa o mientras sean necesarios para la finalidad por la que fueron recopilados. Algunos registros técnicos, respaldos, eventos de seguridad o comprobantes vinculados a pagos pueden mantenerse por plazos adicionales cuando resulte necesario por auditoría, prevención de fraude o exigencia legal."
     },
     "advertising": "Publicidad",
-    "advertisingDesc": "Actualmente no mostramos anuncios de terceros. Si incorporamos publicidad (por ejemplo, AdSense), actualizaremos esta política y solicitaremos los consentimientos necesarios.",
+    "advertisingDesc": "El sitio público puede cargar Google AdSense y tecnologías relacionadas únicamente después de que aceptes el consentimiento correspondiente. Si no aceptas esa opción, no deberíamos activar ese script publicitario desde la landing.",
     "rights": "Tus derechos",
-    "rightsDesc": "Según tu ubicación, puedes tener derecho a:",
+    "rightsDesc": "Si resides en Argentina, la Ley 25.326 y la autoridad de control competente reconocen, entre otros, los siguientes derechos. Si además te aplica otra normativa, podrías contar con derechos adicionales:",
     "rightsList": {
+      "info": "Ser informado sobre qué datos tratamos, con qué finalidad y quién es responsable de ese tratamiento.",
       "access": "Acceder a los datos que conservamos sobre ti.",
-      "rectify": "Corregir información inexacta.",
-      "delete": "Solicitar la eliminación de tus datos.",
-      "portability": "Recibir una copia portable de tus datos.",
-      "restrict": "Restringir o limitar el tratamiento.",
-      "object": "Oponerte a ciertos tratamientos."
+      "rectify": "Rectificar datos inexactos o incompletos.",
+      "update": "Solicitar actualización o supresión cuando corresponda.",
+      "delete": "Pedir la eliminación de datos cuando no exista deber legal de conservarlos.",
+      "withdrawConsent": "Revocar el consentimiento otorgado para tratamientos opcionales, sin efectos retroactivos.",
+      "complaint": "Reclamar ante la Agencia de Acceso a la Información Pública (AAIP) o ejercer la acción de habeas data si consideras vulnerados tus derechos."
+    },
+    "argentina": {
+      "title": "Marco legal argentino",
+      "desc": "Esta política toma como referencia principal la Ley 25.326 de Protección de los Datos Personales, su normativa reglamentaria y los criterios de la Agencia de Acceso a la Información Pública (AAIP). En términos generales, un pedido de acceso debe responderse dentro de 10 días corridos y un pedido de rectificación, actualización o supresión dentro de 5 días hábiles. Si la respuesta fuera insuficiente o no existiera, puedes reclamar ante la AAIP o promover la acción judicial de habeas data."
     },
     "children": {
       "title": "Menores de edad y límites de edad",
-      "desc": "La app está dirigida solo a personas con edad legal para consumir o cultivar cannabis en su jurisdicción. No la uses si es ilegal para ti."
+      "desc": "La app está dirigida únicamente a personas con edad legal para consumir o cultivar cannabis según su jurisdicción. No buscamos recopilar deliberadamente datos de menores de edad."
     },
     "changes": "Cambios en esta política",
-    "changesDesc": "Podemos actualizar esta política. Los cambios materiales se destacarán con una fecha actualizada.",
+    "changesDesc": "Podemos actualizar esta política para reflejar cambios legales, operativos o de producto. Si el cambio es material, publicaremos la nueva fecha de vigencia y, cuando corresponda, te informaremos por medios razonables dentro de la app o del sitio.",
     "contact": "Contacto",
-    "contactDesc": "¿Preguntas o solicitudes? Escríbenos a"
+    "contactDesc": "Para consultas, pedidos de acceso, rectificación, supresión o revocación de consentimiento, escríbenos a"
   },
   "terms": {
     "title": "Términos",
     "lastUpdated": "Última actualización",
     "acceptance": "Aceptación de los términos",
-    "acceptanceDesc": "Al usar Cannafriend aceptas estos Términos y nuestra Política de Privacidad.",
+    "acceptanceDesc": "Al usar Cannafriend aceptas estos Términos y la Política de Privacidad. Si no estás de acuerdo, no uses el servicio.",
     "use": "Uso aceptable",
-    "useDesc": "Te comprometes a no usar la app de forma indebida, no interferir con otros usuarios, no intentar acceder a zonas no públicas ni infringir leyes aplicables.",
+    "useDesc": "Debes usar la app de manera lícita, responsable y compatible con su finalidad. No puedes interferir con otros usuarios, intentar acceder a zonas no públicas, evadir controles técnicos ni infringir leyes aplicables.",
     "prohibited": {
-      "illegal": "Nada de actividad o contenido ilegal. Respeta las leyes de cannabis que te apliquen.",
+      "illegal": "No uses la app para actividades prohibidas, evasión de controles regulatorios o contenidos ilícitos. Debes respetar las leyes sobre cannabis que te resulten aplicables.",
       "abuse": "Prohibido el acoso, spam o conducta abusiva.",
       "security": "Prohibido intentar vulnerar, explorar o escanear el servicio u otros sistemas relacionados.",
       "scraping": "Prohibido el scraping automatizado sin consentimiento previo por escrito."
     },
     "eligibility": {
       "title": "Elegibilidad y cumplimiento legal",
-      "desc": "Debes tener la edad legal y estar autorizado por tu legislación local para cultivar o consumir cannabis. Eres responsable de cumplir las leyes de tu jurisdicción."
+      "desc": "Debes tener la edad legal exigida por tu jurisdicción y estar autorizado por la normativa aplicable para cultivar, poseer o consumir cannabis, si corresponde. Eres el único responsable de verificar y cumplir las leyes de tu lugar de residencia o uso."
     },
     "medical": {
       "title": "Sin asesoramiento médico ni legal",
-      "desc": "La información en la app (incluidas las respuestas de IA) es informativa y no constituye asesoramiento médico ni legal. Consulta profesionales habilitados."
+      "desc": "La información disponible en la app, incluidas respuestas generadas por IA, es únicamente informativa. No constituye asesoramiento médico, legal, farmacéutico, terapéutico, impositivo ni profesional de ningún otro tipo. Consulta siempre a profesionales habilitados."
+    },
+    "emergency": {
+      "title": "No uso en emergencias",
+      "desc": "Cannafriend no es un servicio de emergencia ni de monitoreo clínico. No debes usarlo como sustituto de atención médica, toxicológica, psicológica, legal o de seguridad inmediata."
+    },
+    "ai": {
+      "title": "Resultados generados por IA",
+      "desc": "Las respuestas del asistente pueden ser inexactas, incompletas, sesgadas o desactualizadas. Debes revisar críticamente cualquier sugerencia antes de actuar en base a ella. No garantizamos que las salidas de IA sean correctas, seguras o adecuadas para tu situación."
     },
     "account": "Cuentas",
-    "accountDesc": "Eres responsable de mantener la confidencialidad de tu inicio de sesión y de toda actividad vinculada a tu cuenta. Avísanos ante usos no autorizados.",
+    "accountDesc": "Eres responsable de mantener la confidencialidad de tu acceso, de brindar información razonablemente exacta y de toda actividad realizada desde tu cuenta. Debes avisarnos si detectas un uso no autorizado.",
     "userContent": {
       "title": "Tu contenido",
-      "desc": "Conservas la propiedad del contenido que envías (plantas, registros, imágenes, inventario). Nos otorgas una licencia limitada para alojar, almacenar, procesar y mostrar tu contenido únicamente para operar y mejorar el servicio."
+      "desc": "Conservas la titularidad del contenido que cargues, como plantas, registros, imágenes, inventario o notas. Declaras que tienes derecho a cargarlo y que no infringe derechos de terceros ni la ley. Nos otorgas una licencia limitada para alojarlo, almacenarlo, procesarlo y mostrarlo solo en la medida necesaria para operar, proteger y mejorar el servicio."
     },
     "subscriptions": {
       "title": "Suscripciones premium y pagos",
-      "desc": "Las funciones premium pueden ofrecerse mediante suscripciones recurrentes gestionadas por procesadores de pago (por ejemplo, Stripe, MercadoPago). Puedes cancelar en cualquier momento según lo indicado por el procesador. Los reembolsos se rigen por los términos del procesador y la ley aplicable."
+      "desc": "Las funciones premium pueden ofrecerse mediante pagos o suscripciones recurrentes procesadas por terceros, actualmente Stripe y MercadoPago. Los importes, renovaciones, cancelaciones, impuestos, cargos adicionales y eventuales reembolsos se rigen por lo que se te informe al momento de contratar, por los términos del procesador y por la ley aplicable. Podemos suspender funciones premium ante falta de pago, fraude o uso abusivo."
     },
     "privacy": "Privacidad",
     "privacyDesc": "Consulta nuestra Política de Privacidad para conocer cómo tratamos los datos.",
@@ -235,16 +264,20 @@
     },
     "disclaimers": {
       "title": "Descargos de responsabilidad",
-      "desc": "El servicio se proporciona “tal cual”, sin garantías de ningún tipo. Úsalo bajo tu propio riesgo."
+      "desc": "El servicio se proporciona “tal cual” y “según disponibilidad”, sin garantías de disponibilidad continua, ausencia de errores, exactitud de resultados ni adecuación a un propósito particular. Usas la app bajo tu propio riesgo."
     },
     "liability": {
       "title": "Límite de responsabilidad",
-      "desc": "En la máxima medida permitida por la ley, no somos responsables por daños indirectos, incidentales, especiales o consecuentes derivados del uso de la app."
+      "desc": "En la máxima medida permitida por la ley, no seremos responsables por daños indirectos, incidentales, especiales, punitivos o consecuentes derivados del uso o imposibilidad de uso de la app. Esta limitación no busca excluir responsabilidad cuando la ley imperativa no lo permita."
+    },
+    "localLaw": {
+      "title": "Ley aplicable y derechos inderogables",
+      "desc": "Estos Términos fueron redactados tomando como referencia principal la legislación argentina. Si la normativa imperativa de tu lugar de residencia o la ley de defensa del consumidor te reconoce derechos que no pueden ser renunciados o limitados, esos derechos prevalecerán en la medida exigida por esa normativa."
     },
     "termination": "Terminación",
     "terminationDesc": "Podemos suspender o terminar el acceso si incumples estos Términos o haces un uso indebido del servicio.",
     "changes": "Cambios en los Términos",
-    "changesDesc": "Podemos actualizar estos Términos. El uso continuado tras los cambios implica que aceptas la versión actualizada.",
+    "changesDesc": "Podemos actualizar estos Términos por cambios legales, operativos o del producto. Si continúas usando el servicio luego de la entrada en vigencia de la versión actualizada, se entenderá que aceptas los nuevos Términos en la medida permitida por la ley.",
     "contact": "Contacto",
     "contactDesc": "¿Preguntas sobre estos Términos? Escríbenos a"
   },

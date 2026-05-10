@@ -150,7 +150,7 @@ function MobileSettingsContent({
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push(ROUTE_LOGIN);
+      router.replace(ROUTE_LOGIN);
     } catch (error) {
       handleFirebaseError(error, "sign out");
     }
@@ -196,7 +196,7 @@ function MobileSettingsContent({
 
     try {
       await deleteUserAccount(userId);
-      router.push(ROUTE_LOGIN);
+      router.replace(ROUTE_LOGIN);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "";
       if (errorMessage === "DATA_DELETED_AUTH_FAILED") {
@@ -206,7 +206,7 @@ function MobileSettingsContent({
           } catch {
             // Ignore signout errors
           }
-          router.push(ROUTE_LOGIN);
+          router.replace(ROUTE_LOGIN);
         }, 2000);
       } else if (errorMessage === "REAUTH_REQUIRED") {
         toast.error(t("settings.reauthError", { ns: "common" }));
