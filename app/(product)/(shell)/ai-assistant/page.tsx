@@ -1,0 +1,107 @@
+"use client";
+
+import { Suspense, useState, useEffect } from "react";
+import { AIChat } from "@/components/ai/chat";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { PremiumRequiredCard } from "@/components/common/premium-required-card";
+import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
+import { getSuspenseResource } from "@/lib/suspense-utils";
+import { auth } from "@/lib/firebase";
+import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+
+async function fetchPremiumStatus(_userId: string): Promise<boolean> {
+  // Check localStorage flag first
+  if (
+    typeof window !== "undefined" &&
+    localStorage.getItem("cf_premium_v1") === "1"
+  ) {
+    return true;
+  }
+
+  if (auth.currentUser) {
+    try {
+      // Check Firebase custom claims
+      const token = await auth.currentUser.getIdTokenResult(true);
+      const claims = token.claims as any;
+      const boolPremium = Boolean(claims?.premium);
+      const until =
+        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
+      const timePremium = until > Date.now();
+      return Boolean(boolPremium || timePremium);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+function AIAssistantContent({
+  userId,
+  sidebarOpen,
+  onToggleSidebar,
+}: {
+  userId: string;
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+}) {
+  // Get premium status from Suspense
+  const cacheKey = `premium-${userId}`;
+  const resource = getSuspenseResource(cacheKey, () =>
+    fetchPremiumStatus(userId),
+  );
+  const isPremium = resource.read();
+
+  return (
+    <>
+      {!isPremium ? (
+        <div className="flex justify-center items-center h-full">
+          <div className="max-w-md mx-auto">
+            <PremiumRequiredCard />
+          </div>
+        </div>
+      ) : (
+        <AIChat
+          className="h-full"
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={onToggleSidebar}
+        />
+      )}
+    </>
+  );
+}
+
+export default function AIAssistantPage() {
+  const { user } = useAuthUser();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleToggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  // Open sidebar by default on desktop only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+      if (isDesktop) setSidebarOpen(true);
+    }
+  }, []);
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="h-full">
+      <DataErrorBoundary>
+        <Suspense fallback={<AIChatSkeleton />}>
+          <AIAssistantContent
+            userId={user.uid}
+            sidebarOpen={sidebarOpen}
+            onToggleSidebar={handleToggleSidebar}
+          />
+        </Suspense>
+      </DataErrorBoundary>
+    </div>
+  );
+}

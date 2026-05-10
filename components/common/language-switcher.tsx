@@ -4,11 +4,15 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Globe } from "lucide-react"
+import { persistLanguagePreference, type SupportedLocale } from "@/lib/language-preference"
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation(["common"])
   const language = i18n.language
-  const setLanguage = (lang: string) => i18n.changeLanguage(lang)
+  const setLanguage = (lang: SupportedLocale) => {
+    persistLanguagePreference(lang)
+    void i18n.changeLanguage(lang)
+  }
 
   return (
     <DropdownMenu>

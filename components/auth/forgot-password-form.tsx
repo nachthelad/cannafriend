@@ -70,7 +70,7 @@ export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
         handleCodeInApp: true,
       });
       setTimeout(() => {
-        router.push(ROUTE_LOGIN);
+        router.replace(ROUTE_LOGIN);
       }, 2000);
     } catch (error: any) {
       let errorMessage = t("forgotPassword.error", { ns: "auth" });

@@ -201,7 +201,7 @@ function SettingsContent({
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push(ROUTE_LOGIN);
+      router.replace(ROUTE_LOGIN);
     } catch (error: any) {
       handleFirebaseError(error, "sign out");
     }
@@ -252,7 +252,7 @@ function SettingsContent({
 
     try {
       await deleteUserAccount(userId);
-      router.push(ROUTE_LOGIN);
+      router.replace(ROUTE_LOGIN);
     } catch (error: any) {
       if (error.message === "DATA_DELETED_AUTH_FAILED") {
         setTimeout(async () => {
@@ -261,7 +261,7 @@ function SettingsContent({
           } catch {
             // Ignore signout errors
           }
-          router.push(ROUTE_LOGIN);
+          router.replace(ROUTE_LOGIN);
         }, 2000);
       } else if (error.message === "REAUTH_REQUIRED") {
         toast.error(t("settings.reauthError", { ns: "common" }));

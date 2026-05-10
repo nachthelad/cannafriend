@@ -54,7 +54,7 @@ export function ResetPasswordForm({ className }: ResetPasswordFormProps) {
   useEffect(() => {
     if (passwordReset) {
       const timer = setTimeout(() => {
-        router.push(ROUTE_LOGIN);
+        router.replace(ROUTE_LOGIN);
       }, 3000);
       return () => clearTimeout(timer);
     }
