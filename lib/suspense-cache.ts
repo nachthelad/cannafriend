@@ -2,7 +2,7 @@
 import { clearSuspenseCache, clearSuspenseCacheByPrefix, updateSuspenseResource } from "./suspense-utils";
 import type { LogEntry, Plant } from "@/types";
 import type { JournalData } from "@/types";
-import type { PlantGridData } from "@/types/plants";
+import type { PlantDetailsData, PlantGridData } from "@/types/plants";
 
 // Clear cache when plants are added/updated/deleted
 export function invalidatePlantsCache(userId: string) {
@@ -69,4 +69,17 @@ export function optimisticAddPlant(userId: string, plant: Plant) {
     ...data,
     plants: [plant, ...data.plants],
   }));
+}
+
+// Optimistically update the current plant detail cache so local mutations
+// don't force the page to suspend again on the next render.
+export function optimisticUpdatePlantDetails(
+  userId: string,
+  plantId: string,
+  updater: (data: PlantDetailsData) => PlantDetailsData,
+) {
+  updateSuspenseResource<PlantDetailsData>(
+    `plant-details-${userId}-${plantId}`,
+    updater,
+  );
 }

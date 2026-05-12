@@ -12,12 +12,20 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/gif",
 ] as const;
 
+export const MOBILE_COMPATIBLE_IMAGE_TYPES = [
+  ...ALLOWED_IMAGE_TYPES,
+  "image/heic",
+  "image/heif",
+] as const;
+
 export const ALLOWED_IMAGE_EXTENSIONS = [
   ".jpg",
   ".jpeg",
   ".png",
   ".webp",
   ".gif",
+  ".heic",
+  ".heif",
 ] as const;
 
 // Upload limits
@@ -61,8 +69,16 @@ export const validateImageFile = (
   file: File,
   maxSizeMB: number = DEFAULT_MAX_SIZE_MB
 ): { key: string; fallback: string } | null => {
+  const normalizedName = file.name.toLowerCase();
+  const hasAllowedExtension = ALLOWED_IMAGE_EXTENSIONS.some((extension) =>
+    normalizedName.endsWith(extension)
+  );
+
   // Check file type
-  if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
+  if (
+    !MOBILE_COMPATIBLE_IMAGE_TYPES.includes(file.type as any) &&
+    !hasAllowedExtension
+  ) {
     return {
       key: IMAGE_ERROR_KEYS.INVALID_FILE_TYPE,
       fallback: `${IMAGE_ERROR_FALLBACKS.INVALID_FILE_TYPE}: ${ALLOWED_IMAGE_EXTENSIONS.join(", ")}`
@@ -91,7 +107,7 @@ export const getImageAltText = (
 
 // File input accept attribute
 export const getImageAcceptAttribute = (): string => {
-  return ALLOWED_IMAGE_TYPES.join(",");
+  return [...MOBILE_COMPATIBLE_IMAGE_TYPES, ...ALLOWED_IMAGE_EXTENSIONS].join(",");
 };
 
 // Helper function to get translated error message (to be used in components with t function)
