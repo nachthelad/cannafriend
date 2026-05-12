@@ -14,6 +14,7 @@ import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 // import ReCAPTCHA from "react-google-recaptcha";
 // import { getRecaptchaSiteKey, isRecaptchaEnabled } from "@/lib/recaptcha";
 
@@ -120,6 +121,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         createdAt: new Date(),
         timezone: null, // Se configurará en onboarding
       });
+
+      trackEvent("signup_completed");
 
       // Close the modal immediately after successful signup
       onSuccess?.();

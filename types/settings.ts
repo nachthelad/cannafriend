@@ -1,3 +1,10 @@
+export type PremiumSource =
+  | "admin"
+  | "local_override"
+  | "mercadopago"
+  | "stripe"
+  | "unknown";
+
 export interface AccountSummaryProps {
   title: string;
   email?: string | null;
@@ -52,6 +59,7 @@ export interface SubscriptionDetails {
   premium: boolean;
   premium_until: number | null;
   remaining_ms: number | null;
+  source: PremiumSource;
   recurring: boolean | null;
   preapproval_status: string | null;
   last_payment?: {
@@ -59,6 +67,7 @@ export interface SubscriptionDetails {
     status?: string;
     date_approved?: string;
   } | null;
+  management_hint?: string | null;
 }
 
 export interface SubscriptionLine {
@@ -71,6 +80,7 @@ export interface SubscriptionManagementProps {
   statusLabel: string;
   activeLabel: string;
   inactiveLabel: string;
+  loadingLabel: string;
   upgradeLabel: string;
   upgradeDescription?: string;
   onUpgrade?: () => void;
@@ -84,6 +94,7 @@ export interface SubscriptionManagementProps {
   cancelingLabel: string;
   isPremium: boolean;
   isCancelling: boolean;
+  isLoading?: boolean;
   subscriptionLines?: SubscriptionLine[];
   note?: string;
 }

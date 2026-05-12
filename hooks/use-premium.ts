@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
 
 // Email allowlist removed; premium is controlled via custom claim `premium` or a local dev override.
 
@@ -14,42 +15,34 @@ import { onAuthStateChanged } from "firebase/auth";
  */
 export function usePremium() {
   const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [premiumUntil, setPremiumUntil] = useState<number | null>(null);
+  const [source, setSource] = useState<
+    "admin" | "local_override" | "mercadopago" | "stripe" | "unknown"
+  >("unknown");
 
   useEffect(() => {
-    const readLocal = () => {
-      try {
-        return (
-          typeof window !== "undefined" &&
-          localStorage.getItem("cf_premium_v1") === "1"
-        );
-      } catch {
-        return false;
-      }
-    };
-
-    // Initial local flag
-    let localPremium = readLocal();
-    setIsPremium(localPremium);
+    const localPremium = hasLocalPremiumOverride();
+    const initialState = resolvePremiumState(null, localPremium);
+    setIsPremium(initialState.isPremium);
+    setPremiumUntil(initialState.premiumUntil);
+    setSource(initialState.source);
 
     // Subscribe to auth and read the custom claim
     const unsub = onAuthStateChanged(auth, async (user) => {
-      let hasClaim = false;
+      let state = resolvePremiumState(null, hasLocalPremiumOverride());
       try {
         if (user) {
           const token = await user.getIdTokenResult(true);
-          const claims = token.claims as any;
-          const boolPremium = Boolean(claims?.premium);
-          const until = typeof claims?.premium_until === "number" ? claims.premium_until : 0;
-          const timePremium = until > Date.now();
-          hasClaim = Boolean(boolPremium || timePremium);
+          state = resolvePremiumState(token.claims as any, hasLocalPremiumOverride());
         }
       } catch {}
-      localPremium = readLocal();
-      setIsPremium(Boolean(localPremium || hasClaim));
+      setIsPremium(state.isPremium);
+      setPremiumUntil(state.premiumUntil);
+      setSource(state.source);
     });
 
     return () => unsub();
   }, []);
 
-  return { isPremium } as const;
+  return { isPremium, premiumUntil, source } as const;
 }

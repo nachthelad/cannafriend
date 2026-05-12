@@ -14,6 +14,7 @@ import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useEffect, useState } from "react";
 import { Crown, CreditCard, Banknote } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 export default function PremiumPage() {
   const { t } = useTranslation(["premium", "common"]);
@@ -31,6 +32,7 @@ export default function PremiumPage() {
     if (status === "completed" && user) {
       (async () => {
         try {
+          trackEvent("premium_checkout_returned", { provider: "mercadopago" });
           const token = await user.getIdToken();
           await fetch("/api/mercadopago/sync-claims", {
             method: "POST",
@@ -40,6 +42,7 @@ export default function PremiumPage() {
           });
           // Force refresh local token to pick up latest claims
           await user.getIdToken(true);
+          trackEvent("premium_status_synced", { provider: "mercadopago" });
         } catch {
           // no-op; hook will eventually pick up claim via normal refresh
         }
@@ -52,6 +55,7 @@ export default function PremiumPage() {
 
     setLoading("stripe");
     try {
+      trackEvent("premium_checkout_started", { provider: "stripe" });
       const token = await user.getIdToken();
       const response = await fetch("/api/stripe/create-checkout", {
         method: "POST",
@@ -83,6 +87,7 @@ export default function PremiumPage() {
 
     setLoading("mercadopago");
     try {
+      trackEvent("premium_checkout_started", { provider: "mercadopago" });
       const token = await user.getIdToken();
       const response = await fetch("/api/mercadopago/create-subscription", {
         method: "POST",
@@ -153,21 +158,10 @@ export default function PremiumPage() {
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <h4 className="font-medium">
-                    {t("features.analytics.title", { ns: "premium" })}
+                    {t("features.followUps.title", { ns: "premium" })}
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    {t("features.analytics.description", { ns: "premium" })}
-                  </p>
-                </div>
-              </div>
-              {/* <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <h4 className="font-medium">
-                    {t("features.support.title", { ns: "premium" })}
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    {t("features.support.description", { ns: "premium" })}
+                    {t("features.followUps.description", { ns: "premium" })}
                   </p>
                 </div>
               </div>
@@ -175,13 +169,13 @@ export default function PremiumPage() {
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                 <div>
                   <h4 className="font-medium">
-                    {t("features.content.title", { ns: "premium" })}
+                    {t("features.history.title", { ns: "premium" })}
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    {t("features.content.description", { ns: "premium" })}
+                    {t("features.history.description", { ns: "premium" })}
                   </p>
                 </div>
-              </div> */}
+              </div>
             </div>
           </CardContent>
         </Card>

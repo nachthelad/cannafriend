@@ -25,6 +25,7 @@ export function SubscriptionManagement({
   statusLabel,
   activeLabel,
   inactiveLabel,
+  loadingLabel,
   upgradeLabel,
   upgradeDescription,
   onUpgrade,
@@ -36,6 +37,7 @@ export function SubscriptionManagement({
   cancelingLabel,
   isPremium,
   isCancelling,
+  isLoading = false,
   subscriptionLines = [],
   note,
   dialogCancelLabel,
@@ -54,7 +56,11 @@ export function SubscriptionManagement({
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium">{statusLabel}:</span>
           <div className="flex items-center gap-2">
-            {isPremium ? (
+            {isLoading ? (
+              <span className="text-sm text-muted-foreground">
+                {loadingLabel}
+              </span>
+            ) : isPremium ? (
               <>
                 <div className="h-2 w-2 rounded-full bg-green-500" />
                 <span className="text-sm text-green-600 font-medium">
@@ -84,7 +90,7 @@ export function SubscriptionManagement({
         )}
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          {!isPremium ? (
+          {isLoading ? null : !isPremium ? (
             upgradeHref ? (
               <Button asChild className="flex items-center gap-2">
                 <Link href={upgradeHref}>

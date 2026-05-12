@@ -6,6 +6,7 @@ import { dirname } from 'node:path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+const isDev = process.env.NODE_ENV === 'development';
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -13,36 +14,34 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      '@radix-ui/react-icons',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-alert-dialog',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-label',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-progress',
-      '@radix-ui/react-radio-group',
-      '@radix-ui/react-select',
-      '@radix-ui/react-separator',
-      '@radix-ui/react-slider',
-      '@radix-ui/react-slot',
-      '@radix-ui/react-switch',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-toast',
-      '@radix-ui/react-tooltip',
-    ],
-  },
+  experimental: isDev
+    ? {}
+    : {
+        optimizePackageImports: [
+          'lucide-react',
+          '@radix-ui/react-icons',
+          '@radix-ui/react-accordion',
+          '@radix-ui/react-alert-dialog',
+          '@radix-ui/react-checkbox',
+          '@radix-ui/react-dialog',
+          '@radix-ui/react-dropdown-menu',
+          '@radix-ui/react-label',
+          '@radix-ui/react-popover',
+          '@radix-ui/react-progress',
+          '@radix-ui/react-radio-group',
+          '@radix-ui/react-select',
+          '@radix-ui/react-separator',
+          '@radix-ui/react-slider',
+          '@radix-ui/react-slot',
+          '@radix-ui/react-switch',
+          '@radix-ui/react-tabs',
+          '@radix-ui/react-toast',
+          '@radix-ui/react-tooltip',
+        ],
+      },
   env: {
     NEXT_PUBLIC_APP_VERSION: pkg.version,
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
-  },
-  eslint: {
-    ignoreDuringBuilds: true, // Keep ESLint enabled but non-blocking
-    dirs: ['app', 'components', 'lib', 'hooks'],
   },
   // typescript: {
   //   ignoreBuildErrors: true,
@@ -68,8 +67,6 @@ const nextConfig = {
   },
   // Security and PWA headers
   async headers() {
-    const isDev = process.env.NODE_ENV === 'development';
-
     // 'unsafe-eval' is required in dev for webpack HMR / react-refresh.
     // It is intentionally omitted from the production CSP.
     const scriptSrc = isDev

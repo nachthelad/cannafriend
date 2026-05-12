@@ -5,6 +5,9 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: align claude guide with current product — 2026-05-12
+- [MINOR]: harden dynamic pages and dev tooling — 2026-05-12
+- [MINOR]: remove legacy consumer split — 2026-05-12
 - [MINOR]: fix (ai): keywords added — 2026-05-08
 - [MINOR]: version cache names, StaleWhileRevalidate for same-origin images to fix stale logo/favicon after deploy — 2026-04-26
 - [MINOR]: regenerate logo-white.png with tight crop to match light mode logo size — 2026-04-26
@@ -77,7 +80,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 - [MINOR]: update Next.js to version 15.5.7 in package.json and pnpm-lock.yaml — 2025-12-04
 - [MID]: add `Layout` component including desktop sidebar, mobile navigation, authentication, and i18n. — 2025-12-04
 
-- [MID]: removed roles — 2025-12-03
+- [MID]: removed old profile split — 2025-12-03
 - [MID]: updated the `ResponsivePageHeader` component for consistent page headers with responsive back buttons and actions — 2025-12-03
 - [MID]: implement new journal entry creation page with form validation and dynamic input fields for various log types. — 2025-11-28
 - [MID]: update mobile nav to main content — 2025-11-28

@@ -50,6 +50,7 @@ import {
   WorkbenchSurface,
 } from "@/components/common/desktop-form-workbench";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 
 function DesktopChoiceTile({
   label,
@@ -161,6 +162,7 @@ export default function NewPlantPage() {
       // Invalidate full caches (dashboard count + any other plant views)
       invalidatePlantsCache(userId);
       invalidateDashboardCache(userId);
+      trackEvent("plant_created");
 
       router.push(`/plants/${docRef.id}`);
     } catch (error: any) {

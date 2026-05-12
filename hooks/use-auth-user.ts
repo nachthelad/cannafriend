@@ -8,6 +8,11 @@ import { unwrapError } from "@/lib/errors";
 let cachedUser: User | null = null;
 let hasResolvedInitialAuth = false;
 
+export function __resetAuthUserCacheForTests() {
+  cachedUser = null;
+  hasResolvedInitialAuth = false;
+}
+
 async function resolveUser(candidate: User | null): Promise<User | null> {
   if (!candidate) {
     return null;

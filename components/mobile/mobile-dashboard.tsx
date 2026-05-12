@@ -4,13 +4,11 @@ import { useState, useEffect } from "react";
 import type { MobileDashboardProps } from "@/types/mobile";
 import Link from "next/link";
 import {
-  ROUTE_SESSIONS,
   ROUTE_REMINDERS,
   ROUTE_AI_ASSISTANT,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
   ROUTE_ADMIN,
-  ROUTE_STASH,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,22 +18,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import { ReminderSystem } from "@/components/plant/reminder-system";
 import { DataCard } from "@/components/common/data-card";
 import {
-  Plus,
   AlertTriangle,
   Bell,
   Brain,
   Leaf,
   Calendar,
   Shield,
-  Box,
-  FilePen,
   NotebookPen,
+  Plus,
 } from "lucide-react";
 
-import type { Plant, LogEntry } from "@/types";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { FastLogAction } from "@/features/product/dashboard/components/fast-log-action";
 
@@ -52,9 +46,7 @@ export function MobileDashboard({
     "dashboard",
     "common",
     "journal",
-    "nav",
     "reminders",
-    "sessions",
     "aiAssistant",
   ]);
   const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -184,15 +176,10 @@ export function MobileDashboard({
             />
           )}
           <QuickActionButton
-            icon={Box}
-            label={t("stash", { ns: "nav" })}
-            href={ROUTE_STASH}
+            icon={Leaf}
+            label={t("yourPlants", { ns: "dashboard" })}
+            href={ROUTE_PLANTS}
           />
-          {/* <QuickActionButton
-            icon={FlaskConical}
-            label={t("title", { ns: "nutrients" })}
-            href={ROUTE_NUTRIENTS}
-          /> */}
           <QuickActionButton
             icon={Bell}
             label={t("reminders", { ns: "dashboard" })}
@@ -217,9 +204,9 @@ export function MobileDashboard({
             )}
           />
           <QuickActionButton
-            icon={FilePen}
-            label={t("title", { ns: "sessions" })}
-            href={ROUTE_SESSIONS}
+            icon={Calendar}
+            label={t("recentLogs", { ns: "journal" })}
+            href={ROUTE_JOURNAL}
           />
           {isAdmin && (
             <QuickActionButton icon={Shield} label="Admin" href={ROUTE_ADMIN} />

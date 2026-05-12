@@ -67,7 +67,7 @@ The app uses a unified layout component that handles both mobile and desktop exp
 
 - Fixed bottom position with safe area support
 - 5-slot grid layout with floating center action button
-- Role-based navigation items
+- Task-based navigation items
 - Elevated design with backdrop blur
 
 ```tsx
@@ -89,7 +89,7 @@ The app uses a unified layout component that handles both mobile and desktop exp
 #### Desktop Sidebar Navigation
 
 - Fixed left sidebar with logo and navigation links
-- Collapsible sections based on user roles
+- Collapsible sections based on feature groups
 - Premium feature highlighting with gradient styling
 
 ## Component Patterns
@@ -383,9 +383,9 @@ Feature-rich card with image, metadata, and responsive layouts:
 3. **Handle Navigation Context**
 
    ```tsx
-   // Consider both mobile and desktop navigation
-   const { roles } = useUserRoles();
-   // Render appropriate navigation items
+   // Consider both mobile and desktop navigation priorities
+   const navItems = getProductNavItems(t);
+   // Render the appropriate navigation items
    ```
 
 4. **Optimize Touch Interactions**

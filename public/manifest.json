@@ -37,5 +37,21 @@
       "url": "/journal",
       "icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-desktop.svg",
+      "sizes": "1280x720",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Dashboard with plants, reminders, and quick actions"
+    },
+    {
+      "src": "/screenshots/dashboard-mobile.svg",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Mobile dashboard with quick logging and reminders"
+    }
   ]
 }

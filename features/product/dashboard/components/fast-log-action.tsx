@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { trackEvent } from "@/lib/analytics";
 
 interface FastLogActionProps {
   plants: Plant[];
@@ -31,7 +32,10 @@ export function FastLogAction({ plants, renderTrigger }: FastLogActionProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {renderTrigger({
-        onClick: () => setOpen(true),
+        onClick: () => {
+          trackEvent("dashboard_fast_log_opened");
+          setOpen(true);
+        },
         disabled: plants.length === 0,
       })}
       <DialogContent>

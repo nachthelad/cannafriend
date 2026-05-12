@@ -17,10 +17,6 @@
   "showcase": {
     "title": "Everything You Need to Grow",
     "description": "Whether you're a beginner or expert, Cannafriend has the tools you need for successful cultivation.",
-    "growerMode": "Grower Mode",
-    "growerModeDesc": "Complete cultivation management from seedling to harvest",
-    "consumerMode": "Consumer Mode",
-    "consumerModeDesc": "Track your consumption, inventory, and preferences",
     "comingSoon": "Coming Soon",
     "aiTitle": "AI Plant Analysis & Recommendations",
     "aiDesc": "Advanced artificial intelligence to help optimize your growing with personalized insights and automated problem detection.",
@@ -77,15 +73,6 @@
     "personalInventory": {
       "title": "Personal Inventory",
       "desc": "Track your stash with quantities, strain info, and expiry dates"
-    },
-    "management": {
-      "title": "Plant Management"
-    },
-    "journal": {
-      "title": "Growth Journal"
-    },
-    "gallery": {
-      "title": "Photo Gallery"
     }
   },
   "footer": {

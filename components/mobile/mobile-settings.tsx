@@ -1,23 +1,19 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
-import { getSuspenseResource } from "@/lib/suspense-utils";
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { SubscriptionManagement } from "@/components/settings/subscription-management";
 import { AppInformation } from "@/components/settings/app-information";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
-// import { PushNotifications } from "@/components/settings/push-notifications"; // DELETED
-
 import { useErrorHandler } from "@/hooks/use-error-handler";
-import { updateDoc, getDoc } from "firebase/firestore";
+import { updateDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
@@ -25,48 +21,17 @@ import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
 import { toast } from "sonner";
 import { invalidateSettingsCache } from "@/lib/suspense-cache";
+import {
+  DEFAULT_SETTINGS_PREFERENCES,
+  fetchSettingsData,
+  getStoredSettingsPreferences,
+} from "@/lib/settings-data";
 import type {
   MobilePreferencesState,
-  MobileSettingsData,
   MobileSettingsProps,
   SubscriptionDetails,
   SubscriptionLine,
 } from "@/types";
-
-async function fetchSettingsData(userId: string): Promise<MobileSettingsData> {
-  const userRef = userDoc(userId);
-  const userSnap = await getDoc(userRef);
-
-  let timezone = "";
-  let darkMode = true;
-
-  if (userSnap.exists()) {
-    const data = userSnap.data() as any;
-    timezone = data.timezone ?? "";
-    darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
-  }
-
-  let subscription: SubscriptionDetails | null = null;
-
-  if (auth.currentUser) {
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const response = await fetch("/api/mercadopago/subscription-status", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        subscription = (await response.json()) as SubscriptionDetails;
-      }
-    } catch {
-      subscription = null;
-    }
-  }
-
-  return {
-    preferences: { timezone, darkMode },
-    subscription,
-  };
-}
 
 function MobileSettingsContent({
   userId,
@@ -79,34 +44,73 @@ function MobileSettingsContent({
   const { handleFirebaseError } = useErrorHandler();
   const { setTheme } = useTheme();
 
-  const cacheKey = `settings-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () =>
-    fetchSettingsData(userId)
-  );
-  const { preferences: initialPreferences, subscription: initialSubscription } =
-    resource.read();
-
   const [preferences, setPreferences] =
-    useState<MobilePreferencesState>(initialPreferences);
+    useState<MobilePreferencesState>(() =>
+      typeof window === "undefined"
+        ? DEFAULT_SETTINGS_PREFERENCES
+        : getStoredSettingsPreferences(userId),
+    );
+  const [subscription, setSubscription] = useState<SubscriptionDetails | null>(
+    null,
+  );
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
     useState(false);
-  const previousPreferencesRef = useRef<MobilePreferencesState | null>(null);
   const [hasHydrated, setHasHydrated] = useState(false);
 
-  useEffect(() => {
-    if (previousPreferencesRef.current === initialPreferences) {
-      return;
-    }
-    previousPreferencesRef.current = initialPreferences;
-    setPreferences(initialPreferences);
-  }, [initialPreferences]);
+  const persistPreferences = useCallback(
+    (nextPreferences: MobilePreferencesState) => {
+      try {
+        window.localStorage.setItem(
+          `cf:userSettings:${userId}`,
+          JSON.stringify(nextPreferences),
+        );
+      } catch {
+        // Ignore storage errors
+      }
+    },
+    [userId],
+  );
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const subscription = initialSubscription;
+  useEffect(() => {
+    let isActive = true;
+
+    const loadSettings = async () => {
+      setIsSubscriptionLoading(true);
+
+      try {
+        const data = await fetchSettingsData(userId);
+        if (!isActive) {
+          return;
+        }
+
+        setPreferences(data.preferences);
+        persistPreferences(data.preferences);
+        setSubscription(data.subscription);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+        console.error("Error loading mobile settings data:", error);
+      } finally {
+        if (isActive) {
+          setIsSubscriptionLoading(false);
+        }
+      }
+    };
+
+    loadSettings();
+
+    return () => {
+      isActive = false;
+    };
+  }, [persistPreferences, userId]);
+
   const isPremium = Boolean(subscription?.premium ?? false);
 
   const handleTimezoneChange = async (value: string) => {
@@ -115,6 +119,7 @@ function MobileSettingsContent({
       await updateDoc(userDoc(userId), { timezone: value });
       const next = { ...preferences, timezone: value };
       setPreferences(next);
+      persistPreferences(next);
       invalidateSettingsCache(userId);
     } catch (error) {
       handleFirebaseError(error, "update timezone");
@@ -124,17 +129,14 @@ function MobileSettingsContent({
   const handleDarkModeChange = async (checked: boolean) => {
     if (!userId) return;
     const previous = preferences.darkMode;
+    const next = { ...preferences, darkMode: checked };
 
-    setPreferences((prev) => ({ ...prev, darkMode: checked }));
+    setPreferences(next);
+    persistPreferences(next);
     setTheme(checked ? "dark" : "light");
 
     try {
       await updateDoc(userDoc(userId), { darkMode: checked });
-      // Delay cache invalidation to avoid conflicts
-      setTimeout(() => invalidateSettingsCache(userId), 100);
-
-      // Mobile fallback: Force refresh if theme doesn't apply properly
-      // This ensures the theme change is visible even if there are mobile-specific issues
       setTimeout(() => {
         if (typeof window !== "undefined") {
           window.location.reload();
@@ -142,6 +144,7 @@ function MobileSettingsContent({
       }, 500);
     } catch (error) {
       setPreferences((prev) => ({ ...prev, darkMode: previous }));
+      persistPreferences({ ...preferences, darkMode: previous });
       setTheme(previous ? "dark" : "light");
       handleFirebaseError(error, "update dark mode");
     }
@@ -229,7 +232,7 @@ function MobileSettingsContent({
       if (hours > 0) return `${hours}h ${mins}m`;
       return `${mins}m`;
     },
-    [t]
+    [t],
   );
 
   const getDisplayDate = useCallback(
@@ -244,7 +247,7 @@ function MobileSettingsContent({
       }
       return date.toLocaleString();
     },
-    [hasHydrated]
+    [hasHydrated],
   );
 
   const subscriptionLines: SubscriptionLine[] = useMemo(() => {
@@ -256,15 +259,27 @@ function MobileSettingsContent({
         subscription.recurring === true
           ? t("subscription.recurring")
           : subscription.preapproval_status
-          ? subscription.preapproval_status
-          : t("subscription.oneTime"),
+            ? subscription.preapproval_status
+            : t("subscription.oneTime"),
+    });
+
+    lines.push({
+      label: t("subscription.source"),
+      value:
+        subscription.source === "mercadopago"
+          ? t("subscription.sourceMercadoPago")
+          : subscription.source === "stripe"
+            ? t("subscription.sourceStripe")
+            : subscription.source === "admin"
+              ? t("subscription.sourceManual")
+              : t("subscription.sourceUnknown"),
     });
 
     if (typeof subscription.premium_until === "number") {
       lines.push({
         label: t("subscription.expires"),
         value: `${getDisplayDate(
-          subscription.premium_until
+          subscription.premium_until,
         )} (${formatRemaining(subscription.remaining_ms)})`,
       });
     }
@@ -295,13 +310,10 @@ function MobileSettingsContent({
         />
       )}
 
-      {/* All Settings in Single Column */}
       <div className="pb-24 w-full max-w-full">
-        {/* Account Section */}
         <div className="w-full p-4 border-b border-border">
           <AccountSummary
             title={t("settings.account")}
-            // description={t("settings.accountDesc")}
             email={email}
             providerId={providerId}
             signOutLabel={t("signOut", { ns: "nav" })}
@@ -309,11 +321,9 @@ function MobileSettingsContent({
           />
         </div>
 
-        {/* Preferences Section */}
         <div className="w-full p-4 border-b border-border">
           <PreferencesForm
             title={t("settings.preferences")}
-            // description={t("settings.preferencesDesc")}
             languageLabel={t("settings.language")}
             timezoneLabel={t("settings.timezone")}
             timezonePlaceholder={t("settings.selectTimezone")}
@@ -325,13 +335,13 @@ function MobileSettingsContent({
           />
         </div>
 
-        {/* Billing Section */}
         <div className="w-full p-4 border-b border-border">
           <SubscriptionManagement
             title={t("subscription.title")}
             statusLabel={t("subscription.status")}
             activeLabel={t("subscription.active")}
             inactiveLabel={t("subscription.inactive")}
+            loadingLabel={t("loading")}
             upgradeLabel={t("premium.upgrade")}
             upgradeDescription={t("premium.analyzeDesc")}
             upgradeHref={ROUTE_PREMIUM}
@@ -344,24 +354,24 @@ function MobileSettingsContent({
             cancelingLabel={t("subscription.cancelling")}
             isPremium={isPremium}
             isCancelling={isCancellingSubscription}
+            isLoading={isSubscriptionLoading}
             subscriptionLines={subscriptionLines}
-            note={t("subscription.mercadopagoNote")}
+            note={
+              subscription?.management_hint === "mercadopago_account"
+                ? t("subscription.mercadopagoNote")
+                : t("subscription.manageInApp")
+            }
           />
         </div>
 
-        {/* Push Notifications Section removed */}
-
-        {/* App Info Section */}
         <div className="w-full p-4 border-b border-border">
           <AppInformation
             title={t("settings.appInfoDesc")}
-            // description={t("settings.appInfoDesc")}
             versionLabel={t("settings.appVersion")}
             version={appVersion}
           />
         </div>
 
-        {/* Danger Zone Section */}
         <div className="w-full p-4 border-b border-border">
           <DangerZone
             title={t("settings.dangerZone")}
@@ -379,7 +389,6 @@ function MobileSettingsContent({
           />
         </div>
 
-        {/* Footer */}
         <div className="w-full p-4">
           <SettingsFooter
             privacyLabel={t("privacy.title")}

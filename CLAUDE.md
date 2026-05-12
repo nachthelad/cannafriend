@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cannafriend is a cannabis growing and consumption tracking app built with **Next.js 15, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Features: plant tracking, grow journal, stash, AI assistant, PWA.
+Cannafriend is a cannabis cultivation companion built with **Next.js 16, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Core product loop is currently `plants + journal + reminders`, while `stash` and `sessions` remain supported routes but are not part of the primary navigation focus. AI access is split between a free image-based preview (`free_taste`) and the full premium assistant (`premium_chat`).
 
 ## Directory Structure
 
@@ -57,12 +57,13 @@ npm run build         # Build for production
 npm run typecheck     # TypeScript strict check
 
 # Code quality
-npm run lint          # ESLint (240+ warnings, non-blocking)
+npm run lint          # ESLint CLI
 npm run lint:fix      # Auto-fix ESLint issues
-npm run lint:unused   # Show unused vars only
+npm run lint:unused   # ESLint quiet mode (errors only)
 
 # Testing
 npm run test                              # Run all Jest tests
+npm run test:ci                           # Run Jest once in-band (preferred for CI / local verification)
 npm run test:watch                        # Watch mode
 npm run test:coverage                     # Coverage report in coverage/
 npx jest --testPathPattern=<name>         # Run a single test file
@@ -86,7 +87,14 @@ The `pre-commit` hook detects the commit level from the subject (`feat!`/`[major
 
 ### Suspense Data Loading
 
-**Rule**: Use `getSuspenseResource` + `<Suspense>` for all Firebase data fetching. Never use `useState` + `useEffect` + `isLoading` for data loading.
+**Rule**: Prefer `getSuspenseResource` + `<Suspense>` for shared Firebase reads that benefit from cache invalidation and page-level skeletons. Do **not** treat it as mandatory for every data fetch.
+
+Use local `useState` + `useEffect` loading when:
+- the data is section-scoped and should not block the whole page
+- the page should render immediately and hydrate a slower secondary panel later
+- the fetch mixes Firestore state with payment/provider status or other non-Firebase latency
+
+Current example: `settings` renders immediately after auth and loads billing/subscription details independently instead of suspending the whole page.
 
 ```typescript
 import { getSuspenseResource } from "@/lib/suspense-utils";
@@ -115,7 +123,7 @@ import { invalidatePlantsCache, invalidateJournalCache } from "@/lib/suspense-ca
 //            invalidateSettingsCache, invalidateUserCaches
 ```
 
-Keep `useAuthUser` loading states (auth ≠ data loading), form submission loading, and component-specific operations (file uploads).
+Keep `useAuthUser` loading states (auth != data loading), form submission loading, and component-specific operations (file uploads).
 
 ### Custom Hooks
 
@@ -125,11 +133,23 @@ All hooks imported from `@/hooks`:
 import { useFormAuth, useToggle, useLoadingSteps, useFirebaseCollection } from "@/hooks";
 ```
 
-Available hooks: `useAuthUser`, `useFormAuth<T>`, `useFirebaseCollection`, `useFirebaseDocument`, `useAsync`, `useLoadingSteps`, `useToggle`, `usePagination`, `useLocalStorage`, `usePremium`, `useUserRoles`, `useHasPlants`, `useErrorHandler`, `useToast`, `useAppVersion`
+Available hooks: `useAuthUser`, `useFormAuth<T>`, `useFirebaseCollection`, `useFirebaseDocument`, `useAsync`, `useLoadingSteps`, `useToggle`, `usePagination`, `useLocalStorage`, `usePremium`, `useHasPlants`, `useErrorHandler`, `useToast`, `useAppVersion`
+
+`usePremium()` currently returns:
+- `isPremium`
+- `premiumUntil`
+- `source`
+
+Premium state should be resolved through `lib/premium-state.ts`, not recomputed ad hoc from claims in each surface.
 
 ### TypeScript Types
 
 All types re-exported from `@/types`. Domain-split files: `entities`, `auth`, `plants`, `journal`, `common`, `admin`, `ai`, `layout`, `marketing`, `providers`, `sessions`, `ui`, `settings`, `mobile`, `reminders`, `dashboard`, `stash`, `firestore`, `pwa`.
+
+`UserProfile` currently includes:
+- `timezone`
+- `createdAt`
+- `onboardingCompletedAt`
 
 ### Internationalization
 
@@ -148,6 +168,14 @@ t("logType.watering", { ns: "journal" });
 
 Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journal`, `stash`, `sessions`, `reminders`, `aiAssistant`, `onboarding`, `premium`, `nav`, `validation`
 
+### AI Access Modes
+
+AI chat modes are functional, not role-based:
+- `free_taste`: image-required preview flow for non-premium users
+- `premium_chat`: full assistant with saved chat history and deeper follow-ups
+
+Do not reintroduce labels or route names based on `consumer` / `grower` split.
+
 ### Route Constants
 
 **Rule**: Always use constants from `lib/routes.ts`. Never hardcode strings like `"/plants"`.
@@ -156,9 +184,9 @@ Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journ
 import { ROUTE_PLANTS, ROUTE_JOURNAL_NEW } from "@/lib/routes";
 ```
 
-Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_CONSUMER_CHAT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
+Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
 
-Helper: `consumerChatDetailPath(id)` builds `/consumer-chat/:id`.
+Primary navigation is intentionally narrower than the full route list. Keeping a route does not mean it belongs in the main nav.
 
 ### Shared Constants
 
@@ -174,6 +202,7 @@ users/{userId}
     logs/{logId}          # Grow journal entries
     environment/{docId}   # Environmental data
   reminders/{reminderId}
+  aiChats/{chatId}        # Premium AI conversations
 ```
 
 Storage: `images/{userId}/{fileName}`
@@ -271,3 +300,9 @@ Use `ssr: false` since these components depend on client state (auth, Firebase).
 
 **Stale data after mutation**
 → Call the relevant `invalidate*Cache` function from `lib/suspense-cache.ts`
+
+**Client dynamic route page breaks in App Router**
+→ In client pages under `app/.../[id]/page.tsx`, prefer `useParams()` over `use(params)`
+
+**Settings feels slow because everything waits on billing**
+→ Do not add page-wide `Suspense` there again; load billing/subscription state independently

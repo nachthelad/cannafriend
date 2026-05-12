@@ -3,31 +3,22 @@
 import { Suspense, useState, useEffect } from "react";
 import { AIChat } from "@/components/ai/chat";
 import { useAuthUser } from "@/hooks/use-auth-user";
-import { PremiumRequiredCard } from "@/components/common/premium-required-card";
 import { AIChatSkeleton } from "@/components/skeletons/ai-chat-skeleton";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { auth } from "@/lib/firebase";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
 
 async function fetchPremiumStatus(_userId: string): Promise<boolean> {
-  // Check localStorage flag first
-  if (
-    typeof window !== "undefined" &&
-    localStorage.getItem("cf_premium_v1") === "1"
-  ) {
+  const localOverride = hasLocalPremiumOverride();
+  if (localOverride) {
     return true;
   }
 
   if (auth.currentUser) {
     try {
-      // Check Firebase custom claims
       const token = await auth.currentUser.getIdTokenResult(true);
-      const claims = token.claims as any;
-      const boolPremium = Boolean(claims?.premium);
-      const until =
-        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
-      const timePremium = until > Date.now();
-      return Boolean(boolPremium || timePremium);
+      return resolvePremiumState(token.claims as any, localOverride).isPremium;
     } catch {
       return false;
     }
@@ -53,21 +44,12 @@ function AIAssistantContent({
   const isPremium = resource.read();
 
   return (
-    <>
-      {!isPremium ? (
-        <div className="flex justify-center items-center h-full">
-          <div className="max-w-md mx-auto">
-            <PremiumRequiredCard />
-          </div>
-        </div>
-      ) : (
-        <AIChat
-          className="h-full"
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={onToggleSidebar}
-        />
-      )}
-    </>
+    <AIChat
+      className="h-full"
+      sidebarOpen={isPremium ? sidebarOpen : false}
+      onToggleSidebar={isPremium ? onToggleSidebar : undefined}
+      accessMode={isPremium ? "premium_chat" : "free_taste"}
+    />
   );
 }
 

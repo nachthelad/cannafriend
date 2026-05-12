@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolvePremiumState } from "@/lib/premium-state";
 
 export const runtime = "nodejs";
 
@@ -35,8 +36,9 @@ export async function GET(req: NextRequest) {
     const uid = user.uid;
     const email = user.email || undefined;
     const claims = (user.customClaims as any) || {};
-    const premium = Boolean(claims?.premium || ((typeof claims?.premium_until === "number") && claims.premium_until > Date.now()));
-    const premium_until: number | null = typeof claims?.premium_until === "number" ? claims.premium_until : null;
+    const premiumState = resolvePremiumState(claims);
+    const premium = premiumState.isPremium;
+    const premium_until: number | null = premiumState.premiumUntil;
 
     // Fetch latest preapproval by UID
     const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } as const;
@@ -87,14 +89,22 @@ export async function GET(req: NextRequest) {
     } catch {}
 
     const remaining_ms = premium_until ? Math.max(0, premium_until - Date.now()) : null;
+    const source =
+      recurring === true || preStatus || lastPayment
+        ? "mercadopago"
+        : premiumState.source;
+    const management_hint =
+      source === "mercadopago" ? "mercadopago_account" : "app_cancellation";
 
     return NextResponse.json({
       premium,
       premium_until,
       remaining_ms,
+      source,
       recurring,
       preapproval_status: preStatus,
       last_payment: lastPayment,
+      management_hint,
       email,
       uid,
     });

@@ -1,5 +1,8 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { useAuthUser } from "@/hooks/use-auth-user";
+import {
+  __resetAuthUserCacheForTests,
+  useAuthUser,
+} from "@/hooks/use-auth-user";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -8,7 +11,11 @@ jest.mock("firebase/auth", () => ({
 }));
 
 jest.mock("@/lib/firebase", () => ({
-  auth: { signOut: jest.fn() },
+  auth: {
+    signOut: jest.fn(),
+    authStateReady: jest.fn().mockResolvedValue(undefined),
+    currentUser: null,
+  },
   db: {},
 }));
 
@@ -18,12 +25,18 @@ jest.mock("@/lib/errors", () => ({
 
 const mockOnAuthStateChanged = jest.mocked(onAuthStateChanged);
 const mockSignOut = jest.mocked(auth.signOut);
+const mockAuthStateReady = jest.mocked(auth.authStateReady);
 
 describe("useAuthUser", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    __resetAuthUserCacheForTests();
     // Default: auth listener registered but never fires (pending state)
     mockOnAuthStateChanged.mockReturnValue(jest.fn());
+    mockAuthStateReady.mockImplementation(
+      () => new Promise<void>(() => undefined),
+    );
+    Object.assign(auth, { currentUser: null });
   });
 
   it("starts with isLoading=true before auth resolves", () => {
@@ -36,6 +49,7 @@ describe("useAuthUser", () => {
       uid: "uid-123",
       getIdToken: jest.fn().mockResolvedValue("token-abc"),
     };
+    Object.assign(auth, { currentUser: mockUser });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(mockUser as any);
       return jest.fn();
@@ -49,6 +63,7 @@ describe("useAuthUser", () => {
   });
 
   it("sets user=null and isLoading=false when auth resolves with null", async () => {
+    Object.assign(auth, { currentUser: null });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(null);
       return jest.fn();
@@ -65,6 +80,7 @@ describe("useAuthUser", () => {
       uid: "uid-123",
       getIdToken: jest.fn().mockRejectedValue({ code: "auth/user-token-expired" }),
     };
+    Object.assign(auth, { currentUser: mockUser });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(mockUser as any);
       return jest.fn();
@@ -82,6 +98,7 @@ describe("useAuthUser", () => {
       uid: "uid-123",
       getIdToken: jest.fn().mockRejectedValue({ code: "auth/user-disabled" }),
     };
+    Object.assign(auth, { currentUser: mockUser });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(mockUser as any);
       return jest.fn();
@@ -99,6 +116,7 @@ describe("useAuthUser", () => {
       uid: "uid-123",
       getIdToken: jest.fn().mockRejectedValue({ code: "auth/network-request-failed" }),
     };
+    Object.assign(auth, { currentUser: mockUser });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(mockUser as any);
       return jest.fn();
@@ -116,6 +134,7 @@ describe("useAuthUser", () => {
       uid: "uid-123",
       getIdToken: jest.fn().mockRejectedValue({ code: "auth/unknown-code" }),
     };
+    Object.assign(auth, { currentUser: mockUser });
     mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
       cb(mockUser as any);
       return jest.fn();

@@ -1,23 +1,19 @@
 {
   "title": "Premium",
-  "subtitle": "Actualiza a Premium y desbloquea todo el poder del asistente de IA de Cannafriend",
+  "subtitle": "Desbloquea diagnósticos por foto más profundos, conversaciones guardadas y mejor seguimiento para tu cultivo.",
   "featuresTitle": "Funciones Premium",
   "features": {
     "aiAssistant": {
-      "title": "Asistente de IA para Plantas",
-      "description": "Obtén consejos expertos y análisis de plantas"
+      "title": "Diagnóstico por foto más profundo",
+      "description": "Obtén una lectura más completa sobre salud, problemas y qué revisar después."
     },
-    "analytics": {
-      "title": "Analíticas Avanzadas",
-      "description": "Seguimiento detallado del crecimiento e insights"
+    "followUps": {
+      "title": "Preguntas de seguimiento",
+      "description": "Sigue la conversación cuando necesites más contexto, comparaciones o aclaraciones."
     },
-    "support": {
-      "title": "Soporte Prioritario",
-      "description": "Obtén ayuda cuando más lo necesites"
-    },
-    "content": {
-      "title": "Contenido Premium",
-      "description": "Guías y recursos exclusivos"
+    "history": {
+      "title": "Historial guardado",
+      "description": "Vuelve a diagnósticos y recomendaciones anteriores sin empezar de cero."
     }
   },
   "subscription": {

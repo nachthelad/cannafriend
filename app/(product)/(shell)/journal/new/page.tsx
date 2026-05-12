@@ -66,6 +66,10 @@ import { MultiPlantSelector } from "@/components/plant/multi-plant-selector";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import { WorkbenchSurface } from "@/components/common/desktop-form-workbench";
 import { toast } from "sonner";
+import {
+  markActivationCandidate,
+  trackEvent,
+} from "@/lib/analytics";
 
 function JournalFormSkeleton() {
   return (
@@ -463,6 +467,19 @@ function NewJournalPageContent() {
       invalidateJournalCache(auth.currentUser!.uid);
       invalidatePlantsCache(auth.currentUser!.uid);
       invalidateDashboardCache(auth.currentUser!.uid);
+
+      if (typeof window !== "undefined") {
+        const firstLogKey = `cf:first-log:${auth.currentUser!.uid}`;
+        if (!window.localStorage.getItem(firstLogKey)) {
+          window.localStorage.setItem(firstLogKey, new Date().toISOString());
+          trackEvent("first_log_created");
+          markActivationCandidate(auth.currentUser!.uid);
+        }
+
+        if (returnTo === "dashboard") {
+          trackEvent("dashboard_fast_log_completed");
+        }
+      }
 
       if (returnTo === "plant" && urlPlantId) {
         router.push(`/plants/${urlPlantId}`);
