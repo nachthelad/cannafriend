@@ -66,6 +66,7 @@ import {
   invalidatePlantsCache,
   invalidateJournalCache,
   invalidatePlantDetails,
+  optimisticUpdatePlantDetails,
 } from "@/lib/suspense-cache";
 import type { Plant, LogEntry, EnvironmentData } from "@/types";
 import type {
@@ -296,19 +297,28 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       const updated = merged.filter(
         (url, index) => merged.indexOf(url) === index
       );
-      await updateDoc(plantDocRef(userId, plantId), { photos: updated });
+      const nextCoverPhoto = plant.coverPhoto || updated[0] || null;
+      const nextCoverPhotoForState = nextCoverPhoto || undefined;
 
-      setPlant((prev) => ({ ...prev, photos: updated }));
+      await updateDoc(plantDocRef(userId, plantId), {
+        photos: updated,
+        coverPhoto: nextCoverPhoto,
+      });
 
-      // Auto-set first photo as cover if no cover exists
-      if (!plant.coverPhoto && updated.length > 0) {
-        await updateDoc(plantDocRef(userId, plantId), {
-          coverPhoto: updated[0],
-        });
-        setPlant((prev) => ({ ...prev, coverPhoto: updated[0] }));
-      }
+      setPlant((prev) => ({
+        ...prev,
+        photos: updated,
+        coverPhoto: nextCoverPhotoForState,
+      }));
 
-      invalidatePlantDetails(userId, plantId);
+      optimisticUpdatePlantDetails(userId, plantId, (data) => ({
+        ...data,
+        plant: {
+          ...data.plant,
+          photos: updated,
+          coverPhoto: nextCoverPhotoForState,
+        },
+      }));
       invalidatePlantsCache(userId);
 
     } catch (error) {
@@ -331,10 +341,12 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     try {
       const newPhotos = (plant.photos || []).filter((p) => p !== photoToRemove);
       let newCoverPhoto = plant?.coverPhoto;
+      let newCoverPhotoForState = plant?.coverPhoto;
 
       // If removing cover photo, set new cover
       if (isRemovingCover) {
         newCoverPhoto = newPhotos[0] || "";
+        newCoverPhotoForState = newPhotos[0] || undefined;
       }
 
       // Update the document
@@ -347,10 +359,17 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
       setPlant((prev) => ({
         ...prev,
         photos: newPhotos,
-        coverPhoto: newCoverPhoto,
+        coverPhoto: newCoverPhotoForState,
       }));
 
-      invalidatePlantDetails(userId, plantId);
+      optimisticUpdatePlantDetails(userId, plantId, (data) => ({
+        ...data,
+        plant: {
+          ...data.plant,
+          photos: newPhotos,
+          coverPhoto: newCoverPhotoForState,
+        },
+      }));
       invalidatePlantsCache(userId);
     } catch (error) {
       handleFirebaseError(error, "remove photo");
@@ -366,7 +385,13 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
 
       setPlant((prev) => ({ ...prev, coverPhoto: photoUrl }));
 
-      invalidatePlantDetails(userId, plantId);
+      optimisticUpdatePlantDetails(userId, plantId, (data) => ({
+        ...data,
+        plant: {
+          ...data.plant,
+          coverPhoto: photoUrl,
+        },
+      }));
       invalidatePlantsCache(userId);
     } catch (error) {
       handleFirebaseError(error, "set cover photo");

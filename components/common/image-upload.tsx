@@ -20,8 +20,10 @@ import {
 import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
+import { toast } from "sonner";
 import {
   DEFAULT_MAX_SIZE_MB,
+  ALLOWED_IMAGE_TYPES,
   IMAGE_ERROR_KEYS,
   generateImageFileName,
   getImageStoragePath,
@@ -49,7 +51,21 @@ function ImageUploadComponent(
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dropzoneEnabled = enableDropzone && !isMobile;
-  const openFilePicker = () => fileInputRef.current?.click();
+  const openFilePicker = () => {
+    const input = fileInputRef.current;
+    if (!input || uploading) return;
+
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+      return;
+    }
+
+    input.click();
+  };
+
+  const showUploadError = (message: string) => {
+    toast.error(message);
+  };
 
   const processFiles = async (files: File[]) => {
     if (files.length === 0) return;
@@ -72,9 +88,11 @@ function ImageUploadComponent(
 
       if (errors.length > 0) {
         console.warn("Image validation errors:", errors.join("\n"));
+        showUploadError(errors[0]);
       }
 
       const newUrls: string[] = [];
+      const uploadErrors: string[] = [];
       await Promise.all(
         validFiles.map(async (file) => {
           try {
@@ -82,19 +100,30 @@ function ImageUploadComponent(
             newUrls.push(url);
           } catch (error) {
             console.error("Error uploading file:", file.name, error);
+            uploadErrors.push(
+              error instanceof Error
+                ? error.message
+                : getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t)
+            );
           }
         })
       );
+
+      if (uploadErrors.length > 0) {
+        showUploadError(uploadErrors[0]);
+      }
 
       if (newUrls.length > 0) {
         try {
           await onImagesChange(newUrls);
         } catch (error) {
           console.error("Error after uploading images:", error);
+          showUploadError(getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t));
         }
       }
     } catch (error) {
       console.error("Error in file upload:", error);
+      showUploadError(getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t));
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -150,6 +179,10 @@ function ImageUploadComponent(
     } catch (e) {
       // If processing fails, fall back to original file
       console.warn("Image processing failed, using original file", e);
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(processed.type as any)) {
+      throw new Error(getTranslatedImageError(IMAGE_ERROR_KEYS.INVALID_FILE_TYPE, t));
     }
 
     const fileName = generateImageFileName(processed.name);
@@ -208,7 +241,7 @@ function ImageUploadComponent(
         multiple
         accept={getImageAcceptAttribute()}
         onChange={handleFileSelect}
-        className="hidden"
+        className="sr-only"
         disabled={uploading}
       />
 
