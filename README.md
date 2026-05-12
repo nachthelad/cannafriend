@@ -41,9 +41,10 @@ Your cultivation command center with:
 
 1. Navigate to "AI Assistant" (`/ai-assistant`)
 2. Upload a plant photo or ask a general question
-3. Try a quick photo diagnosis for free or upgrade for saved conversations
-4. Review premium chat history and previous recommendations
+3. Get personalized recommendations and insights
+4. Review analysis history and previous conversations
 5. Apply AI suggestions to improve your grow
+6. Payments for Premium (Stripe / MercadoPago)
 
 #### 📅 **Reminders System**
 
