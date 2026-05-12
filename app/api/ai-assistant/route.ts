@@ -9,6 +9,8 @@ import {
 } from "@/lib/openai-normalize";
 import { isCannabisRelated, isContextuallyOnTopic, isMetaQuestion } from "./keywords";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { normalizeChatMode } from "@/lib/ai-chat";
+import { resolvePremiumState } from "@/lib/premium-state";
 
 export const runtime = "nodejs";
 
@@ -45,6 +47,9 @@ const PRIMARY_MODEL_GEMINI = "gemini-2.5-flash-lite";
 // Límites y tokens
 const MAX_OUTPUT_TOKENS = 600;
 const GEMINI_DAILY_LIMIT = Number(process.env.GEMINI_DAILY_LIMIT || 10);
+const FREE_TASTE_DAILY_LIMIT = Number(
+  process.env.AI_FREE_TASTE_DAILY_LIMIT || 1,
+);
 
 // === Utilidades ===
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -201,14 +206,41 @@ async function callGemini(
   return { content: result.response.text(), model: PRIMARY_MODEL_GEMINI };
 }
 
-async function checkAndIncrementGeminiUsage(uid: string): Promise<boolean> {
-  const today = new Date().toISOString().split("T")[0];
+function getDayKeyForTimezone(timezone?: string | null): string {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone || "UTC",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return formatter.format(new Date());
+}
+
+async function getUserTimezone(uid: string): Promise<string | null> {
+  try {
+    const db = getFirestore();
+    const snap = await db.collection("users").doc(uid).get();
+    const data = snap.data() as { timezone?: string } | undefined;
+    return data?.timezone || null;
+  } catch {
+    return null;
+  }
+}
+
+async function checkAndIncrementUsage(
+  uid: string,
+  scope: "gemini" | "freeTaste",
+  limit: number,
+  timezone?: string | null,
+): Promise<boolean> {
+  const today = getDayKeyForTimezone(timezone);
   const db = getFirestore();
   const usageRef = db
     .collection("users")
     .doc(uid)
     .collection("aiUsage")
-    .doc("gemini");
+    .doc(scope);
   try {
     const snap = await usageRef.get();
     const data = snap.data();
@@ -216,7 +248,7 @@ async function checkAndIncrementGeminiUsage(uid: string): Promise<boolean> {
       await usageRef.set({ count: 1, resetDate: today });
       return true;
     }
-    if (data.count >= GEMINI_DAILY_LIMIT) return false;
+    if (data.count >= limit) return false;
     await usageRef.update({ count: data.count + 1 });
     return true;
   } catch {
@@ -241,13 +273,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "invalid_auth" }, { status: 401 });
     }
 
-    // === Premium ===
-    if (
-      process.env.REQUIRE_PREMIUM_FOR_AI === "true" &&
-      !Boolean(decoded?.premium)
-    ) {
-      return NextResponse.json({ error: "premium_required" }, { status: 403 });
-    }
+    const premiumState = resolvePremiumState(decoded as any);
+    const timezone = await getUserTimezone(decoded.uid);
 
     // === Rate limit ===
     const limit = Number(process.env.AI_CHAT_RATELIMIT_LIMIT || 20);
@@ -275,11 +302,17 @@ export async function POST(req: NextRequest) {
       chatType,
       sessionId,
     } = (await req.json()) as ChatRequest;
+    const normalizedChatType = normalizeChatMode(chatType);
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: "messages_required" }, { status: 400 });
     }
     const latestMessage = messages[messages.length - 1];
+    const latestHasImages = Boolean(latestMessage.images?.length);
+
+    if (normalizedChatType === "free_taste" && !latestHasImages) {
+      return NextResponse.json({ error: "image_required" }, { status: 400 });
+    }
 
     if (latestMessage.role !== "user") {
       return NextResponse.json(
@@ -288,8 +321,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (normalizedChatType === "premium_chat" && !premiumState.isPremium) {
+      return NextResponse.json({ error: "premium_required" }, { status: 403 });
+    }
+
     // === Topic guard (texto/imágenes) ===
-    const latestHasImages = Boolean(latestMessage.images?.length);
     const metaQuestion = isMetaQuestion(latestMessage.content || "");
     const directMatch = !metaQuestion && isCannabisRelated(latestMessage.content || "");
     const contextMatch = !metaQuestion && isContextuallyOnTopic(messages);
@@ -301,64 +337,91 @@ export async function POST(req: NextRequest) {
       const refusal = isSpanish
         ? "Solo puedo responder preguntas sobre cannabis (cultivo o consumo). Por favor, reformulá tu consulta relacionada al tema."
         : "I can only answer questions about cannabis (cultivation or consumption). Please rephrase your question to be cannabis-related.";
-      const currentSessionId =
-        sessionId ||
-        `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      try {
-        ensureAdminApp();
-        const db = getFirestore();
-        const chatRef = db
-          .collection("users")
-          .doc(decoded.uid)
-          .collection("aiChats")
-          .doc(currentSessionId);
+      const refusalSessionId =
+        normalizedChatType === "premium_chat"
+          ? sessionId ||
+            `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          : undefined;
+      if (normalizedChatType === "premium_chat") {
+        try {
+          ensureAdminApp();
+          const db = getFirestore();
+          const chatRef = db
+            .collection("users")
+            .doc(decoded.uid)
+            .collection("aiChats")
+            .doc(refusalSessionId!);
 
-        const assistantMessage = {
-          role: "assistant" as const,
-          content: refusal,
-          timestamp: new Date().toISOString(),
-        };
-        const toSave = sessionId
-          ? [
-              ...((await chatRef.get()).data()?.messages || []),
-              latestMessage,
-              assistantMessage,
-            ]
-          : [...messages, assistantMessage];
+          const assistantMessage = {
+            role: "assistant" as const,
+            content: refusal,
+            timestamp: new Date().toISOString(),
+          };
+          const toSave = sessionId
+            ? [
+                ...((await chatRef.get()).data()?.messages || []),
+                latestMessage,
+                assistantMessage,
+              ]
+            : [...messages, assistantMessage];
 
-        const firstMessage = toSave[0] as ClientMessage | undefined;
-        const chatData: Record<string, unknown> = {
-          messages: toSave,
-          lastUpdated: new Date().toISOString(),
-          title:
-            (firstMessage?.content?.slice(0, 50) || "New Chat") +
-            ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
-          ...(sessionId ? {} : { createdAt: new Date() }),
-        };
-        await chatRef.set(chatData, { merge: true });
-      } catch (err: unknown) {
-        console.error("Error saving refusal chat:", unwrapError(err));
+          const firstMessage = toSave[0] as ClientMessage | undefined;
+          const chatData: Record<string, unknown> = {
+            messages: toSave,
+            lastUpdated: new Date().toISOString(),
+            title:
+              (firstMessage?.content?.slice(0, 50) || "New Chat") +
+              ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
+            ...(sessionId ? {} : { createdAt: new Date() }),
+            chatType: normalizedChatType,
+          };
+          await chatRef.set(chatData, { merge: true });
+        } catch (err: unknown) {
+          console.error("Error saving refusal chat:", unwrapError(err));
+        }
       }
       return NextResponse.json({
         response: refusal,
-        sessionId: currentSessionId,
+        sessionId: refusalSessionId,
       });
+    }
+
+    if (normalizedChatType === "free_taste") {
+      const freeTasteAllowed = await checkAndIncrementUsage(
+        decoded.uid,
+        "freeTaste",
+        FREE_TASTE_DAILY_LIMIT,
+        timezone,
+      );
+      if (!freeTasteAllowed) {
+        return NextResponse.json(
+          { error: "free_taste_limit_reached" },
+          { status: 429 },
+        );
+      }
     }
 
     let content: string = "";
     let modelUsed: string = "";
     let providerUsed: "gemini" | "openai" = "gemini";
     let providerSwitched = false;
+    const effectiveMessages =
+      normalizedChatType === "free_taste" ? [latestMessage] : messages;
 
     // === Primario: Gemini (free tier) ===
     const geminiKey = process.env.GEMINI_API_KEY;
     let geminiSucceeded = false;
     if (geminiKey) {
       ensureAdminApp();
-      const geminiAllowed = await checkAndIncrementGeminiUsage(decoded.uid);
+      const geminiAllowed = await checkAndIncrementUsage(
+        decoded.uid,
+        "gemini",
+        GEMINI_DAILY_LIMIT,
+        timezone,
+      );
       if (geminiAllowed) {
         try {
-          const result = await callGemini(messages, geminiKey);
+          const result = await callGemini(effectiveMessages, geminiKey);
           content = result.content;
           modelUsed = result.model;
           providerUsed = "gemini";
@@ -385,7 +448,7 @@ export async function POST(req: NextRequest) {
 
       const openaiMessages: OpenAIMessage[] = [
         { role: "system", content: SYSTEM_PROMPT },
-        ...messages.map<OpenAIMessage>((m) => {
+        ...effectiveMessages.map<OpenAIMessage>((m) => {
           if (m.role === "user" && m.images?.length) {
             const parts: VisionPart[] = [
               { type: "text", text: m.content },
@@ -462,47 +525,52 @@ export async function POST(req: NextRequest) {
     }
 
     // === Persistencia ===
-    const currentSessionId =
-      sessionId ||
-      `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    let currentSessionId: string | undefined;
 
-    try {
-      ensureAdminApp();
-      const db = getFirestore();
-      const chatRef = db
-        .collection("users")
-        .doc(decoded.uid)
-        .collection("aiChats")
-        .doc(currentSessionId);
+    if (normalizedChatType === "premium_chat") {
+      currentSessionId =
+        sessionId ||
+        `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      const assistantMessage = {
-        role: "assistant" as const,
-        content,
-        timestamp: new Date().toISOString(),
-      };
-      const toSave = sessionId
-        ? [
-            ...(((await chatRef.get()).data()?.messages ||
-              []) as ClientMessage[]),
-            messages[messages.length - 1],
-            assistantMessage,
-          ]
-        : [...messages, assistantMessage];
+      try {
+        ensureAdminApp();
+        const db = getFirestore();
+        const chatRef = db
+          .collection("users")
+          .doc(decoded.uid)
+          .collection("aiChats")
+          .doc(currentSessionId);
 
-      const firstMessage = toSave[0] as ClientMessage | undefined;
-      const chatData: Record<string, unknown> = {
-        messages: toSave,
-        lastUpdated: new Date().toISOString(),
-        title:
-          (firstMessage?.content?.slice(0, 50) || "New Chat") +
-          ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
-        ...(sessionId ? {} : { createdAt: new Date() }),
-        modelUsed,
-        provider: providerUsed,
-      };
-      await chatRef.set(chatData, { merge: true });
-    } catch (err: unknown) {
-      console.error("Error saving chat:", unwrapError(err));
+        const assistantMessage = {
+          role: "assistant" as const,
+          content,
+          timestamp: new Date().toISOString(),
+        };
+        const toSave = sessionId
+          ? [
+              ...(((await chatRef.get()).data()?.messages ||
+                []) as ClientMessage[]),
+              effectiveMessages[effectiveMessages.length - 1],
+              assistantMessage,
+            ]
+          : [...effectiveMessages, assistantMessage];
+
+        const firstMessage = toSave[0] as ClientMessage | undefined;
+        const chatData: Record<string, unknown> = {
+          messages: toSave,
+          lastUpdated: new Date().toISOString(),
+          title:
+            (firstMessage?.content?.slice(0, 50) || "New Chat") +
+            ((firstMessage?.content?.length || 0) > 50 ? "..." : ""),
+          ...(sessionId ? {} : { createdAt: new Date() }),
+          modelUsed,
+          provider: providerUsed,
+          chatType: normalizedChatType,
+        };
+        await chatRef.set(chatData, { merge: true });
+      } catch (err: unknown) {
+        console.error("Error saving chat:", unwrapError(err));
+      }
     }
 
     return NextResponse.json({
@@ -510,6 +578,7 @@ export async function POST(req: NextRequest) {
       sessionId: currentSessionId,
       provider: providerUsed,
       providerSwitched,
+      chatType: normalizedChatType,
     });
   } catch (err: unknown) {
     return NextResponse.json(

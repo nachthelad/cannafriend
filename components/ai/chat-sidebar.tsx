@@ -34,6 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { normalizeChatMode } from "@/lib/ai-chat";
 
 export function ChatSidebar({
   isOpen,
@@ -76,7 +77,7 @@ export function ChatSidebar({
           id: doc.id,
           title: data.title || "New Chat",
           lastUpdated: data.lastUpdated || new Date().toISOString(),
-          chatType: data.chatType || "consumer",
+          chatType: normalizeChatMode(data.chatType),
         });
       });
 
@@ -170,7 +171,7 @@ export function ChatSidebar({
                     id,
                     title: session.title,
                     lastUpdated: session.lastUpdated,
-                    chatType: "consumer",
+                    chatType: "premium_chat",
                   });
                   setShowDeleteDialog(true);
                 }}
@@ -300,7 +301,7 @@ export function ChatSidebar({
                           id,
                           title: s.title,
                           lastUpdated: s.lastUpdated,
-                          chatType: "consumer",
+                          chatType: "premium_chat",
                         });
                         setShowDeleteDialog(true);
                       }}

@@ -1,5 +1,7 @@
 import type { KeyboardEvent } from "react";
 
+export type AIChatMode = "free_taste" | "premium_chat";
+
 export interface AIImageAttachment {
   url: string;
   type: string;
@@ -17,13 +19,14 @@ export interface AIChatProps {
   className?: string;
   sidebarOpen?: boolean;
   onToggleSidebar?: () => void;
+  accessMode?: AIChatMode;
 }
 
 export interface ChatSession {
   id: string;
   title: string;
   lastUpdated: string;
-  chatType: "consumer" | "plant-analysis";
+  chatType: AIChatMode;
 }
 
 export interface ChatSidebarProps {

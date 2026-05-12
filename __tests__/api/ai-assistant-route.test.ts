@@ -10,8 +10,11 @@ const mockCheckRateLimit = jest.fn();
 const mockExtractClientIp = jest.fn(() => "127.0.0.1");
 const mockIsCannabisRelated = jest.fn();
 const mockIsContextuallyOnTopic = jest.fn();
+const mockIsMetaQuestion = jest.fn();
 const mockFirestoreSet = jest.fn().mockResolvedValue(undefined);
-const mockFirestoreGet = jest.fn().mockResolvedValue({ data: () => ({ messages: [] }) });
+const mockFirestoreGet = jest.fn().mockResolvedValue({ data: () => undefined });
+const mockFirestoreUpdate = jest.fn().mockResolvedValue(undefined);
+const originalFetch = global.fetch;
 
 jest.mock("@/lib/firebase-admin", () => ({
   adminAuth: () => ({ verifyIdToken: mockVerifyIdToken }),
@@ -36,17 +39,19 @@ jest.mock("@/lib/openai-normalize", () => ({
 jest.mock("@/app/api/ai-assistant/keywords", () => ({
   isCannabisRelated: (...args: any[]) => mockIsCannabisRelated(...args),
   isContextuallyOnTopic: (...args: any[]) => mockIsContextuallyOnTopic(...args),
+  isMetaQuestion: (...args: any[]) => mockIsMetaQuestion(...args),
 }));
 
 jest.mock("firebase-admin/firestore", () => ({
   getFirestore: () => ({
     collection: () => ({
       doc: () => ({
+        get: mockFirestoreGet,
         collection: () => ({
           doc: () => ({
             get: mockFirestoreGet,
             set: mockFirestoreSet,
-            update: jest.fn().mockResolvedValue(undefined),
+            update: mockFirestoreUpdate,
           }),
         }),
       }),
@@ -92,13 +97,28 @@ describe("POST /api/ai-assistant", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input.toString();
+      if (url === "https://example.com/img.jpg") {
+        return new Response(new Uint8Array([1, 2, 3]), {
+          status: 200,
+          headers: { "Content-Type": "image/jpeg" },
+        });
+      }
+      throw new Error(`Unexpected fetch in test: ${url}`);
+    }) as typeof fetch;
     // Default: rate limit passes
     mockCheckRateLimit.mockResolvedValue({ ok: true, limit: 20, remaining: 19, resetMs: 60000 });
     // Default: on-topic
     mockIsCannabisRelated.mockReturnValue(true);
     mockIsContextuallyOnTopic.mockReturnValue(false);
+    mockIsMetaQuestion.mockReturnValue(false);
 
     ({ POST } = await import("@/app/api/ai-assistant/route"));
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   // ── Auth ──
@@ -127,25 +147,51 @@ describe("POST /api/ai-assistant", () => {
 
   // ── Premium ──
 
-  it("returns 403 when REQUIRE_PREMIUM_FOR_AI=true and user has no premium", async () => {
-    process.env.REQUIRE_PREMIUM_FOR_AI = "true";
+  it("returns 403 when a non-premium user requests premium_chat", async () => {
     mockVerifyIdToken.mockResolvedValue({ uid: "u1", premium: false });
 
-    const res = await POST(makeRequest({ messages: validMessages }, "Bearer valid"));
+    const res = await POST(
+      makeRequest(
+        { messages: validMessages, chatType: "premium_chat" },
+        "Bearer valid",
+      ),
+    );
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe("premium_required");
-
-    delete process.env.REQUIRE_PREMIUM_FOR_AI;
   });
 
-  it("allows non-premium users when REQUIRE_PREMIUM_FOR_AI is not set", async () => {
-    delete process.env.REQUIRE_PREMIUM_FOR_AI;
+  it("allows non-premium users to use free_taste with an image", async () => {
+    process.env.GEMINI_API_KEY = "fake-key";
+    mockVerifyIdToken.mockResolvedValue({ uid: "u1", premium: false });
+    const messages = [
+      {
+        role: "user",
+        content: "Can you check this plant?",
+        timestamp: new Date().toISOString(),
+        images: [{ url: "https://example.com/img.jpg", type: "image/jpeg" }],
+      },
+    ];
+
+    const res = await POST(
+      makeRequest({ messages, chatType: "free_taste" }, "Bearer valid"),
+    );
+    expect(res.status).not.toBe(403);
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  it("returns 400 when free_taste is requested without an image", async () => {
     mockVerifyIdToken.mockResolvedValue({ uid: "u1", premium: false });
 
-    // Should proceed past premium check (will fail later for other reasons, but not 403)
-    const res = await POST(makeRequest({ messages: validMessages }, "Bearer valid"));
-    expect(res.status).not.toBe(403);
+    const res = await POST(
+      makeRequest(
+        { messages: validMessages, chatType: "free_taste" },
+        "Bearer valid",
+      ),
+    );
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe("image_required");
   });
 
   // ── Rate limit ──
@@ -207,7 +253,12 @@ describe("POST /api/ai-assistant", () => {
     mockVerifyIdToken.mockResolvedValue(validDecoded);
     mockIsCannabisRelated.mockReturnValue(true);
 
-    const res = await POST(makeRequest({ messages: validMessages }, "Bearer valid"));
+    const res = await POST(
+      makeRequest(
+        { messages: validMessages, chatType: "premium_chat" },
+        "Bearer valid",
+      ),
+    );
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.response).toBeTruthy();
@@ -218,7 +269,7 @@ describe("POST /api/ai-assistant", () => {
 
   it("passes through when message has images (always on-topic)", async () => {
     process.env.GEMINI_API_KEY = "fake-key";
-    mockVerifyIdToken.mockResolvedValue(validDecoded);
+    mockVerifyIdToken.mockResolvedValue({ uid: "u1", premium: false });
     mockIsCannabisRelated.mockReturnValue(false);
     mockIsContextuallyOnTopic.mockReturnValue(false);
 
@@ -232,7 +283,9 @@ describe("POST /api/ai-assistant", () => {
     ];
 
     // Images bypass topic guard — should not return a refusal
-    const res = await POST(makeRequest({ messages }, "Bearer valid"));
+    const res = await POST(
+      makeRequest({ messages, chatType: "free_taste" }, "Bearer valid"),
+    );
     expect(res.status).toBe(200);
     const body = await res.json();
     // A refusal message contains "cannabis" — a real response should not start with "Solo puedo"

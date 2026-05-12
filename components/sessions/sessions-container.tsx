@@ -51,6 +51,7 @@ import type {
 import { auth } from "@/lib/firebase";
 import { ROUTE_DASHBOARD } from "@/lib/routes";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
 
 async function fetchSessionsData(userId: string): Promise<SessionsData> {
   const ref = sessionsCol(userId);
@@ -78,19 +79,12 @@ async function fetchSessionsData(userId: string): Promise<SessionsData> {
 
   let isPremium = false;
   try {
-    if (
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("cf_premium_v1") === "1"
-    ) {
+    const localOverride = hasLocalPremiumOverride();
+    if (localOverride) {
       isPremium = true;
     } else if (auth.currentUser) {
       const token = await auth.currentUser.getIdTokenResult(true);
-      const claims = token.claims as any;
-      const boolPremium = Boolean(claims?.premium);
-      const until =
-        typeof claims?.premium_until === "number" ? claims.premium_until : 0;
-      const timePremium = until > Date.now();
-      isPremium = Boolean(boolPremium || timePremium);
+      isPremium = resolvePremiumState(token.claims as any, localOverride).isPremium;
     }
   } catch {
     isPremium = false;
@@ -391,19 +385,13 @@ export function SessionsContainer({ userId }: SessionsContainerProps) {
   useEffect(() => {
     const checkPremium = async () => {
       try {
-        if (
-          typeof window !== "undefined" &&
-          window.localStorage.getItem("cf_premium_v1") === "1"
-        ) {
+        const localOverride = hasLocalPremiumOverride();
+        if (localOverride) {
           setIsPremium(true);
         } else if (auth.currentUser) {
           const token = await auth.currentUser.getIdTokenResult(true);
-          const claims = token.claims as any;
           setIsPremium(
-            Boolean(
-              claims?.premium ||
-              (claims?.premium_until && claims.premium_until > Date.now()),
-            ),
+            resolvePremiumState(token.claims as any, localOverride).isPremium,
           );
         }
       } catch {

@@ -12,13 +12,13 @@ import {
   type ImageUploadHandle,
 } from "@/components/common/image-upload";
 import {
-  Brain,
   User,
   X,
   Sparkles,
   ImageIcon,
   Droplets,
   Camera,
+  ArrowLeft,
 } from "lucide-react";
 import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import Image from "next/image";
@@ -29,6 +29,9 @@ import { PlantPhotoModal } from "@/components/ai/plant-photo-modal";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
+import { ROUTE_DASHBOARD, ROUTE_PREMIUM } from "@/lib/routes";
+import { trackEvent } from "@/lib/analytics";
 
 function getMimeTypeFromUrl(url: string): string {
   try {
@@ -56,13 +59,16 @@ export function AIChat({
   className,
   sidebarOpen = false,
   onToggleSidebar,
+  accessMode = "premium_chat",
 }: AIChatProps) {
   const { t } = useTranslation(["aiAssistant", "common"]);
   const { user } = useAuthUser();
+  const isPremiumChat = accessMode === "premium_chat";
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState("");
   const [images, setImages] = useState<AIImageAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId,
   );
@@ -83,7 +89,7 @@ export function AIChat({
 
   // Subscribe to live updates
   useEffect(() => {
-    if (!user?.uid || !currentSessionId) return;
+    if (!isPremiumChat || !user?.uid || !currentSessionId) return;
     const unsub = onSnapshot(
       doc(db, "users", user.uid, "aiChats", currentSessionId),
       (snap) => {
@@ -94,13 +100,18 @@ export function AIChat({
       },
     );
     return () => unsub();
-  }, [user?.uid, currentSessionId]);
+  }, [currentSessionId, isPremiumChat, user?.uid]);
 
   const handleSendMessage = async () => {
     if (!input.trim() && images.length === 0) return;
     if (isLoading) return;
 
     if (!user) {
+      return;
+    }
+
+    if (!isPremiumChat && images.length === 0) {
+      setLocalError(t("freeTasteImageRequired", { ns: "aiAssistant" }));
       return;
     }
 
@@ -116,6 +127,7 @@ export function AIChat({
     setInput("");
     setImages([]);
     setIsLoading(true);
+    setLocalError(null);
 
     try {
       let token: string;
@@ -134,7 +146,8 @@ export function AIChat({
         },
         body: JSON.stringify({
           messages: newMessages,
-          sessionId: currentSessionId,
+          sessionId: isPremiumChat ? currentSessionId : undefined,
+          chatType: accessMode,
         }),
       });
 
@@ -146,7 +159,13 @@ export function AIChat({
         } else if (response.status === 403) {
           throw new Error(t("premiumError", { ns: "aiAssistant" }));
         } else if (response.status === 429) {
-          throw new Error(t("rateLimitError", { ns: "aiAssistant" }));
+          throw new Error(
+            data.error === "free_taste_limit_reached"
+              ? t("freeTasteLimitReached", { ns: "aiAssistant" })
+              : t("rateLimitError", { ns: "aiAssistant" }),
+          );
+        } else if (response.status === 400 && data.error === "image_required") {
+          throw new Error(t("freeTasteImageRequired", { ns: "aiAssistant" }));
         }
         throw new Error(data.error || t("sendError", { ns: "aiAssistant" }));
       }
@@ -159,17 +178,21 @@ export function AIChat({
 
       setMessages([...newMessages, assistantMessage]);
 
-      if (data.sessionId && !currentSessionId) {
+      if (isPremiumChat && data.sessionId && !currentSessionId) {
         setCurrentSessionId(data.sessionId);
       }
 
       if (data.provider) setActiveProvider(data.provider);
+      if (!isPremiumChat) {
+        trackEvent("assistant_free_taste_completed");
+      }
 
     } catch (error: any) {
       setMessages(messages);
       setInput(userMessage.content);
       setImages(userMessage.images || []);
       console.error("AI chat error:", error.message);
+      setLocalError(error.message);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -182,6 +205,10 @@ export function AIChat({
       type: getMimeTypeFromUrl(url),
     }));
     setImages((prev) => [...prev, ...newImages]);
+    if (!isPremiumChat) {
+      trackEvent("assistant_free_taste_started");
+    }
+    setLocalError(null);
   };
 
   const removeImage = (index: number) => {
@@ -192,6 +219,10 @@ export function AIChat({
     setImages([{ url: photoUrl, type: getMimeTypeFromUrl(photoUrl) }]);
     setInput(promptText);
     setIsPhotoModalOpen(false);
+    if (!isPremiumChat) {
+      trackEvent("assistant_free_taste_started");
+    }
+    setLocalError(null);
     // Focus the input to let user review before sending
     setTimeout(() => {
       inputRef.current?.focus();
@@ -206,7 +237,7 @@ export function AIChat({
   };
 
   const loadChatSession = async (sessionId: string) => {
-    if (!user?.uid) return;
+    if (!isPremiumChat || !user?.uid) return;
 
     try {
       const chatDoc = await getDoc(
@@ -231,20 +262,38 @@ export function AIChat({
   const handleNewChat = () => {
     setMessages([]);
     setCurrentSessionId(undefined);
+    setLocalError(null);
     onToggleSidebar && sidebarOpen && onToggleSidebar();
   };
 
   return (
     <div className={cn("flex h-full bg-background", className)}>
-      <ChatSidebar
-        isOpen={sidebarOpen}
-        onToggle={onToggleSidebar || (() => {})}
-        currentSessionId={currentSessionId}
-        onSessionSelect={loadChatSession}
-        onNewChat={handleNewChat}
-      />
+      {isPremiumChat ? (
+        <ChatSidebar
+          isOpen={sidebarOpen}
+          onToggle={onToggleSidebar || (() => {})}
+          currentSessionId={currentSessionId}
+          onSessionSelect={loadChatSession}
+          onNewChat={handleNewChat}
+        />
+      ) : null}
 
       <div className="flex flex-col flex-1 h-full relative md:pb-0">
+        <div className="sticky top-0 z-20 border-b bg-background/95 px-3 py-2 backdrop-blur-sm md:hidden">
+          <div className="mx-auto flex max-w-3xl items-center gap-2">
+            <Button asChild variant="ghost" size="icon" aria-label={t("back", { ns: "common" })}>
+              <Link href={ROUTE_DASHBOARD}>
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">
+                {t("title", { ns: "aiAssistant" })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {messages.length === 0 ? (
           // Empty State
           <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 max-w-3xl mx-auto w-full">
@@ -253,57 +302,98 @@ export function AIChat({
             </div>
 
             <h2 className="text-2xl font-semibold text-center mb-2">
-              {t("helpText", { ns: "aiAssistant" })}
+              {t(
+                isPremiumChat ? "helpText" : "freeTasteTitle",
+                { ns: "aiAssistant" },
+              )}
             </h2>
 
             <p className="text-muted-foreground text-center mb-8 max-w-md">
-              {t("helpSubtext", { ns: "aiAssistant" })}
+              {t(
+                isPremiumChat ? "helpSubtext" : "freeTasteHelp",
+                { ns: "aiAssistant" },
+              )}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mb-8">
-              <Card
-                variant="interactive"
-                className="p-4 cursor-pointer"
-                onClick={() =>
-                  setInput(t("diagnosePrompt", { ns: "aiAssistant" }))
-                }
-              >
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-warning/10 rounded-lg shrink-0">
-                    <ImageIcon className="w-4 h-4 text-warning" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-sm">
-                      {t("diagnoseIssue", { ns: "aiAssistant" })}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {t("diagnoseIssueDesc", { ns: "aiAssistant" })}
-                    </p>
-                  </div>
-                </div>
-              </Card>
+            <p className="text-xs text-muted-foreground text-center mb-6 max-w-xl">
+              {t("dataUseNotice", { ns: "aiAssistant" })}
+            </p>
 
-              <Card
-                variant="interactive"
-                className="p-4 cursor-pointer"
-                onClick={() =>
-                  setInput(t("feedingPrompt", { ns: "aiAssistant" }))
-                }
-              >
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-success/10 rounded-lg shrink-0">
-                    <Droplets className="w-4 h-4 text-success" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-sm">
-                      {t("feedingSchedule", { ns: "aiAssistant" })}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {t("feedingScheduleDesc", { ns: "aiAssistant" })}
+            {!isPremiumChat ? (
+              <div className="mb-8 w-full max-w-xl rounded-2xl border bg-muted/30 p-4 text-left">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="space-y-1">
+                    <p className="font-medium">
+                      {t("freeTasteNoteTitle", { ns: "aiAssistant" })}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("freeTasteNote", { ns: "aiAssistant" })}
                     </p>
                   </div>
+                  <Button asChild variant="outline">
+                    <Link href={ROUTE_PREMIUM}>
+                      {t("premium.upgrade", { ns: "common" })}
+                    </Link>
+                  </Button>
                 </div>
-              </Card>
+              </div>
+            ) : null}
+
+            <div
+              className={cn(
+                "grid gap-4 w-full mb-8",
+                isPremiumChat
+                  ? "grid-cols-1 sm:grid-cols-3"
+                  : "grid-cols-1 sm:grid-cols-2",
+              )}
+            >
+              {isPremiumChat ? (
+                <Card
+                  variant="interactive"
+                  className="p-4 cursor-pointer"
+                  onClick={() =>
+                    setInput(t("diagnosePrompt", { ns: "aiAssistant" }))
+                  }
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-warning/10 rounded-lg shrink-0">
+                      <ImageIcon className="w-4 h-4 text-warning" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm">
+                        {t("diagnoseIssue", { ns: "aiAssistant" })}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {t("diagnoseIssueDesc", { ns: "aiAssistant" })}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ) : null}
+
+              {isPremiumChat ? (
+                <Card
+                  variant="interactive"
+                  className="p-4 cursor-pointer"
+                  onClick={() =>
+                    setInput(t("feedingPrompt", { ns: "aiAssistant" }))
+                  }
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-success/10 rounded-lg shrink-0">
+                      <Droplets className="w-4 h-4 text-success" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm">
+                        {t("feedingSchedule", { ns: "aiAssistant" })}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {t("feedingScheduleDesc", { ns: "aiAssistant" })}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ) : null}
 
               <Card
                 variant="interactive"
@@ -324,10 +414,37 @@ export function AIChat({
                   </div>
                 </div>
               </Card>
+
+              {!isPremiumChat ? (
+                <Card
+                  variant="interactive"
+                  className="p-4 cursor-pointer"
+                  onClick={() => imageUploadRef.current?.open()}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-warning/10 rounded-lg shrink-0">
+                      <ImageIcon className="w-4 h-4 text-warning" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-sm">
+                        {t("uploadPhoto", { ns: "aiAssistant" })}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {t("freeTasteUploadDesc", { ns: "aiAssistant" })}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              ) : null}
             </div>
 
             {/* Input Area for Empty State */}
             <div className="w-full">
+              {localError ? (
+                <p className="mb-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+                  {localError}
+                </p>
+              ) : null}
               {images.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
                   {images.map((img, index) => (
@@ -508,7 +625,10 @@ export function AIChat({
                   onToggleSidebar={onToggleSidebar}
                 />
                 <p className="text-[10px] text-center text-muted-foreground mt-2">
-                  {t("disclaimer", { ns: "aiAssistant" })}
+                  {t(
+                    isPremiumChat ? "disclaimer" : "freeTasteFooter",
+                    { ns: "aiAssistant" },
+                  )}
                 </p>
               </div>
             </div>

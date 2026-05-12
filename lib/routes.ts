@@ -7,7 +7,6 @@ export const ROUTE_SESSIONS = "/sessions" as const;
 export const ROUTE_PLANTS_NEW = "/plants/new" as const;
 export const ROUTE_PLANTS = "/plants" as const;
 export const ROUTE_AI_ASSISTANT = "/ai-assistant" as const;
-export const ROUTE_CONSUMER_CHAT = "/consumer-chat" as const;
 export const ROUTE_PREMIUM = "/premium" as const;
 export const ROUTE_SETTINGS = "/settings" as const;
 export const ROUTE_JOURNAL = "/journal" as const;
@@ -31,7 +30,6 @@ export type AppPath =
   | typeof ROUTE_PLANTS_NEW
   | typeof ROUTE_PLANTS
   | typeof ROUTE_AI_ASSISTANT
-  | typeof ROUTE_CONSUMER_CHAT
   | typeof ROUTE_PREMIUM
   | typeof ROUTE_SETTINGS
   | typeof ROUTE_JOURNAL
@@ -47,8 +45,3 @@ export type AppPath =
   | typeof ROUTE_ADMIN
   | typeof ROUTE_HOME
   | string;
-
-
-export function consumerChatDetailPath(id: string): string {
-  return `${ROUTE_CONSUMER_CHAT}/${id}`;
-}
