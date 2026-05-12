@@ -1,6 +1,6 @@
 {
   "name": "cannafriend",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "scripts": {
@@ -12,6 +12,7 @@
     "start": "next start",
     "images:optimize": "node ./scripts/optimize-images.mjs",
     "test": "jest",
+    "test:ci": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "typecheck": "tsc --noEmit",

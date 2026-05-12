@@ -24,6 +24,7 @@ import { LanguageSwitcher } from "@/components/common/language-switcher";
 import { TimezoneSelect } from "@/components/common/timezone-select";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import type { UserProfile } from "@/types";
+import { trackEvent } from "@/lib/analytics";
 
 export default function OnboardingPage() {
   const { t } = useTranslation("onboarding");
@@ -56,11 +57,13 @@ export default function OnboardingPage() {
         {
           timezone: data.timezone,
           createdAt: new Date().toISOString(),
+          onboardingCompletedAt: new Date().toISOString(),
         },
         { merge: true }
       );
 
       invalidateDashboardCache(userId);
+      trackEvent("onboarding_completed");
 
       // Redirect to dashboard
       router.replace(ROUTE_DASHBOARD);

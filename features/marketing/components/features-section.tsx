@@ -6,56 +6,43 @@ import {
   Calendar,
   Camera,
   BarChart3,
-  List,
-  NotebookPen,
+  Bell,
+  Brain,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export function FeaturesSection({ className = "" }: FeaturesSectionProps) {
-  const { t } = useTranslation(["common"]);
-  const growerFeatures: Feature[] = [
+  const { t } = useTranslation(["landing"]);
+  const features: Feature[] = [
     {
       icon: Leaf,
-      title: t("features.management.title"),
-      description: t("features.management.desc"),
+      title: t("features.plantManagement.title", { ns: "landing" }),
+      description: t("features.plantManagement.desc", { ns: "landing" }),
     },
     {
       icon: Calendar,
-      title: t("features.journal.title"),
-      description: t("features.journal.desc"),
+      title: t("features.growJournal.title", { ns: "landing" }),
+      description: t("features.growJournal.desc", { ns: "landing" }),
     },
     {
       icon: BarChart3,
-      title: t("features.monitoring.title"),
-      description: t("features.monitoring.desc"),
+      title: t("features.environmentControl.title", { ns: "landing" }),
+      description: t("features.environmentControl.desc", { ns: "landing" }),
     },
     {
       icon: Camera,
-      title: t("features.gallery.title"),
-      description: t("features.gallery.desc"),
-    },
-  ];
-
-  const consumerFeatures: Feature[] = [
-    {
-      icon: Calendar,
-      title: t("features.consumer.sessions.title"),
-      description: t("features.consumer.sessions.desc"),
+      title: t("features.photoGallery.title", { ns: "landing" }),
+      description: t("features.photoGallery.desc", { ns: "landing" }),
     },
     {
-      icon: List,
-      title: t("features.consumer.history.title"),
-      description: t("features.consumer.history.desc"),
+      icon: Bell,
+      title: t("features.reminders.title", { ns: "landing" }),
+      description: t("features.reminders.desc", { ns: "landing" }),
     },
     {
-      icon: NotebookPen,
-      title: t("features.consumer.notes.title"),
-      description: t("features.consumer.notes.desc"),
-    },
-    {
-      icon: Camera,
-      title: t("features.consumer.photos.title"),
-      description: t("features.consumer.photos.desc"),
+      icon: Brain,
+      title: t("showcase.aiTitle", { ns: "landing" }),
+      description: t("showcase.aiDesc", { ns: "landing" }),
     },
   ];
 
@@ -65,7 +52,7 @@ export function FeaturesSection({ className = "" }: FeaturesSectionProps) {
         {t("features.title", { defaultValue: "Features" })}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {[...growerFeatures, ...consumerFeatures].map((feature, index) => (
+        {features.map((feature, index) => (
           <div
             key={index}
             className="rounded-md border border-gray-200 dark:border-gray-700 p-3 min-h-24"

@@ -2,10 +2,8 @@ import {
   Brain,
   Calendar,
   Bell,
-  FilePen,
   Home,
   Leaf,
-  Package,
   Settings,
 } from "lucide-react";
 import {
@@ -14,9 +12,7 @@ import {
   ROUTE_JOURNAL,
   ROUTE_PLANTS,
   ROUTE_REMINDERS,
-  ROUTE_SESSIONS,
   ROUTE_SETTINGS,
-  ROUTE_STASH,
 } from "@/lib/routes";
 
 export type ProductNavItem = {
@@ -38,16 +34,6 @@ export function getProductNavItems(
       href: ROUTE_PLANTS,
       label: t("yourPlants", { ns: "dashboard" }),
       icon: Leaf,
-    },
-    {
-      href: ROUTE_SESSIONS,
-      label: t("title", { ns: "sessions" }),
-      icon: FilePen,
-    },
-    {
-      href: ROUTE_STASH,
-      label: t("stash", { ns: "nav" }),
-      icon: Package,
     },
     {
       href: ROUTE_JOURNAL,

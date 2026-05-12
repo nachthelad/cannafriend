@@ -18,6 +18,7 @@ import { ROUTE_REMINDERS, ROUTE_DASHBOARD } from "@/lib/routes";
 import { plantsCol, remindersCol } from "@/lib/paths";
 import { auth } from "@/lib/firebase";
 import { addDoc, getDocs, query } from "firebase/firestore";
+import { trackEvent } from "@/lib/analytics";
 import {
   invalidateDashboardCache,
   invalidateRemindersCache,
@@ -176,6 +177,7 @@ export default function NewReminderPage() {
 
       invalidateRemindersCache(auth.currentUser.uid);
       invalidateDashboardCache(auth.currentUser.uid);
+      trackEvent("reminder_created");
       reset();
 
       router.push(ROUTE_REMINDERS);

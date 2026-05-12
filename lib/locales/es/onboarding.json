@@ -3,14 +3,10 @@
   "description": "Configura tu cuenta para comenzar",
   "timezone": "Zona Horaria",
   "selectTimezone": "Selecciona tu zona horaria",
-  "roles": "¿Cómo usarás la app?",
-  "grower": "Cultivador",
-  "consumer": "Consumidor",
-  "selectAtLeastOneRole": "Selecciona al menos una opción",
   "submit": "Continuar",
   "loading": "Guardando…",
   "success": "¡Configuración guardada!",
   "successMessage": "Tu cuenta ha sido configurada correctamente",
   "error": "Error al guardar la configuración",
-  "info": "Esta información nos ayuda a mostrar fechas y recordatorios en tu zona horaria"
+  "info": "Esta información nos ayuda a mostrar fechas, recordatorios y ventanas de acceso premium en tu zona horaria."
 }
