@@ -349,7 +349,6 @@
     "timezone": "Timezone",
     "selectTimezone": "Select a timezone",
     "darkMode": "Dark mode",
-    "roles": "Roles",
     "notifications": "Notifications",
     "updated": "Updated",
     "error": "Error",
@@ -416,9 +415,15 @@
     "cancelError": "Error cancelling subscription",
     "alreadyCancelled": "You don't have an active subscription to cancel",
     "mercadopagoNote": "For MercadoPago subscriptions, you can also cancel from your MercadoPago account",
+    "manageInApp": "You can manage cancellation from this app when the payment provider supports it.",
     "recurring": "Recurring",
     "oneTime": "One-time",
     "expires": "Expires",
-    "lastPayment": "Last payment"
+    "lastPayment": "Last payment",
+    "source": "Source",
+    "sourceMercadoPago": "MercadoPago",
+    "sourceStripe": "Stripe",
+    "sourceManual": "Manual",
+    "sourceUnknown": "Unknown"
   }
 }

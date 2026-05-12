@@ -1,14 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
-import { getDoc, updateDoc } from "firebase/firestore";
-import {
-  invalidateDashboardCache,
-  invalidateSettingsCache,
-} from "@/lib/suspense-cache";
-
+import { updateDoc } from "firebase/firestore";
+import { invalidateSettingsCache } from "@/lib/suspense-cache";
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { SubscriptionManagement } from "@/components/settings/subscription-management";
@@ -16,62 +12,28 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { AppInformation } from "@/components/settings/app-information";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
-// import { PushNotifications } from "@/components/settings/push-notifications"; // DELETED
-
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
-import { getSuspenseResource } from "@/lib/suspense-utils";
 import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
 import { toast } from "sonner";
+import {
+  DEFAULT_SETTINGS_PREFERENCES,
+  fetchSettingsData,
+  getStoredSettingsPreferences,
+} from "@/lib/settings-data";
 import type {
   SettingsContainerProps,
   SettingsContentProps,
-  SettingsData,
   SettingsPreferencesState,
   SettingsSection,
   SettingsSectionId,
   SubscriptionDetails,
   SubscriptionLine,
 } from "@/types";
-
-async function fetchSettingsData(userId: string): Promise<SettingsData> {
-  const userRef = userDoc(userId);
-  const userSnap = await getDoc(userRef);
-
-  let timezone = "";
-  let darkMode = true;
-
-  if (userSnap.exists()) {
-    const data = userSnap.data() as any;
-    timezone = data.timezone ?? "";
-    darkMode = typeof data.darkMode === "boolean" ? data.darkMode : true;
-  }
-
-  let subscription: SubscriptionDetails | null = null;
-
-  if (auth.currentUser) {
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const response = await fetch("/api/mercadopago/subscription-status", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.ok) {
-        subscription = (await response.json()) as SubscriptionDetails;
-      }
-    } catch {
-      subscription = null;
-    }
-  }
-
-  return {
-    preferences: { timezone, darkMode },
-    subscription,
-  };
-}
 
 function SettingsContent({
   userId,
@@ -84,31 +46,16 @@ function SettingsContent({
   const { handleFirebaseError } = useErrorHandler();
   const { setTheme } = useTheme();
 
-  const cacheKey = `settings-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () =>
-    fetchSettingsData(userId)
-  );
-  const { preferences: initialPreferences, subscription: initialSubscription } =
-    resource.read();
-
   const [preferences, setPreferences] =
-    useState<SettingsPreferencesState>(initialPreferences);
-
-  const persistPreferences = useCallback(
-    (nextPreferences: SettingsPreferencesState) => {
-      try {
-        localStorage.setItem(
-          `cf:userSettings:${userId}`,
-          JSON.stringify(nextPreferences)
-        );
-      } catch {
-        // Ignore storage errors
-      }
-    },
-    [userId]
+    useState<SettingsPreferencesState>(() =>
+      typeof window === "undefined"
+        ? DEFAULT_SETTINGS_PREFERENCES
+        : getStoredSettingsPreferences(userId),
+    );
+  const [subscription, setSubscription] = useState<SubscriptionDetails | null>(
+    null,
   );
-
-  const previousPreferencesRef = useRef<SettingsPreferencesState | null>(null);
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(true);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isCancellingSubscription, setIsCancellingSubscription] =
     useState(false);
@@ -116,36 +63,63 @@ function SettingsContent({
     useState<SettingsSectionId>("profile");
   const [hasHydrated, setHasHydrated] = useState(false);
 
-  useEffect(() => {
-    if (previousPreferencesRef.current === initialPreferences) {
-      return;
-    }
-    previousPreferencesRef.current = initialPreferences;
-    setPreferences(initialPreferences);
-  }, [initialPreferences]);
+  const persistPreferences = useCallback(
+    (nextPreferences: SettingsPreferencesState) => {
+      try {
+        window.localStorage.setItem(
+          `cf:userSettings:${userId}`,
+          JSON.stringify(nextPreferences),
+        );
+      } catch {
+        // Ignore storage errors
+      }
+    },
+    [userId],
+  );
 
   useEffect(() => {
     setHasHydrated(true);
   }, []);
 
-  const subscription = initialSubscription;
-  const isPremium = Boolean(subscription?.premium ?? false);
+  useEffect(() => {
+    let isActive = true;
+
+    const loadSettings = async () => {
+      setIsSubscriptionLoading(true);
+
+      try {
+        const data = await fetchSettingsData(userId);
+        if (!isActive) {
+          return;
+        }
+
+        setPreferences(data.preferences);
+        persistPreferences(data.preferences);
+        setSubscription(data.subscription);
+      } catch (error) {
+        if (!isActive) {
+          return;
+        }
+        console.error("Error loading settings data:", error);
+      } finally {
+        if (isActive) {
+          setIsSubscriptionLoading(false);
+        }
+      }
+    };
+
+    loadSettings();
+
+    return () => {
+      isActive = false;
+    };
+  }, [persistPreferences, userId]);
 
   useEffect(() => {
-    setTheme(preferences.darkMode ? "dark" : "light");
     setTheme(preferences.darkMode ? "dark" : "light");
   }, [preferences.darkMode, setTheme]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(
-        `cf:userSettings:${userId}`,
-        JSON.stringify(preferences)
-      );
-    } catch {
-      // Ignore storage errors
-    }
-  }, [preferences, userId]);
+  const isPremium = Boolean(subscription?.premium ?? false);
 
   const formatRemaining = useCallback(
     (ms?: number | null) => {
@@ -157,7 +131,22 @@ function SettingsContent({
       if (hours > 0) return `${hours}h ${mins}m`;
       return `${mins}m`;
     },
-    [t]
+    [t],
+  );
+
+  const getDisplayDate = useCallback(
+    (value: number | string) => {
+      const date =
+        typeof value === "number" ? new Date(value) : new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return "—";
+      }
+      if (!hasHydrated) {
+        return date.toISOString().replace("T", " ").replace("Z", " UTC");
+      }
+      return date.toLocaleString();
+    },
+    [hasHydrated],
   );
 
   const handleTimezoneChange = async (value: string) => {
@@ -167,11 +156,9 @@ function SettingsContent({
       await updateDoc(userDoc(userId), { timezone: value });
       const next = { ...preferences, timezone: value };
       setPreferences(next);
-      try {
-        localStorage.setItem(`cf:userSettings:${userId}`, JSON.stringify(next));
-      } catch {}
+      persistPreferences(next);
       invalidateSettingsCache(userId);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "update timezone");
     }
   };
@@ -188,9 +175,7 @@ function SettingsContent({
 
     try {
       await updateDoc(userDoc(userId), { darkMode: checked });
-      // Delay cache invalidation to avoid skeleton flash
-      setTimeout(() => invalidateSettingsCache(userId), 100);
-    } catch (error: any) {
+    } catch (error) {
       setPreferences(previous);
       persistPreferences(previous);
       setTheme(previous.darkMode ? "dark" : "light");
@@ -202,7 +187,7 @@ function SettingsContent({
     try {
       await signOut(auth);
       router.replace(ROUTE_LOGIN);
-    } catch (error: any) {
+    } catch (error) {
       handleFirebaseError(error, "sign out");
     }
   };
@@ -238,7 +223,7 @@ function SettingsContent({
       if (!response.ok && !data.success) {
         throw new Error(data.message || "Failed to cancel subscription");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error cancelling subscription:", error);
     } finally {
       setIsCancellingSubscription(false);
@@ -274,21 +259,6 @@ function SettingsContent({
     }
   };
 
-  const getDisplayDate = useCallback(
-    (value: number | string) => {
-      const date =
-        typeof value === "number" ? new Date(value) : new Date(value);
-      if (Number.isNaN(date.getTime())) {
-        return "—";
-      }
-      if (!hasHydrated) {
-        return date.toISOString().replace("T", " ").replace("Z", " UTC");
-      }
-      return date.toLocaleString();
-    },
-    [hasHydrated]
-  );
-
   const subscriptionLines: SubscriptionLine[] = useMemo(() => {
     if (!subscription) return [];
 
@@ -299,15 +269,27 @@ function SettingsContent({
         subscription.recurring === true
           ? t("subscription.recurring")
           : subscription.preapproval_status
-          ? subscription.preapproval_status
-          : t("subscription.oneTime"),
+            ? subscription.preapproval_status
+            : t("subscription.oneTime"),
+    });
+
+    lines.push({
+      label: t("subscription.source"),
+      value:
+        subscription.source === "mercadopago"
+          ? t("subscription.sourceMercadoPago")
+          : subscription.source === "stripe"
+            ? t("subscription.sourceStripe")
+            : subscription.source === "admin"
+              ? t("subscription.sourceManual")
+              : t("subscription.sourceUnknown"),
     });
 
     if (typeof subscription.premium_until === "number") {
       lines.push({
         label: t("subscription.expires"),
         value: `${getDisplayDate(
-          subscription.premium_until
+          subscription.premium_until,
         )} (${formatRemaining(subscription.remaining_ms)})`,
       });
     }
@@ -338,8 +320,6 @@ function SettingsContent({
         id: "billing",
         label: t("settings.billing"),
       },
-      // { id: "notifications", label: t("settings.notifications") }, // DELETED
-
       {
         id: "app-info",
         label: t("settings.appInfo"),
@@ -350,7 +330,7 @@ function SettingsContent({
         isDestructive: true,
       },
     ],
-    [t]
+    [t],
   );
 
   const sectionRenderers = useMemo(
@@ -358,7 +338,6 @@ function SettingsContent({
       profile: () => (
         <AccountSummary
           title={t("settings.account")}
-          // description={t("settings.accountDesc")}
           email={email}
           providerId={providerId}
           signOutLabel={t("signOut", { ns: "nav" })}
@@ -368,7 +347,6 @@ function SettingsContent({
       preferences: () => (
         <PreferencesForm
           title={t("settings.preferences")}
-          // description={t("settings.preferencesDesc")}
           languageLabel={t("settings.language")}
           timezoneLabel={t("settings.timezone")}
           timezonePlaceholder={t("settings.selectTimezone")}
@@ -385,6 +363,7 @@ function SettingsContent({
           statusLabel={t("subscription.status")}
           activeLabel={t("subscription.active")}
           inactiveLabel={t("subscription.inactive")}
+          loadingLabel={t("loading")}
           upgradeLabel={t("premium.upgrade")}
           upgradeDescription={t("premium.analyzeDesc")}
           onUpgrade={() => router.push(ROUTE_PREMIUM)}
@@ -397,16 +376,18 @@ function SettingsContent({
           cancelingLabel={t("subscription.cancelling")}
           isPremium={isPremium}
           isCancelling={isCancellingSubscription}
+          isLoading={isSubscriptionLoading}
           subscriptionLines={subscriptionLines}
-          note={t("subscription.mercadopagoNote")}
+          note={
+            subscription?.management_hint === "mercadopago_account"
+              ? t("subscription.mercadopagoNote")
+              : t("subscription.manageInApp")
+          }
         />
       ),
-      // notifications: () => null, // DELETED
-
       "app-info": () => (
         <AppInformation
           title={t("settings.appInfoDesc")}
-          // description={t("settings.appInfoDesc")}
           versionLabel={t("settings.appVersion")}
           version={appVersion}
         />
@@ -431,22 +412,18 @@ function SettingsContent({
     [
       appVersion,
       email,
-      handleCancelSubscription,
-      handleDarkModeChange,
-      handleDeleteAccount,
-      handleSignOut,
       handleTimezoneChange,
       isCancellingSubscription,
       isDeletingAccount,
       isPremium,
+      isSubscriptionLoading,
       preferences.darkMode,
       preferences.timezone,
       providerId,
       router,
       subscriptionLines,
       t,
-      userId,
-    ]
+    ],
   );
 
   const renderActiveSection = sectionRenderers[activeSection];
@@ -454,7 +431,7 @@ function SettingsContent({
   useEffect(() => {
     if (!sections.length) return;
     const currentSectionValid = sections.some(
-      (section) => section.id === activeSection
+      (section) => section.id === activeSection,
     );
     if (!currentSectionValid) {
       setActiveSection(sections[0].id);

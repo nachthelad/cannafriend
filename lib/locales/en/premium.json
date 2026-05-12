@@ -1,23 +1,19 @@
 {
   "title": "Premium",
-  "subtitle": "Upgrade to Premium and unlock the full power of Cannafriend's AI assistant",
+  "subtitle": "Unlock deeper photo diagnosis, saved conversations, and richer follow-up guidance for your grow.",
   "featuresTitle": "Premium Features",
   "features": {
     "aiAssistant": {
-      "title": "AI Plant Assistant",
-      "description": "Get expert advice and plant analysis"
+      "title": "Deeper photo diagnosis",
+      "description": "Get a more complete read on plant health, issues, and what to check next."
     },
-    "analytics": {
-      "title": "Advanced Analytics",
-      "description": "Detailed growth tracking and insights"
+    "followUps": {
+      "title": "Follow-up questions",
+      "description": "Keep the conversation going when you need context, comparisons, or clarification."
     },
-    "support": {
-      "title": "Priority Support",
-      "description": "Get help when you need it most"
-    },
-    "content": {
-      "title": "Premium Content",
-      "description": "Exclusive guides and resources"
+    "history": {
+      "title": "Saved conversation history",
+      "description": "Come back to previous diagnoses and recommendations without starting from scratch."
     }
   },
   "subscription": {
