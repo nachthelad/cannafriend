@@ -22,12 +22,15 @@ import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
 import { toast } from "sonner";
 import {
-  DEFAULT_MAX_SIZE_MB,
   ALLOWED_IMAGE_TYPES,
+  DEFAULT_MAX_SOURCE_SIZE_MB,
+  DEFAULT_MAX_SIZE_MB,
   IMAGE_ERROR_KEYS,
   generateImageFileName,
   getImageStoragePath,
   validateImageFile,
+  validateImageFileSize,
+  validateImageFileType,
   getImageAcceptAttribute,
   getTranslatedImageError,
 } from "@/lib/image-config";
@@ -77,9 +80,22 @@ function ImageUploadComponent(
       const errors: string[] = [];
 
       for (const file of files) {
-        const error = validateImageFile(file, maxSizeMB);
+        const typeError = validateImageFileType(file);
+        const sourceSizeError = validateImageFileSize(
+          file,
+          DEFAULT_MAX_SOURCE_SIZE_MB
+        );
+        const error = typeError ?? sourceSizeError;
+
         if (error) {
-          const translatedError = getTranslatedImageError(error.key, t);
+          const translatedError =
+            error.key === IMAGE_ERROR_KEYS.FILE_TOO_LARGE
+              ? getTranslatedImageError(
+                  error.key,
+                  t,
+                  `${DEFAULT_MAX_SOURCE_SIZE_MB}MB`
+                )
+              : getTranslatedImageError(error.key, t);
           errors.push(`${file.name}: ${translatedError}`);
         } else {
           validFiles.push(file);
@@ -183,6 +199,11 @@ function ImageUploadComponent(
 
     if (!ALLOWED_IMAGE_TYPES.includes(processed.type as any)) {
       throw new Error(getTranslatedImageError(IMAGE_ERROR_KEYS.INVALID_FILE_TYPE, t));
+    }
+
+    const processedError = validateImageFile(processed, maxSizeMB);
+    if (processedError) {
+      throw new Error(getTranslatedImageError(processedError.key, t, `${maxSizeMB}MB`));
     }
 
     const fileName = generateImageFileName(processed.name);

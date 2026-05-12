@@ -31,6 +31,7 @@ export const ALLOWED_IMAGE_EXTENSIONS = [
 // Upload limits
 export const DEFAULT_MAX_IMAGES = 5;
 export const DEFAULT_MAX_SIZE_MB = 4;
+export const DEFAULT_MAX_SOURCE_SIZE_MB = 20;
 
 // Storage configuration
 export const STORAGE_IMAGES_PATH = "images";
@@ -65,9 +66,8 @@ export const getImageStoragePath = (
 };
 
 // Validation function that returns error key and fallback message
-export const validateImageFile = (
-  file: File,
-  maxSizeMB: number = DEFAULT_MAX_SIZE_MB
+export const validateImageFileType = (
+  file: File
 ): { key: string; fallback: string } | null => {
   const normalizedName = file.name.toLowerCase();
   const hasAllowedExtension = ALLOWED_IMAGE_EXTENSIONS.some((extension) =>
@@ -85,6 +85,13 @@ export const validateImageFile = (
     };
   }
 
+  return null;
+};
+
+export const validateImageFileSize = (
+  file: File,
+  maxSizeMB: number = DEFAULT_MAX_SIZE_MB
+): { key: string; fallback: string } | null => {
   // Check file size
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   if (file.size > maxSizeBytes) {
@@ -95,6 +102,19 @@ export const validateImageFile = (
   }
 
   return null;
+};
+
+// Validation function that returns error key and fallback message
+export const validateImageFile = (
+  file: File,
+  maxSizeMB: number = DEFAULT_MAX_SIZE_MB
+): { key: string; fallback: string } | null => {
+  const typeError = validateImageFileType(file);
+  if (typeError) {
+    return typeError;
+  }
+
+  return validateImageFileSize(file, maxSizeMB);
 };
 
 // Image display utilities
