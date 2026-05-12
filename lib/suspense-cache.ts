@@ -27,7 +27,7 @@ export function invalidateJournalCache(userId: string) {
   clearSuspenseCache(`journal-${userId}`);
 }
 
-// Clear cache when dashboard data changes (reminders, roles, etc.)
+// Clear cache when dashboard data changes (reminders, plants, activity, etc.)
 export function invalidateDashboardCache(userId: string) {
   clearSuspenseCache(`dashboard-${userId}`);
 }
@@ -37,7 +37,7 @@ export function invalidateRemindersCache(userId: string) {
   clearSuspenseCache(`reminders-${userId}`);
 }
 
-// Clear cache when settings change (theme, timezone, roles, etc.)
+// Clear cache when settings change (theme, timezone, premium state, etc.)
 export function invalidateSettingsCache(userId: string) {
   clearSuspenseCache(`settings-${userId}`);
 }

@@ -84,7 +84,7 @@ describe("MobilePlantPage", () => {
     render(<MobilePlantPage {...baseProps} />);
     // Estado tab: link to add-log should be present
     expect(
-      screen.getByRole("link", { name: /addLog/i })
+      screen.getByRole("link", { name: /addRecord/i })
     ).toHaveAttribute("href", "/plants/plant-1/add-log");
   });
 

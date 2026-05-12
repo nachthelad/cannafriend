@@ -125,7 +125,7 @@ All hooks imported from `@/hooks`:
 import { useFormAuth, useToggle, useLoadingSteps, useFirebaseCollection } from "@/hooks";
 ```
 
-Available hooks: `useAuthUser`, `useFormAuth<T>`, `useFirebaseCollection`, `useFirebaseDocument`, `useAsync`, `useLoadingSteps`, `useToggle`, `usePagination`, `useLocalStorage`, `usePremium`, `useUserRoles`, `useHasPlants`, `useErrorHandler`, `useToast`, `useAppVersion`
+Available hooks: `useAuthUser`, `useFormAuth<T>`, `useFirebaseCollection`, `useFirebaseDocument`, `useAsync`, `useLoadingSteps`, `useToggle`, `usePagination`, `useLocalStorage`, `usePremium`, `useHasPlants`, `useErrorHandler`, `useToast`, `useAppVersion`
 
 ### TypeScript Types
 
@@ -156,9 +156,7 @@ Available namespaces: `common`, `landing`, `auth`, `dashboard`, `plants`, `journ
 import { ROUTE_PLANTS, ROUTE_JOURNAL_NEW } from "@/lib/routes";
 ```
 
-Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_CONSUMER_CHAT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
-
-Helper: `consumerChatDetailPath(id)` builds `/consumer-chat/:id`.
+Constants: `ROUTE_HOME`, `ROUTE_LOGIN`, `ROUTE_DASHBOARD`, `ROUTE_ONBOARDING`, `ROUTE_PLANTS`, `ROUTE_PLANTS_NEW`, `ROUTE_JOURNAL`, `ROUTE_JOURNAL_NEW`, `ROUTE_STASH`, `ROUTE_STASH_NEW`, `ROUTE_REMINDERS`, `ROUTE_REMINDERS_NEW`, `ROUTE_SESSIONS`, `ROUTE_AI_ASSISTANT`, `ROUTE_SETTINGS`, `ROUTE_PREMIUM`, `ROUTE_ADMIN`, `ROUTE_PRIVACY`, `ROUTE_TERMS`, `ROUTE_FORGOT_PASSWORD`, `ROUTE_RESET_PASSWORD`
 
 ### Shared Constants
 

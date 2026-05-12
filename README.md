@@ -1,6 +1,6 @@
 ## Cannafriend 🌱
 
-Your complete cannabis cultivation companion. A modern PWA designed for growers and consumers to track, manage, and optimize their cannabis experience with powerful AI-assisted insights.
+Your complete cannabis cultivation companion. A modern PWA for tracking plants, logs, reminders, photos, stash, sessions, and AI-assisted growing insights in one private workspace.
 
 ### 🚀 Key Features
 
@@ -41,8 +41,8 @@ Your cultivation command center with:
 
 1. Navigate to "AI Assistant" (`/ai-assistant`)
 2. Upload a plant photo or ask a general question
-3. Get personalized recommendations and insights
-4. Review analysis history and previous conversations
+3. Try a quick photo diagnosis for free or upgrade for saved conversations
+4. Review premium chat history and previous recommendations
 5. Apply AI suggestions to improve your grow
 
 #### 📅 **Reminders System**
@@ -71,14 +71,14 @@ Your cultivation command center with:
 
 ### 🛡️ Technology Stack
 
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 15 with App Router
 - **UI**: React with TypeScript, Tailwind CSS
 - **Database**: Firebase Firestore for scalable data storage
 - **Authentication**: Firebase Auth with custom user profiles
 - **Storage**: Firebase Storage for image handling
 - **PWA**: Service Worker for offline functionality
 - **Internationalization**: React-i18next for multi-language support
-- **AI Integration**: OpenAI API for plant analysis and recommendations
+- **AI Integration**: Gemini with OpenAI fallback for plant analysis and recommendations
 
 ### ❓ Frequently Asked Questions
 
@@ -89,7 +89,7 @@ A: CannaFriend works offline for basic functionality (viewing plants, reading jo
 A: Yes! Your account syncs across all devices. Sign in anywhere to access your complete grow history.
 
 **Q: How does the AI analysis work?**
-A: Upload plant photos or ask questions via the AI Assistant. Our AI analyzes images for health issues, nutrient deficiencies, pests, and provides personalized growing advice.
+A: Upload plant photos or ask questions via the AI Assistant. The free preview focuses on image-based diagnosis, and Premium unlocks saved conversations plus deeper follow-up guidance.
 
 **Q: Is my growing data private?**
 A: Absolutely. All data is encrypted and stored securely in your personal account. We never share or sell cultivation information.
