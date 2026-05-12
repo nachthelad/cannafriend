@@ -191,6 +191,7 @@ function ImageUploadComponent(
         maxDimension: 1400,
         outputQuality: 0.78,
         preferMimeType: "image/webp",
+        timeoutMs: 8000,
       });
     } catch (e) {
       // If processing fails, fall back to original file
