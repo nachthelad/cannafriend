@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: harden dynamic pages and dev tooling — 2026-05-12
 - [MINOR]: remove legacy consumer split — 2026-05-12
 - [MINOR]: fix (ai): keywords added — 2026-05-08
 - [MINOR]: version cache names, StaleWhileRevalidate for same-origin images to fix stale logo/favicon after deploy — 2026-04-26
