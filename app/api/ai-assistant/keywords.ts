@@ -416,6 +416,61 @@ export const CONTEXT_KEYWORDS = [
   "nutrients",
 ] as const;
 
+const REFERENTIAL_FOLLOW_UP_PATTERNS = [
+  /\ba\s+qu[eé]\s+te\s+refer[ií]s\b/,
+  /\bqu[eé]\s+quisiste\s+decir\b/,
+  /\bwhat\s+do\s+you\s+mean\b/,
+  /\bwhat\s+did\s+you\s+mean\b/,
+  /\bwhat\s+does\s+that\s+mean\b/,
+  /\bmean\s+by\s+that\b/,
+] as const;
+
+const DEFINITION_FOLLOW_UP_PATTERNS = [
+  /^qu[eé]\s+es\s+(.+)$/i,
+  /^qu[eé]\s+significa\s+(.+)$/i,
+  /^what\s+is\s+(.+)$/i,
+  /^what\s+does\s+(.+?)\s+mean$/i,
+] as const;
+
+function hasCannabisContext(text: string): boolean {
+  return (
+    CONTEXT_KEYWORDS.some((keyword) => text.includes(keyword)) ||
+    CANNABIS_KEYWORDS.some((keyword) => text.includes(keyword))
+  );
+}
+
+function isReferentialFollowUp(text: string, priorConversationText: string): boolean {
+  const normalized = (text || "").toLowerCase().trim();
+  if (!normalized) return false;
+
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+  if (wordCount > 12) return false;
+
+  if (REFERENTIAL_FOLLOW_UP_PATTERNS.some((pattern) => pattern.test(normalized))) {
+    return true;
+  }
+
+  for (const pattern of DEFINITION_FOLLOW_UP_PATTERNS) {
+    const match = normalized.match(pattern);
+    const subject = match?.[1]
+      ?.replace(/[?!.;,]+$/g, "")
+      ?.trim();
+
+    if (!subject) continue;
+
+    const subjectWordCount = subject.split(/\s+/).filter(Boolean).length;
+    if (subjectWordCount <= 2) {
+      return true;
+    }
+
+    if (priorConversationText.includes(subject)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /**
  * Check if text contains cannabis-related keywords
  */
@@ -428,12 +483,27 @@ export function isCannabisRelated(text: string): boolean {
  * Check if conversation has established cannabis context
  */
 export function isContextuallyOnTopic(messages: Array<{ content: string }>): boolean {
-  const conversationText = messages
+  const latestMessage = messages[messages.length - 1]?.content || "";
+  const normalizedLatestMessage = latestMessage.toLowerCase();
+
+  if (hasCannabisContext(normalizedLatestMessage)) {
+    return true;
+  }
+
+  if (messages.length < 2) {
+    return false;
+  }
+
+  const priorConversationText = messages
+    .slice(0, -1)
     .map((m) => m.content)
     .join(" ")
     .toLowerCase();
 
-  return CONTEXT_KEYWORDS.some((keyword) => conversationText.includes(keyword));
+  return (
+    hasCannabisContext(priorConversationText) &&
+    isReferentialFollowUp(latestMessage, priorConversationText)
+  );
 }
 
 /**

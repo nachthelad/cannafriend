@@ -1,28 +1,29 @@
-// Flat ESLint config for ESLint v9 and VSCode integration
-// Bridges existing Next.js config while keeping current rules.
-import { FlatCompat } from "@eslint/eslintrc";
-
-const compat = new FlatCompat({ baseDirectory: process.cwd() });
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 export default [
-  // Bring in Next.js recommended + TypeScript support via compat layer
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-
-  // Project-specific tweaks (mirrors .eslintrc.json rules)
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/ban-ts-comment": "warn",
       "@typescript-eslint/no-require-imports": "warn",
       "@next/next/no-img-element": "warn",
       "react-hooks/exhaustive-deps": "warn",
+      "import/no-unused-modules": "off",
+      "no-console": "warn",
     },
   },
-
-  // Ignores
   {
-    ignores: ["**/.next/**", "**/node_modules/**", "coverage/**"],
+    ignores: ["coverage/**"],
   },
 ];
-

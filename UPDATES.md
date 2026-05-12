@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: align claude guide with current product — 2026-05-12
 - [MINOR]: harden dynamic pages and dev tooling — 2026-05-12
 - [MINOR]: remove legacy consumer split — 2026-05-12
 - [MINOR]: fix (ai): keywords added — 2026-05-08

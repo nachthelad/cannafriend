@@ -12,6 +12,7 @@ const customJestConfig = {
   moduleNameMapper: {
     // Handle module aliases (this will be automatically configured for you based on your tsconfig.json paths)
     '^@/(.*)$': '<rootDir>/$1',
+    '^react-i18next$': '<rootDir>/lib/vendor/react-i18next.ts',
   },
   collectCoverageFrom: [
     'app/**/*.{ts,tsx}',

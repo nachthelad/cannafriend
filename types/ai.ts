@@ -1,5 +1,3 @@
-import type { KeyboardEvent } from "react";
-
 export type AIChatMode = "free_taste" | "premium_chat";
 
 export interface AIImageAttachment {
@@ -58,9 +56,10 @@ export interface ChatListItemProps {
 export interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
-  onKeyPress: (event: KeyboardEvent<HTMLInputElement>) => void;
   onSendMessage: () => void;
   onShowImageUpload: () => void;
+  onPasteFiles?: (files: File[]) => void | Promise<void>;
+  hasImages?: boolean;
   isLoading: boolean;
   onToggleSidebar?: () => void;
 }

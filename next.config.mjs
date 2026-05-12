@@ -43,10 +43,6 @@ const nextConfig = {
     NEXT_PUBLIC_APP_VERSION: pkg.version,
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
   },
-  eslint: {
-    ignoreDuringBuilds: true, // Keep ESLint enabled but non-blocking
-    dirs: ['app', 'components', 'lib', 'hooks'],
-  },
   // typescript: {
   //   ignoreBuildErrors: true,
   // },

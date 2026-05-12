@@ -2,7 +2,7 @@
 
 import type { ChatInputProps } from "@/types/ai";
 import { Button } from "@/components/ui/button";
-import { Send, Paperclip, Loader2, History } from "lucide-react";
+import { ArrowUp, Paperclip, Loader2, History } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
@@ -12,9 +12,10 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
     {
       value,
       onChange,
-      onKeyPress,
       onSendMessage,
       onShowImageUpload,
+      onPasteFiles,
+      hasImages = false,
       isLoading,
       onToggleSidebar,
     },
@@ -54,10 +55,24 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
         e.preventDefault();
         onSendMessage();
       }
-      if (onKeyPress) {
-        onKeyPress(e as any);
-      }
     };
+
+    const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = Array.from(e.clipboardData?.items || []);
+      const imageFiles = items
+        .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+        .map((item) => item.getAsFile())
+        .filter((file): file is File => Boolean(file));
+
+      if (imageFiles.length === 0 || !onPasteFiles) {
+        return;
+      }
+
+      e.preventDefault();
+      await onPasteFiles(imageFiles);
+    };
+
+    const canSend = value.trim().length > 0 || hasImages;
 
     return (
       <div className="relative flex flex-col w-full bg-muted/40 border hover:border-primary/20 focus-within:border-primary/50 focus-within:bg-background/50 focus-within:ring-4 focus-within:ring-primary/5 transition-[border-color,background-color,box-shadow] duration-200 rounded-3xl p-2 sm:p-3 shadow-sm">
@@ -67,6 +82,7 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={t("universalPlaceholder", { ns: "aiAssistant" })}
           disabled={isLoading}
           rows={1}
@@ -106,21 +122,21 @@ export const ChatInput = forwardRef<HTMLTextAreaElement, ChatInputProps>(
           <div className="flex items-center gap-2 sm:gap-3">
             <Button
               onClick={onSendMessage}
-              variant={value.trim() ? "default" : "secondary"}
-              disabled={isLoading || !value.trim()}
+              variant={canSend ? "default" : "secondary"}
+              disabled={isLoading || !canSend}
               size="icon"
               aria-label={t("send", { ns: "common" })}
               className={cn(
-                "h-8 w-8 sm:h-9 sm:w-9 rounded-full transition-[background-color,box-shadow,transform,opacity] duration-200",
-                value.trim()
-                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:scale-105"
+                "h-8 w-8 sm:h-9 sm:w-9 rounded-full p-0 transition-[background-color,box-shadow,transform,opacity] duration-200",
+                canSend
+                  ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
                   : "bg-muted text-muted-foreground/50 hover:bg-muted",
               )}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <Send className={cn("h-4 w-4", value.trim() && "ml-0.5")} />
+                <ArrowUp className="h-4 w-4" />
               )}
             </Button>
           </div>

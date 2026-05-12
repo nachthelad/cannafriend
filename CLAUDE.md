@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cannafriend is a cannabis cultivation companion built with **Next.js 15, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Core product loop is currently `plants + journal + reminders`, while `stash` and `sessions` remain supported routes but are not part of the primary navigation focus. AI access is split between a free image-based preview (`free_taste`) and the full premium assistant (`premium_chat`).
+Cannafriend is a cannabis cultivation companion built with **Next.js 16, React, Firebase, and TypeScript**. Primary language is Spanish (es), secondary is English (en). Core product loop is currently `plants + journal + reminders`, while `stash` and `sessions` remain supported routes but are not part of the primary navigation focus. AI access is split between a free image-based preview (`free_taste`) and the full premium assistant (`premium_chat`).
 
 ## Directory Structure
 
@@ -57,9 +57,9 @@ npm run build         # Build for production
 npm run typecheck     # TypeScript strict check
 
 # Code quality
-npm run lint          # ESLint (240+ warnings, non-blocking)
+npm run lint          # ESLint CLI
 npm run lint:fix      # Auto-fix ESLint issues
-npm run lint:unused   # Show unused vars only
+npm run lint:unused   # ESLint quiet mode (errors only)
 
 # Testing
 npm run test                              # Run all Jest tests

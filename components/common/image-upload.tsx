@@ -51,8 +51,61 @@ function ImageUploadComponent(
   const dropzoneEnabled = enableDropzone && !isMobile;
   const openFilePicker = () => fileInputRef.current?.click();
 
+  const processFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    setUploading(true);
+
+    try {
+      const validFiles: File[] = [];
+      const errors: string[] = [];
+
+      for (const file of files) {
+        const error = validateImageFile(file, maxSizeMB);
+        if (error) {
+          const translatedError = getTranslatedImageError(error.key, t);
+          errors.push(`${file.name}: ${translatedError}`);
+        } else {
+          validFiles.push(file);
+        }
+      }
+
+      if (errors.length > 0) {
+        console.warn("Image validation errors:", errors.join("\n"));
+      }
+
+      const newUrls: string[] = [];
+      await Promise.all(
+        validFiles.map(async (file) => {
+          try {
+            const url = await uploadImage(file);
+            newUrls.push(url);
+          } catch (error) {
+            console.error("Error uploading file:", file.name, error);
+          }
+        })
+      );
+
+      if (newUrls.length > 0) {
+        try {
+          await onImagesChange(newUrls);
+        } catch (error) {
+          console.error("Error after uploading images:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error in file upload:", error);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     open: openFilePicker,
+    uploadFiles: processFiles,
   }));
 
   // Detect if user is on mobile device
@@ -116,61 +169,7 @@ function ImageUploadComponent(
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = Array.from(event.target.files || []);
-
-    if (files.length === 0) return;
-
-    setUploading(true);
-
-    try {
-      const validFiles: File[] = [];
-      const errors: string[] = [];
-
-      // Validar archivos
-      for (const file of files) {
-        const error = validateImageFile(file, maxSizeMB);
-        if (error) {
-          const translatedError = getTranslatedImageError(error.key, t);
-          errors.push(`${file.name}: ${translatedError}`);
-        } else {
-          validFiles.push(file);
-        }
-      }
-
-      // Log validation errors
-      if (errors.length > 0) {
-        console.warn("Image validation errors:", errors.join("\n"));
-      }
-
-      // Subir archivos válidos (en paralelo con límite simple)
-      const newUrls: string[] = [];
-      await Promise.all(
-        validFiles.map(async (file) => {
-          try {
-            const url = await uploadImage(file);
-            newUrls.push(url);
-          } catch (error) {
-            console.error("Error uploading file:", file.name, error);
-          }
-        })
-      );
-
-      // Llamar callback con las nuevas URLs
-      if (newUrls.length > 0) {
-        try {
-          await onImagesChange(newUrls);
-        } catch (error) {
-          console.error("Error after uploading images:", error);
-        }
-      }
-    } catch (error) {
-      console.error("Error in file upload:", error);
-    } finally {
-      setUploading(false);
-      // Limpiar input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
+    await processFiles(files);
   };
 
   const handleDrop = async (event: React.DragEvent) => {

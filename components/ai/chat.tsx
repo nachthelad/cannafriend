@@ -19,6 +19,7 @@ import {
   Droplets,
   Camera,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import { GeminiIcon, OpenAIIcon } from "@/components/icons/ai-brand-icons";
 import Image from "next/image";
@@ -68,6 +69,7 @@ export function AIChat({
   const [input, setInput] = useState("");
   const [images, setImages] = useState<AIImageAttachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(
     sessionId,
@@ -211,6 +213,30 @@ export function AIChat({
     setLocalError(null);
   };
 
+  const renderUploadingImagePlaceholder = (size: "sm" | "md") => (
+    <div
+      className={cn(
+        "flex-shrink-0 rounded-lg border border-dashed bg-muted/40",
+        size === "md"
+          ? "w-20 h-20 shadow-sm"
+          : "w-16 h-16",
+      )}
+    >
+      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+        <Loader2 className={cn("animate-spin", size === "md" ? "h-5 w-5" : "h-4 w-4")} />
+      </div>
+    </div>
+  );
+
+  const handlePasteFiles = async (files: File[]) => {
+    try {
+      await imageUploadRef.current?.uploadFiles(files);
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error("AI chat paste upload error:", error);
+    }
+  };
+
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -227,13 +253,6 @@ export function AIChat({
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
   };
 
   const loadChatSession = async (sessionId: string) => {
@@ -468,6 +487,11 @@ export function AIChat({
                       </Button>
                     </div>
                   ))}
+                  {isUploadingImages ? renderUploadingImagePlaceholder("md") : null}
+                </div>
+              ) : isUploadingImages ? (
+                <div className="flex gap-3 overflow-x-auto mb-4 p-2 bg-muted/30 rounded-lg border border-dashed">
+                  {renderUploadingImagePlaceholder("md")}
                 </div>
               ) : null}
 
@@ -475,9 +499,10 @@ export function AIChat({
                 ref={inputRef}
                 value={input}
                 onChange={setInput}
-                onKeyPress={handleKeyPress}
                 onSendMessage={handleSendMessage}
                 onShowImageUpload={() => imageUploadRef.current?.open()}
+                onPasteFiles={handlePasteFiles}
+                hasImages={images.length > 0}
                 isLoading={isLoading}
                 onToggleSidebar={onToggleSidebar}
               />
@@ -611,6 +636,11 @@ export function AIChat({
                         </Button>
                       </div>
                     ))}
+                    {isUploadingImages ? renderUploadingImagePlaceholder("sm") : null}
+                  </div>
+                ) : isUploadingImages ? (
+                  <div className="flex gap-3 overflow-x-auto mb-3 p-2">
+                    {renderUploadingImagePlaceholder("sm")}
                   </div>
                 ) : null}
 
@@ -618,9 +648,10 @@ export function AIChat({
                   ref={inputRef}
                   value={input}
                   onChange={setInput}
-                  onKeyPress={handleKeyPress}
                   onSendMessage={handleSendMessage}
                   onShowImageUpload={() => imageUploadRef.current?.open()}
+                  onPasteFiles={handlePasteFiles}
+                  hasImages={images.length > 0}
                   isLoading={isLoading}
                   onToggleSidebar={onToggleSidebar}
                 />
@@ -642,6 +673,7 @@ export function AIChat({
           className="sr-only"
           hideDefaultTrigger
           userId={user?.uid}
+          onUploadingChange={setIsUploadingImages}
         />
 
         <PlantPhotoModal

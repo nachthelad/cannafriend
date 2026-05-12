@@ -66,6 +66,7 @@ export interface ImageUploadProps {
 
 export interface ImageUploadHandle {
   open: () => void;
+  uploadFiles: (files: File[]) => Promise<void>;
 }
 
 export interface AmountWithUnitProps {
