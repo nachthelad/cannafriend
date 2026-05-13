@@ -1,6 +1,6 @@
 {
   "name": "cannafriend",
-  "version": "1.8.11",
+  "version": "1.8.12",
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "engines": {
