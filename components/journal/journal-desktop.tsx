@@ -4,7 +4,6 @@ import { useMemo, useState, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,6 +58,11 @@ import {
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import type { LogEntry } from "@/types";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import {
+  productSelectableActiveClass,
+  productSelectableIdleClass,
+} from "@/features/shared/surfaces/product/product-nav-item-styles";
+import { cn } from "@/lib/utils";
 
 function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
   const { t } = useTranslation(["journal", "common"]);
@@ -254,22 +258,32 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
               {t("filterByPlant", { ns: "journal" })}
             </label>
             <div className="flex flex-wrap gap-2">
-              <Badge
-                variant={selectedPlant === "all" ? "default" : "outline"}
-                className="cursor-pointer hover:bg-primary/20 transition-colors"
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                  selectedPlant === "all"
+                    ? productSelectableActiveClass
+                    : productSelectableIdleClass,
+                )}
                 onClick={() => setSelectedPlant("all")}
               >
                 {t("allPlants", { ns: "journal" })}
-              </Badge>
+              </button>
               {plants.map((plant) => (
-                <Badge
+                <button
                   key={plant.id}
-                  variant={selectedPlant === plant.id ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-primary/20 transition-colors"
+                  type="button"
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                    selectedPlant === plant.id
+                      ? productSelectableActiveClass
+                      : productSelectableIdleClass,
+                  )}
                   onClick={() => setSelectedPlant(plant.id)}
                 >
                   {plant.name}
-                </Badge>
+                </button>
               ))}
             </div>
           </div>
@@ -280,22 +294,32 @@ function JournalDesktopContent({ userId, language }: JournalDesktopProps) {
               {t("filterByType", { ns: "journal" })}
             </label>
             <div className="flex flex-wrap gap-2">
-              <Badge
-                variant={selectedLogType === "all" ? "default" : "outline"}
-                className="cursor-pointer hover:bg-primary/20 transition-colors"
+              <button
+                type="button"
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                  selectedLogType === "all"
+                    ? productSelectableActiveClass
+                    : productSelectableIdleClass,
+                )}
                 onClick={() => setSelectedLogType("all")}
               >
                 {t("allTypes", { ns: "journal" })}
-              </Badge>
+              </button>
               {logTypes.map((type) => (
-                <Badge
+                <button
                   key={type}
-                  variant={selectedLogType === type ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-primary/20 transition-colors"
+                  type="button"
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                    selectedLogType === type
+                      ? productSelectableActiveClass
+                      : productSelectableIdleClass,
+                  )}
                   onClick={() => setSelectedLogType(type)}
                 >
                   {t(`logType.${type}`, { ns: "journal" })}
-                </Badge>
+                </button>
               ))}
             </div>
           </div>

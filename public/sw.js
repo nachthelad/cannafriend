@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 
 // Cache version — increment this on each production deploy to force SW refresh
-const CACHE_VERSION = "v10";
+const CACHE_VERSION = "v11";
 
 // Workbox from CDN
 importScripts(
@@ -51,6 +51,13 @@ self.addEventListener("activate", (event) => {
           })
       );
 
+      const allCacheNames = await caches.keys();
+      await Promise.all(
+        allCacheNames
+          .filter((name) => name.startsWith("next-static-"))
+          .map((cacheName) => caches.delete(cacheName))
+      );
+
       await self.clients.claim();
     })()
   );
@@ -90,7 +97,7 @@ self.addEventListener("message", (event) => {
 
 // Runtime caching
 const { registerRoute } = workbox.routing;
-const { CacheFirst, StaleWhileRevalidate, NetworkFirst, NetworkOnly } =
+const { StaleWhileRevalidate, NetworkFirst, NetworkOnly } =
   workbox.strategies;
 const { ExpirationPlugin } = workbox.expiration;
 const { BackgroundSyncPlugin } = workbox.backgroundSync;
@@ -126,19 +133,8 @@ registerRoute(
   })
 );
 
-// Next static assets (content-hashed URLs → safe to cache forever)
-registerRoute(
-  ({ url }) => url.pathname.startsWith("/_next/static/"),
-  new CacheFirst({
-    cacheName: `next-static-${CACHE_VERSION}`,
-    plugins: [
-      new ExpirationPlugin({
-        maxEntries: 200,
-        maxAgeSeconds: 365 * 24 * 60 * 60,
-      }),
-    ],
-  })
-);
+// Next static assets are already fingerprinted and served with cache headers by Next/CDN.
+// Avoid double-caching them in the service worker to reduce stale chunk risk after deploys.
 
 // API version endpoint – always fetch the latest version
 registerRoute(({ url }) => url.pathname === "/api/version", new NetworkOnly());

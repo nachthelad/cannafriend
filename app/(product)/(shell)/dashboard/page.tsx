@@ -19,5 +19,10 @@ export default function DashboardPage() {
     return null;
   }
 
-  return <DashboardContainer userId={userId!} userEmail={user.email || ""} />;
+  return (
+    <DashboardContainer
+      userId={userId!}
+      userEmail={user.email || ""}
+    />
+  );
 }

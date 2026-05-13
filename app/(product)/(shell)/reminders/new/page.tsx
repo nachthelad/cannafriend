@@ -27,6 +27,11 @@ import type { Plant } from "@/types";
 import { AlertCircle, AlarmClock, Sun } from "lucide-react";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import {
+  productSelectableActiveClass,
+  productSelectableIdleClass,
+} from "@/features/shared/surfaces/product/product-nav-item-styles";
+import { cn } from "@/lib/utils";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -269,15 +274,19 @@ export default function NewReminderPage() {
                   }).format(new Date(2024, 0, 7 + idx));
                   const selected = daysOfWeek?.includes(idx);
                   return (
-                    <Button
+                    <button
                       key={idx}
                       type="button"
-                      variant={selected ? "default" : "outline"}
-                      className="min-h-[40px] px-3"
+                      className={cn(
+                        "min-h-[40px] rounded-full border px-3 text-sm font-medium transition-[background-color,border-color,color]",
+                        selected
+                          ? productSelectableActiveClass
+                          : productSelectableIdleClass,
+                      )}
                       onClick={() => handleDayToggle(idx)}
                     >
                       {label}
-                    </Button>
+                    </button>
                   );
                 })}
               </div>

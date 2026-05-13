@@ -1,65 +1,387 @@
 "use client";
 
-import { Suspense, useMemo, useState, useEffect } from "react";
-
-import Link from "next/link";
-import {
-  ROUTE_REMINDERS,
-  ROUTE_PLANTS,
-  ROUTE_JOURNAL,
-} from "@/lib/routes";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Suspense, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { plantsCol, remindersCol } from "@/lib/paths";
-import {
-  query,
-  getDocs,
-  orderBy,
-  limit,
-  collectionGroup,
-  where,
-} from "firebase/firestore";
-import dynamic from "next/dynamic";
-import { AlertTriangle, Plus, X } from "lucide-react";
+import { getDocs, query, orderBy, limit, collectionGroup, where } from "firebase/firestore";
+import { addDays, differenceInCalendarDays } from "date-fns";
+import type { TFunction } from "i18next";
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
-
-const MobileDashboard = dynamic(
-  () => import("@/components/mobile/mobile-dashboard").then((m) => m.MobileDashboard),
-  { ssr: false, loading: () => <DashboardSkeleton /> }
-);
-
-const PlantCard = dynamic(
-  () => import("@/components/plant/plant-card").then((m) => m.PlantCard),
-  { ssr: false }
-);
-
-const JournalEntries = dynamic(
-  () => import("@/components/journal/journal-entries").then((m) => m.JournalEntries),
-  { ssr: false }
-);
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
-import type {
-  DashboardContainerProps,
-  DashboardData,
-  LogEntry,
-  Plant,
-} from "@/types";
 import { auth, db } from "@/lib/firebase";
-import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
+import { plantsCol, remindersCol } from "@/lib/paths";
+import { ROUTE_AI_ASSISTANT, ROUTE_JOURNAL_NEW, ROUTE_PREMIUM, ROUTE_REMINDERS, ROUTE_PLANTS } from "@/lib/routes";
+import { calculateAgeInDays, formatDateObjectWithLocale } from "@/lib/utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
+import { LOG_TYPES, type LogType } from "@/lib/log-config";
+import type {
+  DashboardActivityItem,
+  DashboardAiPromoState,
+  DashboardContainerProps,
+  DashboardData,
+  DashboardPlantPreview,
+  DashboardQuickAction,
+  DashboardReminderPreview,
+  DashboardStat,
+  LogEntry,
+  Plant,
+  Reminder,
+} from "@/types";
 
-async function fetchDashboardData(userId: string): Promise<DashboardData> {
-  // 1. Start all network requests concurrently to eliminate waterfall
+import { DashboardDesktopContent } from "@/features/product/dashboard/components/dashboard-desktop-content";
+import { MobileDashboard } from "@/components/mobile/mobile-dashboard";
+
+const dashboardLogTypeMap: Partial<Record<LogType, string>> = {
+  watering: "logType.watering",
+  feeding: "logType.feeding",
+  training: "logType.training",
+  transplant: "logType.transplant",
+  environment: "logType.environment",
+  flowering: "logType.flowering",
+  note: "logType.note",
+  endCycle: "logType.endCycle",
+};
+
+function getNextReminderTimestamp(reminder: Reminder): number | null {
+  if (Array.isArray(reminder.daysOfWeek) && reminder.daysOfWeek.length > 0 && reminder.timeOfDay) {
+    const [hours, minutes] = String(reminder.timeOfDay)
+      .split(":")
+      .map((value) => parseInt(value, 10));
+
+    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
+      const now = new Date();
+
+      for (let offset = 0; offset < 7; offset++) {
+        const candidate = addDays(now, offset);
+        if (!reminder.daysOfWeek.includes(candidate.getDay())) {
+          continue;
+        }
+
+        candidate.setHours(hours, minutes, 0, 0);
+        if (candidate.getTime() >= now.getTime()) {
+          return candidate.getTime();
+        }
+      }
+    }
+  }
+
+  if (reminder.nextReminder) {
+    const parsed = new Date(reminder.nextReminder).getTime();
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  return null;
+}
+
+function getReminderType(reminder: Reminder): DashboardReminderPreview["reminderType"] {
+  if (reminder.type === "watering" || reminder.type === "feeding" || reminder.type === "training") {
+    return reminder.type;
+  }
+
+  const haystack = `${reminder.label} ${reminder.title ?? ""}`.toLowerCase();
+
+  if (haystack.includes("rieg") || haystack.includes("water")) {
+    return "watering";
+  }
+  if (haystack.includes("fert") || haystack.includes("feed") || haystack.includes("nutri")) {
+    return "feeding";
+  }
+  if (haystack.includes("poda") || haystack.includes("train")) {
+    return "training";
+  }
+
+  return "custom";
+}
+
+function formatActivityMoment(isoDate: string, language: string, t: TFunction): string {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const timeLabel = formatDateObjectWithLocale(date, "p", language);
+  const diff = differenceInCalendarDays(date, new Date());
+
+  if (diff === 0) {
+    return `${t("today", { ns: "dashboard" })}, ${timeLabel}`;
+  }
+  if (diff === -1) {
+    return `${t("yesterday", { ns: "dashboard" })}, ${timeLabel}`;
+  }
+  if (diff > -6 && diff < 0) {
+    return `${t("daysAgo", { ns: "dashboard", count: Math.abs(diff) })}, ${timeLabel}`;
+  }
+
+  return `${formatDateObjectWithLocale(date, "PPP", language)}, ${timeLabel}`;
+}
+
+function formatReminderDueLabel(timestamp: number | null, language: string, t: TFunction): string {
+  if (timestamp === null) {
+    return t("reminderNoSchedule", { ns: "dashboard" });
+  }
+
+  const date = new Date(timestamp);
+  const diff = differenceInCalendarDays(date, new Date());
+
+  if (diff < 0) {
+    return t("reminderOverdue", { ns: "dashboard" });
+  }
+  if (diff === 0) {
+    return t("today", { ns: "dashboard" });
+  }
+  if (diff === 1) {
+    return t("tomorrow", { ns: "dashboard" });
+  }
+  if (diff <= 6) {
+    return t("inDays", { ns: "dashboard", count: diff });
+  }
+
+  return formatDateObjectWithLocale(date, "PPP", language);
+}
+
+function getPlantStageLabel(plant: Plant, t: TFunction): string {
+  const ageInDays = calculateAgeInDays(plant.plantingDate);
+
+  if (plant.lightSchedule?.trim() === "12/12") {
+    return t("newPlant.flowering", { ns: "plants" });
+  }
+  if (ageInDays <= 14) {
+    return t("seedling", { ns: "dashboard" });
+  }
+  return t("newPlant.vegetative", { ns: "plants" });
+}
+
+function getPlantStatusLabel({
+  lastWatering,
+  reminderTimestamps,
+  t,
+}: {
+  lastWatering?: LogEntry;
+  reminderTimestamps: number[];
+  t: TFunction;
+}): Pick<DashboardPlantPreview, "statusLabel" | "statusTone"> {
+  const now = Date.now();
+  const hasOverdueReminder = reminderTimestamps.some((timestamp) => timestamp < now);
+
+  if (hasOverdueReminder) {
+    return {
+      statusLabel: t("statusNeedsAttention", { ns: "dashboard" }),
+      statusTone: "warning",
+    };
+  }
+
+  if (lastWatering?.date) {
+    const daysSinceWatering = Math.abs(
+      differenceInCalendarDays(new Date(lastWatering.date), new Date()),
+    );
+
+    if (daysSinceWatering >= 5) {
+      return {
+        statusLabel: t("statusNeedsAttention", { ns: "dashboard" }),
+        statusTone: "warning",
+      };
+    }
+
+    return {
+      statusLabel: t("statusAllGood", { ns: "dashboard" }),
+      statusTone: "success",
+    };
+  }
+
+  return {
+    statusLabel: t("statusNeedsReview", { ns: "dashboard" }),
+    statusTone: "neutral",
+  };
+}
+
+function buildDashboardViewModel({
+  plants,
+  lastWaterings,
+  recentLogs,
+  reminders,
+  remindersCount,
+  hasOverdue,
+  isPremium,
+  logsCount,
+  t,
+  language,
+}: Omit<DashboardData, "stats" | "plantsPreview" | "recentActivity" | "upcomingReminders" | "quickActions" | "aiPromo"> & {
+  t: TFunction;
+  language: string;
+}): Pick<
+  DashboardData,
+  "stats" | "plantsPreview" | "recentActivity" | "upcomingReminders" | "quickActions" | "aiPromo"
+> {
+  const oneWeekAgo = addDays(new Date(), -7).getTime();
+  const reminderMeta = reminders.map((reminder) => {
+    const nextTimestamp = getNextReminderTimestamp(reminder);
+    return {
+      reminder,
+      nextTimestamp,
+      reminderType: getReminderType(reminder),
+    };
+  });
+
+  const plantsCreatedThisWeek = plants.filter((plant) => {
+    const timestamp = new Date(plant.createdAt).getTime();
+    return !Number.isNaN(timestamp) && timestamp >= oneWeekAgo;
+  }).length;
+
+  const logsThisWeek = recentLogs.filter((log) => {
+    const timestamp = new Date(log.date).getTime();
+    return !Number.isNaN(timestamp) && timestamp >= oneWeekAgo;
+  }).length;
+
+  const overdueReminderCount = reminderMeta.filter(
+    ({ reminder, nextTimestamp }) =>
+      reminder.isActive && nextTimestamp !== null && nextTimestamp < Date.now(),
+  ).length;
+
+  const stats: DashboardStat[] = [
+    {
+      id: "plants",
+      label: t("yourPlants", { ns: "dashboard" }),
+      value: plants.length,
+      deltaLabel:
+        plantsCreatedThisWeek > 0
+          ? t("statPlantsDelta", { ns: "dashboard", count: plantsCreatedThisWeek })
+          : undefined,
+      helperLabel:
+        plantsCreatedThisWeek === 0 ? t("statPlantsSteady", { ns: "dashboard" }) : undefined,
+      tone: "success",
+    },
+    {
+      id: "logs",
+      label: t("recentLogs", { ns: "journal" }),
+      value: logsCount,
+      deltaLabel:
+        logsThisWeek > 0
+          ? t("statLogsDelta", { ns: "dashboard", count: logsThisWeek })
+          : undefined,
+      helperLabel:
+        logsThisWeek === 0 ? t("statLogsSteady", { ns: "dashboard" }) : undefined,
+      tone: "success",
+    },
+    {
+      id: "reminders",
+      label: t("reminders", { ns: "dashboard" }),
+      value: remindersCount,
+      helperLabel: hasOverdue
+        ? t("statRemindersAttention", {
+            ns: "dashboard",
+            count: overdueReminderCount || remindersCount,
+          })
+        : t("statRemindersClear", { ns: "dashboard" }),
+      tone: hasOverdue ? "warning" : "info",
+    },
+  ];
+
+  const plantsPreview: DashboardPlantPreview[] = plants.slice(0, 3).map((plant) => {
+    const reminderTimestamps = reminderMeta
+      .filter(({ reminder }) => reminder.plantId === plant.id && reminder.isActive)
+      .map(({ nextTimestamp }) => nextTimestamp)
+      .filter((value): value is number => value !== null);
+
+    const status = getPlantStatusLabel({
+      lastWatering: lastWaterings[plant.id],
+      reminderTimestamps,
+      t,
+    });
+
+    return {
+      id: plant.id,
+      name: plant.name,
+      href: `${ROUTE_PLANTS}/${plant.id}`,
+      imageUrl: plant.coverPhoto || plant.photos?.[0],
+      dayLabel: t("plantDay", { ns: "dashboard", count: calculateAgeInDays(plant.plantingDate) }),
+      stageLabel: getPlantStageLabel(plant, t),
+      statusLabel: status.statusLabel,
+      statusTone: status.statusTone,
+    };
+  });
+
+  const recentActivity: DashboardActivityItem[] = recentLogs.slice(0, 5).map((log) => ({
+    id: log.id,
+    type: log.type,
+    title: t(dashboardLogTypeMap[log.type] ?? "logType.note", { ns: "journal" }),
+    plantName: log.plantName,
+    occurredAtLabel: formatActivityMoment(log.date, language, t),
+  }));
+
+  const upcomingReminders: DashboardReminderPreview[] = reminderMeta
+    .filter(({ reminder }) => reminder.isActive)
+    .sort((a, b) => {
+      if (a.nextTimestamp === null) return 1;
+      if (b.nextTimestamp === null) return -1;
+      return a.nextTimestamp - b.nextTimestamp;
+    })
+    .slice(0, 3)
+    .map(({ reminder, nextTimestamp, reminderType }) => ({
+      id: reminder.id,
+      href: ROUTE_REMINDERS,
+      label: reminder.label || reminder.title || t("reminderFallback", { ns: "dashboard" }),
+      dueLabel: formatReminderDueLabel(nextTimestamp, language, t),
+      tone:
+        nextTimestamp !== null && nextTimestamp < Date.now()
+          ? "warning"
+          : reminderType === "watering"
+            ? "info"
+            : "neutral",
+      reminderType,
+    }));
+
+  const quickActions: DashboardQuickAction[] = [
+    {
+      id: "watering",
+      label: t("actionWatering", { ns: "dashboard" }),
+      href: `${ROUTE_JOURNAL_NEW}?returnTo=dashboard&logType=${LOG_TYPES.WATERING}`,
+      kind: "link",
+    },
+    {
+      id: "feeding",
+      label: t("actionFeeding", { ns: "dashboard" }),
+      href: `${ROUTE_JOURNAL_NEW}?returnTo=dashboard&logType=${LOG_TYPES.FEEDING}`,
+      kind: "link",
+    },
+    {
+      id: "photo",
+      label: t("actionPhoto", { ns: "dashboard" }),
+      href: ROUTE_PLANTS,
+      kind: "link",
+    },
+    {
+      id: "training",
+      label: t("actionTraining", { ns: "dashboard" }),
+      href: `${ROUTE_JOURNAL_NEW}?returnTo=dashboard&logType=${LOG_TYPES.TRAINING}`,
+      kind: "link",
+    },
+    {
+      id: "notes",
+      label: t("actionNotes", { ns: "dashboard" }),
+      href: `${ROUTE_JOURNAL_NEW}?returnTo=dashboard&logType=${LOG_TYPES.NOTE}`,
+      kind: "link",
+    },
+  ];
+
+  const aiPromo: DashboardAiPromoState = {
+    href: isPremium ? ROUTE_AI_ASSISTANT : ROUTE_PREMIUM,
+    badgeLabel: t("newBadge", { ns: "dashboard" }),
+    ctaLabel: t("startAnalysis", { ns: "dashboard" }),
+  };
+
+  return {
+    stats,
+    plantsPreview,
+    recentActivity,
+    upcomingReminders,
+    quickActions,
+    aiPromo,
+  };
+}
+
+async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "stats" | "plantsPreview" | "recentActivity" | "upcomingReminders" | "quickActions" | "aiPromo">> {
   const plantsQuery = query(plantsCol(userId));
   const plantsPromise = getDocs(plantsQuery);
 
@@ -78,19 +400,14 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
     ? auth.currentUser.getIdTokenResult()
     : Promise.resolve(null);
 
-  // 2. Await results
   const plantsSnapshot = await plantsPromise;
 
   const plants: Plant[] = [];
   const lastWaterings: Record<string, LogEntry> = {};
-  const lastFeedings: Record<string, LogEntry> = {};
-  const lastTrainings: Record<string, LogEntry> = {};
   const allLogs: LogEntry[] = [];
   const plantMap: Record<string, string> = {};
 
-  // Process plants first, ensuring they are available even if log fetch fails
-  const plantDocs = plantsSnapshot.docs;
-  for (const plantDoc of plantDocs) {
+  for (const plantDoc of plantsSnapshot.docs) {
     const plantData = normalizePlant(plantDoc.data(), plantDoc.id);
 
     if (!isPlantGrowing(plantData)) {
@@ -103,10 +420,10 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 
   try {
     const logsSnapshot = await logsPromise;
-    const fetchedLogs = logsSnapshot.docs.map((doc) => {
-      const data = doc.data();
+    const fetchedLogs = logsSnapshot.docs.map((docSnapshot) => {
+      const data = docSnapshot.data();
       return {
-        id: doc.id,
+        id: docSnapshot.id,
         ...data,
         plantName: data.plantId ? plantMap[data.plantId] : undefined,
       };
@@ -116,48 +433,40 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 
     for (const plant of plants) {
       const plantLogs = fetchedLogs.filter((log) => log.plantId === plant.id);
-      const lastWatering = plantLogs.find((log) => log.type === "watering");
-      const lastFeeding = plantLogs.find((log) => log.type === "feeding");
-      const lastTraining = plantLogs.find((log) => log.type === "training");
+      const lastWatering = plantLogs.find((log) => log.type === LOG_TYPES.WATERING);
 
       if (lastWatering) lastWaterings[plant.id] = lastWatering;
-      if (lastFeeding) lastFeedings[plant.id] = lastFeeding;
-      if (lastTraining) lastTrainings[plant.id] = lastTraining;
     }
   } catch (error) {
     console.error("Error fetching dashboard logs:", error);
   }
 
-  const recentLogs = allLogs
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 10);
+  const sortedLogs = allLogs.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 
   let remindersCount = 0;
   let hasOverdue = false;
-  let reminders: any[] = [];
+  let reminders: Reminder[] = [];
+
   try {
     const remindersSnapshot = await remindersPromise;
-    const now = new Date();
-
-    reminders = remindersSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    reminders = remindersSnapshot.docs.map((docSnapshot) => ({
+      id: docSnapshot.id,
+      ...docSnapshot.data(),
+    })) as Reminder[];
 
     remindersCount = reminders.length;
-
-    for (const reminder of reminders) {
-      if (
-        reminder.nextReminder &&
-        new Date(reminder.nextReminder) < now &&
-        reminder.isActive
-      ) {
-        hasOverdue = true;
-        break;
+    hasOverdue = reminders.some((reminder) => {
+      if (!reminder.isActive) {
+        return false;
       }
-    }
+
+      const nextTimestamp = getNextReminderTimestamp(reminder);
+      return nextTimestamp !== null && nextTimestamp < Date.now();
+    });
   } catch {
-    // Ignore
+    reminders = [];
   }
 
   let isPremium = false;
@@ -172,15 +481,14 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
       }
     }
   } catch {
-    // Ignore
+    isPremium = false;
   }
 
   return {
     plants,
     lastWaterings,
-    lastFeedings,
-    lastTrainings,
-    recentLogs,
+    recentLogs: sortedLogs.slice(0, 10),
+    logsCount: sortedLogs.length,
     remindersCount,
     hasOverdue,
     reminders,
@@ -191,179 +499,51 @@ async function fetchDashboardData(userId: string): Promise<DashboardData> {
 function DashboardContent({
   userId,
   userEmail,
-  isAdmin,
-}: DashboardContainerProps & { isAdmin: boolean }) {
-  const { t } = useTranslation([
+}: DashboardContainerProps) {
+  const { t, i18n } = useTranslation([
     "dashboard",
     "common",
     "reminders",
     "journal",
     "nav",
     "aiAssistant",
+    "plants",
   ]);
 
-  const cacheKey = `dashboard-${userId}`;
-  const resource = getSuspenseResource(cacheKey, () =>
+  const resource = getSuspenseResource(`dashboard-${userId}`, () =>
     fetchDashboardData(userId),
   );
-  const {
-    plants,
-    lastWaterings,
-    lastFeedings,
-    lastTrainings,
-    recentLogs,
-    remindersCount,
-    hasOverdue,
-    reminders,
-    isPremium,
-  } = resource.read();
+  const rawData = resource.read();
 
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  useEffect(() => {
-    if (!hasOverdue) return;
-
-    const dismissedData = localStorage.getItem("overdue_alert_dismissed_v1");
-    if (dismissedData) {
-      try {
-        const { timestamp } = JSON.parse(dismissedData);
-        const hasNewerOverdue = reminders.some((r: any) => {
-          if (!r.nextReminder || !r.isActive) return false;
-          const nextDate = new Date(r.nextReminder).getTime();
-          return nextDate <= Date.now() && nextDate > timestamp;
-        });
-
-        if (!hasNewerOverdue) {
-          setIsDismissed(true);
-        }
-      } catch (e) {
-        console.error("Error parsing dismissal data:", e);
-      }
-    }
-  }, [hasOverdue, reminders]);
-
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    localStorage.setItem(
-      "overdue_alert_dismissed_v1",
-      JSON.stringify({ timestamp: Date.now() }),
-    );
-  };
+  const viewModel = useMemo(
+    () => ({
+      ...rawData,
+      ...buildDashboardViewModel({
+        ...rawData,
+        t,
+        language: i18n.language,
+      }),
+    }),
+    [rawData, t, i18n.language],
+  );
 
   return (
     <>
       <div className="md:hidden">
         <MobileDashboard
-          plants={plants}
-          recentLogs={recentLogs.slice(0, 5)}
-          hasOverdue={hasOverdue}
+          plants={rawData.plants}
+          recentLogs={rawData.recentLogs.slice(0, 5)}
+          hasOverdue={rawData.hasOverdue}
           userEmail={userEmail}
-          remindersCount={remindersCount}
-          reminders={reminders}
-          isPremium={isPremium}
+          remindersCount={rawData.remindersCount}
+          reminders={rawData.reminders}
+          isPremium={rawData.isPremium}
         />
       </div>
 
-      <div className="hidden md:flex flex-col flex-1 min-h-0 gap-6">
-        {hasOverdue && !isDismissed && (
-          <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-4 rounded-lg flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <AlertTriangle
-                className="h-5 w-5 text-orange-600"
-                aria-hidden="true"
-              />
-              <span className="font-semibold text-orange-800 dark:text-orange-200">
-                {t("overdue", { ns: "reminders" })}:{" "}
-                {t("overdueRemindersDesc", { ns: "dashboard" })}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                asChild
-                variant="link"
-                size="sm"
-                className="text-orange-700 dark:text-orange-400"
-                onClick={handleDismiss}
-              >
-                <Link href={ROUTE_REMINDERS}>
-                  {t("view", { ns: "common" })}
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="text-orange-600 hover:bg-orange-200 dark:hover:bg-orange-900/40"
-                onClick={handleDismiss}
-                aria-label={t("close", { ns: "common" })}
-              >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-          <Card className="flex flex-col h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 shrink-0">
-              <div>
-                <CardTitle>{t("yourPlants", { ns: "dashboard" })}</CardTitle>
-                <CardDescription>
-                  {plants.length} {t("inTotal", { ns: "dashboard" })}
-                </CardDescription>
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link href={ROUTE_PLANTS}>{t("view", { ns: "common" })}</Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-0">
-              <div className="p-6 pt-0">
-                {plants.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {plants.map((plant) => (
-                      <PlantCard
-                        key={plant.id}
-                        plant={plant}
-                        lastWatering={lastWaterings[plant.id]}
-                        lastFeeding={lastFeedings[plant.id]}
-                        lastTraining={lastTrainings[plant.id]}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <Button asChild>
-                    <Link href="/plants/new">
-                      <Plus className="mr-2 h-4 w-4" />{" "}
-                      {t("addPlant", { ns: "dashboard" })}
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 shrink-0">
-              <div>
-                <CardTitle>{t("recentLogs", { ns: "journal" })}</CardTitle>
-                <CardDescription>
-                  {t("showingLastEntries", { ns: "dashboard" })}
-                </CardDescription>
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link href={ROUTE_JOURNAL}>{t("view", { ns: "common" })}</Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-0">
-              <div className="p-6 pt-0">
-                <JournalEntries
-                  logs={recentLogs.slice(0, 5)}
-                  showPlantName={true}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <DashboardDesktopContent
+        data={viewModel}
+      />
     </>
   );
 }
@@ -372,30 +552,13 @@ export function DashboardContainer({
   userId,
   userEmail,
 }: DashboardContainerProps) {
-  const { t } = useTranslation(["dashboard", "common"]);
-  const isAdmin = (userEmail || "").toLowerCase() === ADMIN_EMAIL;
-
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)]">
-      <div className="hidden md:block">
-        <div className="mb-6 shrink-0">
-          <h1 className="text-3xl font-bold">
-            {t("title", { ns: "dashboard" })}
-          </h1>
-        </div>
-      </div>
+    <div className="flex min-h-full flex-col md:h-full">
       <DataErrorBoundary>
-        <Suspense
-          fallback={
-            <div className="p-0">
-              <DashboardSkeleton />
-            </div>
-          }
-        >
+        <Suspense fallback={<DashboardSkeleton />}>
           <DashboardContent
             userId={userId}
             userEmail={userEmail}
-            isAdmin={isAdmin}
           />
         </Suspense>
       </DataErrorBoundary>
