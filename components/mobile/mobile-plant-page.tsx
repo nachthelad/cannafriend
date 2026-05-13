@@ -899,6 +899,7 @@ export function MobilePlantPage({
   onUpdate,
   language,
   photoUploadState = "idle",
+  photoUploadMessage,
   onDelete,
   isDeleting,
 }: MobilePlantPageProps) {
@@ -995,6 +996,11 @@ export function MobilePlantPage({
             <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-primary/60">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
+            {photoUploadMessage ? (
+              <p className="mt-3 max-w-[16rem] text-center text-sm font-medium text-white">
+                {photoUploadMessage}
+              </p>
+            ) : null}
           </div>
         )}
 

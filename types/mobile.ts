@@ -89,6 +89,7 @@ export interface MobilePlantPageProps {
   onUpdate?: (patch: Partial<Plant>) => void;
   language: string;
   photoUploadState?: UploadingState;
+  photoUploadMessage?: string | null;
   onDelete?: () => void;
   isDeleting?: boolean;
 }

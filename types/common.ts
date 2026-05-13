@@ -62,6 +62,7 @@ export interface ImageUploadProps {
   hideDefaultTrigger?: boolean;
   userId?: string;
   onUploadingChange?: (isUploading: boolean) => void;
+  onUploadStatusChange?: (status: string | null) => void;
 }
 
 export interface ImageUploadHandle {

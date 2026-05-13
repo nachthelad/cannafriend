@@ -321,7 +321,13 @@
     "tapToSelect": "Tap Add Photo to choose images",
     "dragDrop": "Drag & drop photos here",
     "orClick": "Or use the Add Photo button",
+    "preparing": "Preparing photo…",
+    "processing": "Processing photo…",
     "uploading": "Uploading…",
+    "uploadingProgress": "Uploading photo… {{progress}}%",
+    "finalizing": "Finalizing upload…",
+    "saving": "Saving photo to the plant…",
+    "stalled": "The upload got stuck. Please try again.",
     "addPhoto": "Add Photo"
   },
   "imageErrors": {

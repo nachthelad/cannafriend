@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: avoid mobile upload processing stalls — 2026-05-13
 - [MINOR]: allow larger mobile source photos — 2026-05-12
 - [MINOR]: stabilize mobile photo uploads — 2026-05-12
 - [MINOR]: align claude guide with current product — 2026-05-12
