@@ -320,7 +320,13 @@
     "tapToSelect": "Toca Agregar foto para elegir imágenes",
     "dragDrop": "Arrastra y suelta fotos aquí",
     "orClick": "O usa el botón Agregar foto",
+    "preparing": "Preparando foto…",
+    "processing": "Procesando foto…",
     "uploading": "Subiendo…",
+    "uploadingProgress": "Subiendo foto… {{progress}}%",
+    "finalizing": "Finalizando subida…",
+    "saving": "Guardando foto en la planta…",
+    "stalled": "La subida quedó trabada. Probá de nuevo.",
     "addPhoto": "Agregar foto"
   },
   "imageErrors": {

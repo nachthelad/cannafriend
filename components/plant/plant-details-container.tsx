@@ -181,6 +181,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [mobileUploadState, setMobileUploadState] =
     useState<UploadingState>("idle");
+  const [mobileUploadMessage, setMobileUploadMessage] = useState<string | null>(null);
   const mobileImageUploadRef = useRef<ImageUploadHandle>(null);
   const mobileUploadPromptTimeoutRef = useRef<ReturnType<
     typeof setTimeout
@@ -211,6 +212,9 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
     (isUploading: boolean) => {
       clearMobilePromptTimeout();
       setMobileUploadState(isUploading ? "uploading" : "idle");
+      if (!isUploading) {
+        setMobileUploadMessage(null);
+      }
     },
     [clearMobilePromptTimeout]
   );
@@ -433,6 +437,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           onUpdate={(patch) => setPlant((prev) => ({ ...prev, ...patch }))}
           language={i18n.language}
           photoUploadState={mobileUploadState}
+          photoUploadMessage={mobileUploadMessage}
           onDelete={handleDeletePlant}
           isDeleting={isDeleting}
         />
@@ -445,6 +450,7 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           className="sr-only"
           userId={userId}
           onUploadingChange={handleMobileUploadingChange}
+          onUploadStatusChange={setMobileUploadMessage}
         />
       </div>
 

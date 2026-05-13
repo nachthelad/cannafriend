@@ -14,8 +14,9 @@ import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import {
   ref as createStorageRef,
-  uploadBytes,
+  uploadBytesResumable,
   getDownloadURL,
+  type UploadTask,
 } from "firebase/storage";
 import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ function ImageUploadComponent(
     hideDefaultTrigger = false,
     userId: providedUserId,
     onUploadingChange,
+    onUploadStatusChange,
   }: ImageUploadProps,
   ref: Ref<ImageUploadHandle>
 ) {
@@ -69,11 +71,15 @@ function ImageUploadComponent(
   const showUploadError = (message: string) => {
     toast.error(message);
   };
+  const setUploadStatus = (status: string | null) => {
+    onUploadStatusChange?.(status);
+  };
 
   const processFiles = async (files: File[]) => {
     if (files.length === 0) return;
 
     setUploading(true);
+    setUploadStatus(t("imageUpload.preparing", { ns: "common" }));
 
     try {
       const validFiles: File[] = [];
@@ -131,6 +137,7 @@ function ImageUploadComponent(
 
       if (newUrls.length > 0) {
         try {
+          setUploadStatus(t("imageUpload.saving", { ns: "common" }));
           await onImagesChange(newUrls);
         } catch (error) {
           console.error("Error after uploading images:", error);
@@ -142,6 +149,7 @@ function ImageUploadComponent(
       showUploadError(getTranslatedImageError(IMAGE_ERROR_KEYS.UPLOAD_FAILED, t));
     } finally {
       setUploading(false);
+      setUploadStatus(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -187,6 +195,7 @@ function ImageUploadComponent(
     // Downscale and convert before upload to reduce size
     let processed: File = file;
     try {
+      setUploadStatus(t("imageUpload.processing", { ns: "common" }));
       processed = await downscaleAndConvert(file, {
         maxDimension: 1400,
         outputQuality: 0.78,
@@ -211,14 +220,81 @@ function ImageUploadComponent(
     const storagePath = getImageStoragePath(resolvedUserId, fileName);
     const storageRef = createStorageRef(storage, storagePath);
 
-    const snapshot = await uploadBytes(storageRef, processed, {
+    const task = uploadBytesResumable(storageRef, processed, {
       cacheControl: "public,max-age=31536000,immutable",
       contentType: processed.type,
     });
+    const snapshot = await waitForUpload(task);
+    setUploadStatus(t("imageUpload.finalizing", { ns: "common" }));
     const downloadURL = await getDownloadURL(snapshot.ref);
 
     return downloadURL;
   };
+
+  const waitForUpload = (task: UploadTask) =>
+    new Promise<UploadTask["snapshot"]>((resolve, reject) => {
+      const stallTimeoutMs = 20000;
+      let stallTimer: ReturnType<typeof setTimeout> | null = null;
+      let settled = false;
+
+      const clearStallTimer = () => {
+        if (stallTimer) {
+          clearTimeout(stallTimer);
+          stallTimer = null;
+        }
+      };
+
+      const rejectAsStalled = () => {
+        if (settled) return;
+        settled = true;
+        clearStallTimer();
+        task.cancel();
+        reject(new Error(t("imageUpload.stalled", { ns: "common" })));
+      };
+
+      const resetStallTimer = () => {
+        clearStallTimer();
+        stallTimer = setTimeout(rejectAsStalled, stallTimeoutMs);
+      };
+
+      resetStallTimer();
+
+      task.on(
+        "state_changed",
+        (snapshot) => {
+          if (settled) return;
+          resetStallTimer();
+          const progress = Math.max(
+            1,
+            Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            )
+          );
+          setUploadStatus(
+            t("imageUpload.uploadingProgress", {
+              ns: "common",
+              progress,
+            })
+          );
+        },
+        (error) => {
+          if (settled) return;
+          settled = true;
+          clearStallTimer();
+          if (error?.code === "storage/canceled") {
+            reject(new Error(t("imageUpload.stalled", { ns: "common" })));
+            return;
+          }
+          reject(error);
+        },
+        () => {
+          if (settled) return;
+          settled = true;
+          clearStallTimer();
+          resolve(task.snapshot);
+        }
+      );
+    });
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
