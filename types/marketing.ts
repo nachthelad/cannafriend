@@ -1,19 +1,4 @@
-import type { ComponentType } from "react";
 import type { BeforeInstallPromptEvent } from "./pwa";
-
-export interface Feature {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}
-
-export interface FeaturesSectionProps {
-  className?: string;
-}
-
-export interface MobileLoginSectionProps {
-  className?: string;
-}
 
 export interface DesktopLandingViewProps {
   isLoggedIn: boolean;
@@ -39,9 +24,4 @@ export interface HeroSectionProps {
   isLoggedIn: boolean;
 }
 
-export interface MobileHeaderProps {
-  className?: string;
-  isLoggedIn?: boolean;
-  onPrimaryClick?: () => void;
-}
 

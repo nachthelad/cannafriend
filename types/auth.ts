@@ -1,7 +1,3 @@
-export interface AuthLoadingModalProps {
-  open: boolean;
-}
-
 export interface AuthTabsProps {
   className?: string;
   onLoginSuccess?: () => void;
@@ -22,10 +18,6 @@ export interface GoogleLoginButtonProps {
   size?: "default" | "sm" | "lg" | "icon";
   onSuccess?: () => void;
   onAuthStart?: () => void;
-}
-
-export interface LoginCardProps {
-  className?: string;
 }
 
 export interface LoginFormData {

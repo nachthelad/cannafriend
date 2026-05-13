@@ -121,31 +121,3 @@ export interface StripeSearchProps {
   variant?: "desktop" | "mobile";
   className?: string;
 }
-
-export type UnifiedSearchScope = MpSearchScope;
-
-export interface UnifiedSearchFilters {
-  uid: string;
-  status: string;
-  scope: UnifiedSearchScope;
-}
-
-export interface UnifiedSearchItem {
-  type: "payment" | "preapproval";
-  id: string;
-  status?: string;
-  payer_email?: string;
-  external_reference?: string;
-  date?: string | null;
-}
-
-export interface UnifiedSearchProps {
-  filters: UnifiedSearchFilters;
-  items: UnifiedSearchItem[];
-  loading: boolean;
-  onFiltersChange: (next: Partial<UnifiedSearchFilters>) => void;
-  onSearch: () => void;
-  onReprocess: (item: UnifiedSearchItem) => void;
-  variant?: "desktop" | "mobile";
-  className?: string;
-}

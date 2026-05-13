@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "ignoreFiles": [
+    ".agent/**",
+    ".agents/**",
+    ".claude/**",
+    ".next/**",
+    "coverage/**",
+    "docs/**"
+  ],
+  "ignoreDependencies": [
+    "workbox-core",
+    "workbox-expiration",
+    "workbox-precaching",
+    "workbox-routing",
+    "workbox-strategies"
+  ],
+  "ignoreIssues": {
+    ".claude/**": [
+      "files",
+      "exports",
+      "types",
+      "duplicates"
+    ],
+    "public/sw.js": [
+      "files"
+    ],
+    "lib/admin/delete-user-account.ts": [
+      "unlisted"
+    ],
+    "lib/firebase-admin.ts": [
+      "unlisted"
+    ],
+    "postcss.config.mjs": [
+      "unlisted"
+    ]
+  }
+}

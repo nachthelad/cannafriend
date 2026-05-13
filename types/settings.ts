@@ -137,7 +137,3 @@ export interface SettingsContentProps {
 }
 
 export type SettingsContainerProps = SettingsContentProps;
-
-export interface PushNotificationsProps {
-  userId: string;
-}
