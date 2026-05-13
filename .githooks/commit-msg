@@ -1,3 +1,32 @@
 #!/usr/bin/env bash
-# No-op: autolog now runs in prepare-commit-msg so UPDATES.md can be staged.
+# Runs after the commit message is prepared and before the commit object is
+# created. We can safely inspect the final subject here and still stage the
+# generated changes into the same commit.
+
+MSG_FILE="$1"
+if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
+  exit 0
+fi
+
+SUBJECT=$(head -n1 "$MSG_FILE")
+
+LEVEL=""
+case "$SUBJECT" in
+  *"[major]"*|*"[MAJOR]"*|feat!*) LEVEL=major ;;
+  *"[mid]"*|*"[MID]"*|feat*) LEVEL=mid ;;
+  *"[minor]"*|*"[MINOR]"*|fix*|refactor*|perf*|docs*|test*|chore*|ci*) LEVEL=minor ;;
+  *) LEVEL="" ;;
+esac
+
+[ -z "$LEVEL" ] && exit 0
+
+DESC="$SUBJECT"
+if echo "$DESC" | grep -E '^[a-z]+(\([^)]+\))?:' >/dev/null 2>&1; then
+  DESC=$(echo "$DESC" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
+fi
+
+node ./scripts/autolog.mjs "$LEVEL" "$DESC" >/dev/null 2>&1 || true
+node ./scripts/autoversion.mjs "$LEVEL" >/dev/null 2>&1 || true
+
+git add UPDATES.md package.json >/dev/null 2>&1 || true
 exit 0

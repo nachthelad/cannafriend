@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { storage, auth } from "@/lib/firebase";
 import {
   ref as createStorageRef,
+  uploadBytes,
   uploadBytesResumable,
   getDownloadURL,
   type UploadTask,
@@ -220,11 +221,21 @@ function ImageUploadComponent(
     const storagePath = getImageStoragePath(resolvedUserId, fileName);
     const storageRef = createStorageRef(storage, storagePath);
 
-    const task = uploadBytesResumable(storageRef, processed, {
+    const metadata = {
       cacheControl: "public,max-age=31536000,immutable",
       contentType: processed.type,
-    });
-    const snapshot = await waitForUpload(task);
+    };
+
+    let snapshot;
+    try {
+      const task = uploadBytesResumable(storageRef, processed, metadata);
+      snapshot = await waitForUpload(task);
+    } catch (error) {
+      console.warn("Resumable upload failed, retrying with direct upload", error);
+      setUploadStatus(t("imageUpload.retryingDirect", { ns: "common" }));
+      snapshot = await waitForDirectUpload(storageRef, processed, metadata);
+    }
+
     setUploadStatus(t("imageUpload.finalizing", { ns: "common" }));
     const downloadURL = await getDownloadURL(snapshot.ref);
 
@@ -233,7 +244,7 @@ function ImageUploadComponent(
 
   const waitForUpload = (task: UploadTask) =>
     new Promise<UploadTask["snapshot"]>((resolve, reject) => {
-      const stallTimeoutMs = 20000;
+      const stallTimeoutMs = 45000;
       let stallTimer: ReturnType<typeof setTimeout> | null = null;
       let settled = false;
 
@@ -292,6 +303,29 @@ function ImageUploadComponent(
           settled = true;
           clearStallTimer();
           resolve(task.snapshot);
+        }
+      );
+    });
+
+  const waitForDirectUpload = (
+    storageRef: ReturnType<typeof createStorageRef>,
+    file: File,
+    metadata: { cacheControl: string; contentType: string }
+  ) =>
+    new Promise<Awaited<ReturnType<typeof uploadBytes>>>((resolve, reject) => {
+      const timeoutMs = 60000;
+      const timeoutId = setTimeout(() => {
+        reject(new Error(t("imageUpload.directTimeout", { ns: "common" })));
+      }, timeoutMs);
+
+      uploadBytes(storageRef, file, metadata).then(
+        (result) => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        },
+        (error) => {
+          clearTimeout(timeoutId);
+          reject(error);
         }
       );
     });
