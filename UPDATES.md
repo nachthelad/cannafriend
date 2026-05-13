@@ -5,6 +5,10 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: move photo uploads behind api — 2026-05-13
+- [MINOR]: finalize autolog hook flow — 2026-05-13
+- [MINOR]: align autolog hook with current commit — 2026-05-13
+- [MINOR]: retry stalled mobile uploads — 2026-05-13
 - [MINOR]: avoid mobile upload processing stalls — 2026-05-13
 - [MINOR]: allow larger mobile source photos — 2026-05-12
 - [MINOR]: stabilize mobile photo uploads — 2026-05-12

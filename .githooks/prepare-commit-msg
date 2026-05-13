@@ -1,3 +1,30 @@
 #!/usr/bin/env bash
-# No-op: commit-msg handles autolog + version bump once the final subject exists.
+# Capture the current commit subject so post-commit can amend the newly created
+# commit with UPDATES.md + package.json changes using the correct message.
+
+if [ "$CF_SKIP_AUTOLOG" = "1" ]; then
+  exit 0
+fi
+
+MSG_FILE="$1"
+if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
+  exit 0
+fi
+
+SUBJECT=$(head -n1 "$MSG_FILE")
+
+LEVEL=""
+case "$SUBJECT" in
+  *"[major]"*|*"[MAJOR]"*|feat!*) LEVEL=major ;;
+  *"[mid]"*|*"[MID]"*|feat*) LEVEL=mid ;;
+  *"[minor]"*|*"[MINOR]"*|fix*|refactor*|perf*|docs*|test*|chore*|ci*) LEVEL=minor ;;
+  *) rm -f .git/.autolog-pending; exit 0 ;;
+esac
+
+DESC="$SUBJECT"
+if echo "$DESC" | grep -E '^[a-z]+(\([^)]+\))?:' >/dev/null 2>&1; then
+  DESC=$(echo "$DESC" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
+fi
+
+printf '%s\n%s\n' "$LEVEL" "$DESC" > .git/.autolog-pending
 exit 0
