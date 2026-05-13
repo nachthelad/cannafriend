@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
 import type { Plant } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import {
+  productSelectableActiveClass,
+  productSelectableIdleClass,
+} from "@/features/shared/surfaces/product/product-nav-item-styles";
 
 interface MultiPlantSelectorProps {
   plants: Plant[];
@@ -78,8 +82,8 @@ export function MultiPlantSelector({
                 className={cn(
                   "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-3 text-left transition-[border-color,background-color,box-shadow,transform] duration-200",
                   isSelected
-                    ? "border-primary/60 bg-primary/10 shadow-[0_14px_36px_-24px_rgba(74,222,128,0.85)]"
-                    : "border-border/70 bg-card/60 hover:border-primary/30 hover:bg-card"
+                    ? `${productSelectableActiveClass} shadow-[0_14px_36px_-24px_rgba(69,209,86,0.85)]`
+                    : "border-white/8 bg-[var(--dashboard-panel)]/72 text-white/82 hover:border-white/14 hover:bg-[var(--dashboard-panel)]"
                 )}
               >
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-muted/50">
@@ -113,8 +117,8 @@ export function MultiPlantSelector({
                       className={cn(
                         "mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] transition-colors",
                         isSelected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background text-muted-foreground"
+                          ? productSelectableActiveClass
+                          : productSelectableIdleClass
                       )}
                     >
                       <Check className="h-3.5 w-3.5" />
@@ -171,14 +175,14 @@ export function MultiPlantSelector({
                 className={cn(
                   "relative w-[100px] cursor-pointer transition-[border-color,box-shadow,transform,opacity] duration-200 rounded-lg overflow-hidden border-2",
                   isSelected
-                    ? "border-primary ring-2 ring-primary/20 scale-[0.98]"
+                    ? "border-[#45d156] bg-[rgba(69,209,86,0.12)] ring-2 ring-[rgba(69,209,86,0.18)] scale-[0.98]"
                     : "border-transparent opacity-80 hover:opacity-100 bg-background"
                 )}
               >
                 {/* Selection Indicator */}
                 {isSelected && (
-                  <div className="absolute top-2 right-2 z-20 bg-primary/90 rounded-full p-1 shadow-sm backdrop-blur-sm">
-                    <Check className="h-3 w-3 text-primary-foreground" />
+                  <div className="absolute top-2 right-2 z-20 rounded-full bg-[rgba(69,209,86,0.95)] p-1 shadow-sm backdrop-blur-sm">
+                    <Check className="h-3 w-3 text-[#06110a]" />
                   </div>
                 )}
 

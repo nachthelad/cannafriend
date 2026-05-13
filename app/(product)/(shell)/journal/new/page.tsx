@@ -46,6 +46,7 @@ import {
   WATERING_METHOD_OPTIONS,
   TRAINING_METHODS,
   TRAINING_METHOD_OPTIONS,
+  isValidLogType,
   type LogType,
 } from "@/lib/log-config";
 import { buildLogsPath, buildEnvironmentPath } from "@/lib/firebase-config";
@@ -279,6 +280,7 @@ function NewJournalPageContent() {
 
   // URL Params
   const urlPlantId = searchParams.get("plantId");
+  const urlLogType = searchParams.get("logType");
   const returnTo = searchParams.get("returnTo");
 
   // Schema
@@ -324,6 +326,12 @@ function NewJournalPageContent() {
           .filter(isPlantGrowing);
         setPlants(plantsData);
 
+        if (urlLogType && isValidLogType(urlLogType)) {
+          setValue("logType", urlLogType, {
+            shouldValidate: false,
+          });
+        }
+
         // Initialize selection
         if (urlPlantId && plantsData.find((p) => p.id === urlPlantId)) {
           setValue("selectedPlantIds", [urlPlantId]);
@@ -337,7 +345,7 @@ function NewJournalPageContent() {
       }
     };
     if (userId) fetchPlants();
-  }, [userId, urlPlantId, setValue]);
+  }, [userId, urlPlantId, urlLogType, selectedPlantIds.length, setValue]);
 
   // Initialize plant logs when selection changes
   useEffect(() => {

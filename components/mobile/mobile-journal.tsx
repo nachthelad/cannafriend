@@ -68,6 +68,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import {
+  productSelectableActiveClass,
+  productSelectableIdleClass,
+} from "@/features/shared/surfaces/product/product-nav-item-styles";
+import { cn } from "@/lib/utils";
 
 // Props for the inner content component — receives filter state from parent
 interface MobileJournalContentProps {
@@ -309,22 +314,32 @@ function MobileJournalContent({
                 {t("filterByPlant", { ns: "journal" })}
               </h3>
               <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedPlant === "all" ? "default" : "outline"}
-                  className="cursor-pointer"
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                    selectedPlant === "all"
+                      ? productSelectableActiveClass
+                      : productSelectableIdleClass,
+                  )}
                   onClick={() => onPlantChange("all")}
                 >
                   {t("allPlants", { ns: "journal" })}
-                </Badge>
+                </button>
                 {plants.map((plant) => (
-                  <Badge
+                  <button
                     key={plant.id}
-                    variant={selectedPlant === plant.id ? "default" : "outline"}
-                    className="cursor-pointer"
+                    type="button"
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                      selectedPlant === plant.id
+                        ? productSelectableActiveClass
+                        : productSelectableIdleClass,
+                    )}
                     onClick={() => onPlantChange(plant.id)}
                   >
                     {plant.name}
-                  </Badge>
+                  </button>
                 ))}
               </div>
             </div>
@@ -334,22 +349,32 @@ function MobileJournalContent({
                 {t("filterByType", { ns: "journal" })}
               </h3>
               <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={selectedLogType === "all" ? "default" : "outline"}
-                  className="cursor-pointer"
+                <button
+                  type="button"
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                    selectedLogType === "all"
+                      ? productSelectableActiveClass
+                      : productSelectableIdleClass,
+                  )}
                   onClick={() => onLogTypeChange("all")}
                 >
                   {t("allTypes", { ns: "journal" })}
-                </Badge>
+                </button>
                 {logTypes.map((type) => (
-                  <Badge
+                  <button
                     key={type}
-                    variant={selectedLogType === type ? "default" : "outline"}
-                    className="cursor-pointer"
+                    type="button"
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-[background-color,border-color,color]",
+                      selectedLogType === type
+                        ? productSelectableActiveClass
+                        : productSelectableIdleClass,
+                    )}
                     onClick={() => onLogTypeChange(type)}
                   >
                     {t(`logType.${type}`, { ns: "journal" })}
-                  </Badge>
+                  </button>
                 ))}
               </div>
             </div>

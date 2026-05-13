@@ -26,12 +26,10 @@ import {
   Leaf,
   Calendar,
   Shield,
-  NotebookPen,
   Plus,
 } from "lucide-react";
 
 import { ADMIN_EMAIL } from "@/lib/constants";
-import { FastLogAction } from "@/features/product/dashboard/components/fast-log-action";
 
 export function MobileDashboard({
   plants,
@@ -184,24 +182,6 @@ export function MobileDashboard({
             icon={Bell}
             label={t("reminders", { ns: "dashboard" })}
             href={ROUTE_REMINDERS}
-          />
-          <FastLogAction
-            plants={plants}
-            renderTrigger={({ onClick, disabled }) => (
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="w-full h-16 flex flex-col gap-1"
-                onClick={onClick}
-                disabled={disabled}
-              >
-                <NotebookPen className="h-5 w-5" />
-                <span className="text-xs">
-                  {t("fastLogTitle", { ns: "dashboard" })}
-                </span>
-              </Button>
-            )}
           />
           <QuickActionButton
             icon={Calendar}

@@ -57,3 +57,11 @@ export function getProductNavItems(
     },
   ];
 }
+
+export function isProductNavItemActive(pathname: string, href: string): boolean {
+  if (href === ROUTE_DASHBOARD) {
+    return pathname === ROUTE_DASHBOARD;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}

@@ -45,6 +45,10 @@ import {
   invalidateRemindersCache,
 } from "@/lib/suspense-cache";
 import { cn } from "@/lib/utils";
+import {
+  productSelectableActiveClass,
+  productSelectableIdleClass,
+} from "@/features/shared/surfaces/product/product-nav-item-styles";
 
 // Form validation schema
 const createEditReminderFormSchema = (t: any) =>
@@ -368,10 +372,10 @@ export function EditReminderDialog({
                           });
                         }}
                         className={cn(
-                          "h-9 w-9 rounded-full text-xs font-medium transition-[background-color,color,transform] duration-200 flex items-center justify-center",
+                          "flex h-9 w-9 items-center justify-center rounded-full border text-xs font-medium transition-[background-color,border-color,color,transform] duration-200",
                           selected
-                            ? "bg-primary text-primary-foreground shadow-sm scale-105"
-                            : "bg-background border border-input hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                            ? `${productSelectableActiveClass} scale-105`
+                            : productSelectableIdleClass
                         )}
                       >
                         {day}

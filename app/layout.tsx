@@ -140,9 +140,28 @@ export default function RootLayout({
             __html: `
               (function(){
                 if ('serviceWorker' in navigator) {
+                  var isLocalDevHost =
+                    location.protocol !== 'https:' ||
+                    location.hostname === 'localhost' ||
+                    location.hostname === '127.0.0.1';
+
+                  if (isLocalDevHost) {
+                    navigator.serviceWorker.getRegistrations()
+                      .then(function(registrations){
+                        return Promise.all(
+                          registrations.map(function(registration){
+                            return registration.unregister();
+                          })
+                        );
+                      })
+                      .catch(function(e){
+                        console.warn('SW unregister failed', e);
+                      });
+                    return;
+                  }
+
                   window.addEventListener('load', function(){
                     navigator.serviceWorker.register('/sw.js').then(function(reg){
-                      // Listen for skip waiting messages
                       navigator.serviceWorker.addEventListener('message', function(event){
                         if (event && event.data && event.data.type === 'RELOAD_PAGE') {
                           location.reload();
