@@ -36,7 +36,6 @@ function ImageUploadComponent(
     buttonSize = "sm",
     enableDropzone = false,
     hideDefaultTrigger = false,
-    userId: providedUserId,
     onUploadingChange,
     onUploadStatusChange,
   }: ImageUploadProps,
@@ -179,8 +178,7 @@ function ImageUploadComponent(
   }, [enableDropzone]);
 
   const uploadImage = async (file: File): Promise<string> => {
-    const resolvedUserId = providedUserId ?? auth.currentUser?.uid;
-    if (!resolvedUserId) {
+    if (!auth.currentUser) {
       throw new Error(getTranslatedImageError(IMAGE_ERROR_KEYS.USER_NOT_AUTHENTICATED, t));
     }
 
