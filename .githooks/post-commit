@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+if [ "$CF_SKIP_AUTOLOG" = "1" ]; then
+  exit 0
+fi
+
+PENDING_FILE=".git/.autolog-pending"
+if [ ! -f "$PENDING_FILE" ]; then
+  exit 0
+fi
+
+LEVEL=$(sed -n '1p' "$PENDING_FILE")
+DESC=$(sed -n '2p' "$PENDING_FILE")
+rm -f "$PENDING_FILE"
+
+if [ -z "$LEVEL" ] || [ -z "$DESC" ]; then
+  exit 0
+fi
+
+node ./scripts/autolog.mjs "$LEVEL" "$DESC" >/dev/null 2>&1 || true
+node ./scripts/autoversion.mjs "$LEVEL" >/dev/null 2>&1 || true
+
+git add UPDATES.md package.json >/dev/null 2>&1 || true
+
+if git diff --cached --quiet -- UPDATES.md package.json; then
+  exit 0
+fi
+
+CF_SKIP_AUTOLOG=1 git commit --amend --no-edit --no-verify >/dev/null 2>&1 || true
+exit 0

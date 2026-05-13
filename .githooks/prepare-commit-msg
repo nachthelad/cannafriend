@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Runs once the commit message file exists and before the commit is created.
-# This is late enough to read the current subject and still early enough to
-# stage generated files into the same commit.
+# Capture the current commit subject so post-commit can amend the newly created
+# commit with UPDATES.md + package.json changes using the correct message.
+
+if [ "$CF_SKIP_AUTOLOG" = "1" ]; then
+  exit 0
+fi
 
 MSG_FILE="$1"
 if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
@@ -15,18 +18,13 @@ case "$SUBJECT" in
   *"[major]"*|*"[MAJOR]"*|feat!*) LEVEL=major ;;
   *"[mid]"*|*"[MID]"*|feat*) LEVEL=mid ;;
   *"[minor]"*|*"[MINOR]"*|fix*|refactor*|perf*|docs*|test*|chore*|ci*) LEVEL=minor ;;
-  *) LEVEL="" ;;
+  *) rm -f .git/.autolog-pending; exit 0 ;;
 esac
-
-[ -z "$LEVEL" ] && exit 0
 
 DESC="$SUBJECT"
 if echo "$DESC" | grep -E '^[a-z]+(\([^)]+\))?:' >/dev/null 2>&1; then
   DESC=$(echo "$DESC" | sed -E 's/^[a-z]+(\([^)]+\))?:\s*//')
 fi
 
-node ./scripts/autolog.mjs "$LEVEL" "$DESC" >/dev/null 2>&1 || true
-node ./scripts/autoversion.mjs "$LEVEL" >/dev/null 2>&1 || true
-
-git add UPDATES.md package.json >/dev/null 2>&1 || true
+printf '%s\n%s\n' "$LEVEL" "$DESC" > .git/.autolog-pending
 exit 0

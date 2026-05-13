@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 #!/usr/bin/env bash
-# No-op: prepare-commit-msg handles autolog + version bump so generated files
-# are staged into the same commit.
+# No-op: prepare-commit-msg records metadata and post-commit performs the
+# amend so generated files land on the current commit.
 exit 0
