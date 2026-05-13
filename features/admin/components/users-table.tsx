@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import type {
   AdminUsersTableProps,
-  AdminUser,
   SortDirection,
 } from "@/types/admin";
 import { useMemo } from "react";
@@ -12,13 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { getAdminUserRoute } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import {
-  Calendar,
   Copy,
   Crown,
-  Hash,
-  Mail,
+  ExternalLink,
   RefreshCw,
   User,
 } from "lucide-react";
@@ -138,32 +137,28 @@ export function AdminUsersTable({
 
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <Mail className="h-3.5 w-3.5" />
-                    <span className="truncate">{user.email || "No email"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-3.5 w-3.5" />
                     <span className="font-mono text-xs truncate flex-1">
                       {user.uid}
                     </span>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
                       onClick={() => onCopy(user.uid, "UID")}
+                      aria-label="Copiar UID"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>
-                      {user.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString()
-                        : "Unknown"}
-                    </span>
-                  </div>
                 </div>
+
+                <Button asChild className="mt-4 w-full" variant="outline">
+                  <Link href={getAdminUserRoute(user.uid)}>
+                    Ver usuario
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -234,11 +229,10 @@ export function AdminUsersTable({
         <table className="min-w-full text-sm">
           <thead className="bg-muted/50">
             <tr className="text-left">
-              <th className="py-3 px-4 font-medium">Email</th>
               <th className="py-3 px-4 font-medium">Name</th>
               <th className="py-3 px-4 font-medium">UID</th>
-              <th className="py-3 px-4 font-medium">Registered</th>
               <th className="py-3 px-4 font-medium">Premium</th>
+              <th className="py-3 px-4 font-medium text-right">Detalle</th>
             </tr>
           </thead>
           <tbody>
@@ -247,33 +241,35 @@ export function AdminUsersTable({
                 key={user.uid}
                 className="border-b last:border-b-0 hover:bg-muted/40"
               >
-                <td className="py-3 px-4">{user.email || "—"}</td>
                 <td className="py-3 px-4">{user.displayName || "-"}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs select-all">
-                      {user.uid}
-                    </span>
+                    <span className="font-mono text-xs select-all">{user.uid}</span>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
-                      className="px-2 py-0 h-7"
+                      className="h-7 px-2"
                       onClick={() => onCopy(user.uid, "UID")}
+                      aria-label="Copiar UID"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                </td>
-                <td className="py-3 px-4">
-                  {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString()
-                    : "—"}
                 </td>
                 <td className="py-3 px-4">
                   <Switch
                     checked={user.premium}
                     onCheckedChange={(value) => onTogglePremium(user, value)}
                   />
+                </td>
+                <td className="py-3 px-4 text-right">
+                  <Button asChild size="sm" variant="outline">
+                    <Link href={getAdminUserRoute(user.uid)}>
+                      Ver usuario
+                      <ExternalLink className="ml-2 h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
                 </td>
               </tr>
             ))}

@@ -8,6 +8,48 @@ export interface AdminUser {
   createdAt?: number;
 }
 
+export interface AdminCollectionSummary {
+  total: number;
+}
+
+export interface AdminPlantPreview {
+  id: string;
+  name: string;
+  status?: string | null;
+  plantingDate?: string | null;
+  createdAt?: string | null;
+}
+
+export interface AdminReminderPreview {
+  id: string;
+  label: string;
+  plantName?: string | null;
+  timeOfDay?: string | null;
+  daysOfWeek: number[];
+  isActive: boolean;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+
+export interface AdminPreviewCollection<T> extends AdminCollectionSummary {
+  items: T[];
+}
+
+export interface AdminUserDetail {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  premium: boolean;
+  createdAt?: number;
+  timezone?: string | null;
+  onboardingCompletedAt?: string | null;
+  plants: AdminPreviewCollection<AdminPlantPreview>;
+  reminders: AdminPreviewCollection<AdminReminderPreview>;
+  sessions: AdminCollectionSummary;
+  stash: AdminCollectionSummary;
+  aiChats: AdminCollectionSummary;
+}
+
 export interface AdminUsersTableProps {
   adminEmail: string;
   users: AdminUser[];
