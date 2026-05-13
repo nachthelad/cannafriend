@@ -11,14 +11,7 @@ import {
 import type { ImageUploadProps, ImageUploadHandle } from "@/types/common";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { storage, auth } from "@/lib/firebase";
-import {
-  ref as createStorageRef,
-  uploadBytes,
-  uploadBytesResumable,
-  getDownloadURL,
-  type UploadTask,
-} from "firebase/storage";
+import { auth } from "@/lib/firebase";
 import { Upload, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { downscaleAndConvert } from "@/lib/image-processing";
@@ -28,8 +21,6 @@ import {
   DEFAULT_MAX_SOURCE_SIZE_MB,
   DEFAULT_MAX_SIZE_MB,
   IMAGE_ERROR_KEYS,
-  generateImageFileName,
-  getImageStoragePath,
   validateImageFile,
   validateImageFileSize,
   validateImageFileType,
@@ -217,117 +208,83 @@ function ImageUploadComponent(
       throw new Error(getTranslatedImageError(processedError.key, t, `${maxSizeMB}MB`));
     }
 
-    const fileName = generateImageFileName(processed.name);
-    const storagePath = getImageStoragePath(resolvedUserId, fileName);
-    const storageRef = createStorageRef(storage, storagePath);
-
-    const metadata = {
-      cacheControl: "public,max-age=31536000,immutable",
-      contentType: processed.type,
-    };
-
-    let snapshot;
-    try {
-      const task = uploadBytesResumable(storageRef, processed, metadata);
-      snapshot = await waitForUpload(task);
-    } catch (error) {
-      console.warn("Resumable upload failed, retrying with direct upload", error);
-      setUploadStatus(t("imageUpload.retryingDirect", { ns: "common" }));
-      snapshot = await waitForDirectUpload(storageRef, processed, metadata);
+    const idToken = await auth.currentUser?.getIdToken();
+    if (!idToken) {
+      throw new Error(
+        getTranslatedImageError(IMAGE_ERROR_KEYS.USER_NOT_AUTHENTICATED, t)
+      );
     }
 
-    setUploadStatus(t("imageUpload.finalizing", { ns: "common" }));
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    return downloadURL;
+    return uploadViaApi(processed, idToken);
   };
 
-  const waitForUpload = (task: UploadTask) =>
-    new Promise<UploadTask["snapshot"]>((resolve, reject) => {
-      const stallTimeoutMs = 45000;
-      let stallTimer: ReturnType<typeof setTimeout> | null = null;
-      let settled = false;
+  const uploadViaApi = (file: File, idToken: string) =>
+    new Promise<string>((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const clearStallTimer = () => {
-        if (stallTimer) {
-          clearTimeout(stallTimer);
-          stallTimer = null;
-        }
-      };
-
-      const rejectAsStalled = () => {
-        if (settled) return;
-        settled = true;
-        clearStallTimer();
-        task.cancel();
-        reject(new Error(t("imageUpload.stalled", { ns: "common" })));
-      };
-
-      const resetStallTimer = () => {
-        clearStallTimer();
-        stallTimer = setTimeout(rejectAsStalled, stallTimeoutMs);
-      };
-
-      resetStallTimer();
-
-      task.on(
-        "state_changed",
-        (snapshot) => {
-          if (settled) return;
-          resetStallTimer();
-          const progress = Math.max(
-            1,
-            Math.round(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            )
-          );
-          setUploadStatus(
-            t("imageUpload.uploadingProgress", {
-              ns: "common",
-              progress,
-            })
-          );
-        },
-        (error) => {
-          if (settled) return;
-          settled = true;
-          clearStallTimer();
-          if (error?.code === "storage/canceled") {
-            reject(new Error(t("imageUpload.stalled", { ns: "common" })));
-            return;
-          }
-          reject(error);
-        },
-        () => {
-          if (settled) return;
-          settled = true;
-          clearStallTimer();
-          resolve(task.snapshot);
-        }
-      );
-    });
-
-  const waitForDirectUpload = (
-    storageRef: ReturnType<typeof createStorageRef>,
-    file: File,
-    metadata: { cacheControl: string; contentType: string }
-  ) =>
-    new Promise<Awaited<ReturnType<typeof uploadBytes>>>((resolve, reject) => {
+      const request = new XMLHttpRequest();
       const timeoutMs = 60000;
       const timeoutId = setTimeout(() => {
+        request.abort();
         reject(new Error(t("imageUpload.directTimeout", { ns: "common" })));
       }, timeoutMs);
 
-      uploadBytes(storageRef, file, metadata).then(
-        (result) => {
-          clearTimeout(timeoutId);
-          resolve(result);
-        },
-        (error) => {
-          clearTimeout(timeoutId);
-          reject(error);
+      request.open("POST", "/api/plants/upload-photo");
+      request.setRequestHeader("Authorization", `Bearer ${idToken}`);
+      request.responseType = "json";
+
+      request.upload.onprogress = (event) => {
+        if (!event.lengthComputable) {
+          setUploadStatus(t("imageUpload.uploading", { ns: "common" }));
+          return;
         }
-      );
+
+        const progress = Math.max(
+          1,
+          Math.round((event.loaded / event.total) * 100)
+        );
+        setUploadStatus(
+          t("imageUpload.uploadingProgress", {
+            ns: "common",
+            progress,
+          })
+        );
+      };
+
+      request.onerror = () => {
+        clearTimeout(timeoutId);
+        reject(new Error(t("imageUpload.uploadFailed", { ns: "common" })));
+      };
+
+      request.onabort = () => {
+        clearTimeout(timeoutId);
+        reject(new Error(t("imageUpload.directTimeout", { ns: "common" })));
+      };
+
+      request.onload = () => {
+        clearTimeout(timeoutId);
+
+        if (request.status < 200 || request.status >= 300) {
+          const errorMessage =
+            typeof request.response?.error === "string"
+              ? request.response.error
+              : t("imageUpload.uploadFailed", { ns: "common" });
+          reject(new Error(errorMessage));
+          return;
+        }
+
+        const url = request.response?.url;
+        if (typeof url !== "string" || !url) {
+          reject(new Error(t("imageUpload.uploadFailed", { ns: "common" })));
+          return;
+        }
+
+        setUploadStatus(t("imageUpload.finalizing", { ns: "common" }));
+        resolve(url);
+      };
+
+      request.send(formData);
     });
 
   const handleFileSelect = async (

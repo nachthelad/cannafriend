@@ -2,6 +2,7 @@ import "server-only";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 let initialized = false;
 
@@ -26,6 +27,7 @@ export function ensureAdminApp() {
         clientEmail,
         privateKey,
       }),
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
     initialized = true;
   }
@@ -39,4 +41,9 @@ export function adminAuth() {
 export function adminDb() {
   ensureAdminApp();
   return getFirestore();
+}
+
+export function adminStorage() {
+  ensureAdminApp();
+  return getStorage();
 }
