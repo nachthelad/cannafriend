@@ -324,10 +324,8 @@
     "processing": "Procesando foto…",
     "uploading": "Subiendo…",
     "uploadingProgress": "Subiendo foto… {{progress}}%",
-    "retryingDirect": "Reintentando subida…",
     "finalizing": "Finalizando subida…",
     "saving": "Guardando foto en la planta…",
-    "stalled": "La subida quedó trabada. Probá de nuevo.",
     "directTimeout": "La subida tardó demasiado. Probá de nuevo.",
     "addPhoto": "Agregar foto"
   },

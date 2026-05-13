@@ -20,7 +20,12 @@ export const ROUTE_RESET_PASSWORD = "/reset-password" as const;
 export const ROUTE_PRIVACY = "/privacy" as const;
 export const ROUTE_TERMS = "/terms" as const;
 export const ROUTE_ADMIN = "/admin" as const;
+export const ROUTE_ADMIN_USERS = "/admin/users" as const;
 export const ROUTE_HOME = "/" as const;
+
+export function getAdminUserRoute(uid: string): string {
+  return `${ROUTE_ADMIN_USERS}/${encodeURIComponent(uid)}`;
+}
 
 export type AppPath =
   | typeof ROUTE_LOGIN
@@ -43,5 +48,6 @@ export type AppPath =
   | typeof ROUTE_PRIVACY
   | typeof ROUTE_TERMS
   | typeof ROUTE_ADMIN
+  | typeof ROUTE_ADMIN_USERS
   | typeof ROUTE_HOME
   | string;

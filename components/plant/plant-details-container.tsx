@@ -448,7 +448,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
           hideDefaultTrigger
           maxSizeMB={5}
           className="sr-only"
-          userId={userId}
           onUploadingChange={handleMobileUploadingChange}
           onUploadStatusChange={setMobileUploadMessage}
         />
@@ -473,7 +472,6 @@ function PlantDetailsContent({ userId, plantId }: PlantDetailsContainerProps) {
               onPhotosChange={handlePhotosChange}
               onRemovePhoto={handleRemovePhoto}
               onSetCoverPhoto={handleSetCoverPhoto}
-              userId={userId}
             />
           </div>
 

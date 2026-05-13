@@ -222,7 +222,6 @@ export default function NewPlantPage() {
                 onImagesChange={setPhotos}
                 maxImages={DEFAULT_MAX_IMAGES}
                 maxSizeMB={DEFAULT_MAX_SIZE_MB}
-                userId={userId ?? undefined}
                 enableDropzone
                 buttonSize="default"
                 className="xl:[&_button]:rounded-2xl xl:[&_button]:px-4"

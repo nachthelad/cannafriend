@@ -7,7 +7,6 @@ import {
   ROUTE_REMINDERS,
   ROUTE_PLANTS,
   ROUTE_JOURNAL,
-  ROUTE_PLANTS_NEW,
 } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +27,7 @@ import {
   where,
 } from "firebase/firestore";
 import dynamic from "next/dynamic";
-import { AlertTriangle, Bell, NotebookPen, Plus, Sprout, X } from "lucide-react";
+import { AlertTriangle, Plus, X } from "lucide-react";
 
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 
@@ -57,7 +56,6 @@ import { auth, db } from "@/lib/firebase";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
-import { FastLogAction } from "./fast-log-action";
 import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
 
 async function fetchDashboardData(userId: string): Promise<DashboardData> {
@@ -303,47 +301,6 @@ function DashboardContent({
             </div>
           </div>
         )}
-
-        <Card className="shrink-0">
-          <CardHeader className="pb-3">
-            <CardTitle>{t("todayFocus", { ns: "dashboard" })}</CardTitle>
-            <CardDescription>
-              {plants.length > 0
-                ? t("todayFocusDesc", { ns: "dashboard" })
-                : t("todayFocusEmptyDesc", { ns: "dashboard" })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <FastLogAction
-              plants={plants}
-              renderTrigger={({ onClick, disabled }) => (
-                <Button
-                  type="button"
-                  onClick={onClick}
-                  disabled={disabled}
-                  className="gap-2"
-                >
-                  <NotebookPen className="h-4 w-4" />
-                  {t("fastLogTitle", { ns: "dashboard" })}
-                </Button>
-              )}
-            />
-            <Button asChild variant="outline" className="gap-2">
-              <Link href={ROUTE_REMINDERS}>
-                <Bell className="h-4 w-4" />
-                {t("reviewReminders", { ns: "dashboard" })}
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="gap-2">
-              <Link href={plants.length > 0 ? ROUTE_PLANTS : ROUTE_PLANTS_NEW}>
-                <Sprout className="h-4 w-4" />
-                {plants.length > 0
-                  ? t("reviewPlants", { ns: "dashboard" })
-                  : t("addPlant", { ns: "dashboard" })}
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
           <Card className="flex flex-col h-full">

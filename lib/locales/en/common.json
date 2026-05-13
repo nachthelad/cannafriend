@@ -325,10 +325,8 @@
     "processing": "Processing photo…",
     "uploading": "Uploading…",
     "uploadingProgress": "Uploading photo… {{progress}}%",
-    "retryingDirect": "Retrying upload…",
     "finalizing": "Finalizing upload…",
     "saving": "Saving photo to the plant…",
-    "stalled": "The upload got stuck. Please try again.",
     "directTimeout": "The upload took too long. Please try again.",
     "addPhoto": "Add Photo"
   },

@@ -17,6 +17,7 @@ import { authorizedFetch, copyToClipboard } from "@/lib/admin/utils";
 import { ADMIN_EMAIL } from "@/lib/constants";
 import { getSuspenseResource } from "@/lib/suspense-utils";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
+import { toast } from "sonner";
 
 const USERS_CACHE_KEY = "admin-users";
 
@@ -103,13 +104,6 @@ function AdminContent() {
       }
     },
     [handleError, users]
-  );
-
-  const handleCopy = useCallback(
-    async (value: string, label: string = "Valor") => {
-      await copyToClipboard(value);
-    },
-    []
   );
 
   const handleMpSearch = useCallback(async () => {
@@ -205,6 +199,16 @@ function AdminContent() {
     [handleError, refreshUsers]
   );
 
+  const handleCopy = useCallback(async (value: string, label = "Valor") => {
+    const copied = await copyToClipboard(value);
+    if (copied) {
+      toast.success(`${label} copiado`);
+      return;
+    }
+
+    toast.error(`No se pudo copiar ${label.toLowerCase()}`);
+  }, []);
+
   return (
     <div className="w-full space-y-8">
       <div className="md:hidden space-y-6">
@@ -266,7 +270,7 @@ function AdminContent() {
             onSearchChange={setUserSearchQuery}
           />
         </section>
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 2xl:grid-cols-2">
           <section id="mercadopago">
             <AdminMpSearch
               filters={mpFilters}

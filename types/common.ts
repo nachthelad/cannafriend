@@ -60,7 +60,6 @@ export interface ImageUploadProps {
   buttonSize?: "sm" | "default";
   enableDropzone?: boolean;
   hideDefaultTrigger?: boolean;
-  userId?: string;
   onUploadingChange?: (isUploading: boolean) => void;
   onUploadStatusChange?: (status: string | null) => void;
 }
