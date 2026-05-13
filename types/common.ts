@@ -1,17 +1,9 @@
 import type {
   ButtonHTMLAttributes,
   HTMLAttributes,
-  InputHTMLAttributes,
   ReactNode,
 } from "react";
 import type { Plant, Reminder } from "./entities";
-
-export interface BrandedLoadingProps {
-  size?: "sm" | "md" | "lg";
-  variant?: "default" | "minimal" | "with-text";
-  text?: string;
-  className?: string;
-}
 
 export interface ButtonLoadingProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
@@ -69,15 +61,6 @@ export interface ImageUploadHandle {
   uploadFiles: (files: File[]) => Promise<void>;
 }
 
-export interface AmountWithUnitProps {
-  inputId: string;
-  placeholder?: string;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
-  defaultUnit?: string;
-  unitOptions: { value: string; label?: string }[];
-  onUnitChange: (unit: string) => void;
-}
-
 export interface InlineEditProps {
   value: string;
   onSave: (newValue: string) => Promise<void> | void;
@@ -112,13 +95,6 @@ export interface ResponsivePageHeaderProps {
   showMobileBackButton?: boolean;
   showDesktopBackButton?: boolean;
   desktopBackLabel?: ReactNode;
-}
-
-export interface SearchProps {
-  placeholder?: string;
-  onSearch: (query: string) => void;
-  onClear?: () => void;
-  className?: string;
 }
 
 export interface TimezoneSelectProps {

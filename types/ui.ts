@@ -8,12 +8,10 @@ export interface MobileDatePickerProps {
   locale?: Locale;
 }
 
-export type ToastVariant = "default" | "destructive";
-
 export type ToastProps = ComponentPropsWithoutRef<
   typeof ToastPrimitives.Root
 > & {
-  variant?: ToastVariant;
+  variant?: "default" | "destructive";
 };
 
 export type ToastActionElement = ReactElement;

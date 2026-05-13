@@ -7,24 +7,6 @@ import type { Session, SessionEditFormValues } from "./sessions";
 import type { SubscriptionDetails } from "./settings";
 import type { JournalSortBy, JournalSortOrder } from "./journal";
 
-export type ListedUser = {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  premium: boolean;
-  createdAt?: number;
-};
-
-export interface MobileAdminProps {
-  users: ListedUser[];
-  loading: boolean;
-  sortDir: "newest" | "oldest";
-  setSortDir: (dir: "newest" | "oldest") => void;
-  fetchUsers: () => void;
-  togglePremium: (user: ListedUser, premium: boolean) => void;
-  copyToClipboard: (text: string, label?: string) => void;
-}
-
 export interface MobileDashboardProps {
   plants: Plant[];
   recentLogs: LogEntry[];
@@ -58,21 +40,8 @@ export interface MobileJournalProps {
   mobileActions?: React.ReactNode;
 }
 
-export interface MobileJournalData {
-  logs: LogEntry[];
-  plants: Plant[];
-}
-
 export type MobileJournalSortBy = JournalSortBy;
 export type MobileJournalSortOrder = JournalSortOrder;
-
-export interface MobileJournalEntryProps {
-  log: LogEntry;
-  showPlantName?: boolean;
-  onDelete?: (log: LogEntry) => void;
-  onEdit?: (log: LogEntry) => void;
-  language: string;
-}
 
 export interface MobilePlantPageProps {
   plant: Plant;
@@ -153,7 +122,3 @@ export interface MobilePreferencesState {
   darkMode: boolean;
 }
 
-export interface MobileSettingsData {
-  preferences: MobilePreferencesState;
-  subscription: SubscriptionDetails | null;
-}
