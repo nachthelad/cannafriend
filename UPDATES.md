@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: reduce install icon cropping — 2026-05-17
 - [MINOR]: remove unused code and dependencies — 2026-05-13
 - [MINOR]: remove obsolete upload plumbing — 2026-05-13
 - [MINOR]: move photo uploads behind api — 2026-05-13
