@@ -2,10 +2,7 @@ import type { BeforeInstallPromptEvent } from "./pwa";
 
 export interface DesktopLandingViewProps {
   isLoggedIn: boolean;
-  loginOpen: boolean;
-  onLoginOpenChange: (open: boolean) => void;
   onLoginClick: () => void;
-  onAuthStart?: () => void;
   deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
 }

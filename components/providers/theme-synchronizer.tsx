@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useTheme } from "next-themes";
 
 import { applyTheme } from "@/lib/theme-utils";
+import { useTheme } from "@/components/providers/theme-provider";
 
 export function ThemeSynchronizer() {
   const { resolvedTheme } = useTheme();
