@@ -38,7 +38,7 @@ export function GoogleLoginButton({
       size={size}
       className={`${
         size === "icon" ? "" : "w-full"
-      } bg-white/90 dark:bg-gray-800/90 border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 ${className}`}
+      } border-black/5 bg-black/5 text-foreground hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 ${className}`}
       onClick={handleGoogleLogin}
       disabled={isLoading}
     >

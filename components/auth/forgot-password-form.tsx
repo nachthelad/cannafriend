@@ -125,7 +125,9 @@ export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
             <Input
               id="email"
               type="email"
-              placeholder="ejemplo@correo.com"
+              placeholder={t("forgotPassword.emailPlaceholder", {
+                ns: "auth",
+              })}
               className="bg-white dark:bg-accent border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary"
               {...register("email", {
                 required: t("forgotPassword.emailRequired", { ns: "auth" }),

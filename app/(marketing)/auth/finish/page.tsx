@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithCustomToken } from "firebase/auth";
 import { getDoc } from "firebase/firestore";
+import { useTranslation } from "react-i18next";
 
 import ThemeLogo from "@/components/common/theme-logo";
 import { auth } from "@/lib/firebase";
@@ -18,7 +19,10 @@ type FirebaseTokenResponse = {
 
 export default function AuthFinishPage() {
   const router = useRouter();
-  const [message, setMessage] = useState("Conectando tu cuenta...");
+  const { t } = useTranslation(["auth"]);
+  const [message, setMessage] = useState(() =>
+    t("oauth.connectingAccount", { ns: "auth" }),
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -34,7 +38,7 @@ export default function AuthFinishPage() {
           throw new Error(data.error || "firebase_token_failed");
         }
 
-        setMessage("Preparando tu espacio...");
+        setMessage(t("oauth.preparingSpace", { ns: "auth" }));
         const credential = await signInWithCustomToken(auth, data.customToken);
         const profile = await getDoc(userDoc<UserProfile>(credential.user.uid));
 
@@ -48,9 +52,7 @@ export default function AuthFinishPage() {
           return;
         }
 
-        setMessage(
-          "Google conecto, pero faltan credenciales de Firebase Admin para completar la sesion local.",
-        );
+        setMessage(t("oauth.firebaseAdminMissing", { ns: "auth" }));
         window.setTimeout(() => router.replace(ROUTE_LOGIN), 3500);
       }
     };
@@ -60,13 +62,12 @@ export default function AuthFinishPage() {
     return () => {
       isActive = false;
     };
-  }, [router]);
+  }, [router, t]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="flex flex-col items-center gap-4 text-center">
         <ThemeLogo size={56} className="text-primary" />
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
         <p className="text-base font-medium text-foreground">{message}</p>
       </div>
     </main>

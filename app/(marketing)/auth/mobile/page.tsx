@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useMemo } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 import ThemeLogo from "@/components/common/theme-logo";
 
@@ -12,6 +13,7 @@ function isAllowedMobileRedirect(value: string) {
 
 function MobileAuthContent() {
   const searchParams = useSearchParams();
+  const { t } = useTranslation(["auth"]);
   const redirectTarget = useMemo(
     () => searchParams.get("redirect") ?? "cannafriend://auth",
     [searchParams],
@@ -32,7 +34,9 @@ function MobileAuthContent() {
       <div className="flex flex-col items-center gap-4 text-center">
         <ThemeLogo size={56} className="text-primary" />
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-        <p className="text-base font-medium text-foreground">Abriendo Google...</p>
+        <p className="text-base font-medium text-foreground">
+          {t("oauth.openingGoogle", { ns: "auth" })}
+        </p>
       </div>
     </main>
   );

@@ -102,7 +102,7 @@ export function LoginPageView() {
             <Button variant="ghost" size="sm" asChild>
               <Link href={ROUTE_HOME}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver
+                {t("back", { ns: "common" })}
               </Link>
             </Button>
             <div className="flex items-center gap-2">
@@ -113,25 +113,19 @@ export function LoginPageView() {
 
           <div className="flex flex-1 items-center justify-center py-10">
             <div className="w-full max-w-[420px]">
-              <div className="mb-8 text-center lg:text-left">
+              <div className="mb-8 text-center">
                 <ThemeLogo
                   size={48}
-                  className="mx-auto mb-4 text-primary lg:hidden"
+                  className="mx-auto mb-5 text-primary"
                 />
-                <p className="mb-2 text-sm font-medium text-primary">
-                  {t("app.name", { ns: "common" })}
-                </p>
                 <h2 className="text-3xl font-semibold tracking-tight">
                   {t("login.title", { ns: "auth" })}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                  Entrá con Google o continuá con email y contraseña.
-                </p>
               </div>
 
               {isLoading ? (
                 <div className="flex h-72 flex-col items-center justify-center gap-4 rounded-lg border bg-card">
-                  <div className="h-10 w-10 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                  <ThemeLogo size={48} className="text-primary" />
                   <p className="text-sm text-muted-foreground">
                     {t("pleaseWait", { ns: "auth" })}
                   </p>
