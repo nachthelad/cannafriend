@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import { ArrowLeft, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
+import { signOutEverywhere } from "@/lib/auth-session";
 import { ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
 import { ADMIN_NAV_ITEMS } from "@/features/shared/navigation/admin-nav";
 
@@ -18,7 +17,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await signOutEverywhere();
       router.replace(ROUTE_LOGIN);
     } catch (error) {
       console.error("Error signing out:", error);

@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ThemeSynchronizer } from "@/components/providers/theme-synchronizer";
@@ -96,7 +97,8 @@ export default function RootLayout({
         <link rel="alternate" hrefLang="es" href="https://cannafriend.app/" />
         <link rel="alternate" hrefLang="en" href="https://cannafriend.app/" />
         <link rel="alternate" hrefLang="x-default" href="https://cannafriend.app/" />
-        <script
+        <Script
+          id="structured-data"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -114,6 +116,28 @@ export default function RootLayout({
                 priceCurrency: "USD",
               },
             }),
+          }}
+        />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                try {
+                  var storedTheme = localStorage.getItem('theme');
+                  var theme = storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
+                    ? storedTheme
+                    : 'dark';
+                  var resolvedTheme = theme === 'system'
+                    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                    : theme;
+                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.classList.add(resolvedTheme);
+                  document.documentElement.style.colorScheme = resolvedTheme;
+                } catch (e) {}
+              })();
+            `,
           }}
         />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -135,7 +159,11 @@ export default function RootLayout({
           href="/logo-white.png"
           media="(prefers-color-scheme: dark)"
         />
-        <script
+      </head>
+      <body className={inter.className}>
+        <Script
+          id="service-worker-registration"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function(){
@@ -177,8 +205,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className={inter.className}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:shadow-md"

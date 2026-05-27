@@ -4,14 +4,7 @@ import { useState } from "react";
 import type { GoogleLoginButtonProps } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { useErrorHandler } from "@/hooks/use-error-handler";
-import { auth, googleProvider, db } from "@/lib/firebase";
-import { signInWithPopup, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { userDoc } from "@/lib/paths";
-
-import { useRouter } from "next/navigation";
-import { ROUTE_ONBOARDING } from "@/lib/routes";
+import { signIn } from "next-auth/react";
 
 export function GoogleLoginButton({
   variant = "outline",
@@ -21,38 +14,21 @@ export function GoogleLoginButton({
   onAuthStart,
 }: GoogleLoginButtonProps) {
   const { t } = useTranslation("auth");
-  const router = useRouter();
-  const { handleFirebaseError } = useErrorHandler();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
 
     try {
-      // Notify that auth process is starting
       onAuthStart?.();
-
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-
-      // Close the modal immediately after successful authentication
+      await signIn("google", { callbackUrl: "/auth/finish" });
       onSuccess?.();
-
-      // Let the auth state change handler in Home component handle navigation
-      // to avoid race conditions with competing redirects
-    } catch (error: any) {
-      // Handle specific internal-error case
-      if (error.code === "auth/internal-error") {
-        // Force a page reload to clear all auth state
-        if (typeof window !== "undefined") {
-          window.location.reload();
-        }
-        return;
-      }
-
-      handleFirebaseError(error, "google login");
-    } finally {
+    } catch {
       setIsLoading(false);
+    } finally {
+      if (typeof window === "undefined") {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -62,7 +38,7 @@ export function GoogleLoginButton({
       size={size}
       className={`${
         size === "icon" ? "" : "w-full"
-      } bg-white/90 dark:bg-gray-800/90 border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 ${className}`}
+      } border-black/5 bg-black/5 text-foreground hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 ${className}`}
       onClick={handleGoogleLogin}
       disabled={isLoading}
     >

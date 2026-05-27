@@ -39,12 +39,6 @@ export interface SignupFormProps {
   onSuccess?: () => void;
 }
 
-export interface LoginModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAuthStart?: () => void;
-}
-
 export interface ResetPasswordFormData {
   password: string;
   confirmPassword: string;

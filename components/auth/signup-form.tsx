@@ -175,8 +175,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           autoComplete="email"
           inputMode="email"
           aria-invalid={Boolean(errors.email) || undefined}
-          placeholder="ejemplo@correo.com"
-          className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
+          placeholder={t("signup.emailPlaceholder", { ns: "auth" })}
+          className="h-11 border-black/5 bg-black/5 text-foreground placeholder:text-muted-foreground focus-visible:border-green-500 dark:border-white/10 dark:bg-white/5 dark:focus-visible:border-green-400"
           {...register("email", {
             required: t("fieldRequired", { ns: "common" }),
             validate: {
@@ -208,11 +208,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <div className="relative">
           <Input
             id="password"
-            placeholder="••••••••"
+            placeholder={t("signup.passwordPlaceholder", { ns: "auth" })}
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             aria-invalid={Boolean(errors.password) || undefined}
-            className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
+            className="h-11 border-black/5 bg-black/5 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:border-green-500 dark:border-white/10 dark:bg-white/5 dark:focus-visible:border-green-400"
             {...register("password", {
               required: t("fieldRequired", { ns: "common" }),
               minLength: {
@@ -258,11 +258,11 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         <div className="relative">
           <Input
             id="confirmPassword"
-            placeholder="••••••••"
+            placeholder={t("signup.passwordPlaceholder", { ns: "auth" })}
             type={showConfirmPassword ? "text" : "password"}
             autoComplete="new-password"
             aria-invalid={Boolean(errors.confirmPassword) || undefined}
-            className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
+            className="h-11 border-black/5 bg-black/5 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:border-green-500 dark:border-white/10 dark:bg-white/5 dark:focus-visible:border-green-400"
             {...register("confirmPassword", {
               required: t("fieldRequired", { ns: "common" }),
             })}
