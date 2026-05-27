@@ -1,13 +1,15 @@
 "use client";
 
 import type { ChatSession, ChatSidebarProps } from "@/types/ai";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { useTranslation } from "react-i18next";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import {
+  ArrowLeft,
   MessageSquare,
   X,
   SquarePen,
@@ -44,6 +46,7 @@ export function ChatSidebar({
   onNewChat,
   className,
 }: ChatSidebarProps) {
+  const router = useRouter();
   const { t } = useTranslation(["aiAssistant", "common"]);
   const { user } = useAuthUser();
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
@@ -56,14 +59,15 @@ export function ChatSidebar({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showSearchDialog, setShowSearchDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const userId = user?.uid;
 
-  const loadChatHistory = async () => {
-    if (!user?.uid) return;
+  const loadChatHistory = useCallback(async () => {
+    if (!userId) return;
 
     setIsLoading(true);
     try {
       const chatQuery = query(
-        collection(db, "users", user.uid, "aiChats"),
+        collection(db, "users", userId, "aiChats"),
         orderBy("lastUpdated", "desc"),
         limit(20),
       );
@@ -87,13 +91,16 @@ export function ChatSidebar({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
-    if (isOpen && user?.uid) {
-      loadChatHistory();
+    if (isOpen && userId) {
+      const frame = requestAnimationFrame(() => {
+        void loadChatHistory();
+      });
+      return () => cancelAnimationFrame(frame);
     }
-  }, [isOpen, user?.uid]);
+  }, [isOpen, loadChatHistory, userId]);
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-background">
@@ -206,7 +213,18 @@ export function ChatSidebar({
           <div className="flex items-center justify-between">
             {isOpen ? (
               <>
-                <ThemeLogo size={22} className="flex-shrink-0 ml-1.5" />
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => router.back()}
+                    className="h-8 w-8 shrink-0"
+                    aria-label={t("back", { ns: "common" })}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <ThemeLogo size={22} className="flex-shrink-0" />
+                </div>
                 <Button
                   variant="ghost"
                   size="icon"

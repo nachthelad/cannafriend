@@ -65,12 +65,14 @@ import { PLANT_STATUS } from "@/lib/plant-config";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { MultiPlantSelector } from "@/components/plant/multi-plant-selector";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
-import { WorkbenchSurface } from "@/components/common/desktop-form-workbench";
 import { toast } from "sonner";
-import {
-  markActivationCandidate,
-  trackEvent,
-} from "@/lib/analytics";
+import { markActivationCandidate, trackEvent } from "@/lib/analytics";
+
+const journalFieldClass =
+  "border-white/10 bg-[var(--dashboard-panel)] text-foreground shadow-none placeholder:text-muted-foreground/75 focus-visible:border-[var(--dashboard-green)]/55";
+
+const journalSubsectionClass =
+  "rounded-2xl border border-white/10 bg-[var(--dashboard-panel)]/55 p-3";
 
 function JournalFormSkeleton() {
   return (
@@ -391,7 +393,7 @@ function NewJournalPageContent() {
       const promises = data.selectedPlantIds.map(async (plantId) => {
         const plantSpecific = data.plantLogs[plantId];
 
-        let logData: any = {
+        const logData: any = {
           type: data.logType,
           date: data.date.toISOString(),
           createdAt: new Date().toISOString(),
@@ -429,7 +431,7 @@ function NewJournalPageContent() {
             // Also save to environment collection for charts
             const envRef = collection(
               db,
-              buildEnvironmentPath(auth.currentUser!.uid, plantId)
+              buildEnvironmentPath(auth.currentUser!.uid, plantId),
             );
             await addDoc(envRef, {
               date: data.date.toISOString(),
@@ -454,7 +456,7 @@ function NewJournalPageContent() {
         }
 
         const newLogRef = doc(
-          collection(db, buildLogsPath(auth.currentUser!.uid, plantId))
+          collection(db, buildLogsPath(auth.currentUser!.uid, plantId)),
         );
         batch.set(newLogRef, logData);
 
@@ -514,20 +516,17 @@ function NewJournalPageContent() {
         title={t("logForm.title", { ns: "journal" })}
         description={t("logForm.description", { ns: "journal" })}
         onBackClick={() => router.back()}
+        className="mb-3 md:mb-4"
       />
 
       <form
         onSubmit={handleSubmit(onSubmit as any, (errors) => {
           console.error("Form validation errors:", errors);
         })}
-        className="mx-auto max-w-5xl px-4 pb-8 md:px-6"
+        className="mx-auto flex w-full max-w-4xl flex-col px-2 pb-24 sm:px-4 md:mx-0 md:px-6 md:pb-4"
       >
-        <WorkbenchSurface className="space-y-6 xl:bg-card/80">
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <Label>{t("logForm.plant", { ns: "journal" })}</Label>
-            </div>
-
+        <div className="space-y-4">
+          <div className="space-y-3">
             <div className="xl:hidden">
               <Controller
                 control={control}
@@ -572,7 +571,7 @@ function NewJournalPageContent() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 border-t border-border/60 pt-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 border-t border-border/60 pt-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>{t("logForm.type", { ns: "journal" })}</Label>
               <Select
@@ -584,7 +583,9 @@ function NewJournalPageContent() {
                 value={logType}
                 disabled={selectedPlantIds.length === 0}
               >
-                <SelectTrigger className="min-h-[52px] rounded-2xl xl:bg-background/70">
+                <SelectTrigger
+                  className={cn("min-h-[48px] rounded-2xl", journalFieldClass)}
+                >
                   <SelectValue
                     placeholder={t("logForm.selectType", { ns: "journal" })}
                   />
@@ -611,8 +612,9 @@ function NewJournalPageContent() {
                   <Button
                     variant="outline"
                     className={cn(
-                      "min-h-[52px] w-full justify-start rounded-2xl text-left font-normal xl:bg-background/70",
-                      !date && "text-muted-foreground"
+                      "min-h-[48px] w-full justify-start rounded-2xl text-left font-normal",
+                      journalFieldClass,
+                      !date && "text-muted-foreground",
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4 shrink-0" />
@@ -636,19 +638,22 @@ function NewJournalPageContent() {
           </div>
 
           {logType && selectedPlantIds.length > 0 && (
-            <div className="space-y-6 border-t border-border/60 pt-6">
+            <div className="space-y-4 border-t border-border/60 pt-4">
               {/* Per-Plant Inputs Section */}
               {(logType === LOG_TYPES.WATERING ||
                 logType === LOG_TYPES.FEEDING) && (
-                <div className="space-y-4">
-                  <div className="grid gap-4">
+                <div className="space-y-3">
+                  <div className="grid gap-3">
                     {selectedPlantIds.map((plantId) => {
                       const plant = plants.find((p) => p.id === plantId);
                       if (!plant) return null;
                       return (
                         <div
                           key={plantId}
-                          className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
+                          className={cn(
+                            "flex flex-col gap-2.5",
+                            journalSubsectionClass,
+                          )}
                         >
                           <div className="flex items-end gap-3">
                             <div className="flex-1 space-y-2">
@@ -664,12 +669,13 @@ function NewJournalPageContent() {
                                       step="0.1"
                                       placeholder="0.0"
                                       {...register(
-                                        `plantLogs.${plantId}.amount`
+                                        `plantLogs.${plantId}.amount`,
                                       )}
                                       className={cn(
-                                        "min-h-[48px] rounded-2xl pr-8 xl:bg-background/70",
+                                        "min-h-[44px] rounded-2xl pr-8",
+                                        journalFieldClass,
                                         errors.plantLogs?.[plantId]?.amount &&
-                                          "border-destructive"
+                                          "border-destructive",
                                       )}
                                     />
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -695,7 +701,10 @@ function NewJournalPageContent() {
                                       placeholder={t("logForm.npkPlaceholder", {
                                         ns: "journal",
                                       })}
-                                      className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                                      className={cn(
+                                        "min-h-[44px] rounded-2xl",
+                                        journalFieldClass,
+                                      )}
                                       {...register(`plantLogs.${plantId}.npk`)}
                                     />
                                   </div>
@@ -724,7 +733,7 @@ function NewJournalPageContent() {
                                             value,
                                             {
                                               shouldValidate: true,
-                                            }
+                                            },
                                           );
                                         }}
                                         getLabel={(label) =>
@@ -754,15 +763,15 @@ function NewJournalPageContent() {
 
               {/* Training Section */}
               {logType === LOG_TYPES.TRAINING && (
-                <div className="space-y-4">
-                  <div className="grid gap-4">
+                <div className="space-y-3">
+                  <div className="grid gap-3">
                     {selectedPlantIds.map((plantId) => {
                       const plant = plants.find((p) => p.id === plantId);
                       if (!plant) return null;
                       return (
                         <div
                           key={plantId}
-                          className="space-y-3 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
+                          className={cn("space-y-3", journalSubsectionClass)}
                         >
                           <Label className="text-sm font-medium">
                             {plant.name}
@@ -773,9 +782,7 @@ function NewJournalPageContent() {
                             render={({ field }) => (
                               <SelectionChips
                                 options={TRAINING_METHOD_OPTIONS}
-                                value={
-                                  field.value || TRAINING_METHODS.TOPPING
-                                }
+                                value={field.value || TRAINING_METHODS.TOPPING}
                                 onChange={(value) => {
                                   field.onChange(value);
                                   setValue(
@@ -783,7 +790,7 @@ function NewJournalPageContent() {
                                     value,
                                     {
                                       shouldValidate: true,
-                                    }
+                                    },
                                   );
                                 }}
                                 getLabel={(label) =>
@@ -809,11 +816,11 @@ function NewJournalPageContent() {
 
               {/* Environment Section */}
               {logType === LOG_TYPES.ENVIRONMENT && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* Note: Environment usually is shared, but we allow per-plant entry if needed. 
                         For now, let's provide a global input that fills all, similar to amount.
                     */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label>
                         {t("logForm.temperature", { ns: "journal" })}
@@ -822,11 +829,14 @@ function NewJournalPageContent() {
                         type="number"
                         step="0.1"
                         placeholder="24.0"
-                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                        className={cn(
+                          "min-h-[44px] rounded-2xl",
+                          journalFieldClass,
+                        )}
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
-                            setValue(`plantLogs.${id}.temperature`, val)
+                            setValue(`plantLogs.${id}.temperature`, val),
                           );
                         }}
                       />
@@ -837,11 +847,14 @@ function NewJournalPageContent() {
                         type="number"
                         step="1"
                         placeholder="60"
-                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                        className={cn(
+                          "min-h-[44px] rounded-2xl",
+                          journalFieldClass,
+                        )}
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
-                            setValue(`plantLogs.${id}.humidity`, val)
+                            setValue(`plantLogs.${id}.humidity`, val),
                           );
                         }}
                       />
@@ -852,11 +865,14 @@ function NewJournalPageContent() {
                         type="number"
                         step="0.1"
                         placeholder="6.2"
-                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                        className={cn(
+                          "min-h-[44px] rounded-2xl",
+                          journalFieldClass,
+                        )}
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
-                            setValue(`plantLogs.${id}.ph`, val)
+                            setValue(`plantLogs.${id}.ph`, val),
                           );
                         }}
                       />
@@ -867,11 +883,14 @@ function NewJournalPageContent() {
                         type="number"
                         step="1"
                         placeholder="400"
-                        className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                        className={cn(
+                          "min-h-[44px] rounded-2xl",
+                          journalFieldClass,
+                        )}
                         onChange={(e) => {
                           const val = e.target.value;
                           selectedPlantIds.forEach((id) =>
-                            setValue(`plantLogs.${id}.light`, val)
+                            setValue(`plantLogs.${id}.light`, val),
                           );
                         }}
                       />
@@ -894,18 +913,21 @@ function NewJournalPageContent() {
 
               {/* Flowering Section */}
               {logType === LOG_TYPES.FLOWERING && (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="space-y-2">
                     <Label>
                       {t("logForm.lightSchedule", { ns: "journal" })}
                     </Label>
                     <Input
                       placeholder="12/12"
-                      className="min-h-[48px] rounded-2xl xl:bg-background/70"
+                      className={cn(
+                        "min-h-[44px] rounded-2xl",
+                        journalFieldClass,
+                      )}
                       onChange={(e) => {
                         const val = e.target.value;
                         selectedPlantIds.forEach((id) =>
-                          setValue(`plantLogs.${id}.lightSchedule`, val)
+                          setValue(`plantLogs.${id}.lightSchedule`, val),
                         );
                       }}
                     />
@@ -931,19 +953,19 @@ function NewJournalPageContent() {
                   If we want per-plant notes for them, we need to render the loop.
               */}
               {/* Unified Notes Section (Bottom) */}
-                <div
-                  className={cn(
-                    "space-y-4",
-                    logType !== LOG_TYPES.TRANSPLANT &&
-                      logType !== LOG_TYPES.END_CYCLE &&
-                      logType !== LOG_TYPES.NOTE &&
-                      "mt-4 border-t pt-4 xl:mt-2"
-                  )}
-                >
-                <div className="flex items-center justify-between">
+              <div
+                className={cn(
+                  "space-y-3",
+                  logType !== LOG_TYPES.TRANSPLANT &&
+                    logType !== LOG_TYPES.END_CYCLE &&
+                    logType !== LOG_TYPES.NOTE &&
+                    "mt-3 border-t pt-4 xl:mt-2",
+                )}
+              >
+                <div className="flex items-center justify-between gap-3">
                   <Label>{t("logForm.notes", { ns: "journal" })}</Label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-xs text-muted-foreground">
                       {t("logForm.customizePerPlant", { ns: "journal" })}
                     </span>
                     <Controller
@@ -965,7 +987,10 @@ function NewJournalPageContent() {
                       placeholder={t("logForm.notesPlaceholder", {
                         ns: "journal",
                       })}
-                      className="min-h-[120px] rounded-2xl xl:bg-background/70"
+                      className={cn(
+                        "min-h-[92px] rounded-2xl xl:min-h-[104px]",
+                        journalFieldClass,
+                      )}
                       {...register("globalNote")}
                     />
                     {errors.globalNote && (
@@ -975,14 +1000,14 @@ function NewJournalPageContent() {
                     )}
                   </div>
                 ) : (
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {selectedPlantIds.map((plantId) => {
                       const plant = plants.find((p) => p.id === plantId);
                       if (!plant) return null;
                       return (
                         <div
                           key={plantId}
-                          className="space-y-2 rounded-2xl border border-border/70 bg-card/60 p-4 xl:bg-background/55"
+                          className={cn("space-y-2", journalSubsectionClass)}
                         >
                           <Label className="text-sm font-medium">
                             {plant.name}
@@ -992,7 +1017,10 @@ function NewJournalPageContent() {
                               ns: "journal",
                             })}
                             {...register(`plantLogs.${plantId}.note`)}
-                            className="h-24 resize-none rounded-2xl xl:bg-background/70"
+                            className={cn(
+                              "h-20 resize-none rounded-2xl",
+                              journalFieldClass,
+                            )}
                           />
                         </div>
                       );
@@ -1002,20 +1030,20 @@ function NewJournalPageContent() {
               </div>
             </div>
           )}
-        </WorkbenchSurface>
+        </div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="mt-4 grid grid-cols-2 gap-3 md:flex md:justify-end">
           <Button
             type="button"
             variant="outline"
-            className="min-h-[48px] rounded-2xl sm:min-w-[160px]"
+            className="min-h-[46px] rounded-2xl md:min-w-[160px]"
             onClick={() => router.back()}
           >
             {t("cancel", { ns: "common" })}
           </Button>
           <Button
             type="submit"
-            className="min-h-[48px] rounded-2xl px-8 sm:min-w-[220px]"
+            className="min-h-[46px] rounded-2xl px-4 md:min-w-[220px] md:px-8"
             size="lg"
             disabled={isLoading}
           >
@@ -1032,11 +1060,7 @@ function NewJournalPageContent() {
 export default function NewJournalPage() {
   return (
     <DataErrorBoundary>
-      <Suspense
-        fallback={
-          <JournalFormSkeleton />
-        }
-      >
+      <Suspense fallback={<JournalFormSkeleton />}>
         <NewJournalPageContent />
       </Suspense>
     </DataErrorBoundary>
