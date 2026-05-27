@@ -5,6 +5,9 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+
+- [MINOR]: wording to add log — 2026-05-27
+
 - [MINOR]: update logs ui — 2026-05-27
 - [MINOR]: reduce install icon cropping — 2026-05-17
 - [MINOR]: remove unused code and dependencies — 2026-05-13

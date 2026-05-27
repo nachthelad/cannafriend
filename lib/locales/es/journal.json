@@ -30,7 +30,7 @@
     "endCycle": "Ciclo finalizado"
   },
   "logForm": {
-    "title": "Agregar",
+    "title": "Agregar Registro",
     "description": "Registra una actividad o medición para tu planta",
     "plant": "Planta",
     "selectPlant": "Selecciona una planta",
