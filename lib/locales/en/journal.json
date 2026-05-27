@@ -30,7 +30,7 @@
     "note": "Note"
   },
   "logForm": {
-    "title": "Add",
+    "title": "Add Log",
     "description": "Record an activity or measurement for your plant",
     "plant": "Plant",
     "selectPlant": "Select a plant",
