@@ -52,7 +52,7 @@ export function MultiPlantSelector({
 
   if (variant === "desktop-grid") {
     return (
-      <div className={cn("space-y-4", className)}>
+      <div className={cn("space-y-3", className)}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm text-muted-foreground">
             {t("selectedCount", { ns: "common", count: selectedPlantIds.length })}
@@ -70,7 +70,7 @@ export function MultiPlantSelector({
           </Button>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+        <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
           {plants.map((plant) => {
             const isSelected = selectedPlantIds.includes(plant.id);
 
@@ -80,13 +80,13 @@ export function MultiPlantSelector({
                 type="button"
                 onClick={() => togglePlant(plant.id)}
                 className={cn(
-                  "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-3 text-left transition-[border-color,background-color,box-shadow,transform] duration-200",
+                  "group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-2.5 text-left transition-[border-color,background-color,box-shadow,transform] duration-200",
                   isSelected
                     ? `${productSelectableActiveClass} shadow-[0_14px_36px_-24px_rgba(69,209,86,0.85)]`
                     : "border-white/8 bg-[var(--dashboard-panel)]/72 text-white/82 hover:border-white/14 hover:bg-[var(--dashboard-panel)]"
                 )}
               >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-muted/50">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-muted/50">
                   {plant.coverPhoto ? (
                     <Image
                       src={plant.coverPhoto}
@@ -146,7 +146,7 @@ export function MultiPlantSelector({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("space-y-2.5", className)}>
       <div className="flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
           {t("selectedCount", { ns: "common", count: selectedPlantIds.length })}
@@ -173,7 +173,7 @@ export function MultiPlantSelector({
                 key={plant.id}
                 onClick={() => togglePlant(plant.id)}
                 className={cn(
-                  "relative w-[100px] cursor-pointer transition-[border-color,box-shadow,transform,opacity] duration-200 rounded-lg overflow-hidden border-2",
+                  "relative w-[88px] cursor-pointer transition-[border-color,box-shadow,transform,opacity] duration-200 rounded-lg overflow-hidden border-2 sm:w-[100px]",
                   isSelected
                     ? "border-[#45d156] bg-[rgba(69,209,86,0.12)] ring-2 ring-[rgba(69,209,86,0.18)] scale-[0.98]"
                     : "border-transparent opacity-80 hover:opacity-100 bg-background"

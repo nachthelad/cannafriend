@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { LoginPageView } from "@/features/marketing/components/login-page-view";
 
 export default function LoginPage() {
-  redirect("/?auth=1");
+  return <LoginPageView />;
 }

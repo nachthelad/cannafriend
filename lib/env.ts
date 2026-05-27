@@ -25,11 +25,27 @@ const raw = {
 
 const parsed = envSchema.safeParse(raw);
 if (!parsed.success) {
-  // Throw a concise error to surface missing keys early in both server and client builds
-  throw parsed.error;
+  if (process.env.NODE_ENV === "production") {
+    // Throw a concise error to surface missing keys early in production builds.
+    throw parsed.error;
+  }
+
+  console.warn(
+    "Missing Firebase environment variables. Using local development placeholders; Firebase-backed features will not work until .env.local is configured.",
+  );
 }
 
-export const env = parsed.data;
+export const env = parsed.success
+  ? parsed.data
+  : {
+      NEXT_PUBLIC_FIREBASE_API_KEY: "local-dev-api-key",
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "local-dev.firebaseapp.com",
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: "local-dev",
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "local-dev.appspot.com",
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000",
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:localdev",
+      NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "G-LOCALDEV",
+    };
 
 export const firebaseConfig = {
   apiKey: env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -40,3 +56,10 @@ export const firebaseConfig = {
   appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
+
+export const isFirebaseClientConfigured =
+  !env.NEXT_PUBLIC_FIREBASE_API_KEY.startsWith("your-") &&
+  !env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN.startsWith("your-") &&
+  !env.NEXT_PUBLIC_FIREBASE_PROJECT_ID.startsWith("your-") &&
+  env.NEXT_PUBLIC_FIREBASE_PROJECT_ID !== "local-dev" &&
+  env.NEXT_PUBLIC_FIREBASE_API_KEY !== "local-dev-api-key";

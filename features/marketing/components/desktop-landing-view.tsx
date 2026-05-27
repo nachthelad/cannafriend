@@ -3,7 +3,6 @@
 import type { DesktopLandingViewProps } from "@/types/marketing";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { LoginModal } from "@/components/auth/login-modal";
 import { HeroSection } from "@/features/marketing/components/hero-section";
 import { AppShowcase } from "@/features/marketing/components/app-showcase";
 import { CTASection } from "@/features/marketing/components/cta-section";
@@ -14,10 +13,7 @@ import ThemeLogo from "@/components/common/theme-logo";
 
 export function DesktopLandingView({
   isLoggedIn,
-  loginOpen,
-  onLoginOpenChange,
   onLoginClick,
-  onAuthStart,
   deferredPrompt,
   onInstallPWA,
 }: DesktopLandingViewProps) {
@@ -224,13 +220,6 @@ export function DesktopLandingView({
 
       {/* Footer */}
       <LandingFooter />
-
-      {/* Login Modal */}
-      <LoginModal
-        open={loginOpen}
-        onOpenChange={onLoginOpenChange}
-        onAuthStart={onAuthStart}
-      />
     </div>
   );
 }

@@ -1,7 +1,13 @@
 {
-  "name": "Cannafriend - Plant Growth Tracker",
+  "name": "Cannafriend - Tracker de cultivo",
+  "name_localized": {
+    "en": "Cannafriend - Plant Growth Tracker"
+  },
   "short_name": "Cannafriend",
-  "description": "Track your plant growth with detailed logs and environmental monitoring",
+  "description": "Registrá el crecimiento de tus plantas con bitácoras detalladas y seguimiento ambiental",
+  "description_localized": {
+    "en": "Track your plant growth with detailed logs and environmental monitoring"
+  },
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -39,13 +45,25 @@
   "shortcuts": [
     {
       "name": "Agregar planta",
+      "name_localized": {
+        "en": "Add plant"
+      },
       "short_name": "Nueva planta",
+      "short_name_localized": {
+        "en": "New plant"
+      },
       "url": "/plants/new",
       "icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Ver diario",
+      "name_localized": {
+        "en": "View journal"
+      },
       "short_name": "Diario",
+      "short_name_localized": {
+        "en": "Journal"
+      },
       "url": "/journal",
       "icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
@@ -56,14 +74,14 @@
       "sizes": "1280x720",
       "type": "image/svg+xml",
       "form_factor": "wide",
-      "label": "Dashboard with plants, reminders, and quick actions"
+      "label": "Panel con plantas, recordatorios y acciones rápidas"
     },
     {
       "src": "/screenshots/dashboard-mobile.svg",
       "sizes": "540x720",
       "type": "image/svg+xml",
       "form_factor": "narrow",
-      "label": "Mobile dashboard with quick logging and reminders"
+      "label": "Panel móvil con registro rápido y recordatorios"
     }
   ]
 }

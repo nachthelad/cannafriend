@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ResponsivePageHeader } from "@/components/common/responsive-page-header";
 import { Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/providers/theme-provider";
 import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { SubscriptionManagement } from "@/components/settings/subscription-management";
@@ -14,8 +14,8 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { updateDoc } from "firebase/firestore";
-import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { signOutEverywhere } from "@/lib/auth-session";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
@@ -152,7 +152,7 @@ function MobileSettingsContent({
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await signOutEverywhere();
       router.replace(ROUTE_LOGIN);
     } catch (error) {
       handleFirebaseError(error, "sign out");
@@ -205,7 +205,7 @@ function MobileSettingsContent({
       if (errorMessage === "DATA_DELETED_AUTH_FAILED") {
         setTimeout(async () => {
           try {
-            await signOut(auth);
+            await signOutEverywhere();
           } catch {
             // Ignore signout errors
           }

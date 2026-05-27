@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
-  GoogleAuthProvider,
   setPersistence,
   browserLocalPersistence,
 } from "firebase/auth";
@@ -13,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-import { firebaseConfig } from "@/lib/env";
+import { firebaseConfig, isFirebaseClientConfigured } from "@/lib/env";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -44,10 +43,9 @@ if (typeof window !== "undefined") {
 }
 export const db = _db;
 export const storage = getStorage(app);
-export const googleProvider = new GoogleAuthProvider();
 
 // Initialize Analytics only on client side
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && isFirebaseClientConfigured) {
   import("firebase/analytics")
     .then(({ getAnalytics, isSupported }) =>
       isSupported().then((supported) => {
@@ -59,7 +57,3 @@ if (typeof window !== "undefined") {
     });
 }
 
-// Configure Google Auth provider
-googleProvider.setCustomParameters({
-  prompt: "select_account",
-});
