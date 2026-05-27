@@ -2,6 +2,7 @@
 
 import type { AIChatProps, AIImageAttachment, AIMessage } from "@/types/ai";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -31,7 +32,7 @@ import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { ROUTE_DASHBOARD, ROUTE_PREMIUM } from "@/lib/routes";
+import { ROUTE_PREMIUM } from "@/lib/routes";
 import { trackEvent } from "@/lib/analytics";
 
 function getMimeTypeFromUrl(url: string): string {
@@ -62,6 +63,7 @@ export function AIChat({
   onToggleSidebar,
   accessMode = "premium_chat",
 }: AIChatProps) {
+  const router = useRouter();
   const { t } = useTranslation(["aiAssistant", "common"]);
   const { user } = useAuthUser();
   const isPremiumChat = accessMode === "premium_chat";
@@ -300,10 +302,13 @@ export function AIChat({
       <div className="flex flex-col flex-1 h-full relative md:pb-0">
         <div className="sticky top-0 z-20 border-b bg-background/95 px-3 py-2 backdrop-blur-sm md:hidden">
           <div className="mx-auto flex max-w-3xl items-center gap-2">
-            <Button asChild variant="ghost" size="icon" aria-label={t("back", { ns: "common" })}>
-              <Link href={ROUTE_DASHBOARD}>
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.back()}
+              aria-label={t("back", { ns: "common" })}
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">
