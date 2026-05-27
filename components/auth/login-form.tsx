@@ -93,8 +93,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           autoComplete="email"
           inputMode="email"
           aria-invalid={Boolean(errors.email) || undefined}
-          placeholder="ejemplo@correo.com"
-          className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
+          placeholder={t("login.emailPlaceholder", { ns: "auth" })}
+          className="h-11 border-black/5 bg-black/5 text-foreground placeholder:text-muted-foreground focus-visible:border-green-500 dark:border-white/10 dark:bg-white/5 dark:focus-visible:border-green-400"
           {...register("email", {
             required: t("fieldRequired", { ns: "common" }),
             validate: {
@@ -128,9 +128,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder={t("login.passwordPlaceholder", { ns: "auth" })}
             aria-invalid={Boolean(errors.password) || undefined}
-            className="bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400"
+            className="h-11 border-black/5 bg-black/5 pr-10 text-foreground placeholder:text-muted-foreground focus-visible:border-green-500 dark:border-white/10 dark:bg-white/5 dark:focus-visible:border-green-400"
             {...register("password", {
               required: t("fieldRequired", { ns: "common" }),
               minLength: {

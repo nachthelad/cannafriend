@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -11,7 +10,7 @@ import ThemeLogo from "@/components/common/theme-logo";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePremium } from "@/hooks";
-import { auth } from "@/lib/firebase";
+import { signOutEverywhere } from "@/lib/auth-session";
 import {
   ROUTE_AI_ASSISTANT,
   ROUTE_DASHBOARD,
@@ -50,7 +49,7 @@ export function ProductDesktopSidebar() {
   const handleSignOut = async () => {
     try {
       setIsSigningOut(true);
-      await signOut(auth);
+      await signOutEverywhere();
       router.replace(ROUTE_LOGIN);
     } catch (error) {
       console.error("Error signing out:", error);

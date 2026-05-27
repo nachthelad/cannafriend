@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
 import { updateDoc } from "firebase/firestore";
 import { invalidateSettingsCache } from "@/lib/suspense-cache";
 import { AccountSummary } from "@/components/settings/account-summary";
@@ -14,8 +13,9 @@ import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/providers/theme-provider";
 import { auth } from "@/lib/firebase";
+import { signOutEverywhere } from "@/lib/auth-session";
 import { userDoc } from "@/lib/paths";
 import { ROUTE_LOGIN, ROUTE_PREMIUM } from "@/lib/routes";
 import { deleteUserAccount } from "@/lib/delete-account";
@@ -185,7 +185,7 @@ function SettingsContent({
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await signOutEverywhere();
       router.replace(ROUTE_LOGIN);
     } catch (error) {
       handleFirebaseError(error, "sign out");
@@ -242,7 +242,7 @@ function SettingsContent({
       if (error.message === "DATA_DELETED_AUTH_FAILED") {
         setTimeout(async () => {
           try {
-            await signOut(auth);
+            await signOutEverywhere();
           } catch {
             // Ignore signout errors
           }

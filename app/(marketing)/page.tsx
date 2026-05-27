@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import dynamic from "next/dynamic";
-import { ROUTE_ONBOARDING, ROUTE_DASHBOARD } from "@/lib/routes";
+import { ROUTE_ONBOARDING, ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
@@ -36,14 +36,13 @@ export default function Home() {
   const [isResolvingDestination, setIsResolvingDestination] = useState(false);
 
   // UI state
-  const [loginOpen, setLoginOpen] = useState(false);
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const isLoggedIn = Boolean(user);
 
   // AdSense should only load on desktop public marketing view
-  const shouldLoadAds = !isLoggedIn && !loginOpen && hasConsent === true;
+  const shouldLoadAds = !isLoggedIn && hasConsent === true;
 
   useEffect(() => {
     if (authLoading) {
@@ -56,7 +55,6 @@ export default function Home() {
     }
 
     let isActive = true;
-    setLoginOpen(false);
     setIsResolvingDestination(true);
 
     const redirectAuthenticatedUser = async () => {
@@ -100,15 +98,6 @@ export default function Home() {
       );
   }, []);
 
-  // Handle login modal query parameter
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("auth") === "1") {
-      setLoginOpen(true);
-    }
-  }, []);
-
   // Cookie consent state management
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -128,9 +117,7 @@ export default function Home() {
 
   // Handlers
   const handleDesktopLoginClick = () => {
-    if (!user) {
-      setLoginOpen(true);
-    }
+    router.push(user ? ROUTE_DASHBOARD : ROUTE_LOGIN);
   };
 
   const handleInstallPWA = async () => {
@@ -180,10 +167,7 @@ export default function Home() {
         <div className="hidden lg:block">
           <DesktopLandingView
             isLoggedIn={isLoggedIn}
-            loginOpen={loginOpen}
-            onLoginOpenChange={setLoginOpen}
             onLoginClick={handleDesktopLoginClick}
-            onAuthStart={() => {}}
             deferredPrompt={deferredPrompt}
             onInstallPWA={handleInstallPWA}
           />
