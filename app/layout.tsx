@@ -11,6 +11,8 @@ import { DeferredAnalytics } from "@/components/common/deferred-analytics";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: true });
+const DARK_THEME_COLOR = "#1a1f1a";
+const LIGHT_THEME_COLOR = "#fcfcfc";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://cannafriend.app"),
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Cannafriend",
   },
   openGraph: {
@@ -74,7 +76,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#10b981",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: DARK_THEME_COLOR },
+    { media: "(prefers-color-scheme: light)", color: LIGHT_THEME_COLOR },
+  ],
 };
 
 export default function RootLayout({
@@ -85,12 +90,12 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content={DARK_THEME_COLOR} />
         <link rel="preconnect" href="https://firestore.googleapis.com" />
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Cannafriend" />
         <meta name="author" content="Cannafriend Team" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -135,6 +140,20 @@ export default function RootLayout({
                   document.documentElement.classList.remove('light', 'dark');
                   document.documentElement.classList.add(resolvedTheme);
                   document.documentElement.style.colorScheme = resolvedTheme;
+                  var themeColor = resolvedTheme === 'dark' ? '${DARK_THEME_COLOR}' : '${LIGHT_THEME_COLOR}';
+                  var themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])')
+                    || document.querySelector('meta[name="theme-color"]');
+                  if (!themeColorMeta) {
+                    themeColorMeta = document.createElement('meta');
+                    themeColorMeta.setAttribute('name', 'theme-color');
+                    document.head.appendChild(themeColorMeta);
+                  }
+                  themeColorMeta.setAttribute('content', themeColor);
+                  themeColorMeta.removeAttribute('media');
+                  var appleMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+                  if (appleMeta) {
+                    appleMeta.setAttribute('content', resolvedTheme === 'dark' ? 'black-translucent' : 'default');
+                  }
                 } catch (e) {}
               })();
             `,
