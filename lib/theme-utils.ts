@@ -17,10 +17,13 @@ function updateThemeColor(isDark: boolean) {
   // Light: Matches --background oklch(0.99 0 0) -> #fcfcfc
   const themeColor = isDark ? "#1a1f1a" : "#fcfcfc";
 
-  // Update existing theme-color meta tag
-  let themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  // Update the mutable theme-color meta tag, leaving media-specific tags intact.
+  let themeColorMeta =
+    document.querySelector('meta[name="theme-color"]:not([media])') ||
+    document.querySelector('meta[name="theme-color"]');
   if (themeColorMeta) {
     themeColorMeta.setAttribute("content", themeColor);
+    themeColorMeta.removeAttribute("media");
   } else {
     // Create theme-color meta tag if it doesn't exist
     themeColorMeta = document.createElement("meta");

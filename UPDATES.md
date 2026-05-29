@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: align mobile splash and status bar colors — 2026-05-29
+
 
 - [MINOR]: wording to add log — 2026-05-27
 
