@@ -99,6 +99,11 @@
   "tryDifferentSearch": "Try a different search",
   "unknown": "Unknown",
   "unknownError": "Unknown error",
+  "firebase": {
+    "permissionDenied": "You do not have permission to perform this action",
+    "unavailable": "Firebase is temporarily unavailable. Please try again",
+    "notFound": "The requested Firebase resource was not found"
+  },
   "fieldRequired": "This field is required",
   "characters": "characters",
   "selected": "selected",

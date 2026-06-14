@@ -4,8 +4,9 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import dynamic from "next/dynamic";
-import { ROUTE_ONBOARDING, ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
+import { getPostAuthRedirect } from "@/lib/auth-redirect";
 import { userDoc } from "@/lib/paths";
 import { CookieConsent } from "@/components/common/cookie-consent";
 import { useTranslation } from "react-i18next";
@@ -64,7 +65,7 @@ export default function Home() {
           return;
         }
 
-        router.replace(snap.exists() ? ROUTE_DASHBOARD : ROUTE_ONBOARDING);
+        router.replace(getPostAuthRedirect(snap.exists() ? snap.data() : null));
       } catch {
         if (isActive) {
           router.replace(ROUTE_DASHBOARD);
