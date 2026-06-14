@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: secure premium and onboarding flows — 2026-06-14
 - [MINOR]: align mobile splash and status bar colors — 2026-05-29
 
 

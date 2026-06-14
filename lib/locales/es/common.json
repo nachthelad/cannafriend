@@ -98,6 +98,11 @@
   "tryDifferentSearch": "Prueba con una búsqueda diferente",
   "unknown": "Desconocido",
   "unknownError": "Error desconocido",
+  "firebase": {
+    "permissionDenied": "No tienes permiso para realizar esta acción",
+    "unavailable": "Firebase no está disponible temporalmente. Intenta de nuevo",
+    "notFound": "No se encontró el recurso solicitado en Firebase"
+  },
   "fieldRequired": "Este campo es requerido",
   "characters": "caracteres",
   "selected": "seleccionado",

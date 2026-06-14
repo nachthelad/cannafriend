@@ -7,9 +7,10 @@ import { getDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 
 import ThemeLogo from "@/components/common/theme-logo";
+import { getPostAuthRedirect } from "@/lib/auth-redirect";
 import { auth } from "@/lib/firebase";
 import { userDoc } from "@/lib/paths";
-import { ROUTE_DASHBOARD, ROUTE_LOGIN, ROUTE_ONBOARDING } from "@/lib/routes";
+import { ROUTE_LOGIN } from "@/lib/routes";
 import type { UserProfile } from "@/types";
 
 type FirebaseTokenResponse = {
@@ -46,7 +47,9 @@ export default function AuthFinishPage() {
           return;
         }
 
-        router.replace(profile.exists() ? ROUTE_DASHBOARD : ROUTE_ONBOARDING);
+        router.replace(
+          getPostAuthRedirect(profile.exists() ? profile.data() : null),
+        );
       } catch {
         if (!isActive) {
           return;

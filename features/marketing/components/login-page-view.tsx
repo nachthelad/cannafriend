@@ -14,11 +14,11 @@ import { ThemeToggle } from "@/components/common/theme-toggle";
 import ThemeLogo from "@/components/common/theme-logo";
 import { Button } from "@/components/ui/button";
 import { useAuthUser } from "@/hooks/use-auth-user";
+import { getPostAuthRedirect } from "@/lib/auth-redirect";
 import { userDoc } from "@/lib/paths";
 import {
   ROUTE_DASHBOARD,
   ROUTE_HOME,
-  ROUTE_ONBOARDING,
   ROUTE_PRIVACY,
   ROUTE_TERMS,
 } from "@/lib/routes";
@@ -44,7 +44,7 @@ export function LoginPageView() {
           return;
         }
 
-        router.replace(snap.exists() ? ROUTE_DASHBOARD : ROUTE_ONBOARDING);
+        router.replace(getPostAuthRedirect(snap.exists() ? snap.data() : null));
       } catch {
         if (isActive) {
           router.replace(ROUTE_DASHBOARD);

@@ -133,10 +133,13 @@ function AdminContent() {
     async (item: MpSearchItem) => {
       setMpLoading(true);
       try {
-        const response = await fetch(
-          `/api/mercadopago/webhook?type=${encodeURIComponent(
-            item.type
-          )}&id=${encodeURIComponent(item.id)}`
+        const response = await authorizedFetch(
+          "/api/mercadopago/admin/reprocess",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: item.type, id: item.id }),
+          }
         );
         const data = await response.json();
         if (!response.ok || data?.error) {
