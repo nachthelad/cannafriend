@@ -75,16 +75,14 @@ export default function AndroidAppPage() {
               </Alert>
             </div>
 
-            <div className="rounded-lg border bg-card p-3 shadow-sm">
-              <Image
-                src="/illustrations/android-download-notebook.svg"
-                alt={t("android.imageAlt", { ns: "landing" })}
-                width={960}
-                height={640}
-                priority
-                className="h-auto w-full rounded-md"
-              />
-            </div>
+            <Image
+              src="/illustrations/android-download-notebook.webp"
+              alt={t("android.imageAlt", { ns: "landing" })}
+              width={1440}
+              height={960}
+              priority
+              className="h-auto w-full"
+            />
           </div>
         </section>
 

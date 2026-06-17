@@ -1,6 +1,7 @@
 "use client";
 
 import type { CTASectionProps } from "@/types/marketing";
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,16 @@ export function CTASection({ onLoginClick, isLoggedIn }: CTASectionProps) {
             </div>
           </div>
 
-          <AndroidDownloadCard />
+          <div className="flex flex-col gap-5">
+            <Image
+              src="/illustrations/android-download-notebook.webp"
+              alt={t("android.imageAlt", { ns: "landing" })}
+              width={1440}
+              height={960}
+              className="h-auto w-full"
+            />
+            <AndroidDownloadCard />
+          </div>
         </div>
       </section>
 

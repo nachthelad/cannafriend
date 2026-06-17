@@ -96,15 +96,13 @@ export function AppShowcase() {
 
       <section id="ai" className="px-4 py-14 md:px-6 md:py-20">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-          <div className="rounded-lg border bg-card p-3 shadow-sm">
-            <Image
-              src="/illustrations/journal-reminders-notebook.svg"
-              alt={t("flow.imageAlt", { ns: "landing" })}
-              width={960}
-              height={640}
-              className="h-auto w-full rounded-md"
-            />
-          </div>
+          <Image
+            src="/illustrations/journal-reminders-notebook.webp"
+            alt={t("flow.imageAlt", { ns: "landing" })}
+            width={1440}
+            height={960}
+            className="h-auto w-full"
+          />
 
           <Card className="rounded-lg bg-secondary/60">
             <CardHeader>

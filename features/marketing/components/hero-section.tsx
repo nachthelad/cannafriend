@@ -75,16 +75,14 @@ export function HeroSection({
         </div>
 
         <div className="relative mx-auto w-full max-w-[620px]">
-          <div className="rounded-lg border bg-card p-3 shadow-sm">
-            <Image
-              src="/illustrations/cannafriend-hero-notebook.svg"
-              alt={t("hero.imageAlt", { ns: "landing" })}
-              width={960}
-              height={640}
-              priority
-              className="h-auto w-full rounded-md"
-            />
-          </div>
+          <Image
+            src="/illustrations/cannafriend-hero-notebook.webp"
+            alt={t("hero.imageAlt", { ns: "landing" })}
+            width={1440}
+            height={960}
+            priority
+            className="h-auto w-full"
+          />
         </div>
       </div>
     </section>
