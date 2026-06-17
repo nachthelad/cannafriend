@@ -1,164 +1,145 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Brain,
-  Camera,
-  Calendar,
-  BarChart3,
-  Bell,
-  Users,
-  Leaf,
-  Thermometer,
-  Notebook,
-  Heart,
-} from "lucide-react";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Bell, Brain, Camera, CalendarDays, Leaf, NotebookPen } from "lucide-react";
+
+const proofItems = [
+  { icon: Leaf, key: "plants" },
+  { icon: NotebookPen, key: "journal" },
+  { icon: Bell, key: "reminders" },
+  { icon: Camera, key: "photoAi" },
+] as const;
+
+const flowItems = [
+  { icon: Leaf, key: "plants" },
+  { icon: NotebookPen, key: "journal" },
+  { icon: CalendarDays, key: "care" },
+] as const;
 
 export function AppShowcase() {
-  const { t } = useTranslation(["landing", "common"]);
-
-  const features = [
-    {
-      icon: <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" aria-hidden="true" />,
-      title: t("features.plantManagement.title", { ns: "landing" }),
-      description: t("features.plantManagement.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Calendar className="h-8 w-8 text-blue-600 dark:text-blue-400" aria-hidden="true" />,
-      title: t("features.growJournal.title", { ns: "landing" }),
-      description: t("features.growJournal.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Thermometer className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />,
-      title: t("features.environmentControl.title", { ns: "landing" }),
-      description: t("features.environmentControl.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Bell className="h-8 w-8 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />,
-      title: t("features.reminders.title", { ns: "landing" }),
-      description: t("features.reminders.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Users className="h-8 w-8 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />,
-      title: t("features.sessionTracking.title", { ns: "landing" }),
-      description: t("features.sessionTracking.desc", { ns: "landing" }),
-    },
-    {
-      icon: <BarChart3 className="h-8 w-8 text-teal-600 dark:text-teal-400" aria-hidden="true" />,
-      title: t("features.consumptionHistory.title", { ns: "landing" }),
-      description: t("features.consumptionHistory.desc", { ns: "landing" }),
-    },
-    {
-      icon: <Heart className="h-8 w-8 text-pink-600 dark:text-pink-400" aria-hidden="true" />,
-      title: t("features.favoriteStrains.title", { ns: "landing" }),
-      description: t("features.favoriteStrains.desc", { ns: "landing" }),
-    },
-    {
-      icon: (
-        <Notebook className="h-8 w-8 text-orange-600 dark:text-orange-400" aria-hidden="true" />
-      ),
-      title: t("features.personalInventory.title", { ns: "landing" }),
-      description: t("features.personalInventory.desc", { ns: "landing" }),
-    },
-  ];
+  const { t } = useTranslation(["landing"]);
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800/50">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-            {t("title", { ns: "landing" })}
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            {t("showcase.description", { ns: "landing" })}
-          </p>
+    <>
+      <section className="px-4 py-8 md:px-6">
+        <div className="mx-auto grid max-w-7xl gap-3 md:grid-cols-4">
+          {proofItems.map(({ icon: Icon, key }) => (
+            <div
+              key={key}
+              className="flex min-h-28 items-start gap-3 rounded-lg border bg-card p-4"
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-secondary text-secondary-foreground">
+                <Icon aria-hidden="true" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold">
+                  {t(`proof.${key}.title`, { ns: "landing" })}
+                </h2>
+                <p className="text-sm leading-6 text-muted-foreground">
+                  {t(`proof.${key}.description`, { ns: "landing" })}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
+      </section>
 
-        {/* Unified Feature Grid */}
-        <div className="mb-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card
-                key={index}
-                className="h-full hover:shadow-lg transition-shadow duration-300"
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="flex-shrink-0">{feature.icon}</div>
-                    <div>
-                      <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                        {feature.title}
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                        {feature.description}
-                      </p>
-                    </div>
+      <section id="how" className="px-4 py-14 md:px-6 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1fr] lg:items-center">
+          <div className="flex flex-col gap-5">
+            <Badge variant="secondary" className="w-fit">
+              {t("flow.badge", { ns: "landing" })}
+            </Badge>
+            <div className="flex flex-col gap-3">
+              <h2 className="max-w-[14ch] text-3xl font-bold leading-tight md:text-5xl">
+                {t("flow.title", { ns: "landing" })}
+              </h2>
+              <p className="max-w-[62ch] text-base leading-7 text-muted-foreground">
+                {t("flow.description", { ns: "landing" })}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {flowItems.map(({ icon: Icon, key }, index) => (
+              <Card key={key} className="rounded-lg">
+                <CardHeader className="grid grid-cols-[auto_1fr] gap-4">
+                  <div className="flex size-11 items-center justify-center rounded-md bg-accent text-accent-foreground">
+                    <Icon aria-hidden="true" />
                   </div>
-                </CardContent>
+                  <div className="flex flex-col gap-2">
+                    <CardTitle className="flex items-center gap-3 text-xl">
+                      <span className="font-mono text-sm text-muted-foreground">
+                        0{index + 1}
+                      </span>
+                      {t(`flow.steps.${key}.title`, { ns: "landing" })}
+                    </CardTitle>
+                    <CardDescription className="text-base leading-7">
+                      {t(`flow.steps.${key}.description`, { ns: "landing" })}
+                    </CardDescription>
+                  </div>
+                </CardHeader>
               </Card>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* AI Section */}
-        <div className="text-center" data-section="ai">
-          <Card className="max-w-4xl mx-auto bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800">
-            <CardContent className="p-12">
-              <div className="flex items-center justify-center mb-6">
-                <Brain className="h-16 w-16 text-purple-600 dark:text-purple-400 mr-4" aria-hidden="true" />
+      <section id="ai" className="px-4 py-14 md:px-6 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+          <div className="rounded-lg border bg-card p-3 shadow-sm">
+            <Image
+              src="/illustrations/journal-reminders-notebook.svg"
+              alt={t("flow.imageAlt", { ns: "landing" })}
+              width={960}
+              height={640}
+              className="h-auto w-full rounded-md"
+            />
+          </div>
+
+          <Card className="rounded-lg bg-secondary/60">
+            <CardHeader>
+              <Badge variant="outline" className="w-fit">
+                <Brain aria-hidden="true" />
+                {t("ai.badge", { ns: "landing" })}
+              </Badge>
+              <CardTitle className="text-3xl leading-tight md:text-4xl">
+                {t("ai.title", { ns: "landing" })}
+              </CardTitle>
+              <CardDescription className="text-base leading-7">
+                {t("ai.description", { ns: "landing" })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-md border bg-background p-4">
+                <h3 className="font-semibold">
+                  {t("ai.freeTaste.title", { ns: "landing" })}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {t("ai.freeTaste.description", { ns: "landing" })}
+                </p>
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                {t("showcase.aiTitle", { ns: "landing" })}
-              </h3>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-                {t("showcase.aiDesc", { ns: "landing" })}
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                <div className="text-left">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                    {t("showcase.autoDetection", { ns: "landing" })}
-                  </h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>
-                      {t("showcase.nutrientDeficiencies", { ns: "landing" })}
-                    </li>
-                    <li>{t("showcase.commonPests", { ns: "landing" })}</li>
-                    <li>{t("showcase.fungalDiseases", { ns: "landing" })}</li>
-                    <li>{t("showcase.phProblems", { ns: "landing" })}</li>
-                  </ul>
-                </div>
-
-                <div className="text-left">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                    {t("showcase.intelligentRecommendations", {
-                      ns: "landing",
-                    })}
-                  </h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                    <li>
-                      {t("showcase.fertilizationAdjustments", {
-                        ns: "landing",
-                      })}
-                    </li>
-                    <li>
-                      {t("showcase.organicTreatments", { ns: "landing" })}
-                    </li>
-                    <li>{t("showcase.wateringChanges", { ns: "landing" })}</li>
-                    <li>
-                      {t("showcase.environmentOptimization", { ns: "landing" })}
-                    </li>
-                  </ul>
-                </div>
+              <div className="rounded-md border bg-background p-4">
+                <h3 className="font-semibold">
+                  {t("ai.premiumChat.title", { ns: "landing" })}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {t("ai.premiumChat.description", { ns: "landing" })}
+                </p>
               </div>
-
-              {/* Availability note removed since AI is implemented */}
             </CardContent>
           </Card>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
