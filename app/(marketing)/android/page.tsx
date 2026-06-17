@@ -81,7 +81,7 @@ export default function AndroidAppPage() {
               width={1440}
               height={960}
               priority
-              className="h-auto w-full"
+              className="h-auto w-full rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.18)] dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)]"
             />
           </div>
         </section>

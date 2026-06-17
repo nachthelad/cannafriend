@@ -37,7 +37,7 @@ export function MobileLandingView({
           <Button onClick={onLoginClick} size="sm" variant="outline">
             {isLoggedIn
               ? t("nav.goToApp", { ns: "landing" })
-              : t("hero.openWebApp", { ns: "landing" })}
+              : t("hero.openOnlineDashboard", { ns: "landing" })}
           </Button>
         </div>
       </header>
@@ -65,7 +65,7 @@ export function MobileLandingView({
             <PlayCircle data-icon="inline-start" aria-hidden="true" />
             {isLoggedIn
               ? t("nav.goToApp", { ns: "landing" })
-              : t("hero.openWebApp", { ns: "landing" })}
+              : t("hero.openOnlineDashboard", { ns: "landing" })}
           </Button>
 
           <Image
@@ -74,7 +74,7 @@ export function MobileLandingView({
             width={1440}
             height={960}
             priority
-            className="h-auto w-full"
+            className="h-auto w-full rounded-3xl shadow-[0_18px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_22px_70px_rgba(0,0,0,0.5)]"
           />
         </section>
 
