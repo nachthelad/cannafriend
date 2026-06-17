@@ -1,104 +1,136 @@
 {
-  "hero": {
-    "subtitle": "Tu Compañero Completo para el Cultivo de Cannabis",
-    "description": "Rastrea, gestiona y optimiza tus plantas con herramientas poderosas diseñadas específicamente para el cultivo de cannabis. De la semilla a la cosecha.",
-    "startFree": "Comenzar Gratis",
-    "professionalGrowing": "Cultivo Profesional",
-    "professionalGrowingDesc": "Herramientas avanzadas de seguimiento y gestión para cultivadores serios",
-    "documentEverything": "Documenta Todo",
-    "documentEverythingDesc": "Galerías de fotos, registros detallados e historial completo de crecimiento",
-    "aiInformation": "IA",
-    "aiInformationDesc": "Análisis inteligente de plantas y recomendaciones impulsadas por IA"
-  },
   "nav": {
-    "goToApp": "Ir a la App"
+    "goToApp": "Ir a la app",
+    "howItWorks": "Cómo funciona"
   },
-  "title": "Todo lo que necesitas para cultivar",
-  "showcase": {
-    "title": "Todo lo que Necesitas para Cultivar",
-    "description": "Ya seas principiante o experto, Cannafriend tiene las herramientas que necesitas para un cultivo exitoso.",
-    "comingSoon": "Próximamente",
-    "aiTitle": "Análisis IA de Plantas y Recomendaciones",
-    "aiDesc": "Inteligencia artificial avanzada para ayudar a optimizar tu cultivo con ideas personalizadas y detección automática de problemas.",
-    "autoDetection": "Detección Automática",
-    "nutrientDeficiencies": "Deficiencias nutricionales",
-    "commonPests": "Plagas y problemas comunes",
-    "fungalDiseases": "Enfermedades fúngicas",
-    "phProblems": "Problemas de pH y agua",
-    "intelligentRecommendations": "Recomendaciones Inteligentes",
-    "fertilizationAdjustments": "Ajustes de fertilización",
-    "organicTreatments": "Tratamientos orgánicos",
-    "wateringChanges": "Cambios en horario de riego",
-    "environmentOptimization": "Optimización del ambiente",
-    "whenAvailable": "Cuando Esté Disponible:",
-    "whenAvailableDesc": "Las funciones de IA estarán disponibles como suscripción premium con capacidades de análisis avanzado."
+  "hero": {
+    "kicker": "Cultivo simple, registro claro",
+    "privateBadge": "Tus datos, tu jardín",
+    "subtitle": "Tu diario de cultivo en el bolsillo",
+    "description": "Cannafriend te ayuda a seguir plantas, fotos, tareas y recordatorios sin convertir el cultivo en una planilla interminable.",
+    "openOnlineDashboard": "Entrar al dashboard online",
+    "imageAlt": "Ilustración manuscrita de una mesa de cultivo con una planta y un celular mostrando registros"
   },
-  "features": {
-    "plantManagement": {
-      "title": "Gestión de Plantas",
-      "desc": "Rastrea múltiples plantas con perfiles detallados y etapas de crecimiento"
+  "proof": {
+    "plants": {
+      "title": "Plantas ordenadas",
+      "description": "Perfiles por planta, etapa y datos clave para saber dónde estás parado."
     },
-    "growJournal": {
-      "title": "Diario de Cultivo",
-      "desc": "Registra actividades, mediciones y observaciones con marca de tiempo"
-    },
-    "photoGallery": {
-      "title": "Galería de Fotos",
-      "desc": "Documenta el crecimiento con galerías organizadas y vistas time-lapse"
-    },
-    "environmentControl": {
-      "title": "Control Ambiental",
-      "desc": "Monitorea temperatura, humedad, pH y condiciones de iluminación"
+    "journal": {
+      "title": "Diario rápido",
+      "description": "Fotos, observaciones y tareas sin escribir de más."
     },
     "reminders": {
-      "title": "Recordatorios Inteligentes",
-      "desc": "Nunca te olvides de regar, alimentar o mantener tus plantas"
+      "title": "Recordatorios",
+      "description": "Riego, cuidados y próximos pasos visibles antes de que se te pasen."
     },
-    "nutrientMixes": {
-      "title": "Seguimiento de Nutrientes",
-      "desc": "Rastrea horarios de alimentación, proporciones NPK y recetas de nutrientes"
-    },
-    "sessionTracking": {
-      "title": "Seguimiento de Sesiones",
-      "desc": "Registra sesiones de consumo con cepa, método y efectos"
-    },
-    "consumptionHistory": {
-      "title": "Análisis de Consumo",
-      "desc": "Analiza patrones, preferencias y hábitos de consumo a lo largo del tiempo"
-    },
-    "favoriteStrains": {
-      "title": "Biblioteca de Cepas",
-      "desc": "Guarda cepas favoritas con perfiles detallados y notas personales"
-    },
-    "personalInventory": {
-      "title": "Inventario Personal",
-      "desc": "Rastrea tu reserva con cantidades, info de cepas y fechas de vencimiento"
+    "photoAi": {
+      "title": "IA con foto",
+      "description": "Una vista inicial para detectar señales y ordenar dudas sobre la planta."
     }
   },
-  "footer": {
-    "hero": "Tu Compañero Completo para el Cultivo de Cannabis - Rastrea, gestiona y optimiza tus plantas con herramientas poderosas diseñadas específicamente para el cultivo de cannabis.",
-    "features": "Funciones",
-    "support": "Soporte",
-    "contact": "Contacto",
-    "copyright": "© 2025 Cannafriend. Todos los derechos reservados.",
-    "version": "Versión {{version}}"
+  "flow": {
+    "badge": "Del brote a la cosecha",
+    "title": "Tres hábitos chicos, menos dudas grandes",
+    "description": "La idea es registrar lo justo: qué planta es, qué hiciste y qué toca después. Con eso ya tenés contexto para aprender del cultivo.",
+    "imageAlt": "Ilustración manuscrita de un diario de cultivo con recordatorios y una planta",
+    "steps": {
+      "plants": {
+        "title": "Registrá tus plantas",
+        "description": "Guardá etapa, variedad, fotos y notas sin mezclar plantas distintas."
+      },
+      "journal": {
+        "title": "Anotá lo importante",
+        "description": "Sumá riegos, cambios, observaciones y fotos en segundos."
+      },
+      "care": {
+        "title": "No te olvides del cuidado",
+        "description": "Usá recordatorios para volver al próximo riego, revisión o tarea."
+      }
+    }
+  },
+  "ai": {
+    "badge": "Asistente IA",
+    "title": "Ayuda cuando una hoja empieza a decir algo",
+    "description": "La IA no reemplaza tu criterio, pero te ayuda a ordenar síntomas, revisar fotos y pensar próximos pasos con más contexto.",
+    "freeTaste": {
+      "title": "Vista previa gratis",
+      "description": "Una consulta con foto para probar el enfoque antes de usar el asistente completo."
+    },
+    "premiumChat": {
+      "title": "Chat premium",
+      "description": "Conversaciones con historial y seguimiento más profundo para tus plantas."
+    }
+  },
+  "android": {
+    "badge": "Android",
+    "sectionKicker": "APK disponible",
+    "sectionTitle": "Instalá Cannafriend en tu Android",
+    "sectionDescription": "Por ahora la app no está en Play Store. La descarga oficial usa un APK versionado y una guía corta para activar instalaciones desde el navegador.",
+    "cardTitle": "Descargar APK oficial",
+    "cardDescription": "Escaneá el QR o descargá desde este dispositivo. El QR abre esta guía antes de bajar el archivo.",
+    "comingSoonTitle": "Android próximamente",
+    "comingSoonDescription": "La landing ya está preparada. Configurá NEXT_PUBLIC_ANDROID_APK_URL para mostrar el botón de descarga y el QR.",
+    "downloadApk": "Descargar APK",
+    "openGuide": "Ver guía",
+    "readGuide": "Guía de instalación",
+    "safetyNote": "Descargá únicamente desde el enlace oficial de Cannafriend. Si el teléfono muestra advertencias, revisá que el dominio coincida.",
+    "qrLabel": "Código QR hacia la guía de instalación Android",
+    "qrCaption": "Escanear",
+    "imageAlt": "Ilustración manuscrita de un celular Android descargando una app",
+    "backHome": "Volver al inicio",
+    "pageKicker": "Instalación Android",
+    "pageTitle": "Descargá Cannafriend para Android",
+    "pageDescription": "Esta guía cubre el flujo actual de Android: bajar el APK, permitir la instalación desde el navegador y cerrar ese permiso después.",
+    "trustTitle": "Antes de instalar",
+    "trustDescription": "El APK debe venir desde el enlace oficial de Cannafriend. No instales copias reenviadas por chat ni archivos con nombres cambiados.",
+    "guideTitle": "Cómo instalar el APK",
+    "guideDescription": "Los nombres exactos pueden variar entre Pixel, Samsung, Motorola u otras marcas, pero el flujo general es el mismo.",
+    "steps": {
+      "download": {
+        "title": "Descargá el archivo",
+        "description": "Tocá Descargar APK desde esta página. Android puede pedirte confirmar que querés conservar el archivo."
+      },
+      "permission": {
+        "title": "Permití esa fuente",
+        "description": "Si Android bloquea la instalación, abrí Ajustes desde el aviso y habilitá instalar apps desconocidas solo para el navegador que usaste."
+      },
+      "install": {
+        "title": "Instalá Cannafriend",
+        "description": "Volvé al archivo descargado y tocá Instalar. Cuando termine, abrí la app e iniciá sesión con tu cuenta."
+      },
+      "cleanup": {
+        "title": "Cerrá el permiso",
+        "description": "Después de instalar, podés volver a Ajustes y desactivar el permiso de instalar apps desconocidas para ese navegador."
+      }
+    },
+    "notes": {
+      "playProtect": {
+        "title": "Play Protect",
+        "description": "Android puede revisar apps instaladas fuera de Play Store. Si aparece un aviso, leelo antes de continuar."
+      },
+      "permission": {
+        "title": "Permiso por app",
+        "description": "En Android actual el permiso suele ser por fuente: Chrome, Files u otro navegador, no un interruptor global."
+      },
+      "checksum": {
+        "title": "Checksum",
+        "withHash": "El hash SHA-256 está visible en el bloque de descarga para comparar el archivo.",
+        "noHash": "Cuando publiques el APK final, agregá NEXT_PUBLIC_ANDROID_APK_SHA256 para que el usuario pueda verificarlo."
+      }
+    }
   },
   "cta": {
-    "title": "¿Listo para Transformar tu Experiencia de Cultivo?",
-    "description": "Únete a miles de cultivadores que ya están usando Cannafriend para optimizar su cultivo y lograr mejores resultados. ¡Comienza tu viaje hoy!",
-    "startFreeNow": "Comenzar Gratis Ahora",
-    "installApp": "Instalar App",
-    "completelyFree": "Completamente Gratis",
-    "completelyFreeDesc": "Acceso completo a todas las funciones principales sin costo ni tarifas ocultas",
-    "totalPrivacy": "Privacidad Total",
-    "totalPrivacyDesc": "Tus datos permanecen en tu dispositivo. Nunca compartimos ni vendemos tu información",
-    "instantAccess": "Acceso Instantáneo",
-    "instantAccessDesc": "Comienza a rastrear tus plantas inmediatamente con nuestra interfaz intuitiva",
-    "mobileTitle": "Experiencia Móvil Perfecta",
-    "mobileDesc": "Optimizado para dispositivos móviles con soporte sin conexión y rendimiento ultrarrápido. Accede a tu jardín en cualquier momento, en cualquier lugar.",
-    "installAsApp": "Instalar como App",
-    "worksOffline": "Funciona Sin Internet",
-    "loadsInstantly": "Carga Instantáneamente",
-    "pushNotifications": "Notificaciones Push"
+    "title": "Empezá por registrar lo que ya hacés",
+    "description": "Creá tu cuenta, cargá tu primera planta y dejá que Cannafriend te ayude a no perder contexto entre riegos, fotos y cambios.",
+    "startFreeNow": "Comenzar gratis"
+  },
+  "footer": {
+    "hero": "Cannafriend es una compañera de cultivo para registrar plantas, diario, recordatorios y consultas con IA de forma simple.",
+    "features": "Producto",
+    "support": "Soporte",
+    "contact": "Contacto",
+    "copyright": "© 2026 Cannafriend. Todos los derechos reservados.",
+    "version": "Versión {{version}}"
   }
 }

@@ -1,113 +1,77 @@
 "use client";
 
 import type { CTASectionProps } from "@/types/marketing";
+import Image from "next/image";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Download, PlayCircle, Smartphone, Leaf, Shield, Zap } from "lucide-react";
+import { AndroidDownloadCard } from "@/features/marketing/components/android-download-card";
+import { ROUTE_ANDROID_APP } from "@/lib/routes";
+import { ArrowRight, PlayCircle } from "lucide-react";
 
-export function CTASection({
-  onLoginClick,
-  deferredPrompt,
-  onInstallPWA,
-  isLoggedIn,
-}: CTASectionProps) {
-  const { t } = useTranslation(["landing", "common"]);
+export function CTASection({ onLoginClick, isLoggedIn }: CTASectionProps) {
+  const { t } = useTranslation(["landing"]);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-green-600 to-blue-600 dark:from-green-800 dark:to-blue-800">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center text-white mb-16">
-          <h2 className="text-4xl font-bold mb-6">
+    <>
+      <section id="android" className="px-4 py-14 md:px-6 md:py-20">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.82fr_1fr] lg:items-center">
+          <div className="flex flex-col gap-4">
+            <p className="text-sm font-semibold uppercase tracking-normal text-primary">
+              {t("android.sectionKicker", { ns: "landing" })}
+            </p>
+            <h2 className="max-w-[14ch] text-3xl font-bold leading-tight md:text-5xl">
+              {t("android.sectionTitle", { ns: "landing" })}
+            </h2>
+            <p className="max-w-[60ch] text-base leading-7 text-muted-foreground">
+              {t("android.sectionDescription", { ns: "landing" })}
+            </p>
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+              <Button asChild variant="outline">
+                <Link href={ROUTE_ANDROID_APP}>
+                  {t("android.readGuide", { ns: "landing" })}
+                  <ArrowRight data-icon="inline-end" aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <Image
+              src="/illustrations/android-download-notebook.webp"
+              alt={t("android.imageAlt", { ns: "landing" })}
+              width={1440}
+              height={960}
+              className="h-auto w-full rounded-3xl shadow-[0_24px_70px_rgba(0,0,0,0.18)] dark:shadow-[0_28px_90px_rgba(0,0,0,0.45)]"
+            />
+            <AndroidDownloadCard />
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 pb-16 pt-8 md:px-6 md:pb-24">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 rounded-lg border bg-card px-5 py-10 text-center md:px-10 md:py-14">
+          <h2 className="max-w-[18ch] text-3xl font-bold leading-tight md:text-5xl">
             {t("cta.title", { ns: "landing" })}
           </h2>
-          <p className="text-xl opacity-90 max-w-3xl mx-auto mb-12">
+          <p className="max-w-[62ch] text-base leading-7 text-muted-foreground">
             {t("cta.description", { ns: "landing" })}
           </p>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Button
-              onClick={onLoginClick}
-              size="lg"
-              className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
-            >
-              <PlayCircle className="mr-2 h-6 w-6" aria-hidden="true" />
-              {isLoggedIn ? t("nav.goToApp", { ns: "landing" }) : t("cta.startFreeNow", { ns: "landing" })}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button onClick={onLoginClick} size="lg">
+              <PlayCircle data-icon="inline-start" aria-hidden="true" />
+              {isLoggedIn
+                ? t("nav.goToApp", { ns: "landing" })
+                : t("cta.startFreeNow", { ns: "landing" })}
             </Button>
-
-            {deferredPrompt && (
-              <Button
-                onClick={onInstallPWA}
-                size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 text-lg font-semibold"
-              >
-                <Download className="mr-2 h-6 w-6" aria-hidden="true" />
-                {t("cta.installApp", { ns: "landing" })}
-              </Button>
-            )}
+            <Button asChild size="lg" variant="outline">
+              <Link href={ROUTE_ANDROID_APP}>
+                {t("android.openGuide", { ns: "landing" })}
+              </Link>
+            </Button>
           </div>
         </div>
-
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Leaf className="h-12 w-12 mx-auto mb-4 text-green-200" aria-hidden="true" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.completelyFree", { ns: "landing" })}</h3>
-              <p className="opacity-90">
-                {t("cta.completelyFreeDesc", { ns: "landing" })}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-blue-200" aria-hidden="true" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.totalPrivacy", { ns: "landing" })}</h3>
-              <p className="opacity-90">
-                {t("cta.totalPrivacyDesc", { ns: "landing" })}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/10 backdrop-blur border-white/20 text-white">
-            <CardContent className="p-8 text-center">
-              <Zap className="h-12 w-12 mx-auto mb-4 text-yellow-200" aria-hidden="true" />
-              <h3 className="text-xl font-semibold mb-2">{t("cta.instantAccess", { ns: "landing" })}</h3>
-              <p className="opacity-90">
-                {t("cta.instantAccessDesc", { ns: "landing" })}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Mobile App Highlight */}
-        <div className="bg-white/10 backdrop-blur rounded-lg p-8 text-center text-white">
-          <Smartphone className="h-16 w-16 mx-auto mb-6 text-green-200" aria-hidden="true" />
-          <h3 className="text-2xl font-bold mb-4">
-            {t("cta.mobileTitle", { ns: "landing" })}
-          </h3>
-          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-6">
-            {t("cta.mobileDesc", { ns: "landing" })}
-          </p>
-          <div className="flex flex-wrap justify-center gap-3 text-sm">
-            <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.installAsApp", { ns: "landing" })}
-            </span>
-            <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.worksOffline", { ns: "landing" })}
-            </span>
-            <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.loadsInstantly", { ns: "landing" })}
-            </span>
-            <span className="px-3 py-1 bg-white/20 rounded-full">
-              {t("cta.pushNotifications", { ns: "landing" })}
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

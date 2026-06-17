@@ -147,7 +147,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="min-h-screen bg-background">
       {/* Load AdSense only on desktop public marketing view */}
       {shouldLoadAds ? (
         <Script
@@ -161,7 +161,12 @@ export default function Home() {
       <Suspense fallback={null}>
         {/* Mobile Layout - Direct Login Screen */}
         <div className="block lg:hidden">
-          <MobileLandingView />
+          <MobileLandingView
+            isLoggedIn={isLoggedIn}
+            onLoginClick={handleDesktopLoginClick}
+            deferredPrompt={deferredPrompt}
+            onInstallPWA={handleInstallPWA}
+          />
         </div>
 
         {/* Desktop Layout - Marketing Page */}

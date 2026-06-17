@@ -5,6 +5,8 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MINOR]: replace placeholder illustrations — 2026-06-17
+- [MID]: launch APK download flow — 2026-06-17
 - [MINOR]: secure premium and onboarding flows — 2026-06-14
 - [MINOR]: align mobile splash and status bar colors — 2026-05-29
 

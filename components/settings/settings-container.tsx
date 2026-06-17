@@ -11,6 +11,7 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { AppInformation } from "@/components/settings/app-information";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
+import { AndroidDownloadCard } from "@/features/marketing/components/android-download-card";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -386,11 +387,14 @@ function SettingsContent({
         />
       ),
       "app-info": () => (
-        <AppInformation
-          title={t("settings.appInfoDesc")}
-          versionLabel={t("settings.appVersion")}
-          version={appVersion}
-        />
+        <div className="flex flex-col gap-6">
+          <AppInformation
+            title={t("settings.appInfoDesc")}
+            versionLabel={t("settings.appVersion")}
+            version={appVersion}
+          />
+          <AndroidDownloadCard compact />
+        </div>
       ),
       danger: () => (
         <DangerZone
