@@ -155,13 +155,6 @@ function PlantRow({
 }: {
   plant: DashboardData["plantsPreview"][number];
 }) {
-  const statusClasses =
-    plant.statusTone === "warning"
-      ? "bg-[rgba(242,180,41,0.14)] text-[var(--dashboard-amber)]"
-      : plant.statusTone === "neutral"
-        ? "bg-white/6 text-slate-300"
-        : "bg-[var(--dashboard-green-soft)] text-[var(--dashboard-green)]";
-
   return (
     <Link
       href={plant.href}
@@ -191,14 +184,6 @@ function PlantRow({
           {plant.dayLabel} <span className="px-1.5 text-white/30">•</span>{" "}
           {plant.stageLabel}
         </p>
-        <span
-          className={cn(
-            "inline-flex rounded-full px-2.5 py-1 text-[0.68rem] font-medium",
-            statusClasses,
-          )}
-        >
-          {plant.statusLabel}
-        </span>
       </div>
 
       <ChevronRight className="h-3.5 w-3.5 shrink-0 text-white/45 transition-transform group-hover:translate-x-1" />

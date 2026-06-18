@@ -9,7 +9,11 @@ import { AndroidDownloadCard } from "@/features/marketing/components/android-dow
 import { ROUTE_ANDROID_APP } from "@/lib/routes";
 import { ArrowRight, PlayCircle } from "lucide-react";
 
-export function CTASection({ onLoginClick, isLoggedIn }: CTASectionProps) {
+export function CTASection({
+  authActionLabel,
+  isAuthActionLoading,
+  onAuthAction,
+}: CTASectionProps) {
   const { t } = useTranslation(["landing"]);
 
   return (
@@ -58,11 +62,13 @@ export function CTASection({ onLoginClick, isLoggedIn }: CTASectionProps) {
             {t("cta.description", { ns: "landing" })}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button onClick={onLoginClick} size="lg">
+            <Button
+              disabled={isAuthActionLoading}
+              onClick={onAuthAction}
+              size="lg"
+            >
               <PlayCircle data-icon="inline-start" aria-hidden="true" />
-              {isLoggedIn
-                ? t("nav.goToApp", { ns: "landing" })
-                : t("cta.startFreeNow", { ns: "landing" })}
+              {authActionLabel}
             </Button>
             <Button asChild size="lg" variant="outline">
               <Link href={ROUTE_ANDROID_APP}>

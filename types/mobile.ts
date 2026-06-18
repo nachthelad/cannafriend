@@ -11,9 +11,7 @@ export interface MobileDashboardProps {
   plants: Plant[];
   recentLogs: LogEntry[];
   remindersCount: number;
-  hasOverdue: boolean;
   userEmail?: string;
-  reminders: any[];
   isPremium: boolean;
 }
 

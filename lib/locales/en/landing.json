@@ -1,13 +1,15 @@
 {
   "nav": {
-    "goToApp": "Go to app",
+    "signIn": "Sign in",
+    "completeSetup": "Complete setup",
+    "goToDashboard": "Go to dashboard",
     "howItWorks": "How it works"
   },
   "hero": {
     "kicker": "Simple growing, clear records",
     "privateBadge": "Your data, your garden",
     "subtitle": "Your grow journal in your pocket",
-    "description": "Cannafriend helps you track plants, photos, tasks, and reminders without turning your grow into an endless spreadsheet.",
+    "description": "Cannafriend helps you track plants, photos, tasks, and alarms without turning your grow into an endless spreadsheet.",
     "openOnlineDashboard": "Open online dashboard",
     "imageAlt": "Handwritten illustration of a grow desk with a plant and a phone showing grow records"
   },
@@ -21,7 +23,7 @@
       "description": "Photos, observations, and tasks without writing too much."
     },
     "reminders": {
-      "title": "Reminders",
+      "title": "Alarm",
       "description": "Watering, care, and next steps visible before they slip."
     },
     "photoAi": {
@@ -33,7 +35,7 @@
     "badge": "From sprout to harvest",
     "title": "Three small habits, fewer big doubts",
     "description": "Record just enough: which plant it is, what you did, and what comes next. That gives you context to learn from the grow.",
-    "imageAlt": "Handwritten illustration of a grow journal with reminders and a plant",
+    "imageAlt": "Handwritten illustration of a grow journal with alarms and a plant",
     "steps": {
       "plants": {
         "title": "Register your plants",
@@ -45,7 +47,7 @@
       },
       "care": {
         "title": "Remember the next care task",
-        "description": "Use reminders to come back to the next watering, checkup, or task."
+        "description": "Use alarms to come back to the next watering, checkup, or task."
       }
     }
   },
@@ -72,6 +74,10 @@
     "comingSoonTitle": "Android coming soon",
     "comingSoonDescription": "The landing is ready. Configure NEXT_PUBLIC_ANDROID_APK_URL to show the download button and QR.",
     "downloadApk": "Download APK",
+    "settingsTitle": "Cannafriend for Android",
+    "viewInfo": "View info",
+    "versionLabel": "Version",
+    "noVerificationData": "The version and SHA-256 have not been published yet.",
     "openGuide": "View guide",
     "readGuide": "Installation guide",
     "safetyNote": "Download only from the official Cannafriend link. If your phone shows warnings, check that the domain matches.",
@@ -126,7 +132,7 @@
     "startFreeNow": "Start free"
   },
   "footer": {
-    "hero": "Cannafriend is a grow companion for plant records, journals, reminders, and AI-assisted questions in a simple flow.",
+    "hero": "Cannafriend is a grow companion for plant records, journals, alarms, and AI-assisted questions in a simple flow.",
     "features": "Product",
     "support": "Support",
     "contact": "Contact",

@@ -11,7 +11,7 @@
   "invalidDate": "Fecha inválida",
   "invalidLightSchedule": "Formato inválido. Usa HH/HH, por ejemplo 20/4, 18/6, 24/0, 12/12",
   "plantRequired": "Por favor selecciona una planta",
-  "reminderTypeRequired": "Por favor selecciona un tipo de recordatorio",
+  "reminderTypeRequired": "Por favor selecciona un tipo de alarma",
   "intervalRequired": "El intervalo es requerido",
   "intervalInvalid": "Debe ser un número entre 1 y 99",
   "titleMaxLength": "El título debe tener 50 caracteres o menos",

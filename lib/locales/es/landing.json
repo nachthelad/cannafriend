@@ -1,13 +1,15 @@
 {
   "nav": {
-    "goToApp": "Ir a la app",
+    "signIn": "Iniciar sesión",
+    "completeSetup": "Completar configuración",
+    "goToDashboard": "Ir al dashboard",
     "howItWorks": "Cómo funciona"
   },
   "hero": {
     "kicker": "Cultivo simple, registro claro",
     "privateBadge": "Tus datos, tu jardín",
     "subtitle": "Tu diario de cultivo en el bolsillo",
-    "description": "Cannafriend te ayuda a seguir plantas, fotos, tareas y recordatorios sin convertir el cultivo en una planilla interminable.",
+    "description": "Cannafriend te ayuda a seguir plantas, fotos, tareas y alarmas sin convertir el cultivo en una planilla interminable.",
     "openOnlineDashboard": "Entrar al dashboard online",
     "imageAlt": "Ilustración manuscrita de una mesa de cultivo con una planta y un celular mostrando registros"
   },
@@ -21,7 +23,7 @@
       "description": "Fotos, observaciones y tareas sin escribir de más."
     },
     "reminders": {
-      "title": "Recordatorios",
+      "title": "Alarma",
       "description": "Riego, cuidados y próximos pasos visibles antes de que se te pasen."
     },
     "photoAi": {
@@ -33,7 +35,7 @@
     "badge": "Del brote a la cosecha",
     "title": "Tres hábitos chicos, menos dudas grandes",
     "description": "La idea es registrar lo justo: qué planta es, qué hiciste y qué toca después. Con eso ya tenés contexto para aprender del cultivo.",
-    "imageAlt": "Ilustración manuscrita de un diario de cultivo con recordatorios y una planta",
+    "imageAlt": "Ilustración manuscrita de un diario de cultivo con alarmas y una planta",
     "steps": {
       "plants": {
         "title": "Registrá tus plantas",
@@ -45,7 +47,7 @@
       },
       "care": {
         "title": "No te olvides del cuidado",
-        "description": "Usá recordatorios para volver al próximo riego, revisión o tarea."
+        "description": "Usá alarmas para volver al próximo riego, revisión o tarea."
       }
     }
   },
@@ -72,6 +74,10 @@
     "comingSoonTitle": "Android próximamente",
     "comingSoonDescription": "La landing ya está preparada. Configurá NEXT_PUBLIC_ANDROID_APK_URL para mostrar el botón de descarga y el QR.",
     "downloadApk": "Descargar APK",
+    "settingsTitle": "Cannafriend para Android",
+    "viewInfo": "Ver info",
+    "versionLabel": "Versión",
+    "noVerificationData": "La versión y el SHA-256 todavía no están publicados.",
     "openGuide": "Ver guía",
     "readGuide": "Guía de instalación",
     "safetyNote": "Descargá únicamente desde el enlace oficial de Cannafriend. Si el teléfono muestra advertencias, revisá que el dominio coincida.",
@@ -126,7 +132,7 @@
     "startFreeNow": "Comenzar gratis"
   },
   "footer": {
-    "hero": "Cannafriend es una compañera de cultivo para registrar plantas, diario, recordatorios y consultas con IA de forma simple.",
+    "hero": "Cannafriend es una compañera de cultivo para registrar plantas, diario, alarmas y consultas con IA de forma simple.",
     "features": "Producto",
     "support": "Soporte",
     "contact": "Contacto",

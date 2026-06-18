@@ -202,7 +202,7 @@ function AdminUserDetailContent({ uid }: AdminUserDetailContainerProps) {
                 <AlertDialogTitle>Eliminar usuario</AlertDialogTitle>
                 <AlertDialogDescription>
                   Esto replica el borrado actual de settings: archiva el perfil,
-                  plantas, logs y recordatorios antes de eliminar la cuenta.
+                  plantas, logs y alarmas antes de eliminar la cuenta.
                   Esta acción no se puede deshacer desde el panel.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -254,7 +254,7 @@ function AdminUserDetailContent({ uid }: AdminUserDetailContainerProps) {
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <CountCard title="Plantas" total={detail.plants.total} icon={<Sprout className="h-5 w-5" />} />
-        <CountCard title="Recordatorios" total={detail.reminders.total} icon={<BellRing className="h-5 w-5" />} />
+        <CountCard title="Alarmas" total={detail.reminders.total} icon={<BellRing className="h-5 w-5" />} />
         <CountCard title="Sesiones" total={detail.sessions.total} icon={<Clock3 className="h-5 w-5" />} />
         <CountCard title="Stash" total={detail.stash.total} icon={<Package className="h-5 w-5" />} />
         <CountCard title="Chats AI" total={detail.aiChats.total} icon={<MessageSquare className="h-5 w-5" />} />
@@ -312,7 +312,7 @@ function AdminUserDetailContent({ uid }: AdminUserDetailContainerProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BellRing className="h-5 w-5" />
-              Recordatorios
+              Alarmas
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -360,7 +360,7 @@ function AdminUserDetailContent({ uid }: AdminUserDetailContainerProps) {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Este usuario no tiene recordatorios registrados.
+                Este usuario no tiene alarmas registradas.
               </p>
             )}
           </CardContent>

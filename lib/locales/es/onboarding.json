@@ -8,5 +8,5 @@
   "success": "¡Configuración guardada!",
   "successMessage": "Tu cuenta ha sido configurada correctamente",
   "error": "Error al guardar la configuración",
-  "info": "Esta información nos ayuda a mostrar fechas, recordatorios y ventanas de acceso premium en tu zona horaria."
+  "info": "Esta información nos ayuda a mostrar fechas, alarmas y ventanas de acceso premium en tu zona horaria."
 }

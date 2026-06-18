@@ -1,55 +1,38 @@
 "use client";
 
 import type { ReminderSystemProps } from "@/types/plants";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { auth, db } from "@/lib/firebase";
+import { deleteDoc, doc, getDocs, query, updateDoc } from "firebase/firestore";
 import { remindersCol } from "@/lib/paths";
-import { query, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import {
   invalidateDashboardCache,
   invalidateRemindersCache,
 } from "@/lib/suspense-cache";
-import { Bell, AlarmClock, Edit, X, Calendar, Leaf } from "lucide-react";
+import { Bell, AlarmClock, X, Calendar, Leaf } from "lucide-react";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
 import { EmptyState } from "@/components/common/empty-state";
 import type { Reminder } from "@/types";
+import { getNextAlarmOccurrence } from "@/lib/alarm-schedule";
 
 export function ReminderSystem({
   plants,
-  showOnlyOverdue = false,
-  hideOverdueSection = false,
   reminders: preFetchedReminders,
-}: ReminderSystemProps & { hideOverdueSection?: boolean }) {
+}: ReminderSystemProps) {
   const { t, i18n } = useTranslation(["reminders", "common"]);
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(
     preFetchedReminders || []
   );
-  const [isLoading, setIsLoading] = useState(!preFetchedReminders);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  useEffect(() => {
-    if (preFetchedReminders) {
-      setReminders(preFetchedReminders);
-      setIsLoading(false);
-      return;
-    }
-    fetchReminders();
-  }, [preFetchedReminders]);
 
   const fetchReminders = async () => {
     const currentUser = auth.currentUser;
@@ -68,8 +51,6 @@ export function ReminderSystem({
       setReminders(remindersData);
     } catch (error: any) {
       handleFirebaseError(error, "fetching reminders");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -142,22 +123,7 @@ export function ReminderSystem({
 
   const getNextOccurrence = (reminder: Reminder): number | null => {
     if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) return null;
-    const [hours, minutes] = String(reminder.timeOfDay)
-      .split(":")
-      .map((v) => parseInt(v, 10));
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
-
-    const now = new Date();
-    for (let offset = 0; offset < 7; offset++) {
-      const candidate = new Date(now);
-      candidate.setDate(now.getDate() + offset);
-      if (!reminder.daysOfWeek.includes(candidate.getDay())) continue;
-      candidate.setHours(hours, minutes, 0, 0);
-      if (candidate.getTime() >= now.getTime()) {
-        return candidate.getTime();
-      }
-    }
-    return null;
+    return getNextAlarmOccurrence(reminder.daysOfWeek, reminder.timeOfDay);
   };
 
   const normalizedReminders = reminders
@@ -170,24 +136,6 @@ export function ReminderSystem({
       if (b.nextOccurrence === null) return -1;
       return a.nextOccurrence - b.nextOccurrence;
     });
-
-  const activeReminders = normalizedReminders.filter((r) => r.isActive);
-  const now = Date.now();
-
-  const overdueReminders = activeReminders.filter((r) => {
-    if (!r.nextReminder) return false;
-    return new Date(r.nextReminder).getTime() <= now;
-  });
-
-  const dueSoonReminders = activeReminders.filter((r) => {
-    if (!r.nextOccurrence) return false;
-    const diff = r.nextOccurrence - now;
-    // Overdue items are handled above
-    if (r.nextReminder && new Date(r.nextReminder).getTime() <= now)
-      return false;
-
-    return diff > 0 && diff <= 24 * 60 * 60 * 1000;
-  });
 
   const dayLabels = useMemo(
     () =>
@@ -212,142 +160,10 @@ export function ReminderSystem({
   };
 
 
-  if (isLoading) {
-    return <ReminderSystemSkeleton showOnlyOverdue={showOnlyOverdue} />;
-  }
-
-  if (showOnlyOverdue) {
-    if (overdueReminders.length === 0) return null;
-    return (
-      <Card className="border-warning/50 bg-warning/10">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2 text-warning-foreground">
-            <AlarmClock className="h-5 w-5" />
-            <CardTitle className="text-lg">
-              {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
-            </CardTitle>
-          </div>
-          <CardDescription>
-            {t("overdueDesc", {
-              ns: "reminders",
-              defaultValue: "These alarms are past their scheduled time.",
-            })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {overdueReminders.map((reminder) => (
-            <div
-              key={reminder.id}
-              className="flex items-center justify-between p-3 bg-background/50 rounded-lg border border-warning/20"
-            >
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center text-warning-foreground">
-                  <AlarmClock className="h-4 w-4" />
-                </div>
-                <div>
-                  <div className="font-medium">
-                    {reminder.label ||
-                      reminder.title ||
-                      t("untitled", { ns: "common", defaultValue: "Untitled" })}
-                  </div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                    {reminder.plantName && (
-                      <>
-                        <span className="font-medium text-foreground/80">
-                          {reminder.plantName}
-                        </span>
-                        <span>•</span>
-                      </>
-                    )}
-                    <span>{reminder.timeOfDay}</span>
-                  </div>
-                </div>
-              </div>
-              <Badge variant="warning">
-                {t("overdue", { ns: "reminders" })}
-              </Badge>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      {/* Overdue Reminders */}
-      {overdueReminders.length > 0 && !hideOverdueSection && (
-        <Card className="border-warning/50 bg-warning/10">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2 text-warning-foreground">
-              <AlarmClock className="h-5 w-5" />
-              <CardTitle className="text-lg">
-                {t("overdue", { ns: "reminders" })} ({overdueReminders.length})
-              </CardTitle>
-            </div>
-            <CardDescription>
-              {t("overdueDesc", {
-                ns: "reminders",
-                defaultValue: "These alarms are past their scheduled time.",
-              })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {overdueReminders.map((reminder) => (
-              <div
-                key={reminder.id}
-                className="flex items-center justify-between p-3 bg-background/50 rounded-lg border border-warning/20"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-full bg-warning/20 flex items-center justify-center text-warning-foreground">
-                    <AlarmClock className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <div className="font-medium">
-                      {reminder.label ||
-                        reminder.title ||
-                        t("untitled", {
-                          ns: "common",
-                          defaultValue: "Untitled",
-                        })}
-                    </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1">
-                      {reminder.plantName && (
-                        <>
-                          <span className="font-medium text-foreground/80">
-                            {reminder.plantName}
-                          </span>
-                          <span>•</span>
-                        </>
-                      )}
-                      <span>{reminder.timeOfDay}</span>
-                    </div>
-                  </div>
-                </div>
-                <Badge variant="warning">
-                  {t("overdue", { ns: "reminders" })}
-                </Badge>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
       {/* Reminders List */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {dueSoonReminders.length > 0 && (
-              <Badge
-                variant="outline"
-                className="bg-primary/10 text-primary border-primary/20"
-              >
-                {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
-              </Badge>
-            )}
-          </div>
-        </div>
-
         {normalizedReminders.length === 0 ? (
           <EmptyState
             icon={Bell}
@@ -440,51 +256,6 @@ export function ReminderSystem({
         onOpenChange={setIsEditDialogOpen}
         onReminderUpdated={handleReminderUpdated}
       />
-    </div>
-  );
-}
-
-function ReminderSystemSkeleton({
-  showOnlyOverdue,
-}: {
-  showOnlyOverdue: boolean;
-}) {
-  if (showOnlyOverdue) {
-    return (
-      <Card className="border-warning/50 bg-warning/10">
-        <CardHeader className="pb-3">
-          <Skeleton className="h-5 w-32 mb-2" />
-          <Skeleton className="h-4 w-48" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-20 w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <Skeleton className="h-10 w-64" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="h-48">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex justify-between">
-                <Skeleton className="h-10 w-10 rounded-xl" />
-                <Skeleton className="h-6 w-10 rounded-full" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-8 w-24" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-              <div className="pt-4 border-t">
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }

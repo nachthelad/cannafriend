@@ -19,8 +19,9 @@ const mobileProofItems = [
 ] as const;
 
 export function MobileLandingView({
-  isLoggedIn,
-  onLoginClick,
+  authActionLabel,
+  isAuthActionLoading,
+  onAuthAction,
 }: DesktopLandingViewProps) {
   const { t } = useTranslation(["common", "landing"]);
 
@@ -34,10 +35,13 @@ export function MobileLandingView({
               {t("app.name", { ns: "common" })}
             </span>
           </Link>
-          <Button onClick={onLoginClick} size="sm" variant="outline">
-            {isLoggedIn
-              ? t("nav.goToApp", { ns: "landing" })
-              : t("hero.openOnlineDashboard", { ns: "landing" })}
+          <Button
+            disabled={isAuthActionLoading}
+            onClick={onAuthAction}
+            size="sm"
+            variant="outline"
+          >
+            {authActionLabel}
           </Button>
         </div>
       </header>
@@ -61,11 +65,14 @@ export function MobileLandingView({
 
           <AndroidDownloadCard compact />
 
-          <Button onClick={onLoginClick} size="lg" variant="outline">
+          <Button
+            disabled={isAuthActionLoading}
+            onClick={onAuthAction}
+            size="lg"
+            variant="outline"
+          >
             <PlayCircle data-icon="inline-start" aria-hidden="true" />
-            {isLoggedIn
-              ? t("nav.goToApp", { ns: "landing" })
-              : t("hero.openOnlineDashboard", { ns: "landing" })}
+            {authActionLabel}
           </Button>
 
           <Image

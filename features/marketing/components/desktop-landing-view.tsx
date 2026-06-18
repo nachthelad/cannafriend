@@ -14,8 +14,9 @@ import ThemeLogo from "@/components/common/theme-logo";
 import { ROUTE_ANDROID_APP } from "@/lib/routes";
 
 export function DesktopLandingView({
-  isLoggedIn,
-  onLoginClick,
+  authActionLabel,
+  isAuthActionLoading,
+  onAuthAction,
   deferredPrompt,
   onInstallPWA,
 }: DesktopLandingViewProps) {
@@ -53,10 +54,8 @@ export function DesktopLandingView({
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <ThemeToggle />
-            <Button onClick={onLoginClick}>
-              {isLoggedIn
-                ? t("dashboard", { ns: "nav" })
-                : t("login.title", { ns: "auth" })}
+            <Button disabled={isAuthActionLoading} onClick={onAuthAction}>
+              {authActionLabel}
             </Button>
           </div>
         </div>
@@ -64,17 +63,19 @@ export function DesktopLandingView({
 
       <main className="flex-1">
         <HeroSection
-          onLoginClick={onLoginClick}
+          authActionLabel={authActionLabel}
+          isAuthActionLoading={isAuthActionLoading}
+          onAuthAction={onAuthAction}
           deferredPrompt={deferredPrompt}
           onInstallPWA={onInstallPWA}
-          isLoggedIn={isLoggedIn}
         />
         <AppShowcase />
         <CTASection
-          onLoginClick={onLoginClick}
+          authActionLabel={authActionLabel}
+          isAuthActionLoading={isAuthActionLoading}
+          onAuthAction={onAuthAction}
           deferredPrompt={deferredPrompt}
           onInstallPWA={onInstallPWA}
-          isLoggedIn={isLoggedIn}
         />
       </main>
 

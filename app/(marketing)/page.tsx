@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import dynamic from "next/dynamic";
-import { ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/lib/routes";
+import { ROUTE_DASHBOARD, ROUTE_LOGIN, ROUTE_ONBOARDING } from "@/lib/routes";
 import { getDoc } from "firebase/firestore";
 import { getPostAuthRedirect } from "@/lib/auth-redirect";
 import { userDoc } from "@/lib/paths";
@@ -34,7 +34,10 @@ export default function Home() {
   const { t } = useTranslation(["common", "landing"]);
   const { user, isLoading: authLoading } = useAuthUser();
 
-  const [isResolvingDestination, setIsResolvingDestination] = useState(false);
+  const [resolvedAuthDestination, setResolvedAuthDestination] = useState<{
+    userId: string;
+    destination: typeof ROUTE_DASHBOARD | typeof ROUTE_ONBOARDING;
+  } | null>(null);
 
   // UI state
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
@@ -51,38 +54,40 @@ export default function Home() {
     }
 
     if (!user) {
-      setIsResolvingDestination(false);
       return;
     }
 
     let isActive = true;
-    setIsResolvingDestination(true);
 
-    const redirectAuthenticatedUser = async () => {
+    const resolveAuthenticatedDestination = async () => {
       try {
         const snap = await getDoc(userDoc<UserProfile>(user.uid));
         if (!isActive) {
           return;
         }
 
-        router.replace(getPostAuthRedirect(snap.exists() ? snap.data() : null));
+        setResolvedAuthDestination({
+          userId: user.uid,
+          destination: getPostAuthRedirect(
+            snap.exists() ? snap.data() : null,
+          ),
+        });
       } catch {
         if (isActive) {
-          router.replace(ROUTE_DASHBOARD);
-        }
-      } finally {
-        if (isActive) {
-          setIsResolvingDestination(false);
+          setResolvedAuthDestination({
+            userId: user.uid,
+            destination: ROUTE_DASHBOARD,
+          });
         }
       }
     };
 
-    void redirectAuthenticatedUser();
+    void resolveAuthenticatedDestination();
 
     return () => {
       isActive = false;
     };
-  }, [authLoading, router, user]);
+  }, [authLoading, user]);
 
   // PWA Install prompt handling
   useEffect(() => {
@@ -117,9 +122,25 @@ export default function Home() {
   }, []);
 
   // Handlers
-  const handleDesktopLoginClick = () => {
-    router.push(user ? ROUTE_DASHBOARD : ROUTE_LOGIN);
+  const handleAuthAction = () => {
+    if (authDestination) {
+      router.push(authDestination);
+    }
   };
+
+  const authDestination = user
+    ? resolvedAuthDestination?.userId === user.uid
+      ? resolvedAuthDestination.destination
+      : null
+    : ROUTE_LOGIN;
+  const isAuthActionLoading = Boolean(user) && authDestination === null;
+  const authActionLabel = isAuthActionLoading
+    ? t("loading", { ns: "common" })
+    : authDestination === ROUTE_ONBOARDING
+      ? t("nav.completeSetup", { ns: "landing" })
+      : authDestination === ROUTE_DASHBOARD
+        ? t("nav.goToDashboard", { ns: "landing" })
+        : t("nav.signIn", { ns: "landing" });
 
   const handleInstallPWA = async () => {
     if (!deferredPrompt) return;
@@ -132,8 +153,9 @@ export default function Home() {
     }
   };
 
-  // Show full-screen loading for authenticated users to prevent flash
-  if (authLoading || isResolvingDestination) {
+  // Wait only while Firebase restores the session. Profile resolution happens
+  // in the background so authenticated users can remain on the landing page.
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
         <div className="flex flex-col items-center">
@@ -162,8 +184,9 @@ export default function Home() {
         {/* Mobile Layout - Direct Login Screen */}
         <div className="block lg:hidden">
           <MobileLandingView
-            isLoggedIn={isLoggedIn}
-            onLoginClick={handleDesktopLoginClick}
+            authActionLabel={authActionLabel}
+            isAuthActionLoading={isAuthActionLoading}
+            onAuthAction={handleAuthAction}
             deferredPrompt={deferredPrompt}
             onInstallPWA={handleInstallPWA}
           />
@@ -172,8 +195,9 @@ export default function Home() {
         {/* Desktop Layout - Marketing Page */}
         <div className="hidden lg:block">
           <DesktopLandingView
-            isLoggedIn={isLoggedIn}
-            onLoginClick={handleDesktopLoginClick}
+            authActionLabel={authActionLabel}
+            isAuthActionLoading={isAuthActionLoading}
+            onAuthAction={handleAuthAction}
             deferredPrompt={deferredPrompt}
             onInstallPWA={handleInstallPWA}
           />

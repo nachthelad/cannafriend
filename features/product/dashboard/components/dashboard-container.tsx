@@ -10,12 +10,14 @@ import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { DataErrorBoundary } from "@/components/common/data-error-boundary";
 import { auth, db } from "@/lib/firebase";
 import { getSuspenseResource } from "@/lib/suspense-utils";
-import { plantsCol, remindersCol } from "@/lib/paths";
+import { logsCol, plantsCol, remindersCol } from "@/lib/paths";
 import { ROUTE_AI_ASSISTANT, ROUTE_JOURNAL_NEW, ROUTE_PREMIUM, ROUTE_REMINDERS, ROUTE_PLANTS } from "@/lib/routes";
 import { calculateAgeInDays, formatDateObjectWithLocale } from "@/lib/utils";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
 import { hasLocalPremiumOverride, resolvePremiumState } from "@/lib/premium-state";
 import { LOG_TYPES, type LogType } from "@/lib/log-config";
+import { getNextAlarmOccurrence } from "@/lib/alarm-schedule";
+import { getDashboardPlantStage } from "@/lib/dashboard-plant-stage";
 import type {
   DashboardActivityItem,
   DashboardAiPromoState,
@@ -46,30 +48,13 @@ const dashboardLogTypeMap: Partial<Record<LogType, string>> = {
 
 function getNextReminderTimestamp(reminder: Reminder): number | null {
   if (Array.isArray(reminder.daysOfWeek) && reminder.daysOfWeek.length > 0 && reminder.timeOfDay) {
-    const [hours, minutes] = String(reminder.timeOfDay)
-      .split(":")
-      .map((value) => parseInt(value, 10));
-
-    if (!Number.isNaN(hours) && !Number.isNaN(minutes)) {
-      const now = new Date();
-
-      for (let offset = 0; offset < 7; offset++) {
-        const candidate = addDays(now, offset);
-        if (!reminder.daysOfWeek.includes(candidate.getDay())) {
-          continue;
-        }
-
-        candidate.setHours(hours, minutes, 0, 0);
-        if (candidate.getTime() >= now.getTime()) {
-          return candidate.getTime();
-        }
-      }
+    const nextOccurrence = getNextAlarmOccurrence(
+      reminder.daysOfWeek,
+      reminder.timeOfDay,
+    );
+    if (nextOccurrence !== null) {
+      return nextOccurrence;
     }
-  }
-
-  if (reminder.nextReminder) {
-    const parsed = new Date(reminder.nextReminder).getTime();
-    return Number.isNaN(parsed) ? null : parsed;
   }
 
   return null;
@@ -125,9 +110,6 @@ function formatReminderDueLabel(timestamp: number | null, language: string, t: T
   const date = new Date(timestamp);
   const diff = differenceInCalendarDays(date, new Date());
 
-  if (diff < 0) {
-    return t("reminderOverdue", { ns: "dashboard" });
-  }
   if (diff === 0) {
     return t("today", { ns: "dashboard" });
   }
@@ -141,68 +123,25 @@ function formatReminderDueLabel(timestamp: number | null, language: string, t: T
   return formatDateObjectWithLocale(date, "PPP", language);
 }
 
-function getPlantStageLabel(plant: Plant, t: TFunction): string {
-  const ageInDays = calculateAgeInDays(plant.plantingDate);
-
-  if (plant.lightSchedule?.trim() === "12/12") {
+function getPlantStageLabel(
+  plant: Plant,
+  hasFloweringLog: boolean,
+  t: TFunction,
+): string {
+  const stage = getDashboardPlantStage(plant, hasFloweringLog);
+  if (stage === "flowering") {
     return t("newPlant.flowering", { ns: "plants" });
   }
-  if (ageInDays <= 14) {
-    return t("seedling", { ns: "dashboard" });
-  }
-  return t("newPlant.vegetative", { ns: "plants" });
-}
-
-function getPlantStatusLabel({
-  lastWatering,
-  reminderTimestamps,
-  t,
-}: {
-  lastWatering?: LogEntry;
-  reminderTimestamps: number[];
-  t: TFunction;
-}): Pick<DashboardPlantPreview, "statusLabel" | "statusTone"> {
-  const now = Date.now();
-  const hasOverdueReminder = reminderTimestamps.some((timestamp) => timestamp < now);
-
-  if (hasOverdueReminder) {
-    return {
-      statusLabel: t("statusNeedsAttention", { ns: "dashboard" }),
-      statusTone: "warning",
-    };
-  }
-
-  if (lastWatering?.date) {
-    const daysSinceWatering = Math.abs(
-      differenceInCalendarDays(new Date(lastWatering.date), new Date()),
-    );
-
-    if (daysSinceWatering >= 5) {
-      return {
-        statusLabel: t("statusNeedsAttention", { ns: "dashboard" }),
-        statusTone: "warning",
-      };
-    }
-
-    return {
-      statusLabel: t("statusAllGood", { ns: "dashboard" }),
-      statusTone: "success",
-    };
-  }
-
-  return {
-    statusLabel: t("statusNeedsReview", { ns: "dashboard" }),
-    statusTone: "neutral",
-  };
+  return stage === "seedling"
+    ? t("seedling", { ns: "dashboard" })
+    : t("newPlant.vegetative", { ns: "plants" });
 }
 
 function buildDashboardViewModel({
   plants,
-  lastWaterings,
+  floweringPlantIds,
   recentLogs,
   reminders,
-  remindersCount,
-  hasOverdue,
   isPremium,
   logsCount,
   t,
@@ -234,9 +173,8 @@ function buildDashboardViewModel({
     return !Number.isNaN(timestamp) && timestamp >= oneWeekAgo;
   }).length;
 
-  const overdueReminderCount = reminderMeta.filter(
-    ({ reminder, nextTimestamp }) =>
-      reminder.isActive && nextTimestamp !== null && nextTimestamp < Date.now(),
+  const activeReminderCount = reminderMeta.filter(
+    ({ reminder }) => reminder.isActive,
   ).length;
 
   const stats: DashboardStat[] = [
@@ -267,38 +205,27 @@ function buildDashboardViewModel({
     {
       id: "reminders",
       label: t("reminders", { ns: "dashboard" }),
-      value: remindersCount,
-      helperLabel: hasOverdue
-        ? t("statRemindersAttention", {
-            ns: "dashboard",
-            count: overdueReminderCount || remindersCount,
-          })
-        : t("statRemindersClear", { ns: "dashboard" }),
-      tone: hasOverdue ? "warning" : "info",
+      value: activeReminderCount,
+      helperLabel: t("statAlarmsActive", {
+        ns: "dashboard",
+        count: activeReminderCount,
+      }),
+      tone: "info",
     },
   ];
 
   const plantsPreview: DashboardPlantPreview[] = plants.slice(0, 3).map((plant) => {
-    const reminderTimestamps = reminderMeta
-      .filter(({ reminder }) => reminder.plantId === plant.id && reminder.isActive)
-      .map(({ nextTimestamp }) => nextTimestamp)
-      .filter((value): value is number => value !== null);
-
-    const status = getPlantStatusLabel({
-      lastWatering: lastWaterings[plant.id],
-      reminderTimestamps,
-      t,
-    });
-
     return {
       id: plant.id,
       name: plant.name,
       href: `${ROUTE_PLANTS}/${plant.id}`,
       imageUrl: plant.coverPhoto || plant.photos?.[0],
       dayLabel: t("plantDay", { ns: "dashboard", count: calculateAgeInDays(plant.plantingDate) }),
-      stageLabel: getPlantStageLabel(plant, t),
-      statusLabel: status.statusLabel,
-      statusTone: status.statusTone,
+      stageLabel: getPlantStageLabel(
+        plant,
+        floweringPlantIds.has(plant.id),
+        t,
+      ),
     };
   });
 
@@ -403,7 +330,6 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
   const plantsSnapshot = await plantsPromise;
 
   const plants: Plant[] = [];
-  const lastWaterings: Record<string, LogEntry> = {};
   const allLogs: LogEntry[] = [];
   const plantMap: Record<string, string> = {};
 
@@ -418,6 +344,27 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
     plantMap[plantData.id] = plantData.name;
   }
 
+  const floweringPlantIdsPromise = Promise.all(
+    plants.slice(0, 3).map(async (plant) => {
+      try {
+        const floweringSnapshot = await getDocs(
+          query(
+            logsCol(userId, plant.id),
+            where("type", "==", LOG_TYPES.FLOWERING),
+            limit(1),
+          ),
+        );
+        return floweringSnapshot.empty ? null : plant.id;
+      } catch (error) {
+        console.error("Error fetching flowering stage:", error);
+        return null;
+      }
+    }),
+  ).then(
+    (plantIds) =>
+      new Set(plantIds.filter((plantId): plantId is string => plantId !== null)),
+  );
+
   try {
     const logsSnapshot = await logsPromise;
     const fetchedLogs = logsSnapshot.docs.map((docSnapshot) => {
@@ -431,12 +378,6 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
 
     allLogs.push(...fetchedLogs);
 
-    for (const plant of plants) {
-      const plantLogs = fetchedLogs.filter((log) => log.plantId === plant.id);
-      const lastWatering = plantLogs.find((log) => log.type === LOG_TYPES.WATERING);
-
-      if (lastWatering) lastWaterings[plant.id] = lastWatering;
-    }
   } catch (error) {
     console.error("Error fetching dashboard logs:", error);
   }
@@ -446,7 +387,6 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
   );
 
   let remindersCount = 0;
-  let hasOverdue = false;
   let reminders: Reminder[] = [];
 
   try {
@@ -456,18 +396,12 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
       ...docSnapshot.data(),
     })) as Reminder[];
 
-    remindersCount = reminders.length;
-    hasOverdue = reminders.some((reminder) => {
-      if (!reminder.isActive) {
-        return false;
-      }
-
-      const nextTimestamp = getNextReminderTimestamp(reminder);
-      return nextTimestamp !== null && nextTimestamp < Date.now();
-    });
+    remindersCount = reminders.filter((reminder) => reminder.isActive).length;
   } catch {
     reminders = [];
   }
+
+  const floweringPlantIds = await floweringPlantIdsPromise;
 
   let isPremium = false;
   try {
@@ -486,11 +420,10 @@ async function fetchDashboardData(userId: string): Promise<Omit<DashboardData, "
 
   return {
     plants,
-    lastWaterings,
+    floweringPlantIds,
     recentLogs: sortedLogs.slice(0, 10),
     logsCount: sortedLogs.length,
     remindersCount,
-    hasOverdue,
     reminders,
     isPremium,
   };
@@ -533,10 +466,8 @@ function DashboardContent({
         <MobileDashboard
           plants={rawData.plants}
           recentLogs={rawData.recentLogs.slice(0, 5)}
-          hasOverdue={rawData.hasOverdue}
           userEmail={userEmail}
           remindersCount={rawData.remindersCount}
-          reminders={rawData.reminders}
           isPremium={rawData.isPremium}
         />
       </div>

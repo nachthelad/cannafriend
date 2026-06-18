@@ -5,6 +5,7 @@ This file is maintained automatically by scripts/autolog.mjs.
 ## Entries
 
 <!-- AUTOLOG:START -->
+- [MID]: improve landing alarms and dashboard — 2026-06-18
 - [MINOR]: replace placeholder illustrations — 2026-06-17
 - [MID]: launch APK download flow — 2026-06-17
 - [MINOR]: secure premium and onboarding flows — 2026-06-14

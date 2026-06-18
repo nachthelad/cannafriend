@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { MobileDashboardProps } from "@/types/mobile";
 import Link from "next/link";
 import {
@@ -20,7 +19,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { DataCard } from "@/components/common/data-card";
 import {
-  AlertTriangle,
   Bell,
   Brain,
   Leaf,
@@ -28,71 +26,24 @@ import {
   Shield,
   Plus,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { ADMIN_EMAIL } from "@/lib/constants";
 
-export function MobileDashboard({
-  plants,
-  recentLogs,
-  remindersCount,
-  hasOverdue,
-  userEmail,
-  reminders,
-  isPremium,
-}: MobileDashboardProps) {
-  const { t } = useTranslation([
-    "dashboard",
-    "common",
-    "journal",
-    "reminders",
-    "aiAssistant",
-  ]);
-  const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  useEffect(() => {
-    if (!hasOverdue) return;
-
-    const dismissedData = localStorage.getItem("overdue_alert_dismissed_v1");
-    if (dismissedData) {
-      try {
-        const { timestamp } = JSON.parse(dismissedData);
-        // Check if there are any overdue reminders newer than the dismissal timestamp
-        const hasNewerOverdue = reminders.some((r: any) => {
-          if (!r.nextReminder || !r.isActive) return false;
-          const nextDate = new Date(r.nextReminder).getTime();
-          return nextDate <= Date.now() && nextDate > timestamp;
-        });
-
-        if (!hasNewerOverdue) {
-          setIsDismissed(true);
-        }
-      } catch (e) {
-        console.error("Error parsing dismissal data:", e);
-      }
-    }
-  }, [hasOverdue, reminders]);
-
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    localStorage.setItem(
-      "overdue_alert_dismissed_v1",
-      JSON.stringify({ timestamp: Date.now() })
-    );
-  };
-
-  // Quick action buttons for mobile
-  const QuickActionButton = ({
-    icon: Icon,
-    label,
-    href,
-    isPremiumFeature = false,
-  }: {
-    icon: any;
-    label: string;
-    href: string;
-    isPremiumFeature?: boolean;
-  }) => (
+function QuickActionButton({
+  icon: Icon,
+  label,
+  href,
+  isPremiumFeature = false,
+  isPremium = false,
+}: {
+  icon: LucideIcon;
+  label: string;
+  href: string;
+  isPremiumFeature?: boolean;
+  isPremium?: boolean;
+}) {
+  return (
     <Link href={href}>
       <Button
         variant={isPremiumFeature && isPremium ? "default" : "outline"}
@@ -108,6 +59,23 @@ export function MobileDashboard({
       </Button>
     </Link>
   );
+}
+
+export function MobileDashboard({
+  plants,
+  recentLogs,
+  remindersCount,
+  userEmail,
+  isPremium,
+}: MobileDashboardProps) {
+  const { t } = useTranslation([
+    "dashboard",
+    "common",
+    "journal",
+    "reminders",
+    "aiAssistant",
+  ]);
+  const isAdmin = userEmail?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   return (
     <div className="space-y-6 pb-24">
@@ -116,19 +84,6 @@ export function MobileDashboard({
           {t("title", { ns: "dashboard" })}
         </h1>
       </div>
-
-      {/* Simple Overdue Alert (Mobile) */}
-      {hasOverdue && !isDismissed && (
-        <Link href={ROUTE_REMINDERS} onClick={handleDismiss}>
-          <div className="bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-900/50 p-3 rounded-lg flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <span className="text-sm font-semibold text-orange-800 dark:text-orange-200">
-              {t("overdue", { ns: "reminders" })}:{" "}
-              {t("overdueRemindersDesc", { ns: "dashboard" })}
-            </span>
-          </div>
-        </Link>
-      )}
 
       {/* Stats grid - mobile first with 3 key metrics */}
       <div className="grid grid-cols-2 gap-4 pt-2">
@@ -151,7 +106,7 @@ export function MobileDashboard({
             label={t("title", { ns: "reminders" })}
             value={remindersCount}
             icon={Bell}
-            color={hasOverdue ? "warning" : "default"}
+            color="default"
             href={ROUTE_REMINDERS}
           />
         </div>
@@ -171,6 +126,7 @@ export function MobileDashboard({
               label={t("title", { ns: "aiAssistant" })}
               href={ROUTE_AI_ASSISTANT}
               isPremiumFeature
+              isPremium={isPremium}
             />
           )}
           <QuickActionButton
