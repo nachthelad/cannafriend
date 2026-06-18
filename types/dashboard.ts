@@ -22,8 +22,6 @@ export interface DashboardPlantPreview {
   imageUrl?: string;
   dayLabel: string;
   stageLabel: string;
-  statusLabel: string;
-  statusTone: "success" | "warning" | "neutral";
 }
 
 export interface DashboardActivityItem {
@@ -63,11 +61,10 @@ export interface DashboardAiPromoState {
 
 export interface DashboardData {
   plants: Plant[];
-  lastWaterings: Record<string, LogEntry>;
+  floweringPlantIds: Set<string>;
   recentLogs: LogEntry[];
   logsCount: number;
   remindersCount: number;
-  hasOverdue: boolean;
   reminders: Reminder[];
   isPremium: boolean;
   stats: DashboardStat[];

@@ -22,8 +22,6 @@ import { doc, updateDoc } from "firebase/firestore";
 import {
   AlertCircle,
   AlarmClock,
-  Moon,
-  Sun,
   Calendar,
   Leaf,
 } from "lucide-react";
@@ -49,6 +47,7 @@ import {
   productSelectableActiveClass,
   productSelectableIdleClass,
 } from "@/features/shared/surfaces/product/product-nav-item-styles";
+import { getNextAlarmOccurrence } from "@/lib/alarm-schedule";
 
 // Form validation schema
 const createEditReminderFormSchema = (t: any) =>
@@ -81,22 +80,8 @@ const createEditReminderFormSchema = (t: any) =>
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
 function getNextOccurrence(days: number[], timeOfDay: string): string {
-  if (!days.length) return "";
-  const [hours, minutes] = timeOfDay.split(":").map((v) => parseInt(v, 10));
-  const now = new Date();
-  for (let offset = 0; offset < 7; offset++) {
-    const candidate = new Date(now);
-    candidate.setDate(now.getDate() + offset);
-    if (!days.includes(candidate.getDay())) continue;
-    candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-    if (candidate.getTime() <= now.getTime()) continue;
-    return candidate.toISOString();
-  }
-  // If we didn't find a future slot (time already passed today), schedule next week same weekday
-  const candidate = new Date(now);
-  candidate.setDate(now.getDate() + 7);
-  candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-  return candidate.toISOString();
+  const timestamp = getNextAlarmOccurrence(days, timeOfDay);
+  return timestamp === null ? "" : new Date(timestamp).toISOString();
 }
 
 function deriveTimeOfDay(reminder: Reminder | null): string {
@@ -358,7 +343,7 @@ export function EditReminderDialog({
                     const selected = daysOfWeek?.includes(dayIndex);
                     return (
                       <button
-                        key={day}
+                        key={dayIndex}
                         type="button"
                         onClick={() => {
                           const current = new Set(daysOfWeek || []);

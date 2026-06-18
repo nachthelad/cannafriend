@@ -23,6 +23,7 @@ import {
   invalidateDashboardCache,
   invalidateRemindersCache,
 } from "@/lib/suspense-cache";
+import { getNextAlarmOccurrence } from "@/lib/alarm-schedule";
 import type { Plant } from "@/types";
 import { AlertCircle, AlarmClock, Sun } from "lucide-react";
 import { isPlantGrowing, normalizePlant } from "@/lib/plant-utils";
@@ -58,21 +59,8 @@ const reminderSchema = (t: any) =>
   });
 
 function getNextOccurrence(days: number[], timeOfDay: string): string {
-  if (!days.length) return "";
-  const [hours, minutes] = timeOfDay.split(":").map((v) => parseInt(v, 10));
-  const now = new Date();
-  for (let offset = 0; offset < 7; offset++) {
-    const candidate = new Date(now);
-    candidate.setDate(now.getDate() + offset);
-    if (!days.includes(candidate.getDay())) continue;
-    candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-    if (candidate.getTime() <= now.getTime()) continue;
-    return candidate.toISOString();
-  }
-  const candidate = new Date(now);
-  candidate.setDate(now.getDate() + 7);
-  candidate.setHours(hours ?? 0, minutes ?? 0, 0, 0);
-  return candidate.toISOString();
+  const timestamp = getNextAlarmOccurrence(days, timeOfDay);
+  return timestamp === null ? "" : new Date(timestamp).toISOString();
 }
 
 type ReminderFormData = z.infer<ReturnType<typeof reminderSchema>>;

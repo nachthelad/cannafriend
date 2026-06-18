@@ -10,6 +10,7 @@ import { AccountSummary } from "@/components/settings/account-summary";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { SubscriptionManagement } from "@/components/settings/subscription-management";
 import { AppInformation } from "@/components/settings/app-information";
+import { SettingsAndroidDownload } from "@/components/settings/settings-android-download";
 import { DangerZone } from "@/components/settings/danger-zone";
 import { SettingsFooter } from "@/components/settings/settings-footer";
 import { useErrorHandler } from "@/hooks/use-error-handler";
@@ -370,6 +371,7 @@ function MobileSettingsContent({
             versionLabel={t("settings.appVersion")}
             version={appVersion}
           />
+          <SettingsAndroidDownload />
         </div>
 
         <div className="w-full p-4 border-b border-border">

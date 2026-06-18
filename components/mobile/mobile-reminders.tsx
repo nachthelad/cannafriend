@@ -4,7 +4,6 @@ import type { MobileRemindersProps, MobileReminderItemProps } from "@/types/mobi
 import { useEffect, useMemo, useState } from "react";
 import { AlarmClock, Bell, Edit, MoreVertical, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -26,30 +25,16 @@ import {
 import { useTranslation } from "react-i18next";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { remindersCol } from "@/lib/paths";
-import { Reminder, Plant } from "@/types";
+import { Reminder } from "@/types";
 import { deleteDoc, doc, onSnapshot, query, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { invalidateDashboardCache, invalidateRemindersCache } from "@/lib/suspense-cache";
 import { EditReminderDialog } from "@/components/common/edit-reminder-dialog";
+import { getNextAlarmOccurrence } from "@/lib/alarm-schedule";
 
 const getNextOccurrence = (reminder: Reminder): number | null => {
   if (!Array.isArray(reminder.daysOfWeek) || !reminder.timeOfDay) return null;
-  const [hours, minutes] = String(reminder.timeOfDay)
-    .split(":")
-    .map((v) => parseInt(v, 10));
-  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
-
-  const now = new Date();
-  for (let offset = 0; offset < 7; offset++) {
-    const candidate = new Date(now);
-    candidate.setDate(now.getDate() + offset);
-    if (!reminder.daysOfWeek.includes(candidate.getDay())) continue;
-    candidate.setHours(hours, minutes, 0, 0);
-    if (candidate.getTime() >= now.getTime()) {
-      return candidate.getTime();
-    }
-  }
-  return null;
+  return getNextAlarmOccurrence(reminder.daysOfWeek, reminder.timeOfDay);
 };
 
 export function MobileReminders({
@@ -57,7 +42,7 @@ export function MobileReminders({
   plants,
   initialReminders,
 }: MobileRemindersProps) {
-  const { t, i18n } = useTranslation(["reminders", "common"]);
+  const { t } = useTranslation(["reminders", "common"]);
   const { handleFirebaseError } = useErrorHandler();
   const [reminders, setReminders] = useState<Reminder[]>(initialReminders);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
@@ -105,15 +90,6 @@ export function MobileReminders({
         }),
     [reminders]
   );
-
-  const overdueReminders = enrichedReminders.filter(
-    (r) => r.isActive && r.nextOccurrence !== null && r.nextOccurrence <= Date.now()
-  );
-  const dueSoonReminders = enrichedReminders.filter((r) => {
-    if (!r.nextOccurrence) return false;
-    const diff = r.nextOccurrence - Date.now();
-    return diff > 0 && diff <= 24 * 60 * 60 * 1000;
-  });
 
   const handleToggleActive = async (reminder: Reminder, isActive: boolean) => {
     if (processingId) return;
@@ -171,19 +147,6 @@ export function MobileReminders({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        {overdueReminders.length > 0 && (
-          <Badge variant="destructive">
-            {t("overdue", { ns: "reminders" })} {overdueReminders.length}
-          </Badge>
-        )}
-        {dueSoonReminders.length > 0 && (
-          <Badge>
-            {t("dueSoon", { ns: "reminders" })} {dueSoonReminders.length}
-          </Badge>
-        )}
-      </div>
-
       {enrichedReminders.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -242,10 +205,6 @@ function MobileReminderItem({
           .map((d) => dayLabels[d])
           .join(", ")} • ${reminder.timeOfDay}`
       : t("noSchedule", { ns: "reminders" });
-  const nextOccurrence = getNextOccurrence(reminder);
-  const isOverdue =
-    reminder.isActive && nextOccurrence !== null && nextOccurrence <= Date.now();
-
   const handleDelete = async () => {
     await onDelete(reminder);
     setShowDeleteDialog(false);
@@ -265,11 +224,6 @@ function MobileReminderItem({
                       reminder.title ||
                       t("untitled", { ns: "common", defaultValue: "Untitled" })}
                   </p>
-                  {isOverdue && (
-                    <Badge variant="destructive" className="text-[10px]">
-                      {t("overdue", { ns: "reminders" })}
-                    </Badge>
-                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">{schedule}</p>
                 {reminder.plantName && (

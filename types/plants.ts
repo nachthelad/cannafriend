@@ -121,7 +121,6 @@ export interface PlantLogsSummaryProps {
 
 export interface ReminderSystemProps {
   plants: Plant[];
-  showOnlyOverdue?: boolean;
   reminders?: Reminder[];
 }
 

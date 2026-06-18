@@ -132,7 +132,6 @@ function RemindersContent({ userId }: RemindersContentProps) {
             <ReminderSystem
               plants={plants}
               reminders={reminders}
-              hideOverdueSection={true}
             />
           </div>
         </>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type React from "react";
 
 export const metadata: Metadata = {
-  title: "Recordatorios | Cannafriend",
+  title: "Alarma | Cannafriend",
   robots: { index: false, follow: false },
 };
 

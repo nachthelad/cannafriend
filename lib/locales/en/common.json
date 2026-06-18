@@ -16,7 +16,7 @@
   "monthsAgo_other": "{{count}} months ago",
   "never": "Never",
   "comingSoon": "Coming Soon",
-  "editComingSoon": "We are working on editing the reminders",
+  "editComingSoon": "We are working on editing alarms",
   "save": "Save",
   "saving": "Saving…",
   "cancel": "Cancel",
@@ -128,7 +128,7 @@
     "data": {
       "account": "Account data: email, authentication identifiers (via Firebase Authentication).",
       "profile": "Profile preferences such as language and timezone, together with configuration options you choose inside the app.",
-      "content": "Content you add: plants, journals, nutrients, reminders, stash items and related notes.",
+      "content": "Content you add: plants, journals, nutrients, alarms, stash items and related notes.",
       "images": "Images you upload (stored in Firebase Storage).",
       "device": "Technical data: device/browser type and usage needed to operate and secure the app.",
       "notifications": "Push notification tokens and preferences if you choose to enable them.",
@@ -387,7 +387,7 @@
   "pushNotifications": {
     "title": "Push Notifications",
     "notSupported": "Push notifications are not supported in this browser.",
-    "enabled": "Enabled - You'll receive plant care reminders",
+    "enabled": "Enabled - You'll receive plant care alarms",
     "permissionGranted": "Permission granted - Click to enable",
     "blocked": "Blocked - Please enable in browser settings",
     "getNotified": "Get notified about your plants",

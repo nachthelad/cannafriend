@@ -16,7 +16,7 @@
   "monthsAgo_other": "{{count}} meses",
   "never": "Nunca",
   "comingSoon": "Próximamente",
-  "editComingSoon": "Estamos trabajando en la edición de los recordatorios",
+  "editComingSoon": "Estamos trabajando en la edición de las alarmas",
   "save": "Guardar",
   "saving": "Guardando…",
   "cancel": "Cancelar",
@@ -127,7 +127,7 @@
     "data": {
       "account": "Datos de cuenta: correo electrónico e identificadores de autenticación (Firebase Authentication).",
       "profile": "Preferencias de perfil como idioma y zona horaria, junto con opciones de configuración que elijas dentro de la app.",
-      "content": "Contenido que agregas: plantas, diarios, nutrientes, recordatorios, inventario y notas relacionadas.",
+      "content": "Contenido que agregas: plantas, diarios, nutrientes, alarmas, inventario y notas relacionadas.",
       "images": "Imágenes que subes (almacenadas en Firebase Storage).",
       "device": "Datos técnicos mínimos: tipo de dispositivo/navegador y uso necesarios para operar y asegurar la app.",
       "notifications": "Tokens y preferencias de notificaciones push si eliges activarlas.",
@@ -347,7 +347,7 @@
     "later": "Más tarde"
   },
   "settings": {
-    "title": "Configuración",
+    "title": "Ajustes",
     "account": "Cuenta",
     "accountDesc": "Administra tu información y sesión",
     "preferences": "Preferencias",
@@ -386,7 +386,7 @@
   "pushNotifications": {
     "title": "Notificaciones Push",
     "notSupported": "Las notificaciones push no son compatibles con este navegador.",
-    "enabled": "Activado - Recibirás recordatorios del cuidado de tus plantas",
+    "enabled": "Activado - Recibirás alarmas del cuidado de tus plantas",
     "permissionGranted": "Permiso concedido - Haz clic para activar",
     "blocked": "Bloqueado - Por favor activa las notificaciones en la configuración del navegador",
     "getNotified": "Recibe notificaciones sobre tus plantas",

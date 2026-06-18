@@ -1,24 +1,27 @@
 import type { BeforeInstallPromptEvent } from "./pwa";
 
 export interface DesktopLandingViewProps {
-  isLoggedIn: boolean;
-  onLoginClick: () => void;
+  authActionLabel: string;
+  isAuthActionLoading: boolean;
+  onAuthAction: () => void;
   deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
 }
 
 export interface CTASectionProps {
-  onLoginClick: () => void;
+  authActionLabel: string;
+  isAuthActionLoading: boolean;
+  onAuthAction: () => void;
   deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
-  isLoggedIn: boolean;
 }
 
 export interface HeroSectionProps {
-  onLoginClick: () => void;
+  authActionLabel: string;
+  isAuthActionLoading: boolean;
+  onAuthAction: () => void;
   deferredPrompt: BeforeInstallPromptEvent | null;
   onInstallPWA: () => void;
-  isLoggedIn: boolean;
 }
 
 

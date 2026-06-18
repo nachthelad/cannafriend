@@ -90,7 +90,7 @@ export function LoginPageView() {
                 Registrá cada cultivo con una vista clara y profesional.
               </h1>
               <p className="mt-6 max-w-lg text-lg leading-8 text-white/78">
-                Cannafriend centraliza plantas, sesiones, recordatorios y
+                Cannafriend centraliza plantas, sesiones, alarmas y
                 seguimiento para que tu bitácora esté siempre lista.
               </p>
             </div>

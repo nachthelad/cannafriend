@@ -11,7 +11,7 @@ import { DangerZone } from "@/components/settings/danger-zone";
 import { AppInformation } from "@/components/settings/app-information";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { SettingsFooter } from "@/components/settings/settings-footer";
-import { AndroidDownloadCard } from "@/features/marketing/components/android-download-card";
+import { SettingsAndroidDownload } from "@/components/settings/settings-android-download";
 import { useErrorHandler } from "@/hooks/use-error-handler";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -393,7 +393,7 @@ function SettingsContent({
             versionLabel={t("settings.appVersion")}
             version={appVersion}
           />
-          <AndroidDownloadCard compact />
+          <SettingsAndroidDownload />
         </div>
       ),
       danger: () => (

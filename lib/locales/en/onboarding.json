@@ -8,5 +8,5 @@
   "success": "Settings saved!",
   "successMessage": "Your account has been set up successfully",
   "error": "Error saving settings",
-  "info": "This information helps us display dates, reminders, and premium access windows in your timezone."
+  "info": "This information helps us display dates, alarms, and premium access windows in your timezone."
 }

@@ -14,8 +14,9 @@ import {
 import { ROUTE_ANDROID_APP } from "@/lib/routes";
 
 export function HeroSection({
-  onLoginClick,
-  isLoggedIn,
+  authActionLabel,
+  isAuthActionLoading,
+  onAuthAction,
 }: HeroSectionProps) {
   const { t } = useTranslation(["landing", "common"]);
 
@@ -56,11 +57,14 @@ export function HeroSection({
               </Button>
             ) : null}
 
-            <Button onClick={onLoginClick} size="lg" variant="outline">
+            <Button
+              disabled={isAuthActionLoading}
+              onClick={onAuthAction}
+              size="lg"
+              variant="outline"
+            >
               <PlayCircle data-icon="inline-start" aria-hidden="true" />
-              {isLoggedIn
-                ? t("nav.goToApp", { ns: "landing" })
-                : t("hero.openOnlineDashboard", { ns: "landing" })}
+              {authActionLabel}
             </Button>
 
             <Button asChild size="lg" variant="ghost">
